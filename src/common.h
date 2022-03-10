@@ -9,7 +9,7 @@
 
 #define PRINT(str, ...)                                                                                      \
     {                                                                                                        \
-        printf("[%s: %s]", SOURCE_FILE, __FUNCTION__);                                                       \
+        printf("[%s: %s] ", SOURCE_FILE, __FUNCTION__);                                                       \
         printf(str, ##__VA_ARGS__);                                                                          \
         printf("\n");                                                                                        \
     }

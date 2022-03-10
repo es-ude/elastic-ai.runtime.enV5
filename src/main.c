@@ -13,7 +13,7 @@ NetworkCredentials credentials = {
         .ssid     = "wifi_network",
         .password = "wifi_password"};
 
-void TestEnterBootModeTask(void);
+void enterBootModeTask(void);
 
 void init(void);
 
@@ -22,7 +22,7 @@ int main() {
 
     printf("Main: Hello, world!\n");
 
-    RegisterTask(TestEnterBootModeTask, "TestEnterBootModeTask");
+    RegisterTask(enterBootModeTask, "enterBootModeTask");
     StartScheduler();
 }
 
@@ -40,7 +40,7 @@ void init(void) {
     watchdog_enable(2000, 1);
 }
 
-void TestEnterBootModeTask(void) {
+void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             Network_MQTT_Close(true);

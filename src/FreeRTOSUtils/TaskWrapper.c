@@ -11,7 +11,7 @@ static void InvokeTaskCode(void *p_taskCode) {
     if (taskCode)
         taskCode();
     else {
-        PRINT("Invoking failed: taskCode not set to Functionpointer");
+        PRINT("Invoking failed: taskCode not set to Function pointer");
     }
     vTaskDelete(NULL);
 }
@@ -40,8 +40,8 @@ void TaskSleep(int timeInMs) {
 }
 
 void StartScheduler() {
-    PRINT("starting scheduler");
+    PRINT("Starting scheduler");
     vTaskStartScheduler();
-    PRINT("Creating FreeRTOS-Idletask failed because of low Memory.\nIf you see this message, please make "
+    PRINT("Creating FreeRTOS-Idle task failed because of low Memory.\nIf you see this message, please make "
             "sure your device is working properly.\nexiting...");
 }
