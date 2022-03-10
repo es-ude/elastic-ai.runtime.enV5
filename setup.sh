@@ -1,5 +1,5 @@
 #! /bin/bash
 
-mkdir build
+mkdir build_pico
 
 git submodule update --init --recursive

@@ -1,0 +1,2 @@
+add_subdirectory(TestFreeRTOS)
+add_subdirectory(TestNetworking)

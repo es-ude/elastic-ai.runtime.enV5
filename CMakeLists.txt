@@ -5,8 +5,8 @@ OPTION(BUILD_TESTS "Generate Build to run tests" 1)
 if (BUILD_TESTS)
     project(sensor_board_unittests)
     enable_language(C CXX ASM)
-
-    #add_subdirectory(extern/unity)
+    add_subdirectory(test/unit)
+    add_subdirectory(extern/unity)
 
     # Vim autocomplete plugin (ycm) likes to have
     # a compilation database
@@ -46,10 +46,6 @@ else ()
         add_subdirectory(src/i2c)
         # add gpio interface
         add_subdirectory(src/gpio)
-        # add sensor libraries
-        add_subdirectory(src/sht3x)
-        add_subdirectory(src/adxl345b)
-        add_subdirectory(src/pac193x)
 
         ##############################################
         ## ADD EXECUTABLE: main
@@ -61,9 +57,6 @@ else ()
                 ${CMAKE_SOURCE_DIR}/src)
         target_link_libraries(main
                 pico_stdlib
-                sensor_lib_sht3x
-                sensor_lib_pac193x
-                sensor_lib_adcxl345b
                 FreeRTOSUtils
                 network_lib)
         # enable usb output, disable uart output
