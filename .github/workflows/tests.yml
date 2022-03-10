@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  unitTests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup
+        run: bash setup.sh
+
+      - name: CMAKE
+        working-directory: ${{github.workspace}}/build_test
+        run: cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS:bool=true ..
+
+      - name: Make all
+        working-directory: ${{github.workspace}}/build_test
+        run: make -j4
+
+      - name: Run tests
+        working-directory: ${{github.workspace}}/build_test/test/unit/
+        env:
+          FILES: unit-*
+        run: for file in $FILES; do ./file; done
