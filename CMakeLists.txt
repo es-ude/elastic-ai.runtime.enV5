@@ -37,6 +37,8 @@ else ()
         # add freeRTOS libraries
         add_subdirectory(extern/freeRTOS/)
         add_subdirectory(src/FreeRTOSUtils)
+        # add elastic-ai.runtime.c
+        #add_subdirectory(extern/elastic-ai.runtime.c)
         # adds uart library
         add_subdirectory(src/uart)
         # adds network libraries
@@ -46,7 +48,6 @@ else ()
         add_subdirectory(src/i2c)
         # add gpio interface
         add_subdirectory(src/gpio)
-
         ##############################################
         ## ADD EXECUTABLE: main
         # creates executable
