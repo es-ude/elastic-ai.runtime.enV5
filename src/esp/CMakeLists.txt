@@ -1,7 +1,3 @@
-#
-# Created by Lukas Post
-#
-
 add_library(esp_lib INTERFACE)
 target_sources(esp_lib INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/espBase.c

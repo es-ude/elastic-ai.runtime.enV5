@@ -8,6 +8,9 @@
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
 
+#include "communicationEndpoint.h"
+#include "espBroker.h"
+
 /* FIXME: update wifi credentials and MQTT Host IP/Port */
 NetworkCredentials credentials = {
         .ssid     = "wifi_network",
@@ -24,6 +27,8 @@ int main() {
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
     StartScheduler();
+
+    publish((Posting) {.topic="test", .data="testData"});
 }
 
 void init(void) {

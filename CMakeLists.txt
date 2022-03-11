@@ -38,7 +38,8 @@ else ()
         add_subdirectory(extern/freeRTOS/)
         add_subdirectory(src/FreeRTOSUtils)
         # add elastic-ai.runtime.c
-        #add_subdirectory(extern/elastic-ai.runtime.c)
+        add_subdirectory(extern/elastic-ai.runtime.c)
+        add_subdirectory(src/espBroker)
         # adds uart library
         add_subdirectory(src/uart)
         # adds network libraries
@@ -54,12 +55,13 @@ else ()
         add_executable(main src/main.c)
         # add libraries
         target_include_directories(main PUBLIC
-                ${CMAKE_SOURCE_DIR}/src
                 ${CMAKE_SOURCE_DIR}/src)
         target_link_libraries(main
                 pico_stdlib
                 FreeRTOSUtils
-                network_lib)
+                network_lib
+                espBroker_lib
+                )
         # enable usb output, disable uart output
         pico_enable_stdio_usb(main 1)
         pico_enable_stdio_uart(main 0)

@@ -1,7 +1,3 @@
-#
-# Created by Lukas Post
-#
-
 add_library(uart_lib INTERFACE)
 target_sources(uart_lib INTERFACE
         uartToESP.c)
