@@ -35,7 +35,8 @@ void init(void) {
     // Did we crash last time -> reboot into bootrom mode
     if (watchdog_enable_caused_reboot()) {
         Network_Init(true);
-        Network_MQTT_Close(true);
+        initBroker("123.446", "8080", "DOMAIN");
+//        Network_MQTT_Close(true);
         reset_usb_boot(0, 0);
     }
     // init usb, queue and watchdog
@@ -48,7 +49,7 @@ void init(void) {
 void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            Network_MQTT_Close(true);
+            ESP_MQTT_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();

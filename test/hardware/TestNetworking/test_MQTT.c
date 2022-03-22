@@ -1,13 +1,16 @@
 #include "TaskWrapper.h"
 #include "QueueWrapper.h"
 #include "esp/espBase.h"
-#include "esp/espMQTT.h"
+
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
 #include "hardware/watchdog.h"
+
+#include "espBroker.h"
+#include "communicationEndpoint.h"
 
 /*
  * If everything works this should periodically output random numbers to the stdout
@@ -50,64 +53,64 @@ int main() {
 }
 
 _Noreturn void MQTTTask() {
-    ESP_Init(false);
-
-    while (ESP_GetStatusFlags().WIFIStatus == NOT_CONNECTED)
-        ESP_ConnectToNetwork(credentials);
-
-    bool subscribed = false;
-    while (true) {
-        if (ESP_GetStatusFlags().MQTTStatus == CONNECTED) {
-            if (!subscribed) {
-                if(ESP_MQTT_Subscribe(topic)) {
-                    subscribed = true;
-                    RegisterTask(MQTTReceiverTask, "MQTTRec");
-                }
-            } else {
-                char buf[10];
-                sprintf(buf, "random%d", rand());
-                ESP_MQTT_Message msg = {
-                        .topic = topic,
-                        .data =  buf
-                };
-                while (ESP_MQTT_IsResponseAvailable())
-                    TaskSleep(100);
-                ESP_MQTT_Publish(msg);
-            }
-        } else {
-            printf("Connecting to Broker...\n");
-            ESP_MQTT_SetClientId("esdevice");
-            if (ESP_MQTT_ConnectToBroker(mqttHost, mqttPort))
-                printf("Connected\n");
-            else
-                ESP_MQTT_Disconnect(true);
-        }
-        TaskSleep(2000);
-    }
+//    ESP_Init(false);
+//
+//    while (ESP_GetStatusFlags().WIFIStatus == NOT_CONNECTED)
+//        ESP_ConnectToNetwork(credentials);
+//
+//    bool subscribed = false;
+//    while (true) {
+//        if (ESP_GetStatusFlags().MQTTStatus == CONNECTED) {
+//            if (!subscribed) {
+//                if(ESP_MQTT_Subscribe(topic)) {
+//                    subscribed = true;
+//                    RegisterTask(MQTTReceiverTask, "MQTTRec");
+//                }
+//            } else {
+//                char buf[10];
+//                sprintf(buf, "random%d", rand());
+//                ESP_MQTT_Message msg = {
+//                        .topic = topic,
+//                        .data =  buf
+//                };
+//                while (ESP_MQTT_IsResponseAvailable())
+//                    TaskSleep(100);
+//                publish(msg);
+//            }
+//        } else {
+//            printf("Connecting to Broker...\n");
+//            ESP_MQTT_SetClientId("esdevice");
+//            if (ESP_MQTT_ConnectToBroker(mqttHost, mqttPort))
+//                printf("Connected\n");
+//            else
+//                ESP_MQTT_Disconnect(true);
+//        }
+//        TaskSleep(2000);
+//    }
 }
 
 _Noreturn void MQTTReceiverTask() {
-    while (true) {
-        while (ESP_MQTT_IsResponseAvailable()) {
-            ESP_MQTT_Message response = {};
-            if (ESP_MQTT_GetResponse(&response)) {
-                printf("Response available: %s: %s\n", response.topic, response.data);
-                free(response.topic);
-                free(response.data);
-            }
-        }
-        printf("No response available\n");
-        TaskSleep(1000);
-    }
+//    while (true) {
+//        while (ESP_MQTT_IsResponseAvailable()) {
+//            ESP_MQTT_Message response = {};
+//            if (ESP_MQTT_GetResponse(&response)) {
+//                printf("Response available: %s: %s\n", response.topic, response.data);
+//                free(response.topic);
+//                free(response.data);
+//            }
+//        }
+//        printf("No response available\n");
+//        TaskSleep(1000);
+//    }
 }
 
 void TestEnterBootModeTask() {
-    while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_Disconnect(true);
-            reset_usb_boot(0, 0);
-        }
-        watchdog_update();
-        TaskSleep(1000);
-    }
+//    while (true) {
+//        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
+//            ESP_MQTT_Disconnect(true);
+//            reset_usb_boot(0, 0);
+//        }
+//        watchdog_update();
+//        TaskSleep(1000);
+//    }
 }

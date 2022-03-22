@@ -27,6 +27,7 @@ target_include_directories(hardware-test_MQTT PUBLIC
 target_link_libraries(hardware-test_MQTT
         pico_stdlib
         esp_lib
+        espBroker_lib
         FreeRTOSUtils)
 # enable usb output, disable uart output
 pico_enable_stdio_usb(hardware-test_MQTT 1)

@@ -38,7 +38,9 @@ else ()
         add_subdirectory(extern/freeRTOS/)
         add_subdirectory(src/FreeRTOSUtils)
         # add elastic-ai.runtime.c
+        SET(TARGET_GROUP extern)
         add_subdirectory(extern/elastic-ai.runtime.c)
+        # adds esp Broker
         add_subdirectory(src/espBroker)
         # adds uart library
         add_subdirectory(src/uart)
@@ -76,4 +78,3 @@ else ()
         message(WARNING "not building hello_usb because TinyUSB submodule is not initialized in the SDK")
     endif ()
 endif ()
-

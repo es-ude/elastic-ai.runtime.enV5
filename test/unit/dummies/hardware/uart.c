@@ -62,4 +62,3 @@ void uart_puts(uart_inst_t *uart, const char *s) {
         InvokeIrqHandler();
     }
 }
-

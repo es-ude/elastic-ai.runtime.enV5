@@ -25,6 +25,7 @@ typedef struct {
 
 } ESP_StatusFlags;
 extern ESP_StatusFlags ESPChipStatusFlags;
+
 ESP_StatusFlags ESP_GetStatusFlags();
 
 static UARTDevice esp32UartDevice = {
@@ -45,6 +46,7 @@ static UARTDevice esp32UartDevice = {
 };
 
 bool ESP_Init(bool softInit);
+
 void ESP_SoftReset();
 
 typedef struct {
@@ -53,13 +55,19 @@ typedef struct {
     // the Password for your WI-FI
     char *password;
 } ESP_NetworkCredentials;
+
 bool ESP_ConnectToNetwork(ESP_NetworkCredentials credentials);
+
 bool ESP_DisconnectFromNetwork();
+
+bool MQTT_connected(void);
 
 bool ESP_Ping(char *ipAdress);
 
 void ESP_CleanReceiveBuffer();
+
 static bool CheckIsESPResponding();
+
 static void DisableEcho();
 // Do not use! if you don't know what you are doing
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);

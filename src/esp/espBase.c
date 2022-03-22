@@ -1,10 +1,10 @@
 #define SOURCE_FILE "esp Base Library"
+
 #include "common.h"
 #include "FreeRTOSUtils/TaskWrapper.h"
 
 #include "espBase.h"
 #include "espTCP.h"
-#include "espMQTT.h"
 
 #include "string.h"
 
@@ -18,6 +18,13 @@ ESP_StatusFlags ESP_GetStatusFlags() { return ESPChipStatusFlags; }
 
 void ESP_CleanReceiveBuffer() {
     uartToESP_CleanReceiveBuffer();
+}
+
+bool MQTT_connected(void) {
+    ASSERT(ESPChipStatusFlags.ChipStatus)
+    ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
+    ASSERT(ESPChipStatusFlags.MQTTStatus == CONNECTED)
+    return true;
 }
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
@@ -34,11 +41,11 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
             break;
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
-    #ifndef NDEBUG
-    if(!responseArrived) {
+#ifndef NDEBUG
+    if (!responseArrived) {
         PRINT("Command: %s\nResponse: %s", cmd, uartToESP_GetReceiveBuffer())
     }
-    #endif
+#endif
     return responseArrived;
 }
 
@@ -54,7 +61,7 @@ static bool CheckIsESPResponding() { return ESP_SendCommand("AT", "OK", 100); }
 bool ESP_Init(bool softInit) {
     // init the uart interface for at
     uartToEsp_Init(esp32UartDevice);
-    if(!softInit)
+    if (!softInit)
         ESP_SoftReset();
     while (!CheckIsESPResponding()) {
         PRINT("ESP ACK_CHECK failed")
@@ -105,7 +112,7 @@ bool ESP_DisconnectFromNetwork() {
     ASSERT(ESPChipStatusFlags.ChipStatus)
     ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
     ESP_TCP_Close(true);
-    ESP_MQTT_Disconnect(true);
+//    ESP_MQTT_Disconnect(true);
     ESP_SendCommand("AT+CWQAP", "OK", 5000);
     ESPChipStatusFlags.WIFIStatus = NOT_CONNECTED;
     return true;
