@@ -15,8 +15,8 @@
 
 char *brokerDomain = "";
 
-void setBrokerID(char *domain) {
-    brokerDomain = domain;
+void setID(char *ID) {
+    brokerDomain = ID;
 }
 
 char *concatIDWithTopic(const char *topic) {

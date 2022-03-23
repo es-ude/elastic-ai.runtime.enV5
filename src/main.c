@@ -31,7 +31,7 @@ void init(void);
 void mqttTask(void) {
     Network_ConnectToNetwork(credentials);
 
-    setBrokerID("eip://uni-due.de/es/");
+    setID("eip://uni-due.de/es/");
     ESP_MQTT_SetClientId("ENV5");
 
     while (ESP_GetStatusFlags().MQTTStatus == NOT_CONNECTED) {

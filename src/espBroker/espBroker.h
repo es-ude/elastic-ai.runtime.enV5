@@ -6,8 +6,6 @@
 
 #define MAX_TOPIC_NAME_LENGTH 20
 
-void setBrokerID(char * domain);
-
 void ESP_MQTT_SetClientId(char *clientId);
 
 void ESP_MQTT_ConnectToBroker(char *host, char *port);
