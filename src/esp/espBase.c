@@ -27,6 +27,11 @@ bool MQTT_connected(void) {
     return true;
 }
 
+void ESP_GetIP(void) {
+    //PRINT("GETTING IP")
+    //ESP_SendCommand("AT+CIFSR", NULL, 1000);
+}
+
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     // Clean the uart receive buffer before send the command
     ESP_CleanReceiveBuffer();

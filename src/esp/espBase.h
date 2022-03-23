@@ -47,6 +47,8 @@ static UARTDevice esp32UartDevice = {
 
 bool ESP_Init(bool softInit);
 
+//void ESP_GetIP(void);
+
 void ESP_SoftReset();
 
 typedef struct {

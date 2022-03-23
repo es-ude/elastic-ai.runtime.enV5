@@ -1,4 +1,4 @@
-#define SOURCE_FILE "esp Broker"
+#define SOURCE_FILE "Broker"
 
 #include "espBroker.h"
 #include "posting.h"
@@ -15,14 +15,22 @@
 
 char *brokerDomain = "";
 
-void initBroker(char *target, char *port, char *domain) {
+void setBrokerID(char *domain) {
     brokerDomain = domain;
-    ESP_MQTT_ConnectToBroker(target, port);
+}
+
+char *concatIDWithTopic(const char *topic) {
+    char *result = malloc(strlen(brokerDomain) + strlen(topic) + 1);
+    strcpy(result, brokerDomain);
+    strcat(result, topic);
+    return result;
 }
 
 void publish(Posting posting) {
     if (!MQTT_connected())
         return;
+
+    char *topic = concatIDWithTopic(posting.topic);
 
     char *cmd1 = "AT+MQTTPUB=0,\"";
     char *cmd2 = "\",\"";
@@ -34,10 +42,12 @@ void publish(Posting posting) {
             strlen(cmd3) +
             strlen(posting.topic) +
             strlen(posting.data) + 1));
-    sprintf(command, "%s%s%s%s%s", cmd1, posting.topic, cmd2, posting.data, cmd3);
+    sprintf(command, "%s%s%s%s%s", cmd1, topic, cmd2, posting.data, cmd3);
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
-        PRINT("Could not publish to topic: %s.", posting.topic)
+        PRINT("Could not publish to topic: %s.", topic)
+    } else {
+        PRINT("Published to %s.", topic)
     }
     free(command);
 }
@@ -45,16 +55,14 @@ void publish(Posting posting) {
 void subscribe(char *topic, Subscriber subscriber) {
     if (!MQTT_connected())
         return;
-    topic = strcat(topic, brokerDomain);
-    subscribeRaw(topic, subscriber);
+    subscribeRaw(concatIDWithTopic(topic), subscriber);
 
 }
 
 void unsubscribe(char *topic, Subscriber subscriber) {
     if (!MQTT_connected())
         return;
-    topic = strcat(topic, brokerDomain);
-    unsubscribeRaw(topic, subscriber);
+    unsubscribeRaw(concatIDWithTopic(topic), subscriber);
 }
 
 void subscribeRaw(char *topic, Subscriber subscriber) {
