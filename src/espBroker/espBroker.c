@@ -22,6 +22,7 @@ void setID(char *ID) {
 char *concatIDWithTopic(const char *topic) {
     char *result = malloc(strlen(brokerDomain) + strlen(topic) + 1);
     strcpy(result, brokerDomain);
+    strcat(result, "/");
     strcat(result, topic);
     return result;
 }
@@ -74,6 +75,8 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
         PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
+    } else {
+        PRINT("Subscribed to %s", topic)
     }
 }
 
