@@ -6,7 +6,7 @@
 #include "QueueWrapper.h"
 
 #include "communicationEndpoint.h"
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include "common.h"
 
@@ -24,7 +24,7 @@ void deliver(Posting posting) {
 
 void _Noreturn mqttTask(void) {
     setID("eip://uni-due.de/es");
-    ESP_MQTT_SetClientId("ENV5");
+    ESP_MQTT_BROKER_SetClientId("ENV5");
 
     connectToNetworkAndMQTT();
 

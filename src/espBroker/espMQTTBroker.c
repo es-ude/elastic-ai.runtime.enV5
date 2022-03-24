@@ -1,19 +1,27 @@
-#define SOURCE_FILE "Broker"
+#define SOURCE_FILE "MQTT-Broker"
 
-#include "espBroker.h"
+#include "espMQTTBroker.h"
+
 #include "posting.h"
 #include "protocol.h"
-
 #include "communicationEndpoint.h"
 
 #include "common.h"
-
 #include "espBase.h"
 
-#include "string.h"
-#include "stdlib.h"
+#include <string.h>
+#include <stdlib.h>
+
+#include "TaskWrapper.h"
 
 char *brokerDomain = "";
+bool MQTTReceiverTaskRegistered = false;
+uint numberSubscriber = 0;
+Subscription subscriberList[MAX_SUBSCRIBER];
+
+_Noreturn void ESP_MQTT_BROKER_INTERN_ReceiverTask();
+
+bool checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
 void setID(char *ID) {
     brokerDomain = ID;
@@ -76,7 +84,13 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     if (!ESP_SendCommand(command, "OK", 1000)) {
         PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
     } else {
-        PRINT("Subscribed to %s", topic)
+        if (numberSubscriber != MAX_SUBSCRIBER) {
+            subscriberList[numberSubscriber] = (Subscription) {.topic=topic, .subscriber=subscriber};
+            numberSubscriber++;
+            PRINT("Subscribed to %s", topic)
+        } else {
+            PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
+        }
     }
 }
 
@@ -88,24 +102,37 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
         PRINT("Could not unsubscribe to topic: %s. Have you subscribed beforehand?", topic)
+    } else {
+        for (int i = 0; i < numberSubscriber; ++i) {
+            if (strcmp(subscriberList[i].topic, topic) == 0) {
+                if (subscriberList[i].subscriber.deliver == subscriber.deliver) {
+                    strcpy(subscriberList[i].topic, subscriberList[numberSubscriber].topic);
+                    subscriberList[i].subscriber = subscriberList[numberSubscriber].subscriber;
+                    strcpy(subscriberList[numberSubscriber].topic, "\0");
+                    numberSubscriber--;
+                }
+            }
+        }
+        PRINT("Unsubscribed from %s.", topic)
     }
 }
 
-char *ID() {}
+char *ID() {
+    return brokerDomain;
+}
 
 bool ESP_MQTT_IsResponseAvailable() {
     return uartToESP_ResponseArrived("+MQTTSUBRECV:0,");
 }
 
-static void ESP_MQTT_CutResponseToBuffer(Posting *response);
+static bool ESP_MQTT_CutResponseToBuffer(Posting *response);
 
-void ESP_MQTT_GetResponse(Posting *response) {
-    if (ESP_MQTT_IsResponseAvailable()) {
-        ESP_MQTT_CutResponseToBuffer(response);
-    }
+bool ESP_MQTT_GetResponse(Posting *response) {
+    ASSERT(ESP_MQTT_IsResponseAvailable())
+    return ESP_MQTT_CutResponseToBuffer(response);
 }
 
-static void ESP_MQTT_CutResponseToBuffer(Posting *response) {
+static bool ESP_MQTT_CutResponseToBuffer(Posting *response) {
 #define DIGITS_OF_LENGTH 4
     char metaDataBuf[MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1];
     char *cmd = "+MQTTSUBRECV:0,\"";
@@ -114,12 +141,12 @@ static void ESP_MQTT_CutResponseToBuffer(Posting *response) {
     // format: +MQTTSUBRECV:0,"topic",5,Hallo
     uartToESP_Read(cmd, metaDataBuf, MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1);
 
-    //Find the Topic attribute
+    // Find the Topic attribute
     char *endOfTopic = strstr(metaDataBuf, "\",");
     int lengthOfTopic = endOfTopic - metaDataBuf;
     if (endOfTopic == NULL || lengthOfTopic > MAX_TOPIC_NAME_LENGTH - 1) {
         PRINT("Topic name too long")
-        return;
+        return false;
     }
 
     // copy Topic to the Message struct
@@ -133,7 +160,7 @@ static void ESP_MQTT_CutResponseToBuffer(Posting *response) {
     int lengthOfLength = endOfLength - (endOfTopic + 2);
     if (endOfLength == NULL || lengthOfLength > DIGITS_OF_LENGTH - 1) {
         PRINT("Length has too many digits")
-        return;
+        // return false;
     }
 
     // convert length of the data to int
@@ -141,21 +168,23 @@ static void ESP_MQTT_CutResponseToBuffer(Posting *response) {
     strncpy(dataLengthBuf, endOfTopic + 2, lengthOfLength);
     dataLengthBuf[lengthOfLength] = 0;
     int dataLength = atoi(dataLengthBuf);
-    //PRINT("Got %d bytes", dataLength) // Debug
+    // PRINT("Got %d bytes", dataLength) // Debug
 
     // allocate memory for the response data and copy
-    char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1 + 1));
-    sprintf(startAtString, "%s%s\",%i,", cmd, topicBuffer, dataLength);
+    char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1));
+    strcpy(startAtString, cmd);
+    strcat(startAtString, topicBuffer);
+    strcat(startAtString, "\",");
+    strcat(startAtString, dataLengthBuf);
+    strcat(startAtString, ",");
     char *responseBuf = malloc(sizeof(char) * (dataLength + 1));
-    if (uartToESP_Cut(startAtString, responseBuf, dataLength)) {
-        response->data = responseBuf;
-        free(startAtString);
-    } else {
-        PRINT("response got lost during processing (possibly due to another transmission via uart) :(")
-    }
+    uartToESP_Cut(startAtString, responseBuf, dataLength);
+    response->data = responseBuf;
+    free(startAtString);
+    return true;
 }
 
-void ESP_MQTT_SetClientId(char *clientId) {
+void ESP_MQTT_BROKER_SetClientId(char *clientId) {
 //    ASSERT(ESPChipStatusFlags.ChipStatus)
     char cmd[100];
     strcpy(cmd, "AT+MQTTUSERCFG=0,1,\"");
@@ -166,7 +195,7 @@ void ESP_MQTT_SetClientId(char *clientId) {
     }
 }
 
-void ESP_MQTT_ConnectToBroker(char *target, char *port) {
+void ESP_MQTT_BROKER_ConnectToBroker(char *target, char *port) {
     if (ESPChipStatusFlags.ChipStatus && ESPChipStatusFlags.WIFIStatus == CONNECTED) {
         if (ESPChipStatusFlags.MQTTStatus == CONNECTED) {
             PRINT("There is already a MQTT Connection open. Please close this one first")
@@ -182,6 +211,8 @@ void ESP_MQTT_ConnectToBroker(char *target, char *port) {
         if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 10000)) {
             PRINT("Connected to %s at Port %s", target, port)
             ESPChipStatusFlags.MQTTStatus = CONNECTED;
+            if (!MQTTReceiverTaskRegistered)
+                RegisterTask(ESP_MQTT_BROKER_INTERN_ReceiverTask, "ESP_MQTT_BROKER_INTERN_ReceiverTask");
         } else {
             PRINT("Could not connect to %s at Port %s", target, port)
         }
@@ -191,7 +222,7 @@ void ESP_MQTT_ConnectToBroker(char *target, char *port) {
     }
 }
 
-void ESP_MQTT_Disconnect(bool force) {
+void ESP_MQTT_BROKER_Disconnect(bool force) {
     if (!force) {
         if (ESPChipStatusFlags.ChipStatus && ESPChipStatusFlags.WIFIStatus == CONNECTED) {
             if (ESPChipStatusFlags.MQTTStatus == NOT_CONNECTED) {
@@ -203,6 +234,75 @@ void ESP_MQTT_Disconnect(bool force) {
 
     ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 1000);
     ESPChipStatusFlags.MQTTStatus = NOT_CONNECTED;
+}
 
-//    return ESPChipStatusFlags.MQTTStatus;
+_Noreturn void ESP_MQTT_BROKER_INTERN_ReceiverTask() {
+    MQTTReceiverTaskRegistered = true;
+    while (true) {
+        while (ESP_MQTT_IsResponseAvailable()) {
+            Posting posting = {};
+            if (ESP_MQTT_GetResponse(&posting)) {
+                for (int i = 0; i < numberSubscriber; ++i) {
+                    if (checkIfTopicMatches(subscriberList[i].topic, posting.topic)) {
+                        subscriberList[i].subscriber.deliver(posting);
+                    }
+                }
+            }
+        }
+        TaskSleep(100);
+    }
+}
+
+bool topicsAreEqual(char *subscribedTopic, char *publishedTopic) {
+    return strcmp(subscribedTopic, publishedTopic) == 0;
+}
+
+bool subscribedTopicHasCharactersLeft(char *subscribedTopic, int subscribedIterator) {
+    return subscribedIterator < strlen(subscribedTopic) && subscribedTopic[subscribedIterator] != '+';
+}
+
+bool multilevelWildcardIn(const char *subscribedTopic, int subscribedIterator) {
+    return subscribedTopic[subscribedIterator] == '#';
+}
+
+bool checkForEqualCharacterIn(const char *subscribedTopic, const char *publishedTopic, int subscribedIterator,
+                              int publishedIterator) {
+    return subscribedTopic[subscribedIterator] == publishedTopic[publishedIterator];
+}
+
+bool checkForSingleLevelWildcardIn(const char *subscribedTopic, int subscribedIterator) {
+    return subscribedTopic[subscribedIterator] == '+';
+}
+
+bool checkIfWildcardEndedIn(const char *publishedTopic, int publishedIterator) {
+    return publishedTopic[publishedIterator] == '/';
+}
+
+bool checkIfTopicMatches(char *subscribedTopic, char *publishedTopic) {
+    if (topicsAreEqual(subscribedTopic, publishedTopic)) {
+        return true;
+    }
+    int subscribedIterator = 0;
+    int publishedIterator = 0;
+
+    while (publishedIterator < strlen(publishedTopic)) {
+        if (multilevelWildcardIn(subscribedTopic, subscribedIterator)) {
+            return true;
+        }
+        if (checkForEqualCharacterIn(subscribedTopic, publishedTopic, subscribedIterator, publishedIterator)) {
+            subscribedIterator++;
+            publishedIterator++;
+        } else if (checkForSingleLevelWildcardIn(subscribedTopic, subscribedIterator)) {
+            publishedIterator++;
+            if (checkIfWildcardEndedIn(publishedTopic, publishedIterator)) {
+                subscribedIterator++;
+            }
+        } else {
+            return false;
+        }
+    }
+    if (subscribedTopicHasCharactersLeft(subscribedTopic, subscribedIterator)) {
+        return false;
+    }
+    return true;
 }

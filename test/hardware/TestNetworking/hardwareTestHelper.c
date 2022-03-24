@@ -1,7 +1,7 @@
 #include "hardwareTestHelper.h"
 
 #include "Network.h"
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include "TaskWrapper.h"
 #include "espBase.h"
@@ -19,7 +19,7 @@ void connectToNetworkAndMQTT() {
         TaskSleep(100);
     }
     while (ESP_GetStatusFlags().MQTTStatus == NOT_CONNECTED) {
-        ESP_MQTT_ConnectToBroker(mqttHost, "1883");
+        ESP_MQTT_BROKER_ConnectToBroker(mqttHost, "1883");
         TaskSleep(100);
     }
 }
@@ -40,7 +40,7 @@ void initHardwareTest(void) {
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_Disconnect(true);
+            ESP_MQTT_BROKER_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();

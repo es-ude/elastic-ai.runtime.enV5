@@ -1,4 +1,4 @@
-#define SOURCE_FILE "esp Base Library"
+#define SOURCE_FILE "ESP-Base-Library"
 
 #include "common.h"
 #include "FreeRTOSUtils/TaskWrapper.h"
@@ -6,7 +6,7 @@
 #include "espBase.h"
 #include "espTCP.h"
 
-#include "string.h"
+#include <string.h>
 
 ESP_StatusFlags ESPChipStatusFlags = {
         .ChipStatus = ESP_CHIP_NOT_OK,

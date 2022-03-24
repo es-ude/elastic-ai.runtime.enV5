@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include "espBase.h"
 
@@ -70,7 +70,7 @@ void initHardwareTest(void) {
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_Disconnect(true);
+            ESP_MQTT_BROKER_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();

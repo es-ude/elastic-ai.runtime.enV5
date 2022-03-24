@@ -9,7 +9,7 @@
 
 
 #include "communicationEndpoint.h"
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include <string.h>
 #include "malloc.h"
@@ -26,7 +26,7 @@ void publishTestData(uint16_t i);
 
 void _Noreturn mqttTask(void) {
     setID("eip://uni-due.de/es");
-    ESP_MQTT_SetClientId("ENV5");
+    ESP_MQTT_BROKER_SetClientId("ENV5");
 
     for (uint16_t i = 0; i < 65536; ++i) {
         connectToNetworkAndMQTT();

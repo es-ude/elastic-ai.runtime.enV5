@@ -7,7 +7,7 @@
 #include "Network.h"
 
 #include "communicationEndpoint.h"
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include <string.h>
 #include "malloc.h"
@@ -17,7 +17,7 @@
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
-    Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
+    Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received data.
 ***/
 
 void publishTestData(uint16_t i);
@@ -28,7 +28,7 @@ void deliver(Posting posting) {
 
 void _Noreturn mqttTask(void) {
     setID("eip://uni-due.de/es");
-    ESP_MQTT_SetClientId("ENV5");
+    ESP_MQTT_BROKER_SetClientId("ENV5");
 
     connectToNetworkAndMQTT();
 

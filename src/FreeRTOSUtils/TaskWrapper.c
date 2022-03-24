@@ -1,4 +1,4 @@
-#define SOURCE_FILE "Task Wrapper"
+#define SOURCE_FILE "Task-Wrapper"
 #include "common.h"
 #include "TaskWrapper.h"
 #include "FreeRTOS.h"

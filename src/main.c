@@ -9,7 +9,7 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
-#include "espBroker.h"
+#include "espMQTTBroker.h"
 
 #include "common.h"
 
@@ -48,7 +48,7 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_Disconnect(true);
+            ESP_MQTT_BROKER_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();
