@@ -28,8 +28,9 @@ bool MQTT_connected(void) {
 }
 
 void ESP_GetIP(void) {
-    //PRINT("GETTING IP")
-    //ESP_SendCommand("AT+CIFSR", NULL, 1000);
+    PRINT("GETTING IP")
+    ESP_SendCommand("AT+CIFSR", "#", 5000);
+    //PRINT("IP: %s", uartToESP_GetReceiveBuffer())
 }
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {

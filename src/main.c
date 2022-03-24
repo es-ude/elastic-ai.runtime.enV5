@@ -9,44 +9,17 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
-#include "esp/espBase.h"
-#include "communicationEndpoint.h"
 #include "espBroker.h"
 
-#include <string.h>
 #include "common.h"
-#include "malloc.h"
-
-/* FIXME: update wifi credentials and MQTT Host IP/Port */
-NetworkCredentials credentials = {
-        .ssid     = "SSID",
-        .password = "password"};
-
-char *mqttHost = "123.456.789.123";
 
 void enterBootModeTask(void);
 
 void init(void);
 
-void mqttTask(void) {
-    Network_ConnectToNetwork(credentials);
-
-    setID("eip://uni-due.de/es/");
-    ESP_MQTT_SetClientId("ENV5");
-
-    while (ESP_GetStatusFlags().MQTTStatus == NOT_CONNECTED) {
-        ESP_MQTT_ConnectToBroker(mqttHost, "1883");
-        TaskSleep(2000);
-    }
-
-    for (uint16_t i = 0; i < 10000; ++i) {
-        char buffer[2];
-        sprintf(buffer, "%d", i);
-        char *data = malloc(strlen("testData") + strlen(buffer));
-        strcpy(data, "testData");
-        strcat(data, buffer);
-        publish((Posting) {.topic="test", .data=data});
-        free(data);
+void mainTask(void) {
+    while (true) {
+        PRINT("Hello, World!")
         TaskSleep(1000);
     }
 }
@@ -55,7 +28,7 @@ int main() {
     init();
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask(mqttTask, "mqttTask");
+    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
     StartScheduler();
 }
 
