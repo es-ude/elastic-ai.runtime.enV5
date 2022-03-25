@@ -39,8 +39,6 @@ bool Network_ConnectToNetwork(NetworkCredentials credentials);
 
 bool Network_DisconnectFromNetwork();
 
-bool Network_Ping(char *ipAdress);
-
 bool Network_TCP_Open(char *target, int port);
 
 bool Network_TCP_Close(bool force);

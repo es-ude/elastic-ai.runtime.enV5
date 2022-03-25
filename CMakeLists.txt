@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 OPTION(BUILD_TESTS "Generate Build to run tests" 1)
 
 if (BUILD_TESTS)
-    project(sensor_board_unittests)
+    project(ENv5_unittests)
     enable_language(C CXX ASM)
     add_subdirectory(test/unit)
     add_subdirectory(extern/unity)
@@ -25,7 +25,7 @@ else ()
     # note: this must happen before project()
     include(extern/pico-sdk/pico_sdk_import.cmake)
 
-    project(sensor_board)
+    project(ENv5)
     enable_language(C CXX ASM)
 
     # initialize the Raspberry Pi Pico SDK

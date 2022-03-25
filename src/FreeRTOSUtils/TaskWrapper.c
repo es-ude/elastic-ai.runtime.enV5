@@ -1,4 +1,5 @@
-#define SOURCE_FILE "Task Wrapper"
+#define SOURCE_FILE "Task-Wrapper"
+
 #include "common.h"
 #include "TaskWrapper.h"
 #include "FreeRTOS.h"
@@ -7,7 +8,7 @@
 
 
 static void InvokeTaskCode(void *p_taskCode) {
-    TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;
+    TaskCodeFunc taskCode = (TaskCodeFunc) p_taskCode;
     if (taskCode)
         taskCode();
     else {
@@ -18,11 +19,11 @@ static void InvokeTaskCode(void *p_taskCode) {
 
 void RegisterTask(TaskCodeFunc p_taskCode, const char *const p_taskName) {
     TaskHandle_t handle;
-    if (xTaskCreate(InvokeTaskCode, p_taskName, 500, (void *)p_taskCode, 1, &handle) ==
+    if (xTaskCreate(InvokeTaskCode, p_taskName, 500, (void *) p_taskCode, 1, &handle) ==
         errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
         PRINT("%s: !RegisterTask fail!: Not enough Memory available", p_taskName);
     } else {
-        PRINT("%s: RegisterTask success", p_taskName);
+        PRINT("%s registered successfully.", p_taskName);
     }
 }
 
@@ -43,5 +44,5 @@ void StartScheduler() {
     PRINT("Starting scheduler");
     vTaskStartScheduler();
     PRINT("Creating FreeRTOS-Idle task failed because of low Memory.\nIf you see this message, please make "
-            "sure your device is working properly.\nexiting...");
+          "sure your device is working properly.\nexiting...");
 }

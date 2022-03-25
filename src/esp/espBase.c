@@ -29,7 +29,7 @@ bool MQTT_connected(void) {
 
 void ESP_GetIP(void) {
     PRINT("GETTING IP")
-    ESP_SendCommand("AT+CIFSR", "#", 5000);
+    ESP_SendCommand("AT+CIFSR", "#", 1000);
     //PRINT("IP: %s", uartToESP_GetReceiveBuffer())
 }
 
@@ -101,7 +101,7 @@ bool ESP_ConnectToNetwork(ESP_NetworkCredentials credentials) {
     strcat(cmd, credentials.password);
     strcat(cmd, "\"");
 
-    bool response = ESP_SendCommand(cmd, "WIFI GOT IP", 5000);
+    bool response = ESP_SendCommand(cmd, "WIFI GOT IP", 1000);
 
     if (response) {
         PRINT("Connected to %s", credentials.ssid)
