@@ -2,7 +2,6 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode
 
 build_pico
-test/hardware/TestNetworking/NetworkSettings.h
 
 ### CMake ###
 CMakeLists.txt.user
