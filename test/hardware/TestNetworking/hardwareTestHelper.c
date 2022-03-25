@@ -1,3 +1,4 @@
+#define SOURCE_FILE "Hardware-Test-Helper"
 #include "hardwareTestHelper.h"
 
 #include "Network.h"
@@ -13,14 +14,16 @@
 
 #include "NetworkSettings.h"
 
+#include "common.h"
+
 void connectToNetworkAndMQTT() {
     while (ESP_GetStatusFlags().WIFIStatus == NOT_CONNECTED) {
         Network_ConnectToNetwork(credentials);
-        TaskSleep(100);
+        TaskSleep(500);
     }
     while (ESP_GetStatusFlags().MQTTStatus == NOT_CONNECTED) {
         ESP_MQTT_BROKER_ConnectToBroker(mqttHost, "1883");
-        TaskSleep(100);
+        TaskSleep(500);
     }
 }
 
@@ -41,6 +44,7 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             ESP_MQTT_BROKER_Disconnect(true);
+            PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }
         watchdog_update();

@@ -1,4 +1,4 @@
-#define SOURCE_FILE "Queue-Wrapper"
+#define SOURCE_FILE "Queue Wrapper"
 #include "common.h"
 #include "QueueWrapper.h"
 #include "FreeRTOS.h"

@@ -42,7 +42,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publish((Posting) {.topic="test", .data=data});
+    publish((Posting) {.topic="testENv5Pub", .data=data});
     free(data);
 }
 

@@ -28,10 +28,6 @@ bool Network_DisconnectFromNetwork() {
     return ESP_DisconnectFromNetwork();
 }
 
-bool Network_Ping(char *ipAdress) {
-    return ESP_Ping(ipAdress);
-}
-
 bool Network_TCP_Open(char *target, int port) {
     char buf[10];
     sprintf(buf, "%d", port);

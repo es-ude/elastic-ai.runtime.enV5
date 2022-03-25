@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "subscriber.h"
 
-#define MAX_TOPIC_NAME_LENGTH 20
+#define MAX_TOPIC_NAME_LENGTH 50
 #define MAX_SUBSCRIBER 100
 
 typedef struct Subscription {

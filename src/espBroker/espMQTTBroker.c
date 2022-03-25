@@ -49,7 +49,7 @@ void publish(Posting posting) {
             strlen(cmd1) +
             strlen(cmd2) +
             strlen(cmd3) +
-            strlen(posting.topic) +
+            strlen(topic) +
             strlen(posting.data) + 1));
     sprintf(command, "%s%s%s%s%s", cmd1, topic, cmd2, posting.data, cmd3);
 
@@ -59,6 +59,7 @@ void publish(Posting posting) {
         PRINT("Published to %s.", topic)
     }
     free(command);
+    free(topic);
 }
 
 void subscribe(char *topic, Subscriber subscriber) {
@@ -132,7 +133,7 @@ bool ESP_MQTT_GetResponse(Posting *response) {
     return ESP_MQTT_CutResponseToBuffer(response);
 }
 
-static bool ESP_MQTT_CutResponseToBuffer(Posting *response) {
+bool ESP_MQTT_CutResponseToBuffer(Posting *response) {
 #define DIGITS_OF_LENGTH 4
     char metaDataBuf[MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1];
     char *cmd = "+MQTTSUBRECV:0,\"";
@@ -141,7 +142,7 @@ static bool ESP_MQTT_CutResponseToBuffer(Posting *response) {
     // format: +MQTTSUBRECV:0,"topic",5,Hallo
     uartToESP_Read(cmd, metaDataBuf, MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1);
 
-    // Find the Topic attribute
+    //Find the Topic attribute
     char *endOfTopic = strstr(metaDataBuf, "\",");
     int lengthOfTopic = endOfTopic - metaDataBuf;
     if (endOfTopic == NULL || lengthOfTopic > MAX_TOPIC_NAME_LENGTH - 1) {
@@ -160,28 +161,29 @@ static bool ESP_MQTT_CutResponseToBuffer(Posting *response) {
     int lengthOfLength = endOfLength - (endOfTopic + 2);
     if (endOfLength == NULL || lengthOfLength > DIGITS_OF_LENGTH - 1) {
         PRINT("Length has too many digits")
-        // return false;
+        return false;
     }
 
     // convert length of the data to int
     char dataLengthBuf[DIGITS_OF_LENGTH];
     strncpy(dataLengthBuf, endOfTopic + 2, lengthOfLength);
     dataLengthBuf[lengthOfLength] = 0;
-    int dataLength = atoi(dataLengthBuf);
-    // PRINT("Got %d bytes", dataLength) // Debug
+    int dataLength = strtol(dataLengthBuf, NULL, 10);
+    //PRINT("Got %d bytes", dataLength) // Debug
 
     // allocate memory for the response data and copy
-    char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1));
-    strcpy(startAtString, cmd);
-    strcat(startAtString, topicBuffer);
-    strcat(startAtString, "\",");
-    strcat(startAtString, dataLengthBuf);
-    strcat(startAtString, ",");
-    char *responseBuf = malloc(sizeof(char) * (dataLength + 1));
-    uartToESP_Cut(startAtString, responseBuf, dataLength);
-    response->data = responseBuf;
+    char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1 + 1));
+    sprintf(startAtString, "%s%s\",%i,", cmd, topicBuffer, dataLength);
+    char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
+    bool returnValue = false;
+    if (uartToESP_Cut(startAtString, dataBuffer, dataLength)) {
+        response->data = dataBuffer;
+        returnValue = true;
+    } else {
+        PRINT("response got lost during processing (possibly due to another transmission via uart)")
+    }
     free(startAtString);
-    return true;
+    return returnValue;
 }
 
 void ESP_MQTT_BROKER_SetClientId(char *clientId) {
@@ -208,7 +210,7 @@ void ESP_MQTT_BROKER_ConnectToBroker(char *target, char *port) {
         strcat(cmd, "\",");
         strcat(cmd, port);
         strcat(cmd, ",0");
-        if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 10000)) {
+        if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
             PRINT("Connected to %s at Port %s", target, port)
             ESPChipStatusFlags.MQTTStatus = CONNECTED;
             if (!MQTTReceiverTaskRegistered)
@@ -232,21 +234,23 @@ void ESP_MQTT_BROKER_Disconnect(bool force) {
         }
     }
 
-    ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 1000);
+    ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 5000);
     ESPChipStatusFlags.MQTTStatus = NOT_CONNECTED;
 }
 
 _Noreturn void ESP_MQTT_BROKER_INTERN_ReceiverTask() {
     MQTTReceiverTaskRegistered = true;
+    Posting posting = {};
     while (true) {
-        while (ESP_MQTT_IsResponseAvailable()) {
-            Posting posting = {};
+        if (ESP_MQTT_IsResponseAvailable()) {
             if (ESP_MQTT_GetResponse(&posting)) {
                 for (int i = 0; i < numberSubscriber; ++i) {
                     if (checkIfTopicMatches(subscriberList[i].topic, posting.topic)) {
                         subscriberList[i].subscriber.deliver(posting);
                     }
                 }
+                free(posting.topic);
+                free(posting.data);
             }
         }
         TaskSleep(100);

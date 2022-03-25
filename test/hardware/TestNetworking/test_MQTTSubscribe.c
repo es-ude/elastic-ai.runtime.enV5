@@ -19,7 +19,7 @@
 ***/
 
 void deliver(Posting posting) {
-    PRINT("RECEIVED: %s", posting.data)
+    PRINT("Received Data: %s", posting.data)
 }
 
 void _Noreturn mqttTask(void) {
@@ -28,7 +28,7 @@ void _Noreturn mqttTask(void) {
 
     connectToNetworkAndMQTT();
 
-    subscribe("test", (Subscriber) {.deliver=deliver});
+    subscribe("testENv5Sub", (Subscriber) {.deliver=deliver});
 
     while (true) {
         connectToNetworkAndMQTT();

@@ -1,4 +1,5 @@
 #define SOURCE_FILE "MAIN"
+#define NDEBUG
 
 #include <stdio.h>
 
@@ -49,6 +50,7 @@ void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             ESP_MQTT_BROKER_Disconnect(true);
+            PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }
         watchdog_update();
