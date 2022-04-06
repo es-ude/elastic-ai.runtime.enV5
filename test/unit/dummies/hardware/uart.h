@@ -19,8 +19,8 @@ typedef enum {
 #define uart0 NULL
 #define uart1 NULL
 
-char *uartMessage;
-char uartReceive[1000];
+extern char *uartMessage;
+extern char uartReceive[1000];
 
 bool uart_is_readable(uart_inst_t *uart);
 

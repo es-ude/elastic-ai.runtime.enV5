@@ -4,7 +4,7 @@ include(helpers.cmake)
 OPTION(BUILD_TESTS "Generate Build to run tests" 1)
 
 if (BUILD_TESTS)
-    project(sensor_board_unittests)
+    project(ENv5_unittests)
     enable_language(C CXX ASM)
     fetch_git_submodules()
     add_subdirectory(test/unit)
@@ -26,7 +26,7 @@ else ()
     # pico_sdk_import.cmake is a single file copied from this SDK
     # note: this must happen before project()
     include(extern/pico-sdk/pico_sdk_import.cmake)
-    project(sensor_board)
+    project(ENv5)
     enable_language(C CXX ASM)
     fetch_git_submodules()
     # initialize the Raspberry Pi Pico SDK
