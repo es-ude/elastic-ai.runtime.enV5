@@ -4,6 +4,9 @@
 #include "uart.h"
 #include "string.h"
 
+char * uartMessage;
+char uartReceive[1000];
+
 bool uart_is_readable(uart_inst_t *uart) {
     return *uartMessage != 0;
 }
