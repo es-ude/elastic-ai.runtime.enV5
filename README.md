@@ -2,31 +2,15 @@
 
 Elastic AI implementation for the Elastic Node version 5.
 
-## Setup
+## Build
 
-The following commands in this section can be run using the shell script [setup.sh](setup.sh).
+The following commands in this section can be run using the shell script [build.sh](build.sh).
 
-For the output of the builds, a directory needs to be created:
-
-```bash
-mkdir build_pico
-```
-
-The same holds true for the tests.
+When not already done, create a build folder.
 
 ```bash
 mkdir build_test
 ```
-
-The project uses multiple submodules, which need to be initialized.
-
-```bash
-git submodule update --init --recursive
-```
-
-## Build
-
-The following commands in this section can be run using the shell script [build.sh](build.sh).
 
 Change into the build directory.
 
@@ -59,7 +43,13 @@ make clean
 
 The following commands in this section can be run using the shell script [test.sh](test.sh).
 
-First change into the test folder.
+When not already done, create a build test folder.
+
+```bash
+mkdir build_test
+```
+
+Change into the test folder.
 
 ```bash
 cd build_test

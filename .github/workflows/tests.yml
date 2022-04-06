@@ -14,8 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup
-        run: bash setup.sh
+      - name: Create build test directory
+        run: mkdir ${{github.workspace}}/build_test
 
       - name: CMAKE
         working-directory: ${{github.workspace}}/build_test
