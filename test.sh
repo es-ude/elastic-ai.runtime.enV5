@@ -1,5 +1,9 @@
 #! /bin/bash
 
+if ! [[ -d "build_test" ]]; then
+    mkdir "build_test"
+fi
+
 (
   cd build_test || exit
 
