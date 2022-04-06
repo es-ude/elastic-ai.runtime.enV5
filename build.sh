@@ -1,5 +1,9 @@
 #! /bin/bash
 
+if ! [[ -d "build_pico" ]]; then
+    mkdir "build_pico"
+fi
+
 (
   cd build_pico || exit
 
