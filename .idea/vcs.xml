@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c/extern/unity" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Community-Supported-Ports" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Partner-Supported-Ports" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/unity" vcs="Git" />
+  </component>
+</project>
