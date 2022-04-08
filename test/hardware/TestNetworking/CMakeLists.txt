@@ -2,9 +2,12 @@
 add_library(hardwareTestHelper hardwareTestHelper.c)
 target_link_libraries(hardwareTestHelper
         pico_stdlib
+        esp_lib
         espBroker_lib
         network_lib
         FreeRTOSUtils)
+pico_enable_stdio_usb(hardwareTestHelper 1)
+pico_enable_stdio_uart(hardwareTestHelper 0)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_network.c

@@ -3,7 +3,49 @@ include(helpers.cmake)
 
 OPTION(BUILD_TESTS "Generate Build to run tests" 1)
 
-if (BUILD_TESTS)
+if (CLION)
+    set(PICO_SDK_FETCH_FROM_GIT 1)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+    include(extern/pico-sdk/pico_sdk_import.cmake)
+    project(ENv5)
+    enable_language(C CXX ASM)
+    fetch_git_submodules()
+    pico_sdk_init()
+
+    add_subdirectory(extern/freeRTOS/)
+    SET(TARGET_GROUP extern)
+    add_subdirectory(extern/elastic-ai.runtime.c)
+
+    add_subdirectory(src/esp)
+    add_subdirectory(src/espBroker)
+    add_subdirectory(src/FreeRTOSUtils)
+    add_subdirectory(src/gpio)
+    add_subdirectory(src/i2c)
+    add_subdirectory(src/network)
+    add_subdirectory(src/uart)
+
+    add_executable(main src/main.c)
+    target_include_directories(main PUBLIC
+            ${CMAKE_SOURCE_DIR}/src)
+    target_link_libraries(main
+            pico_stdlib
+
+            esp_lib
+            espBroker_lib
+            FreeRTOSUtils
+            gpio_interface
+            i2c_interface
+            network_lib
+            uart_lib
+            )
+
+    pico_enable_stdio_usb(main 1)
+    pico_enable_stdio_uart(main 0)
+
+    add_subdirectory(test/hardware)
+    add_subdirectory(test/unit)
+
+elseif (BUILD_TESTS)
     project(ENv5_unittests)
     enable_language(C CXX ASM)
     fetch_git_submodules()

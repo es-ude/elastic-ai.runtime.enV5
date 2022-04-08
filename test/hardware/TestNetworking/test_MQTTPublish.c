@@ -4,9 +4,7 @@
 
 #include "TaskWrapper.h"
 
-
 #include "Network.h"
-
 
 #include "communicationEndpoint.h"
 #include "espMQTTBroker.h"

@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "espBase.h"
+#include "uartToESP.h"
 
 #include <string.h>
 #include <stdlib.h>
