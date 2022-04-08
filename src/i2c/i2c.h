@@ -9,11 +9,11 @@
  * initializes the ports for the I2C interfaces
  *
  * @param i2cHost:  I2C Interface (i2c0 or i2c1)
- * @param baudrate:  max Baudrate for I2C interface
+ * @param baudRate:  max Baud rate for I2C interface
  * @param sdaGPIO:  GPIO for SDA line
  * @param sclGPIO:  GPIO for SCL line
  */
-void I2C_Init(i2c_inst_t *i2cHost, uint32_t baudrate, uint8_t sdaGPIO, uint8_t sclGPIO);
+void I2C_Init(i2c_inst_t *i2cHost, uint32_t baudRate, uint8_t sdaGPIO, uint8_t sclGPIO);
 
 /*! \fn I2C_WriteByte
  *

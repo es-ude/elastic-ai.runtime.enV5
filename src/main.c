@@ -34,7 +34,7 @@ int main() {
 }
 
 void init(void) {
-    // Did we crash last time -> reboot into bootrom mode
+    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }

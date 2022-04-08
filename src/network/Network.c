@@ -18,10 +18,10 @@ bool Network_Init(bool softInit) {
 }
 
 bool Network_ConnectToNetwork(NetworkCredentials credentials) {
-    ESP_NetworkCredentials creds;
-    creds.ssid = credentials.ssid;
-    creds.password = credentials.password;
-    return ESP_ConnectToNetwork(creds);
+    ESP_NetworkCredentials esp_credentials;
+    esp_credentials.ssid = credentials.ssid;
+    esp_credentials.password = credentials.password;
+    return ESP_ConnectToNetwork(esp_credentials);
 }
 
 bool Network_DisconnectFromNetwork() {

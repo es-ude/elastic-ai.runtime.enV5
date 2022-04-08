@@ -14,7 +14,9 @@ typedef struct {
 } QueueMessage;
 
 void CreateQueue();
+
 bool QueueSend(QueueMessage message);
+
 bool QueueReceive(QueueMessage *message);
 
 #endif // SENSOR_BOARD_QUEUEWRAPPER_H

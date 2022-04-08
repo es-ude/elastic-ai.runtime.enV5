@@ -78,10 +78,10 @@ bool ESP_Init(bool softInit) {
     // disable echo, make the output more clean
     DisableEcho();
     // disable multiple connections
-    int retrysLeft = 2;
-    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100) && retrysLeft > 0) {
+    int retriesLeft = 2;
+    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100) && retriesLeft > 0) {
         PRINT("could not set esp to single connection mode!")
-        retrysLeft--;
+        retriesLeft--;
     }
     ESPChipStatusFlags.ChipStatus = ESP_CHIP_OK;
     ESPChipStatusFlags.WIFIStatus = NOT_CONNECTED;
@@ -124,19 +124,19 @@ bool ESP_DisconnectFromNetwork() {
     return true;
 }
 
-bool ESP_Ping(char *ipAdress) {
+bool ESP_Ping(char *ipAddress) {
     ASSERT(ESPChipStatusFlags.ChipStatus)
     ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
     char cmd[30];
     strcpy(cmd, "AT+PING=\"");
-    strcat(cmd, ipAdress);
+    strcat(cmd, ipAddress);
     strcat(cmd, "\"");
 
     bool response = ESP_SendCommand(cmd, "+PING:", 1000);
     if (response) {
         char timeElapsedStr[20];
-        uartToESP_Readln("+PING:", timeElapsedStr);
-        PRINT("PING host IP %s, %sms", ipAdress, timeElapsedStr)
+        uartToESP_ReadLine("+PING:", timeElapsedStr);
+        PRINT("PING host IP %s, %sms", ipAddress, timeElapsedStr)
     } else {
         PRINT("PING Timeout")
     }

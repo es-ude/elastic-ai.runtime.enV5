@@ -6,7 +6,6 @@
 #include "pico/time.h"
 #include <task.h>
 
-
 static void InvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc) p_taskCode;
     if (taskCode)

@@ -4,9 +4,13 @@
 #include <stdbool.h>
 
 bool ESP_TCP_Open(char *target, char *port);
+
 bool ESP_TCP_Close(bool force);
+
 bool ESP_TCP_SendData(char *data, int timeoutMs);
+
 bool ESP_TCP_IsResponseAvailable();
+
 /*!
  * the return value is dynamically allocated!
  * use free() after your are finished processing the response

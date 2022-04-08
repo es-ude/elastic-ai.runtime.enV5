@@ -1,4 +1,5 @@
 #define SOURCE_FILE "Hardware-Test-Helper"
+
 #include "hardwareTestHelper.h"
 
 #include "Network.h"
@@ -28,7 +29,7 @@ void connectToNetworkAndMQTT() {
 }
 
 void initHardwareTest(void) {
-    // Did we crash last time -> reboot into bootrom mode
+    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }

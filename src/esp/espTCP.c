@@ -1,4 +1,5 @@
 #define SOURCE_FILE "esp TCP Library"
+
 #include "common.h"
 #include "FreeRTOSUtils/TaskWrapper.h"
 
@@ -101,7 +102,7 @@ char *ESP_TCP_GetResponse() {
 static char *ESP_TCP_CutResponseToBuffer() {
     char *responseBuf;
     char metaDataBuf[20];
-    char datalen[20];
+    char data_length[20];
     // look for the response command in the uart responseBuffer
     // format: +IPD,5:Hallo
     uartToESP_Read("+IPD,", metaDataBuf, 20);
@@ -111,12 +112,12 @@ static char *ESP_TCP_CutResponseToBuffer() {
         return 0;
     }
     // copy the length of the data to a new buffer and convert to int
-    strncpy(datalen, metaDataBuf, endOfLength - metaDataBuf);
-    datalen[endOfLength - metaDataBuf] = 0;
-    int len                            = atoi(datalen);
+    strncpy(data_length, metaDataBuf, endOfLength - metaDataBuf);
+    data_length[endOfLength - metaDataBuf] = 0;
+    int len = atoi(data_length);
     char startAtString[20];
     strcpy(startAtString, "+IPD,");
-    strcat(startAtString, datalen);
+    strcat(startAtString, data_length);
     strcat(startAtString, ":");
     PRINT("Got %d bytes", len)
 

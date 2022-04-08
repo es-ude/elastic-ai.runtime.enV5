@@ -64,7 +64,7 @@ bool ESP_DisconnectFromNetwork();
 
 bool MQTT_connected(void);
 
-bool ESP_Ping(char *ipAdress);
+bool ESP_Ping(char *ipAddress);
 
 void ESP_CleanReceiveBuffer();
 

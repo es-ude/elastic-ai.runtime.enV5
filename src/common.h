@@ -13,6 +13,7 @@
         printf(str, ##__VA_ARGS__);                                                                          \
         printf("\n");                                                                                        \
     }
+
 #define ASSERT(test)                                                                                    \
     if (!(test))                                                                                        \
         return 0;

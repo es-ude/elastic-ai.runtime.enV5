@@ -10,6 +10,7 @@
 
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
 #include "hardware/watchdog.h"
 #include "QueueWrapper.h"
 
@@ -44,18 +45,18 @@ _Noreturn void ConnectToAccessPointTask() {
         if (Network_GetStatusFlags().TCPStatus == CONNECTED) {
             Network_TCP_SendData(cmd, 5000);
             responseBuf = Network_TCP_GetResponse();
-        }
-        if (responseBuf != 0) {
-            printf("Got Response from library len:%d\n\n%s\n", strlen(responseBuf), responseBuf);
-            free(responseBuf);
-            TaskSleep(2000);
-            Network_TCP_Close(false);
+            if (responseBuf != 0) {
+                printf("Got Response from library len:%d\n\n%s\n", strlen(responseBuf), responseBuf);
+                free(responseBuf);
+                TaskSleep(2000);
+                Network_TCP_Close(false);
+            }
         }
     }
 }
 
 void initHardwareTest(void) {
-    // Did we crash last time -> reboot into bootrom mode
+    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }

@@ -30,9 +30,13 @@ void uartToEsp_Init(UARTDevice device);
 void uartToESP_Println(char *data);
 
 void uartToESP_CleanReceiveBuffer();
+
 bool uartToESP_ResponseArrived(char *expectedResponse);
-bool uartToESP_Readln(char *startAtString, char *data);
+
+bool uartToESP_ReadLine(char *startAtString, char *data);
+
 bool uartToESP_Read(char *startAtString, char *responseBuf, int length);
+
 bool uartToESP_Cut(char *startAtString, char *responseBuf, int length);
 
 // DO NOT USE except for debugging purposes

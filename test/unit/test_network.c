@@ -5,7 +5,6 @@
 #include "../../extern/unity/src/unity.h"
 #include "stdlib.h"
 
-
 void setUp(void) {
     Network_DisconnectFromNetwork();
 }
@@ -24,7 +23,7 @@ void GetGoodTCPConnection() {
 
 void InvokeIrqHandler();
 
-void ESPLIB_TEST_ORDERING_ALL_SUCCESSFULL(void) {
+void ESP_LIB_TEST_ORDERING_ALL_SUCCESSFUL(void) {
     NetworkStatusFlags flags = Network_GetStatusFlags();
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || Network_TCP_IsResponseAvailable());
 
@@ -120,7 +119,7 @@ void ESPLIB_TEST_CLOSE_ON_CLOSE_RESPONSE(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(ESPLIB_TEST_ORDERING_ALL_SUCCESSFULL);
+    RUN_TEST(ESP_LIB_TEST_ORDERING_ALL_SUCCESSFUL);
     RUN_TEST(ESPLIB_TEST_ORDERING_CONNECT_TO_NETWORK_FAIL);
     RUN_TEST(ESPLIB_TEST_ORDERING_CONNECT_TO_TCP_FAIL);
 

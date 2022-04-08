@@ -1,10 +1,3 @@
-//
-// Created by Lukas on 16.11.2021.
-// use this wrapper to crate new async Tasks in your project
-// it also removes direct dependency on FreeRTOS
-//
-
-
 typedef void (*TaskCodeFunc)();
 
 // registers new Task to be executed
