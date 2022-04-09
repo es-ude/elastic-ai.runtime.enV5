@@ -1,12 +1,13 @@
+#define SOURCE_FILE "NETWORK-TEST"
+
 #include "TaskWrapper.h"
 #include "Network.h"
+#include "tcp.h"
 #include "stdio.h"
 #include <stdlib.h>
 #include <string.h>
 
-#include "espMQTTBroker.h"
-
-#include "espBase.h"
+#include "MQTTBroker.h"
 
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
@@ -33,23 +34,23 @@ int main() {
 }
 
 _Noreturn void ConnectToAccessPointTask() {
-    Network_Init(false);
+    Network_init(false);
 
-    while (Network_GetStatusFlags().WIFIStatus == NOT_CONNECTED)
+    while (NetworkStatus.WIFIStatus == NOT_CONNECTED)
         Network_ConnectToNetwork(credentials);
 
     char *responseBuf;
     char *cmd = "GET / HTTP/1.1\n";
     while (true) {
-        Network_TCP_Open("www.uni-due.de", 80);
-        if (Network_GetStatusFlags().TCPStatus == CONNECTED) {
-            Network_TCP_SendData(cmd, 5000);
-            responseBuf = Network_TCP_GetResponse();
+        TCP_Open("www.uni-due.de", 80);
+        if (NetworkStatus.TCPStatus == CONNECTED) {
+            TCP_SendData(cmd, 5000);
+            responseBuf = TCP_GetResponse();
             if (responseBuf != 0) {
                 printf("Got Response from library len:%d\n\n%s\n", strlen(responseBuf), responseBuf);
                 free(responseBuf);
                 TaskSleep(2000);
-                Network_TCP_Close(false);
+                TCP_Close(false);
             }
         }
     }
@@ -60,7 +61,7 @@ void initHardwareTest(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    Network_Init(false);
+    Network_init(false);
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
@@ -71,7 +72,7 @@ void initHardwareTest(void) {
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_BROKER_Disconnect(true);
+            MQTT_Broker_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();

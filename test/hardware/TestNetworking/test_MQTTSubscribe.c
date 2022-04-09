@@ -1,4 +1,4 @@
-#define SOURCE_FILE "MQTT Subscribe Test"
+#define SOURCE_FILE "MQTT-SUBSCRIBE-TEST"
 
 #include <stdio.h>
 
@@ -6,7 +6,7 @@
 #include "QueueWrapper.h"
 
 #include "communicationEndpoint.h"
-#include "espMQTTBroker.h"
+#include "MQTTBroker.h"
 
 #include "common.h"
 
@@ -24,7 +24,7 @@ void deliver(Posting posting) {
 
 void _Noreturn mqttTask(void) {
     setID("eip://uni-due.de/es");
-    ESP_MQTT_BROKER_SetClientId("ENV5");
+    MQTT_Broker_SetClientId("ENV5");
 
     connectToNetworkAndMQTT();
 

@@ -1,11 +1,11 @@
 #ifndef SENSOR_BOARD_COMMON_H
 #define SENSOR_BOARD_COMMON_H
 
+#include <stdio.h>
+
 #ifndef SOURCE_FILE
 #define SOURCE_FILE "no Source file defined!"
 #endif
-
-#include "stdio.h"
 
 #define PRINT(str, ...)                                                                                      \
     {                                                                                                        \

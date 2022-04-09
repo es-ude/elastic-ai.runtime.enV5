@@ -20,11 +20,11 @@ extern char uartReceive[1000];
 
 bool uart_is_readable(uart_inst_t *uart);
 
-char uart_get_char(uart_inst_t *uart);
+char uart_getc(uart_inst_t *uart);
 
 uint uart_init(uart_inst_t *uart, uint baud_rate);
 
-int uart_set_baud_rate(uart_inst_t *uart, uint baud_rate);
+int uart_set_baudrate(uart_inst_t *uart, uint baud_rate);
 
 void uart_set_hw_flow(uart_inst_t *uart, bool cts, bool rts);
 

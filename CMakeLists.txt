@@ -16,8 +16,8 @@ if (CLION)
     SET(TARGET_GROUP extern)
     add_subdirectory(extern/elastic-ai.runtime.c)
 
+    add_subdirectory(src/broker)
     add_subdirectory(src/esp)
-    add_subdirectory(src/espBroker)
     add_subdirectory(src/FreeRTOSUtils)
     add_subdirectory(src/gpio)
     add_subdirectory(src/i2c)
@@ -83,8 +83,8 @@ else ()
         # add elastic-ai.runtime.c
         SET(TARGET_GROUP extern)
         add_subdirectory(extern/elastic-ai.runtime.c)
-        # adds esp Broker
-        add_subdirectory(src/espBroker)
+        # adds broker
+        add_subdirectory(src/broker)
         # adds uart library
         add_subdirectory(src/uart)
         # adds network libraries

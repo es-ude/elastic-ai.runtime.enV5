@@ -1,12 +1,12 @@
-#define SOURCE_FILE "Hardware-Test-Helper"
+#define SOURCE_FILE "TEST-HELPER"
 
 #include "hardwareTestHelper.h"
 
 #include "Network.h"
-#include "espMQTTBroker.h"
+#include "MQTTBroker.h"
 
 #include "TaskWrapper.h"
-#include "espBase.h"
+#include "esp.h"
 
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
@@ -18,12 +18,12 @@
 #include "common.h"
 
 void connectToNetworkAndMQTT() {
-    while (ESP_GetStatusFlags().WIFIStatus == NOT_CONNECTED) {
+    while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
         Network_ConnectToNetwork(credentials);
         TaskSleep(500);
     }
-    while (ESP_GetStatusFlags().MQTTStatus == NOT_CONNECTED) {
-        ESP_MQTT_BROKER_ConnectToBroker(mqttHost, "1883");
+    while (NetworkStatus.MQTTStatus == NOT_CONNECTED) {
+        MQTT_Broker_ConnectToBroker(mqttHost, "1883");
         TaskSleep(500);
     }
 }
@@ -33,7 +33,7 @@ void initHardwareTest(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    Network_Init(false);
+    Network_init(false);
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
@@ -44,7 +44,7 @@ void initHardwareTest(void) {
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_BROKER_Disconnect(true);
+            MQTT_Broker_Disconnect(true);
             PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }

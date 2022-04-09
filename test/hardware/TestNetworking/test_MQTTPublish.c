@@ -1,4 +1,4 @@
-#define SOURCE_FILE "MQTT Publish Test"
+#define SOURCE_FILE "MQTT-PUBLISH-TEST"
 
 #include <stdio.h>
 
@@ -7,7 +7,7 @@
 #include "Network.h"
 
 #include "communicationEndpoint.h"
-#include "espMQTTBroker.h"
+#include "MQTTBroker.h"
 
 #include <string.h>
 #include "malloc.h"
@@ -24,7 +24,7 @@ void publishTestData(uint16_t i);
 
 void _Noreturn mqttTask(void) {
     setID("eip://uni-due.de/es");
-    ESP_MQTT_BROKER_SetClientId("ENV5");
+    MQTT_Broker_SetClientId("ENV5");
 
     for (uint16_t i = 0; i < 65536; ++i) {
         connectToNetworkAndMQTT();

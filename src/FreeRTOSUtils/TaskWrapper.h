@@ -1,5 +1,5 @@
-#ifndef FREERTOS_TASKWRAPPER_H
-#define FREERTOS_TASKWRAPPER_H
+#ifndef FREERTOS_TASK_WRAPPER_H
+#define FREERTOS_TASK_WRAPPER_H
 
 /***
 // use this wrapper to crate new async Tasks in your project
@@ -18,4 +18,4 @@ void TaskSleep(int timeInMs);
 // start executing all registered Tasks
 void StartScheduler(void);
 
-#endif // FREERTOS_TASKWRAPPER_H
+#endif // FREERTOS_TASK_WRAPPER_H

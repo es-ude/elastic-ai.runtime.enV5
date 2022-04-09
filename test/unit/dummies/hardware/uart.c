@@ -8,18 +8,18 @@ bool uart_is_readable(uart_inst_t *uart) {
     return *uartMessage != 0;
 }
 
-char uart_get_char(uart_inst_t *uart) {
+char uart_getc(uart_inst_t *uart) {
     char ret = *uartMessage;
     uartMessage++;
     return ret;
 }
 
-uint uart_init(uart_inst_t *uart, uint baud_rate) {
+uint uart_init(uart_inst_t *uart, uint baudrate) {
     uartReceive[0] = 0;
     return 0;
 }
 
-int uart_set_baud_rate(uart_inst_t *uart, uint baud_rate) {
+int uart_set_baudrate(uart_inst_t *uart, uint baudrate) {
     return 1;
 }
 

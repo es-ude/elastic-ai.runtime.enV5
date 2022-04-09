@@ -3,16 +3,15 @@
 
 #include <stdio.h>
 
-#include "TaskWrapper.h"
-#include "QueueWrapper.h"
-
-#include "Network.h"
+#include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
-#include "hardware/watchdog.h"
-#include "espMQTTBroker.h"
 
 #include "common.h"
+#include "MQTTBroker.h"
+#include "QueueWrapper.h"
+#include "TaskWrapper.h"
+#include "Network.h"
 
 void enterBootModeTask(void);
 
@@ -38,7 +37,7 @@ void init(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    Network_Init(false);
+    while (!Network_init());
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
@@ -49,7 +48,7 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            ESP_MQTT_BROKER_Disconnect(true);
+            MQTT_Broker_Disconnect(true);
             PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }

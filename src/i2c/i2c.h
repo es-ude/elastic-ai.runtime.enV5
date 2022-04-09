@@ -2,6 +2,7 @@
 #define I2C_INTERFACE_H
 
 #include "typedefs.h"
+
 #include <stdint.h>
 
 /*! \fn I2C_Init

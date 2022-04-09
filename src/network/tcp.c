@@ -1,58 +1,73 @@
-#define SOURCE_FILE "esp TCP Library"
+#define SOURCE_FILE "TCP"
+
+#include <string.h>
+#include <stdlib.h>
+
+#include "tcp.h"
+#include "Network.h"
 
 #include "common.h"
-#include "FreeRTOSUtils/TaskWrapper.h"
+#include "esp.h"
+#include "TaskWrapper.h"
 
-#include "espBase.h"
-#include "espTCP.h"
-
-#include "string.h"
-#include "stdlib.h"
-
-
-bool ESP_TCP_Open(char *target, char *port) {
-    ASSERT(ESPChipStatusFlags.ChipStatus)
-    ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
-    if (ESPChipStatusFlags.TCPStatus == CONNECTED) {
+bool TCP_Open(char *target, int port) {
+    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
+        PRINT("Chip not working!")
+        return false;
+    }
+    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+        PRINT("No WIFI connection!")
+        return false;
+    }
+    if (NetworkStatus.TCPStatus == CONNECTED) {
         PRINT("There is already a TCP Connection open. Please close this one first")
         return false;
     }
+
+    char port_buf[10];
+    sprintf(port_buf, "%d", port);
 
     char cmd[100];
     strcpy(cmd, "AT+CIPSTART=\"TCP\",\"");
     strcat(cmd, target);
     strcat(cmd, "\",");
-    strcat(cmd, port);
+    strcat(cmd, port_buf);
 
     if (ESP_SendCommand(cmd, "CONNECT", 2000)) {
-        PRINT("Connected to %s at Port %s", target, port)
-        ESPChipStatusFlags.TCPStatus = CONNECTED;
+        PRINT("Connected to %s at Port %s", target, port_buf)
+        NetworkStatus.TCPStatus = CONNECTED;
     } else {
-        PRINT("Could not connect to %s at Port %s", target, port)
+        PRINT("Could not connect to %s at Port %s", target, port_buf)
     }
-    return ESPChipStatusFlags.TCPStatus;
+    return NetworkStatus.TCPStatus;
 }
 
-bool ESP_TCP_Close(bool force) {
+bool TCP_Close(bool force) {
     if (!force) {
-        ASSERT(ESPChipStatusFlags.ChipStatus)
-        ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
-        if (ESPChipStatusFlags.TCPStatus == NOT_CONNECTED) {
+        ASSERT(NetworkStatus.ChipStatus)
+        ASSERT(NetworkStatus.WIFIStatus == CONNECTED)
+        if (NetworkStatus.TCPStatus == NOT_CONNECTED) {
             PRINT("No connection to close")
             return false;
         }
     }
 
     ESP_SendCommand("AT+CIPCLOSE", "OK", 1000);
-    ESPChipStatusFlags.TCPStatus = NOT_CONNECTED;
+    NetworkStatus.TCPStatus = NOT_CONNECTED;
 
-    return ESPChipStatusFlags.TCPStatus;
+    return NetworkStatus.TCPStatus;
 }
 
-bool ESP_TCP_SendData(char *data, int timeoutMs) {
-    ASSERT(ESPChipStatusFlags.ChipStatus)
-    ASSERT(ESPChipStatusFlags.WIFIStatus == CONNECTED)
-    if (ESPChipStatusFlags.TCPStatus == NOT_CONNECTED) {
+bool TCP_SendData(char *data, int timeoutMs) {
+    if (NetworkStatus.TCPStatus == ESP_CHIP_NOT_OK) {
+        PRINT("Chip not working!")
+        return false;
+    }
+    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+        PRINT("No WIFI connection!")
+        return false;
+    }
+    if (NetworkStatus.TCPStatus == NOT_CONNECTED) {
         PRINT("No open TCP connection to send to")
         return false;
     }
@@ -61,7 +76,7 @@ bool ESP_TCP_SendData(char *data, int timeoutMs) {
     sprintf(cmd, "AT+CIPSEND=%d", strlen(data));
 
     // Clean the uart receive buffer before send the command
-    ESP_CleanReceiveBuffer();
+    uartToESP_CleanReceiveBuffer();
     // send the command and data
     if (!(ESP_SendCommand(cmd, ">", 100) && ESP_SendCommand(data, "SEND OK", 1000))) {
         PRINT("Failed to send data. Make sure everything is connected and try again later.")
@@ -71,7 +86,7 @@ bool ESP_TCP_SendData(char *data, int timeoutMs) {
     bool responseArrived = false;
     TaskSleep(REFRESH_RESPOND_IN_MS / 2);
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        responseArrived = ESP_TCP_IsResponseAvailable();
+        responseArrived = TCP_IsResponseAvailable();
         if (responseArrived)
             break;
         TaskSleep(REFRESH_RESPOND_IN_MS);
@@ -80,26 +95,26 @@ bool ESP_TCP_SendData(char *data, int timeoutMs) {
     if (!responseArrived) {
         PRINT("Timeout: No response arrived!")
     } else if (uartToESP_ResponseArrived("CLOSED")) {
-        ESPChipStatusFlags.TCPStatus = NOT_CONNECTED;
+        NetworkStatus.TCPStatus = NOT_CONNECTED;
     }
 
     return responseArrived;
 }
 
-bool ESP_TCP_IsResponseAvailable() {
-    return uartToESP_ResponseArrived("+IPD,");
-}
-
-char *ESP_TCP_GetResponse() {
-    ASSERT(ESP_TCP_IsResponseAvailable())
-    char *ret = ESP_TCP_CutResponseToBuffer();
+char *TCP_GetResponse(void) {
+    ASSERT(TCP_IsResponseAvailable())
+    char *ret = TCP_CutResponseToBuffer();
     if (uartToESP_ResponseArrived("CLOSED")) {
-        ESPChipStatusFlags.TCPStatus = NOT_CONNECTED;
+        NetworkStatus.TCPStatus = NOT_CONNECTED;
     }
     return ret;
 }
 
-static char *ESP_TCP_CutResponseToBuffer() {
+bool TCP_IsResponseAvailable(void) {
+    return uartToESP_ResponseArrived("+IPD,");
+}
+
+static char *TCP_CutResponseToBuffer(void) {
     char *responseBuf;
     char metaDataBuf[20];
     char data_length[20];
@@ -114,7 +129,7 @@ static char *ESP_TCP_CutResponseToBuffer() {
     // copy the length of the data to a new buffer and convert to int
     strncpy(data_length, metaDataBuf, endOfLength - metaDataBuf);
     data_length[endOfLength - metaDataBuf] = 0;
-    int len = atoi(data_length);
+    int len = strtol(data_length, NULL, 10); //atoi(data_length);
     char startAtString[20];
     strcpy(startAtString, "+IPD,");
     strcat(startAtString, data_length);

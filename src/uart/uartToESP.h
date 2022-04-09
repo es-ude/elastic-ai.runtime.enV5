@@ -16,8 +16,8 @@ typedef struct {
     int uartId;
     int tx_pin;
     int rx_pin;
-    int baud_rate_set;
-    int baud_rate_actual;
+    int baudrate_set;
+    int baudrate_actual;
     int data_bits;
     int stop_bits;
     UartParity parity;

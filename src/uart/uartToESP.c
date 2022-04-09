@@ -1,15 +1,17 @@
+#include <string.h>
+
 #include "uartToESP.h"
+
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-#include "string.h"
 
 UARTDevice uartDev;
 
 // RX interrupt handler
 void callback_uart_rx_interrupt() {
     while (uart_is_readable((uart_inst_t *) uartDev.uartInstance)) {
-        char ch = uart_get_char((uart_inst_t *) uartDev.uartInstance);
+        char ch = uart_getc((uart_inst_t *) uartDev.uartInstance);
         uartDev.receive_buf[uartDev.receive_count] = ch;
         uartDev.receive_count++;
         uartDev.receive_buf[uartDev.receive_count] = 0;
@@ -27,7 +29,7 @@ void uartToEsp_Init(UARTDevice device) {
 
     uartDev = device;
     // Set up our UART with a basic baud rate.
-    uart_init((uart_inst_t *) uartDev.uartInstance, uartDev.baud_rate_set);
+    uart_init((uart_inst_t *) uartDev.uartInstance, uartDev.baudrate_set);
 
     // Set the TX and RX pins by using the function select on the GPIO
     // Set datasheet for more information on function select
@@ -37,7 +39,7 @@ void uartToEsp_Init(UARTDevice device) {
     // Actually, we want a different speed
     // The call will return the actual baud rate selected, which will be as close as
     // possible to that requested
-    uartDev.baud_rate_actual = uart_set_baud_rate((uart_inst_t *) uartDev.uartInstance, uartDev.baud_rate_set);
+    uartDev.baudrate_actual = uart_set_baudrate((uart_inst_t *) uartDev.uartInstance, uartDev.baudrate_set);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow((uart_inst_t *) uartDev.uartInstance, false, false);
