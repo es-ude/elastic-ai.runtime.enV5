@@ -88,7 +88,7 @@ else ()
         if (HARDWARE_TEST)
             message(NOTICE "INFO: Building hardware tests")
             add_subdirectory(test/hardware) # Include Hardware tests
-        elseif (MAIN)
+        else ()
             message(NOTICE "INFO: Building main executable")
             add_executable(main src/main.c) # creates executable
             target_include_directories(main PUBLIC
