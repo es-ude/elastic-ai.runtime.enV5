@@ -18,11 +18,11 @@ Change into the build directory.
 cd build_pico
 ```
 
-Use cmake to configure the build process. (It will take some time on the first execution to download all necessary
-files.)
+Use cmake to configure the build process, optionally with the Debug flag set to get Debug output. (It may take some time
+on the first execution to download all necessary files.)
 
 ```bash
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS:bool=false ..
+cmake [-DCMAKE_BUILD_TYPE=DEBUG] ..
 ```
 
 Then use make to build.
@@ -55,10 +55,10 @@ Change into the test folder.
 cd build_test
 ```
 
-Use cmake to configure the tests.
+Use cmake to configure the tests, optionally with the Debug flag set to get Debug output.
 
 ```bash
-cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS:bool=true ..
+cmake -DUNIT_TEST:BOOL=ON [-DCMAKE_BUILD_TYPE=DEBUG] ..
 ```
 
 Build the tests using make.
@@ -77,15 +77,47 @@ make clean
 
 ## Hardware Tests
 
-The hardware tests are currently build together with the main and the resulting uf2 files can be found in the build
-directory under test/hardware.
+The following commands in this section can be run using the shell script [hardware_test.sh](hardware_test.sh).
+
+When not already done, create a build folder.
+
+```bash
+mkdir build_test
+```
+
+Change into the build directory.
+
+```bash
+cd build_pico
+```
+
+Use cmake to configure the build process, optionally with the Debug flag set to get Debug output. (It may take some time
+on the first execution to download all necessary files.)
+
+```bash
+  cmake -DHARDWARE_TEST:BOOL=ON [-DCMAKE_BUILD_TYPE=DEBUG] ..
+```
+
+Then use make to build.
+
+```bash
+make -j4
+```
+
+The resulting uf2 files can then be found in the build directory.
+
+Optionally you can clean up afterwards.
+
+```bash
+make clean
+```
 
 ## Submodules
 
-[es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c/tree/main)
+[es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
 
-[FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel/tree/main)
+[FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
 
 [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
 
-[ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity/tree/master)
+[ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)

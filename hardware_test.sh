@@ -7,7 +7,7 @@ fi
 (
   cd build_pico || exit
 
-  cmake -DCMAKE_BUILD_TYPE=DEBUG ..
+  cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
 
   make -j4
 
