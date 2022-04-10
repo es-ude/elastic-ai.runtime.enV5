@@ -62,8 +62,9 @@ else ()
         target_link_libraries(main
                 pico_stdlib
                 FreeRTOSUtils
-                network_lib
-                espBroker_lib
+              #  network_lib
+               # espBroker_lib
+                hardware_spi
                 )
         # enable usb output, disable uart output
         pico_enable_stdio_usb(main 1)
