@@ -6,6 +6,9 @@ OPTION(UNIT_TEST "Builds Unit tests" OFF)
 OPTION(HARDWARE_TEST "Builds hardware tests" OFF)
 
 if (DEVELOP)
+    if (UNIT_TEST OR HARDWARE_TEST)
+        message(WARNING "MULTIPLE TARGETS DEFINED")
+    endif ()
     message(NOTICE "INFO: Including everything for development")
 
     set(PICO_SDK_FETCH_FROM_GIT 1)
@@ -49,6 +52,9 @@ if (DEVELOP)
     add_subdirectory(test/unit)
 
 elseif (UNIT_TEST)
+    if (HARDWARE_TEST)
+        message(WARNING "MULTIPLE TARGETS DEFINED")
+    endif ()
     message(NOTICE "INFO: Building Unit tests")
 
     project(ENv5_unittests)
