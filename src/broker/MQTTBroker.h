@@ -13,6 +13,8 @@ typedef struct Subscription {
     Subscriber subscriber;
 } Subscription;
 
+void MQTT_Broker_setBrokerDomain(char *ID);
+
 void MQTT_Broker_SetClientId(char *clientId);
 
 void MQTT_Broker_ConnectToBroker(char *host, char *port);

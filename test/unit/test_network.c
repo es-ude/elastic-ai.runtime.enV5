@@ -1,9 +1,9 @@
 #define TEST_BUILD
 
-#include "network/Network.h"
-#include "network/tcp.h"
+#include "Network.h"
+#include "tcp.h"
 #include "hardware/uart.h"
-#include "../../extern/unity/src/unity.h"
+#include "unity.h"
 #include "stdlib.h"
 
 void setUp(void) {

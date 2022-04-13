@@ -23,15 +23,17 @@ void deliver(Posting posting) {
 }
 
 void _Noreturn mqttTask(void) {
-    setID("eip://uni-due.de/es");
+    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
     MQTT_Broker_SetClientId("ENV5");
 
-    connectToNetworkAndMQTT();
+    connectToNetwork();
+    connectToMQTT();
 
     subscribe("testENv5Sub", (Subscriber) {.deliver=deliver});
 
     while (true) {
-        connectToNetworkAndMQTT();
+        connectToNetwork();
+        connectToMQTT();
         TaskSleep(1000);
     }
 }

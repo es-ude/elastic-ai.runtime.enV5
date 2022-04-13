@@ -17,11 +17,14 @@
 
 #include "common.h"
 
-void connectToNetworkAndMQTT() {
+void connectToNetwork(void) {
     while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
         Network_ConnectToNetwork(credentials);
         TaskSleep(500);
     }
+}
+
+void connectToMQTT(void) {
     while (NetworkStatus.MQTTStatus == NOT_CONNECTED) {
         MQTT_Broker_ConnectToBroker(mqttHost, "1883");
         TaskSleep(500);
@@ -45,7 +48,6 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             MQTT_Broker_Disconnect(true);
-            PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }
         watchdog_update();

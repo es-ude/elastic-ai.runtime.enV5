@@ -22,6 +22,7 @@ if (DEVELOP)
     add_subdirectory(extern/freeRTOS/)
     SET(TARGET_GROUP extern)
     add_subdirectory(extern/elastic-ai.runtime.c)
+    add_subdirectory(extern/unity)
 
     add_subdirectory(src/broker)
     add_subdirectory(src/esp)

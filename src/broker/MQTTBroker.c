@@ -24,7 +24,7 @@ _Noreturn void MQTT_Broker_ReceiverTask();
 
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
-void setID(char *ID) {
+void MQTT_Broker_setBrokerDomain(char *ID) {
     MQTT_Broker_brokerDomain = ID;
 }
 

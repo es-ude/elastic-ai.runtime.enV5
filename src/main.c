@@ -13,14 +13,25 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 
+#include "communicationEndpoint.h"
+
 void enterBootModeTask(void);
 
 void init(void);
 
 void mainTask(void) {
+
+    Network_init();
+    while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+        Network_ConnectToNetworkPlain("iPhone von David", "gert2244");
+
+    }
+    MQTT_Broker_ConnectToBroker("172.20.10.2", "8080");
+
     while (true) {
+        publish((Posting) {.topic="testENv5Pub", .data="data"});
         PRINT("Hello, World!")
-        TaskSleep(1000);
+        TaskSleep(5000);
     }
 }
 
@@ -49,7 +60,6 @@ void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             MQTT_Broker_Disconnect(true);
-            PRINT("Enter boot mode...")
             reset_usb_boot(0, 0);
         }
         watchdog_update();
