@@ -52,6 +52,8 @@ else ()
         add_subdirectory(src/i2c)
         # add gpio interface
         add_subdirectory(src/gpio)
+        add_subdirectory(src/spi)
+
         ##############################################
         ## ADD EXECUTABLE: main
         # creates executable
@@ -64,6 +66,7 @@ else ()
                 FreeRTOSUtils
               #  network_lib
                # espBroker_lib
+                spi
                 hardware_spi
                 )
         # enable usb output, disable uart output
