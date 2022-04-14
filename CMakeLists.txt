@@ -15,20 +15,20 @@ endif ()
 if (UNIT_TEST)
     message(NOTICE "INFO: Building Unit tests")
 
-    project(ENv5 C CXX ASM)
+    project(enV5 C CXX ASM)
 
     add_subdirectory(test/unit)
     add_subdirectory(extern/unity)
-
-    set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 endif ()
 
 if (NOT UNIT_TEST)
     set(PICO_SDK_FETCH_FROM_GIT 1)
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
     include(extern/pico-sdk/pico_sdk_import.cmake)
+
+    project(enV5 C CXX ASM)
+
     fetch_git_submodules()
-    project(ENv5 C CXX ASM)
     pico_sdk_init()
     include_src()
     add_subdirectory(extern/freeRTOS/)
