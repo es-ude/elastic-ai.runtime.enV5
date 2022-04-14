@@ -2,7 +2,15 @@
 
 Elastic AI implementation for the Elastic Node version 5.
 
-## Build
+## Development
+
+For development, for example in an IDE, the development flag can be set to include everything:
+
+```
+-DDEVELOP:BOOL=ON
+```
+
+## Build Main
 
 The main executable ([main.c](src/main.c)) can be build with the [build.sh](build.sh) script.
 

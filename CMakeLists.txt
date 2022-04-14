@@ -12,10 +12,14 @@ if ((UNIT_TEST AND DEVELOP) OR (UNIT_TEST AND DEVELOP) OR (DEVELOP AND HARDWARE_
     message(SEND_ERROR "MULTIPLE TARGETS DEFINED")
 endif ()
 
+enable_language(C CXX ASM)
+
 if (UNIT_TEST)
     message(NOTICE "INFO: Building Unit tests")
 
-    project(enV5 C CXX ASM)
+    project(enV5)
+
+    fetch_git_submodules()
 
     add_subdirectory(test/unit)
     add_subdirectory(extern/unity)
@@ -26,7 +30,7 @@ if (NOT UNIT_TEST)
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
     include(extern/pico-sdk/pico_sdk_import.cmake)
 
-    project(enV5 C CXX ASM)
+    project(enV5)
 
     fetch_git_submodules()
     pico_sdk_init()
