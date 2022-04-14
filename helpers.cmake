@@ -25,11 +25,3 @@ function(include_src)
     add_subdirectory(src/network)
     add_subdirectory(src/uart)
 endfunction()
-
-function(include_pico)
-    # initialize pico-sdk from GIT (note this can come from environment, CMake cache etc)
-    set(PICO_SDK_FETCH_FROM_GIT 1)
-    # pico_sdk_import.cmake is a single file copied from this SDK, note: this must happen before project()
-    include(extern/pico-sdk/pico_sdk_import.cmake)
-    pico_sdk_init() # initialize the Raspberry Pi Pico SDK
-endfunction()
