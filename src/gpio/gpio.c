@@ -1,5 +1,6 @@
 #include "gpio.h"
-#include <hardware/gpio.h>
+
+#include "hardware/gpio.h"
 
 GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode) {
     gpio_init(29);

@@ -1,4 +1,5 @@
-#define SOURCE_FILE "Queue Wrapper"
+#define SOURCE_FILE "QUEUE-WRAPPER"
+
 #include "common.h"
 #include "QueueWrapper.h"
 #include "FreeRTOS.h"
@@ -6,6 +7,7 @@
 
 #define QUEUE_ITEM_SIZE sizeof(QueueMessage)
 static QueueHandle_t queue;
+
 void CreateQueue() {
     queue = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
     if (queue == NULL) {

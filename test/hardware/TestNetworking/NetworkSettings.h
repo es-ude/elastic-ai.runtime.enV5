@@ -1,5 +1,5 @@
-#ifndef SENSOR_BOARD_NETWORKSETTINGS_H
-#define SENSOR_BOARD_NETWORKSETTINGS_H
+#ifndef SENSOR_BOARD_NETWORK_SETTINGS_H
+#define SENSOR_BOARD_NETWORK_SETTINGS_H
 
 #include "Network.h"
 
@@ -11,4 +11,4 @@ NetworkCredentials credentials = {
 /* FIXME: Set IP address of MQTT Host */
 char *mqttHost = "1.2.3.4";
 
-#endif //SENSOR_BOARD_NETWORKSETTINGS_H
+#endif //SENSOR_BOARD_NETWORK_SETTINGS_H

@@ -25,6 +25,7 @@ target_include_directories(freeRTOS_queues PUBLIC
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(freeRTOS_queues
         pico_stdlib
+        esp_lib
         FreeRTOSUtils)
 # enable usb output, disable uart output
 pico_enable_stdio_usb(freeRTOS_queues 1)

@@ -7,10 +7,11 @@
 #include <string.h>
 
 void SenderTask(void);
+
 void MainTask(void);
 
 int main(void) {
-    // Did we crash last time -> reboot into bootrom mode
+    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -28,9 +29,9 @@ int main(void) {
     QueueMessage msg;
     msg.Data = str;
     QueueSend(msg);
-    msg.Data[0]='a';
+    msg.Data[0] = 'a';
     QueueReceive(&msg);
-    printf("Recived :%s\n", msg.Data);
+    printf("Received :%s\n", msg.Data);
 
     // test async
     printf("test async:\n");

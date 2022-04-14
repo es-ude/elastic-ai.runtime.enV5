@@ -1,5 +1,9 @@
 #include "i2c.h"
+
 #include <stdint.h>
+
+#include "hardware/i2c.h"
+#include "hardware/gpio.h"
 
 /****************************************************/
 /* region STATIC FUNCTION PROTOTYPES */
@@ -18,8 +22,8 @@ static int I2C_read_blocking(uint8_t *responseBuffer, uint8_t sizeOfResponseBuff
 /****************************************************/
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/
 
-void I2C_Init(i2c_inst_t *i2cHost, uint32_t baudrate, uint8_t sdaGPIO, uint8_t sclGPIO) {
-    i2c_init(i2cHost, baudrate);
+void I2C_Init(i2c_inst_t *i2cHost, uint32_t baudRate, uint8_t sdaGPIO, uint8_t sclGPIO) {
+    i2c_init(i2cHost, baudRate);
     setup_sda(sdaGPIO);
     setup_scl(sclGPIO);
 }

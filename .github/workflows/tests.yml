@@ -19,7 +19,7 @@ jobs:
 
       - name: CMAKE
         working-directory: ${{github.workspace}}/build_test
-        run: cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS:bool=true ..
+        run: cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
 
       - name: Make all
         working-directory: ${{github.workspace}}/build_test
