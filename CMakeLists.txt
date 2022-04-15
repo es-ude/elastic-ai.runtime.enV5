@@ -24,9 +24,8 @@ if (UNIT_TEST)
 endif ()
 
 if (NOT UNIT_TEST)
-    set(PICO_SDK_FETCH_FROM_GIT 1)
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-    include(extern/pico-sdk/pico_sdk_import.cmake)
+    include(extern/pico-sdk/pico_sdk_init.cmake)
 
     project(enV5 C CXX ASM)
 
