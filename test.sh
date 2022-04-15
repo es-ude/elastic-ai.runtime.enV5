@@ -7,14 +7,14 @@ fi
 (
   cd build_test || exit
 
-  cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
+  cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
-  make -j4
+  ninja -j4
 
   for file in /test/unit/unit-*
   do
     ./${file}
   done
 
-  make clean
+  ninja clean
 )
