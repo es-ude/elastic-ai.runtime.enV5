@@ -20,16 +20,7 @@ void enterBootModeTask(void);
 void init(void);
 
 void mainTask(void) {
-
-    Network_init();
-    while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
-        Network_ConnectToNetworkPlain("iPhone von David", "gert2244");
-
-    }
-    MQTT_Broker_ConnectToBroker("172.20.10.2", "8080");
-
     while (true) {
-        publish((Posting) {.topic="testENv5Pub", .data="data"});
         PRINT("Hello, World!")
         TaskSleep(5000);
     }
