@@ -7,9 +7,9 @@ fi
 (
   cd build_pico || exit
 
-  cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
+  cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
-  make -j4
+  ninja -j4
 
-  make clean
+  ninja clean
 )
