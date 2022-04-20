@@ -2,8 +2,8 @@
 // Created by David P. Federl
 //
 
-#ifndef ENV5_SHT3X_H
-#define ENV5_SHT3X_H
+#ifndef ENV5_SHT3X_HEADER
+#define ENV5_SHT3X_HEADER
 
 /* Datasheet:
  * https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf
@@ -33,4 +33,4 @@ sht3x_errorCode sht3x_disableHeater(void);
 sht3x_errorCode sht3x_softReset(void);
 
 
-#endif // ENV5_SHT3X_H
+#endif /*ENV5_SHT3X_HEADER */
