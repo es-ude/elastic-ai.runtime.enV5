@@ -2,33 +2,15 @@
 // Created by David P. Federl
 //
 
-#include "sht3x.h"
 #include "i2c/i2c.h"
-#include <pico/stdlib.h>
+#include "sht3x_public.h"
+#include "sht3x_internal.h"
+#include <pico/time.h>
 
 /****************************************************/
-/* region DATATYPES / VARIABLES */
-
-static const uint16_t CRC8_POLYNOMIAL = 0x31;             /* P(x) = x^8 + x^5 + x^4 + 1 = 00110001= 0x31 */
-static const float    DENOMINATOR     = (1 << 16) - 1.0f; /* 2^16 - 1 */
+/* region VARIABLES */
 
 static sht3x_i2c_sensorConfiguration sensorConfiguration;
-
-/* endregion */
-/****************************************************/
-/* region STATIC FUNCTION PROTOTYPES */
-
-static sht3x_errorCode sendRequestToSensor(sht3x_command command);
-
-static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
-
-static sht3x_errorCode performChecksumCheck(const uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
-
-static uint8_t calculateChecksum(const uint8_t *dataBuffer);
-
-static float calculateTemperature(uint16_t rawValue);
-
-static float calculateHumidity(uint16_t rawValue);
 
 /* endregion */
 /****************************************************/
@@ -43,7 +25,7 @@ sht3x_errorCode sht3x_init(i2c_inst_t *i2cHost) {
 
   I2C_Init(sensorConfiguration.i2c_host, (100 * 1000), 0, 1);
 
-  /* Check if SHT3X is on Bus by requesting serialnumber without processing */
+  /* Check if SHT3X is on Bus by requesting serial number without processing */
   uint8_t sizeOfCommandBuffer = 2;
   uint8_t commandBuffer[sizeOfCommandBuffer];
   commandBuffer[0] = (SHT3X_CMD_READ_STATUS >> 8);
