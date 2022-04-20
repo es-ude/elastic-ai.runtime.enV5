@@ -3,64 +3,124 @@
 //
 
 #include "sht3x_public.h"
+#include <pico/bootrom.h>
 #include <pico/time.h>
 #include <pico/stdio.h>
 #include <hardware/i2c.h>
 #include <stdio.h>
 
 
-int main ( void )
+static void getTemperatureAndHumidity ( )
   {
-    stdio_init_all ( );
-    sleep_ms ( 5000 );
+    float temperature, humidity;
     
-    float    temperature, humidity;
+    sht3x_errorCode sht_errorCode = sht3x_getTemperatureAndHumidity ( & temperature, & humidity );
+    if ( sht_errorCode == SHT3X_NO_ERROR )
+      {
+        printf ( "Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature, humidity );
+      }
+    else
+      {
+        printf ( "ErrorCode: %i\n", sht_errorCode );
+      }
+  }
+
+static void getTemperature ( )
+  {
+    float temperature;
+    
+    sht3x_errorCode sht_errorCode = sht3x_getTemperature ( & temperature );
+    if ( sht_errorCode == SHT3X_NO_ERROR )
+      {
+        printf ( "Temperature: %4.2f°C\n", temperature );
+      }
+    else
+      {
+        printf ( "ErrorCode: %i\n", sht_errorCode );
+      }
+  }
+
+static void getHumidity ( )
+  {
+    float humidity;
+    
+    sht3x_errorCode sht_errorCode = sht3x_getHumidity ( & humidity );
+    if ( sht_errorCode == SHT3X_NO_ERROR )
+      {
+        printf ( "Humidity: %4.2f%%RH\n", humidity );
+      }
+    else
+      {
+        printf ( "ErrorCode: %i\n", sht_errorCode );
+      }
+  }
+
+static void getSerialNumber ( )
+  {
     uint32_t serialNumber;
     
-    // initialize SHT3X sensor
-    sht3x_errorCode sht_errorCode = SHT3X_NO_ERROR;
+    sht3x_errorCode sht_errorCode = sht3x_readSerialNumber ( & serialNumber );
+    if ( sht_errorCode == SHT3X_NO_ERROR )
+      {
+        printf ( "Serial number: %08lx\n", serialNumber );
+      }
+    else
+      {
+        printf ( "ErrorCode: %i\r\n", sht_errorCode );
+      }
+  }
+
+static void enterBootMode ( )
+  {
+    reset_usb_boot ( 0, 0 );
+  }
+
+int main ( void )
+  {
+    /* enable print to console output */
+    stdio_init_all ( );
+    
+    /* initialize SHT3X sensor */
+    sht3x_errorCode sht_errorCode;
     while ( 1 )
       {
         sht_errorCode = sht3x_init ( i2c0 );
         if ( sht_errorCode == SHT3X_NO_ERROR )
           {
+            printf ( "Initialise SHT3X\n" );
             break;
           }
-        printf ( "INITsht3x_ERROR: %i\r\n", sht_errorCode );
+        printf ( "Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode );
         sleep_ms ( 500 );
       }
-
-#pragma clang diagnostic push
-#pragma ide diagnostic   ignored "EndlessLoop"
+    
+    /* test functions of sht3x */
     while ( 1 )
       {
-        sht_errorCode = sht3x_readSerialNumber ( & serialNumber );
-        if ( sht_errorCode == SHT3X_NO_ERROR )
-          {
-            printf ( "SerialNumber: %lu\r\n", serialNumber );
-          }
-        else
-          {
-            printf ( "ErrorCode: %i\r\n", sht_errorCode );
-          }
-        sleep_ms ( 500 );
+        char input = getchar_timeout_us ( 1000 );
         
-        sht_errorCode = sht3x_getTemperatureAndHumidity ( & temperature, & humidity );
-        if ( sht_errorCode == SHT3X_NO_ERROR )
+        switch ( input )
           {
-            printf ( "Temperature: %4.2f°C\tHumidity: %4.2f%%RH\r\n", temperature, humidity );
+            case 'a':
+              getTemperatureAndHumidity ( );
+            break;
+            case 't':
+              getTemperature ( );
+            break;
+            case 'h':
+              getHumidity ( );
+            break;
+            case 's':
+              getSerialNumber ( );
+            break;
+            case 'b':
+              enterBootMode ( );
+            break;
+            default:
+              printf ( "Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b (Boot mode) to perfom an action" );
+            break;
           }
-        else
-          {
-            printf ( "ErrorCode: %i\r\n", sht_errorCode );
-          }
-        sleep_ms ( 500 );
-        
-        sleep_ms ( 2000 );
-        
-        printf ( "\r\n" );
       }
-#pragma clang diagnostic pop
     
     return 0;
   }
