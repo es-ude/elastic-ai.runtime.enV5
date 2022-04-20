@@ -11,9 +11,11 @@ fi
 
   ninja -j4
 
-  for file in /test/unit/unit-*
+  printf "\n##################################################\n\n"
+  for file in ./test/unit/unit-*
   do
-    ./${file}
+    "./${file}"
+    printf "\n##################################################\n\n"
   done
 
   ninja clean
