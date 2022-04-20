@@ -5,7 +5,7 @@
 #ifndef ENV5_I2C_TEST_HEADER
 #define ENV5_I2C_TEST_HEADER
 
-#include "i2c/i2c.h"
+#include "i2c.h"
 
 /* region VARIABLES */
 

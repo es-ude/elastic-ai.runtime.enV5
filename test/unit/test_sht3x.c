@@ -2,9 +2,9 @@
 // Created by David P. Federl
 //
 
-#include "i2c/i2c.h"
+#include "i2c.h"
 #include "i2c/i2c_test.h"
-#include "sht3x/sht3x_public.h"
+#include "sht3x_public.h"
 #include "unity.h"
 #include <stdlib.h>
 
