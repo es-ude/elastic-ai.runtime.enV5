@@ -1,7 +1,6 @@
 function(fetch_git_submodules)
     find_package(Git QUIET)
-    message("${PROJECT_SOURCE_DIR}/.git")
-    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+	if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
         # Update Submodules
         option(GIT_SUBMODULE "Check submodules build" ON)
         if(GIT_SUBMODULE)

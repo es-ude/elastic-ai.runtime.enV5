@@ -25,11 +25,11 @@ endif ()
 
 if (NOT UNIT_TEST)
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+    fetch_git_submodules()
     include(extern/pico-sdk/pico_sdk_init.cmake)
 
     project(enV5 C CXX ASM)
 
-    fetch_git_submodules()
     pico_sdk_init()
     include_src()
     add_subdirectory(extern/freeRTOS/)
