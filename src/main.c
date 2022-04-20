@@ -64,12 +64,31 @@ void mainTask(void) {
     spi_init_handler(spi, 1000 * 1000);
 
 
-    uint8_t data[3];
-    spi_read_data(spi,REG_DEVID, data, 3);
-    while(true){
-        for (uint8_t i=0; i<3; i++){
-            printf("%02X",data[i]);
+    uint8_t id[3];
+    spi_read_data(spi,REG_DEVID, id, 3);
 
+    uint16_t page_length=256;
+    uint8_t data[page_length];
+    for(uint16_t i=0; i<page_length;i++ ){
+        data[i]=i;
+    }
+    int wrote_page= flash_write_page(spi, 0, data,page_length );
+    printf("%u", wrote_page);
+    uint8_t data_read[page_length];
+    TaskSleep(10000);
+    int page_read=flash_read_data(spi, 0,data_read, page_length);
+    printf("%u", page_read);
+    while(true){
+        for (uint16_t i=0; i<3; i++){
+            printf("%02X", id[i]);
+
+        }
+        printf("\n");
+        printf("%u", wrote_page);
+        printf("%u", page_read);
+        printf("data read \n");
+        for( uint16_t i=0; i<page_length; i++){
+            printf("%u",data_read[i]);
         }
         printf("\n");
         TaskSleep(1000);

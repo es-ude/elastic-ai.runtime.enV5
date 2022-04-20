@@ -19,7 +19,9 @@ int spi_read_data(  spi_inst_t *spi,
                     uint8_t *data_buffer,
                     uint8_t length);
 
+int flash_read_data(spi_inst_t *spi, const uint8_t address, uint8_t *data_buffer, uint16_t length);
 
+int flash_write_page(spi_inst_t *spi,uint32_t address, uint8_t *data, uint16_t page_size );
 void spi_get_ID();
 
 void spi_write_data();
