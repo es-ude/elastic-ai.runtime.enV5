@@ -1,4 +1,4 @@
-#define SOURCE_FILE "MQTT Publish/Subscribe Test"
+#define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
 
 #include <stdio.h>
 
@@ -7,7 +7,7 @@
 #include "Network.h"
 
 #include "communicationEndpoint.h"
-#include "espMQTTBroker.h"
+#include "MQTTBroker.h"
 
 #include <string.h>
 #include "malloc.h"
@@ -27,15 +27,17 @@ void deliver(Posting posting) {
 }
 
 void _Noreturn mqttTask(void) {
-    setID("eip://uni-due.de/es");
-    ESP_MQTT_BROKER_SetClientId("ENV5");
+    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
+    MQTT_Broker_SetClientId("ENV5");
 
-    connectToNetworkAndMQTT();
+    connectToNetwork();
+    connectToMQTT();
 
     subscribe("testENv5PubSub", (Subscriber) {.deliver=deliver});
 
     for (uint16_t i = 0; i < 65536; ++i) {
-        connectToNetworkAndMQTT();
+        connectToNetwork();
+        connectToMQTT();
         publishTestData(i);
         TaskSleep(1000);
     }

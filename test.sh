@@ -7,14 +7,16 @@ fi
 (
   cd build_test || exit
 
-  cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS:bool=true ..
+  cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
-  make -j4
+  ninja -j4
 
-  for file in /test/unit/unit-*
+  printf "\n##################################################\n\n"
+  for file in ./test/unit/unit-*
   do
-    ./${file}
+    "./${file}"
+    printf "\n##################################################\n\n"
   done
 
-  make clean
+  ninja clean
 )

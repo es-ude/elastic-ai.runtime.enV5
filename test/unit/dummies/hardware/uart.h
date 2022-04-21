@@ -1,7 +1,3 @@
-//
-// Created by Lukas on 03.02.2022.
-//
-
 #ifndef SENSOR_BOARD_UART_H
 #define SENSOR_BOARD_UART_H
 
@@ -26,9 +22,9 @@ bool uart_is_readable(uart_inst_t *uart);
 
 char uart_getc(uart_inst_t *uart);
 
-uint uart_init(uart_inst_t *uart, uint baudrate);
+uint uart_init(uart_inst_t *uart, uint baud_rate);
 
-int uart_set_baudrate(uart_inst_t *uart, uint baudrate);
+int uart_set_baudrate(uart_inst_t *uart, uint baud_rate);
 
 void uart_set_hw_flow(uart_inst_t *uart, bool cts, bool rts);
 

@@ -3,19 +3,21 @@
 
 #include <stdio.h>
 
+
 #include "TaskWrapper.h"
 #include "QueueWrapper.h"
 
-//#include "Network.h"
+#include "Network.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
-//#include "espMQTTBroker.h"
+#include "espMQTTBroker.h"
 #include "hardware/spi.h"
 #include "common.h"
 #include "spi/spi.h"
 
 static const uint8_t REG_DEVID = 0x00;
+
 
 void enterBootModeTask(void);
 
@@ -58,6 +60,7 @@ void init(void);
 
 void mainTask(void) {
 
+
     spi_inst_t *spi = spi0;
 
     // Initialize SPI port at 1 MHz
@@ -92,6 +95,11 @@ void mainTask(void) {
         }
         printf("\n");
         TaskSleep(1000);
+
+//    while (true) {
+//        PRINT("Hello, World!")
+//        TaskSleep(5000);
+
     }
 
 }
@@ -105,11 +113,13 @@ int main() {
 }
 
 void init(void) {
-    // Did we crash last time -> reboot into bootrom mode
+    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-  //  Network_Init(false);
+
+    while (!Network_init());
+
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
@@ -120,8 +130,8 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-    //        ESP_MQTT_BROKER_Disconnect(true);
-            PRINT("Enter boot mode...")
+
+            MQTT_Broker_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();

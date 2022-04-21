@@ -1,51 +1,126 @@
+#define SOURCE_FILE "NETWORK"
+
+#include <string.h>
+
 #include "Network.h"
-#include "esp/espBase.h"
-#include "esp/espTCP.h"
-#include "stdio.h"
+#include "tcp.h"
 
-NetworkStatusFlags flags;
+#include "common.h"
+#include "esp.h"
+#include "TaskWrapper.h"
+#include "uartToESP.h"
 
-NetworkStatusFlags Network_GetStatusFlags() {
-    ESP_StatusFlags espFlags = ESP_GetStatusFlags();
-    flags.WIFIStatus = espFlags.WIFIStatus;
-    flags.TCPStatus = espFlags.TCPStatus;
-    flags.MQTTStatus = espFlags.MQTTStatus;
-    return flags;
-}
+NetworkStatus_t NetworkStatus = {
+        .ChipStatus = ESP_CHIP_NOT_OK,
+        .WIFIStatus = NOT_CONNECTED,
+        .TCPStatus = NOT_CONNECTED,
+        .MQTTStatus = NOT_CONNECTED};
 
-bool Network_Init(bool softInit) {
-    return ESP_Init(softInit);
+bool Network_init() {
+    // init the uart interface for at
+    uartToEsp_Init(esp32UartDevice);
+
+    ESP_SoftReset();
+    while (!ESP_CheckIsResponding()) {
+        PRINT("ESP ACK_CHECK failed")
+        TaskSleep(1000);
+        ESP_SoftReset();
+    }
+    PRINT("ESP is responding")
+    // disable echo, make the output more clean
+    ESP_SendCommand("ATE0", "OK", 100);
+    // disable multiple connections
+    int retriesLeft = 2;
+    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100) && retriesLeft > 0) {
+        PRINT("could not set esp to single connection mode!")
+        retriesLeft--;
+    }
+    NetworkStatus.ChipStatus = ESP_CHIP_OK;
+    NetworkStatus.WIFIStatus = NOT_CONNECTED;
+    NetworkStatus.TCPStatus = NOT_CONNECTED;
+    NetworkStatus.MQTTStatus = NOT_CONNECTED;
+    return true;
 }
 
 bool Network_ConnectToNetwork(NetworkCredentials credentials) {
-    ESP_NetworkCredentials creds;
-    creds.ssid = credentials.ssid;
-    creds.password = credentials.password;
-    return ESP_ConnectToNetwork(creds);
+    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
+        PRINT("Chip not working!")
+        return false;
+    }
+    if (NetworkStatus.WIFIStatus == CONNECTED) {
+        PRINT("Already connected to Network!")
+        return false;
+    }
+    // if the length of the ssid + password cannot be longer than about 90 chars
+    char cmd[100];
+    strcpy(cmd, "AT+CWJAP=\"");
+    strcat(cmd, credentials.ssid);
+    strcat(cmd, "\",\"");
+    strcat(cmd, credentials.password);
+    strcat(cmd, "\"");
+
+    bool response = ESP_SendCommand(cmd, "WIFI GOT IP", 1000);
+
+    if (response) {
+        PRINT("Connected to %s", credentials.ssid)
+        NetworkStatus.WIFIStatus = CONNECTED;
+    } else {
+        PRINT("Failed to connect to %s", credentials.ssid)
+        NetworkStatus.WIFIStatus = NOT_CONNECTED;
+    }
+    return NetworkStatus.WIFIStatus;
 }
 
-bool Network_DisconnectFromNetwork() {
-    return ESP_DisconnectFromNetwork();
+void Network_ConnectToNetworkPlain(char *ssid, char *password) {
+    Network_ConnectToNetwork((NetworkCredentials) {.ssid = ssid, .password=password});
 }
 
-bool Network_TCP_Open(char *target, int port) {
-    char buf[10];
-    sprintf(buf, "%d", port);
-    return ESP_TCP_Open(target, buf);
+void Network_DisconnectFromNetwork(void) {
+    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
+        PRINT("Chip not working!")
+        return;
+    }
+    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+        PRINT("No connection to disconnect from!")
+        return;
+    }
+    TCP_Close(true);
+    ESP_SendCommand("AT+CWQAP", "OK", 5000);
+    NetworkStatus.WIFIStatus = NOT_CONNECTED;
 }
 
-bool Network_TCP_Close(bool force) {
-    return ESP_TCP_Close(force);
+void Network_PrintIP(void) {
+    PRINT("GETTING IP")
+    bool response = ESP_SendCommand("AT+CIFSR", "+CIFSR", 1000);
+    if (response) {
+        char ipAddress[20];
+        uartToESP_ReadLine("+CIFSR:", ipAddress);
+        PRINT("IP Address: %s", ipAddress)
+    } else {
+        PRINT("Command timed out.")
+    }
 }
 
-bool Network_TCP_SendData(char *data, int timeoutMs) {
-    return ESP_TCP_SendData(data, timeoutMs);
-}
+void Network_Ping(char *ipAddress) {
+    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
+        PRINT("Chip not working!")
+        return;
+    }
+    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+        PRINT("No network connection!")
+        return;
+    }
+    char cmd[30];
+    strcpy(cmd, "AT+PING=\"");
+    strcat(cmd, ipAddress);
+    strcat(cmd, "\"");
 
-bool Network_TCP_IsResponseAvailable() {
-    return ESP_TCP_IsResponseAvailable();
-}
-
-char *Network_TCP_GetResponse() {
-    return ESP_TCP_GetResponse();
+    bool response = ESP_SendCommand(cmd, "+PING:", 1000);
+    if (response) {
+        char timeElapsedStr[20];
+        uartToESP_ReadLine("+PING:", timeElapsedStr);
+        PRINT("PING host IP %s, %sms", ipAddress, timeElapsedStr)
+    } else {
+        PRINT("PING Timeout")
+    }
 }

@@ -3,7 +3,12 @@
 	url = https://github.com/ThrowTheSwitch/Unity.git
 [submodule "extern/freeRTOS/Kernel"]
 	path = extern/freeRTOS/Kernel
-	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+    url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+    branch = main
 [submodule "extern/elastic-ai.runtime.c"]
 	path = extern/elastic-ai.runtime.c
 	url = https://github.com/es-ude/elastic-ai.runtime.c
+[submodule "extern/pico-sdk"]
+	path = extern/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk.git
+	branch = master
