@@ -12,6 +12,7 @@ void spi_init_handler(spi_inst_t *spi, uint32_t baudrate) {
     gpio_set_dir(CS_PIN, GPIO_OUT);
     gpio_put(CS_PIN, 1);
     spi_init(spi, baudrate);
+
     gpio_set_function(SCK_PIN, GPIO_FUNC_SPI);
     gpio_set_function(MOSI_PIN, GPIO_FUNC_SPI);
     gpio_set_function(MISO_PIN, GPIO_FUNC_SPI);

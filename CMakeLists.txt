@@ -113,8 +113,8 @@ if (NOT DEVELOP AND NOT UNIT_TEST AND NOT HARDWARE_TEST)
                 FreeRTOSUtils
                 network_lib
                 espBroker_lib
-                spi
                 hardware_spi
+                spi
                 )
 
         # enable usb output, disable uart output

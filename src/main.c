@@ -61,7 +61,7 @@ void init(void);
 void mainTask(void) {
     //try init deinit
     spi_inst_t *spi = spi0;
-
+ //   for( uint8_t i=0; i<5; i++){
     // Initialize SPI port at 1 MHz
     spi_init_handler(spi, 1000 * 1000);
 
@@ -80,7 +80,7 @@ void mainTask(void) {
     TaskSleep(10000);
     int page_read=flash_read_data(spi, 0,data_read, page_length);
     printf("%u", page_read);
-    while(true){
+   // while(true){
         for (uint16_t i=0; i<3; i++){
             printf("%02X", id[i]);
 
@@ -93,13 +93,14 @@ void mainTask(void) {
             printf("%u",data_read[i]);
         }
         printf("\n");
-        TaskSleep(1000);
 
+       // spi_deinit(spi);
+        TaskSleep(1000);
 //    while (true) {
 //        PRINT("Hello, World!")
 //        TaskSleep(5000);
 
-    }
+    //}
 
 }
 
