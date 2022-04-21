@@ -61,6 +61,8 @@ int main ( void )
   {
     /* enable print to console */
     stdio_init_all ( );
+    /* wait to initialize screen session by user */
+    sleep_ms ( 5000 );
     
     uint8_t serialNumber = 0;
     float   xAxis        = 0, yAxis = 0, zAxis = 0;
@@ -80,9 +82,10 @@ int main ( void )
       }
     
     /* test function of adxl345b */
+    printf ( "Please enter g (G value), s (serialNo), b (Boot mode) to perform an action\n" );
     while ( 1 )
       {
-        char input = getchar_timeout_us ( 1000 );
+        char input = getchar_timeout_us ( 10000000 );
         
         switch ( input )
           {
@@ -96,7 +99,7 @@ int main ( void )
               enterBootMode ( );
             break;
             default:
-              printf ( "Please enter g (G value), s (serialNo), b (Boot mode) to perfom an action" );
+              printf ( "Please enter g (G value), s (serialNo), b (Boot mode) to perform an action\n" );
             break;
           }
       }

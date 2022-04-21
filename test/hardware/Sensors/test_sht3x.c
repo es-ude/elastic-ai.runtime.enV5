@@ -79,6 +79,8 @@ int main ( void )
   {
     /* enable print to console output */
     stdio_init_all ( );
+    /* wait to initialize screen session by user */
+    sleep_ms ( 5000 );
     
     /* initialize SHT3X sensor */
     sht3x_errorCode sht_errorCode;
@@ -95,9 +97,10 @@ int main ( void )
       }
     
     /* test functions of sht3x */
+    printf ( "Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b (Boot mode) to perform an action\n" );
     while ( 1 )
       {
-        char input = getchar_timeout_us ( 1000 );
+        char input = getchar_timeout_us ( 10000000 );
         
         switch ( input )
           {
@@ -117,7 +120,7 @@ int main ( void )
               enterBootMode ( );
             break;
             default:
-              printf ( "Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b (Boot mode) to perfom an action" );
+              printf ( "Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b (Boot mode) to perform an action\n" );
             break;
           }
       }
