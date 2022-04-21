@@ -25,3 +25,11 @@ function(include_src)
     add_subdirectory(src/uart)
     add_subdirectory(src/sht3x)
 endfunction()
+
+function(make_to_output_file target)
+    # enable usb output, disable uart output
+    pico_enable_stdio_usb(${target} 1)
+    pico_enable_stdio_uart(${target} 0)
+    # create map/bin/hex/uf2 file etc.
+    pico_add_uf2_output(${target})
+endfunction()

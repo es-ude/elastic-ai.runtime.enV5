@@ -14,29 +14,19 @@ pico_enable_stdio_uart(hardware-testHelper 0)
 add_executable(hardware-test_MQTTPublish test_MQTTPublish.c)
 target_link_libraries(hardware-test_MQTTPublish
         pico_stdlib
-        network_lib
         FreeRTOSUtils
         hardware-testHelper)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(hardware-test_MQTTPublish 1)
-pico_enable_stdio_uart(hardware-test_MQTTPublish 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_uf2_output(hardware-test_MQTTPublish)
+make_to_output_file(hardware-test_MQTTPublish)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_MQTTSubscribe.c
 add_executable(hardware-test_MQTTPublishSubscribe test_MQTTPublishSubscribe.c)
 target_link_libraries(hardware-test_MQTTPublishSubscribe
         pico_stdlib
-        network_lib
         espBroker_lib
         FreeRTOSUtils
         hardware-testHelper)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(hardware-test_MQTTPublishSubscribe 1)
-pico_enable_stdio_uart(hardware-test_MQTTPublishSubscribe 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_uf2_output(hardware-test_MQTTPublishSubscribe)
+make_to_output_file(hardware-test_MQTTPublishSubscribe)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_MQTTSubscribe.c
@@ -44,26 +34,34 @@ pico_add_uf2_output(hardware-test_MQTTPublishSubscribe)
 add_executable(hardware-test_MQTTSubscribe test_MQTTSubscribe.c)
 target_link_libraries(hardware-test_MQTTSubscribe
         pico_stdlib
-        network_lib
         espBroker_lib
         FreeRTOSUtils
         hardware-testHelper)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(hardware-test_MQTTSubscribe 1)
-pico_enable_stdio_uart(hardware-test_MQTTSubscribe 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_uf2_output(hardware-test_MQTTSubscribe)
+make_to_output_file(hardware-test_MQTTSubscribe)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_network.c
 add_executable(hardware-test_network test_network.c)
 target_link_libraries(hardware-test_network
         pico_stdlib
-        network_lib
         FreeRTOSUtils
         hardware-testHelper)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(hardware-test_network 1)
-pico_enable_stdio_uart(hardware-test_network 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_uf2_output(hardware-test_network)
+make_to_output_file(hardware-test_network)
+
+##############################################
+## ADD EXECUTABLE: hardware-test_network.c
+add_executable(hardware-test_StressTest test_StressTestPublish.c)
+target_link_libraries(hardware-test_StressTest
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper)
+make_to_output_file(hardware-test_StressTest)
+
+##############################################
+## ADD EXECUTABLE: hardware-test_network.c
+add_executable(hardware-test_StressTestSubscribe test_StressTestSubscribe.c)
+target_link_libraries(hardware-test_StressTestSubscribe
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper)
+make_to_output_file(hardware-test_StressTestSubscribe)

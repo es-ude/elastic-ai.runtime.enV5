@@ -20,7 +20,15 @@
     Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
 ***/
 
-void publishTestData(uint16_t i);
+void publishTestData(uint16_t i) {
+    char buffer[2];
+    sprintf(buffer, "%d", i);
+    char *data = malloc(strlen("testData") + strlen(buffer));
+    strcpy(data, "testData");
+    strcat(data, buffer);
+    publish((Posting) {.topic="testENv5PubSub", .data=data});
+    free(data);
+}
 
 void deliver(Posting posting) {
     PRINT("Received Data: %s", posting.data)
@@ -41,16 +49,6 @@ void _Noreturn mqttTask(void) {
         publishTestData(i);
         TaskSleep(1000);
     }
-}
-
-void publishTestData(uint16_t i) {
-    char buffer[2];
-    sprintf(buffer, "%d", i);
-    char *data = malloc(strlen("testData") + strlen(buffer));
-    strcpy(data, "testData");
-    strcat(data, buffer);
-    publish((Posting) {.topic="testENv5PubSub", .data=data});
-    free(data);
 }
 
 int main() {
