@@ -11,7 +11,7 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
-#include "espMQTTBroker.h"
+#include "MQTTBroker.h"
 #include "hardware/spi.h"
 #include "common.h"
 #include "spi/spi.h"
@@ -59,8 +59,7 @@ void init(void);
 //}
 
 void mainTask(void) {
-
-
+    //try init deinit
     spi_inst_t *spi = spi0;
 
     // Initialize SPI port at 1 MHz

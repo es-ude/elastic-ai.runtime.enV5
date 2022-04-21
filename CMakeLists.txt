@@ -51,7 +51,9 @@ if (DEVELOP)
             gpio_interface
             i2c_interface
             network_lib
-            uart_lib)
+            uart_lib
+            spi
+            hardware_spi)
     pico_enable_stdio_usb(main 1)
     pico_enable_stdio_uart(main 0)
 
