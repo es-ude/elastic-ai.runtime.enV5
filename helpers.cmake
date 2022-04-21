@@ -24,6 +24,7 @@ function(include_src)
     add_subdirectory(src/network)
     add_subdirectory(src/uart)
     add_subdirectory(src/sht3x)
+    add_subdirectory(src/adxl345b)
 endfunction()
 
 function(make_to_output_file target)
