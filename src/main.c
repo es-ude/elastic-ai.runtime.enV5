@@ -6,15 +6,14 @@
 
 #include "TaskWrapper.h"
 #include "QueueWrapper.h"
-
+#include "stdint.h"
 #include "Network.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
 #include "MQTTBroker.h"
 #include "hardware/spi.h"
-#include "common.h"
-#include "spi/spi.h"
+#include "spi/spi_handler.h"
 
 static const uint8_t REG_DEVID = 0x00;
 
@@ -94,7 +93,7 @@ void mainTask(void) {
         }
         printf("\n");
 
-       // spi_deinit(spi);
+        spi_deinit(spi);
         TaskSleep(1000);
 //    while (true) {
 //        PRINT("Hello, World!")
