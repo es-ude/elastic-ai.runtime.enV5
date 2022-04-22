@@ -83,7 +83,6 @@ adxl345b_errorCode adxl345b_readSerialNumber ( uint8_t * serialNumber )
     
     adxl345b_errorCode adxl345bErrorCode = readDataFromSensor ( ADXL345B_REGISTER_DEVICE_ID, responseBuffer, sizeOfResponseBuffer );
     if ( adxl345bErrorCode != ADXL345B_NO_ERROR )    /* if i2c returns error -> sensor not available on bus */
-
       {
         return adxl345bErrorCode;
       }
@@ -117,6 +116,12 @@ adxl345b_errorCode adxl345b_readMeasurements ( float * xAxis, float * yAxis, flo
     errorCode = convertRawValueToGValue ( & responseBuffer[ 4 ], zAxis );
     
     return errorCode;
+  }
+
+adxl345b_errorCode adxl345b_performSelfTest ( )
+  {
+    // TODO: Implement self test
+    return ADXL345B_CONFIGURATION_ERROR;
   }
 
 /* endregion */

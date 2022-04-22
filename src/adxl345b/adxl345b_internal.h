@@ -8,7 +8,9 @@
 /*! \b Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf \n
  * \n
  * \b INTERRUPTS -> Not connected!\n
- * \b FIFO -> Can not be used effectively due to unconnected interrupt pins
+ * \b FIFO -> Can not be used effectively due to unconnected interrupt pins\n
+ * \b Sleep \b mode -> Can not be used effectively due to unconnected interrupt pins\n
+ * \b Shock, Tap, Fall, Activity \b detection -> Can not be used due to unconnected interrupt pins\n
  */
 
 #include "typedefs.h"

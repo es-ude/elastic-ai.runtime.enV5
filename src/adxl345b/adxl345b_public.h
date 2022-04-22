@@ -5,6 +5,11 @@
 #ifndef ENV5_ADXL345B_PUBLIC_HEADER
 #define ENV5_ADXL345B_PUBLIC_HEADER
 
+/* TODO: Enable change of settings */
+/* TODO: Implement standby mode */
+/* TODO: Enable full resolution for data */
+/* TODO: Implement Offset calibration via self test */
+
 #include "typedefs.h"
 #include <stdint.h>
 
@@ -31,5 +36,11 @@ adxl345b_errorCode adxl345b_readSerialNumber ( uint8_t * serialNumber );
  * @return                       return the error code (0 if everything passed)
  */
 adxl345b_errorCode adxl345b_readMeasurements ( float * xAxis, float * yAxis, float * zAxis );
+
+/*! function to trigger the execution of the self test procedure
+ *
+ * @return             return the error code (0 if self test passed)
+ */
+adxl345b_errorCode adxl345b_performSelfTest ( );
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */
