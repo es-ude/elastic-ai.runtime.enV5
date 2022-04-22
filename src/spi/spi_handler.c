@@ -2,7 +2,7 @@
 // Created by Natalie Maman on 13.04.22.
 //
 #include "hardware/spi.h"
-#include "spi.h"
+#include "spi_handler.h"
 #include <stdint.h>
 #include "hardware/gpio.h"
 

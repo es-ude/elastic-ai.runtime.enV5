@@ -52,7 +52,6 @@ if (DEVELOP)
             i2c_interface
             network_lib
             uart_lib
-            spi
             hardware_spi)
     pico_enable_stdio_usb(main 1)
     pico_enable_stdio_uart(main 0)
@@ -66,34 +65,6 @@ if (HARDWARE_TEST)
     message(NOTICE "INFO: Building hardware tests")
 
     if (TARGET tinyusb_device)
-#<<<<<<< HEAD
-#        ##############################################
-#        ## ADD LIBRARIES
-#        # add freeRTOS libraries
-#        add_subdirectory(extern/freeRTOS/)
-#        add_subdirectory(src/FreeRTOSUtils)
-#        # add elastic-ai.runtime.c
-#        SET(TARGET_GROUP extern)
-#        add_subdirectory(extern/elastic-ai.runtime.c)
-#        # adds esp Broker
-#        add_subdirectory(src/espBroker)
-#        # adds uart library
-#        add_subdirectory(src/uart)
-#        # adds network libraries
-#        add_subdirectory(src/esp)
-#        add_subdirectory(src/network)
-#        # add i²c interface
-#        add_subdirectory(src/i2c)
-#        # add gpio interface
-#        add_subdirectory(src/gpio)
-#        add_subdirectory(src/spi)
-#
-#        ##############################################
-#        ## ADD EXECUTABLE: main
-#        # creates executable
-#        add_executable(main src/main.c)
-#        # add libraries
-#=======
         add_subdirectory(test/hardware)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
@@ -105,7 +76,6 @@ if (NOT DEVELOP AND NOT UNIT_TEST AND NOT HARDWARE_TEST)
 
     if (TARGET tinyusb_device)
         add_executable(main src/main.c) # creates executable
-
         target_include_directories(main PUBLIC
                 ${CMAKE_SOURCE_DIR}/src)
         target_link_libraries(main
@@ -114,9 +84,7 @@ if (NOT DEVELOP AND NOT UNIT_TEST AND NOT HARDWARE_TEST)
                 network_lib
                 espBroker_lib
                 hardware_spi
-                spi
-                )
-
+                spi)
         # enable usb output, disable uart output
         pico_enable_stdio_usb(main 1)
         pico_enable_stdio_uart(main 0)
