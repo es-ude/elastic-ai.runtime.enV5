@@ -6,14 +6,15 @@
 
 #include "TaskWrapper.h"
 #include "QueueWrapper.h"
-#include "stdint.h"
-#include "Network.h"
+#include <stdint.h>
+//#include "Network.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
-#include "MQTTBroker.h"
+//#include "MQTTBroker.h"
 #include "hardware/spi.h"
 #include "spi/spi_handler.h"
+#include "common.h"
 
 static const uint8_t REG_DEVID = 0x00;
 
@@ -60,7 +61,7 @@ void init(void);
 void mainTask(void) {
     //try init deinit
     spi_inst_t *spi = spi0;
- //   for( uint8_t i=0; i<5; i++){
+   // for( uint8_t i=0; i<5; i++){
     // Initialize SPI port at 1 MHz
     spi_init_handler(spi, 1000 * 1000);
 
@@ -79,7 +80,7 @@ void mainTask(void) {
     TaskSleep(10000);
     int page_read=flash_read_data(spi, 0,data_read, page_length);
     printf("%u", page_read);
-   // while(true){
+   while(true){
         for (uint16_t i=0; i<3; i++){
             printf("%02X", id[i]);
 
@@ -93,13 +94,13 @@ void mainTask(void) {
         }
         printf("\n");
 
-        spi_deinit(spi);
+       // spi_deinit(spi);
         TaskSleep(1000);
 //    while (true) {
-//        PRINT("Hello, World!")
+ //       PRINT("Hello, World!");
 //        TaskSleep(5000);
 
-    //}
+    }
 
 }
 
@@ -117,7 +118,7 @@ void init(void) {
         reset_usb_boot(0, 0);
     }
 
-    while (!Network_init());
+ //   while (!Network_init());
 
     // init usb, queue and watchdog
     stdio_init_all();
@@ -130,7 +131,7 @@ void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
 
-            MQTT_Broker_Disconnect(true);
+        //    MQTT_Broker_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();
