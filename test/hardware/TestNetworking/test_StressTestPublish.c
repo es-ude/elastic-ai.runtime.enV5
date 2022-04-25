@@ -16,6 +16,7 @@
 #include "hardwareTestHelper.h"
 
 /***
+    Similar to test_MQTTPublish.c
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
     When connected it publishes as fast as possible to eip://uni-due.de/es/stresstest.
 ***/

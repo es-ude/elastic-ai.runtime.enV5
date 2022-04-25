@@ -43,6 +43,6 @@ int main() {
     initHardwareTest();
 
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-//    RegisterTask(mqttTask, "mqttTask");
+    RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

@@ -50,12 +50,12 @@ make_to_output_file(hardware-test_network)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_network.c
-add_executable(hardware-test_StressTest test_StressTestPublish.c)
-target_link_libraries(hardware-test_StressTest
+add_executable(hardware-test_StressTestPublish test_StressTestPublish.c)
+target_link_libraries(hardware-test_StressTestPublish
         pico_stdlib
         FreeRTOSUtils
         hardware-testHelper)
-make_to_output_file(hardware-test_StressTest)
+make_to_output_file(hardware-test_StressTestPublish)
 
 ##############################################
 ## ADD EXECUTABLE: hardware-test_network.c

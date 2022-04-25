@@ -54,4 +54,3 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
         TaskSleep(1000);
     }
 }
-

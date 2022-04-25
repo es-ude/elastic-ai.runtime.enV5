@@ -12,6 +12,7 @@
 #include "hardwareTestHelper.h"
 
 /***
+    Similar to test_MQTTSubscribe.c
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
     When connected it subscribes data published to eip://uni-due.de/es/stresstest.
 ***/
