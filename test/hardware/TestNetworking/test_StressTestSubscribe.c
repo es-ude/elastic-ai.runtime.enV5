@@ -1,6 +1,9 @@
+#include <sys/cdefs.h>
+
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "TaskWrapper.h"
 
@@ -18,7 +21,7 @@
 ***/
 
 void deliver(Posting posting) {
-    PRINT("Received Data: %s", posting.data)
+    PRINT("Received Data: \"%s\", String length: \"%d\"", posting.data, strlen(posting.data))
 }
 
 void mqttTask(void) {
