@@ -32,7 +32,9 @@ void uartToEsp_Init(UARTDevice device);
 
 void uartToESP_Println(char *data);
 
-void uartToESP_CleanReceiveBuffer();
+void uartToESP_ResetReceiveBuffer(void);
+
+void uartToESP_CleanReceiveBuffer(void);
 
 bool uartToESP_ResponseArrived(char *expectedResponse);
 

@@ -10,7 +10,7 @@
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     // Clean the uart receive buffer before send the command
-    uartToESP_CleanReceiveBuffer();
+    uartToESP_ResetReceiveBuffer();
     // send the command
     uartToESP_Println(cmd);
 

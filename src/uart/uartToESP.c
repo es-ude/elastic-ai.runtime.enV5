@@ -75,6 +75,11 @@ void uartToESP_Println(char *data) {
     uart_puts((uart_inst_t *) uartDev.uartInstance, "\r\n");
 }
 
+void uartToESP_ResetReceiveBuffer(void) {
+    uartDev.receive_buf[0] = 0;
+    uartDev.receive_count = 0;
+}
+
 void uartToESP_CleanReceiveBuffer(void) {
     uartDev.receive_buf[0] = 0;
     uartDev.receive_count = 0;

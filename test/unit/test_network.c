@@ -14,7 +14,7 @@ void tearDown(void) {}
 
 void GetGoodTCPConnection() {
     uartMessage = "OK\0OK\0OK\0OK";
-    Network_init(false);
+    Network_init();
     NetworkCredentials credentials = {"123", "abc"};
     uartMessage = "WIFI GOT IP";
     Network_ConnectToNetwork(credentials);
@@ -29,7 +29,7 @@ void TEST_ORDERING_ALL_SUCCESSFUL(void) {
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
     uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
+    TEST_ASSERT_TRUE(Network_init());
     flags = NetworkStatus;
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
@@ -50,7 +50,7 @@ void TEST_ORDERING_CONNECT_TO_NETWORK_FAIL(void) {
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
     uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
+    TEST_ASSERT_TRUE(Network_init());
     flags = NetworkStatus;
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
@@ -71,7 +71,7 @@ void TEST_ORDERING_CONNECT_TO_TCP_FAIL(void) {
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
     uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
+    TEST_ASSERT_TRUE(Network_init());
     flags = NetworkStatus;
     TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
 
