@@ -3,6 +3,8 @@
 
 #include "stdbool.h"
 
+#define UART_BUFFER_SIZE 2048
+
 typedef struct uartInstance UartInstance;
 typedef enum {
     UartParity_NONE,
@@ -13,23 +15,25 @@ typedef enum {
 typedef struct {
     char name[15];
     UartInstance *uartInstance;
-    int uartId;
-    int tx_pin;
-    int rx_pin;
-    int baudrate_set;
-    int baudrate_actual;
-    int data_bits;
-    int stop_bits;
+    unsigned int uartId;
+    unsigned int tx_pin;
+    unsigned int rx_pin;
+    unsigned int baudrate_set;
+    unsigned int baudrate_actual;
+    unsigned int data_bits;
+    unsigned int stop_bits;
     UartParity parity;
-    char receive_buf[1000];
-    int receive_count;
+    char receive_buf[UART_BUFFER_SIZE];
+    unsigned int receive_count;
 } UARTDevice;
 
 void uartToEsp_Init(UARTDevice device);
 
 void uartToESP_Println(char *data);
 
-void uartToESP_CleanReceiveBuffer();
+void uartToESP_ResetReceiveBuffer(void);
+
+void uartToESP_CleanReceiveBuffer(void);
 
 bool uartToESP_ResponseArrived(char *expectedResponse);
 

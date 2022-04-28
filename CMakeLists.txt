@@ -82,11 +82,7 @@ if (NOT DEVELOP AND NOT UNIT_TEST AND NOT HARDWARE_TEST)
                 FreeRTOSUtils
                 network_lib
                 espBroker_lib)
-        # enable usb output, disable uart output
-        pico_enable_stdio_usb(main 1)
-        pico_enable_stdio_uart(main 0)
-        # create map/bin/hex/uf2 file etc.
-        pico_add_uf2_output(main)
+        make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
     endif ()

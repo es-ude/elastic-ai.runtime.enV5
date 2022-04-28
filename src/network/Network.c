@@ -16,7 +16,7 @@ NetworkStatus_t NetworkStatus = {
         .TCPStatus = NOT_CONNECTED,
         .MQTTStatus = NOT_CONNECTED};
 
-bool Network_init() {
+bool Network_init(void) {
     // init the uart interface for at
     uartToEsp_Init(esp32UartDevice);
 

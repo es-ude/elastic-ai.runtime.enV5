@@ -15,7 +15,7 @@ _Noreturn void ConnectToAccessPointTask();
 int main() {
     initHardwareTest();
     // connects to the ap
-//    RegisterTask(ConnectToAccessPointTask, "ConnectToAccessPointTask");
+    RegisterTask(ConnectToAccessPointTask, "ConnectToAccessPointTask");
     // used to reset the pi if r is pressed
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     // GO!

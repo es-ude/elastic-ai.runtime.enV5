@@ -1,10 +1,14 @@
-#include <string.h>
+#define SOURCE_FILE "UART-TO-ESP"
 
+#include <string.h>
+#include "common.h"
 #include "uartToESP.h"
 
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
+
+bool cleaning = false;
 
 UARTDevice uartDev;
 
@@ -12,14 +16,21 @@ UARTDevice uartDev;
 void callback_uart_rx_interrupt() {
     while (uart_is_readable((uart_inst_t *) uartDev.uartInstance)) {
         char ch = uart_getc((uart_inst_t *) uartDev.uartInstance);
-        uartDev.receive_buf[uartDev.receive_count] = ch;
-        uartDev.receive_count++;
-        uartDev.receive_buf[uartDev.receive_count] = 0;
+        if (uartDev.receive_count >= UART_BUFFER_SIZE) {
+            PRINT_DEBUG("Buffer full, flushing...")
+            uartToESP_CleanReceiveBuffer();
+        }
+        if (!cleaning) {
+            uartDev.receive_buf[uartDev.receive_count] = ch;
+            uartDev.receive_count++;
+            uartDev.receive_buf[uartDev.receive_count] = 0;
+        } else if (ch == '\n') {
+            cleaning = false;
+        }
     }
 }
 
 void uartToEsp_Init(UARTDevice device) {
-
     if (device.uartId == 0)
         device.uartInstance = (UartInstance *) uart0;
     else if (device.uartId == 1)
@@ -64,9 +75,15 @@ void uartToESP_Println(char *data) {
     uart_puts((uart_inst_t *) uartDev.uartInstance, "\r\n");
 }
 
+void uartToESP_ResetReceiveBuffer(void) {
+    uartDev.receive_buf[0] = 0;
+    uartDev.receive_count = 0;
+}
+
 void uartToESP_CleanReceiveBuffer(void) {
     uartDev.receive_buf[0] = 0;
     uartDev.receive_count = 0;
+    cleaning = true;
 }
 
 bool uartToESP_ResponseArrived(char *expected_response) {

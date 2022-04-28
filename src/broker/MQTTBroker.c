@@ -19,8 +19,9 @@ char *MQTT_Broker_brokerDomain = "";
 bool MQTT_Broker_ReceiverTaskRegistered = false;
 uint MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
+uint8_t receiveErrorCount = 0;
 
-_Noreturn void MQTT_Broker_ReceiverTask();
+     _Noreturn void MQTT_Broker_ReceiverTask(void);
 
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
@@ -51,8 +52,10 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port) {
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
         PRINT("Connected to %s at Port %s", target, port)
         NetworkStatus.MQTTStatus = CONNECTED;
-        if (!MQTT_Broker_ReceiverTaskRegistered)
-            RegisterTask(MQTT_Broker_ReceiverTask, "_MQTT_BROKER_ReceiverTask");
+        if (!MQTT_Broker_ReceiverTaskRegistered) {
+            RegisterTask(MQTT_Broker_ReceiverTask, "mqttBrokerReceiverTask");
+            TaskSleep(100);
+        }
     } else {
         PRINT("Could not connect to %s at Port %s", target, port)
     }
@@ -124,6 +127,7 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
             PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
         }
     }
+    free(topic);
 }
 
 void unsubscribeRaw(char *topic, Subscriber subscriber) {
@@ -148,6 +152,7 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
         }
         PRINT("Unsubscribed from %s.", topic)
     }
+    free(topic);
 }
 
 char *ID() {
@@ -158,27 +163,41 @@ bool MQTT_Broker_IsResponseAvailable() {
     return uartToESP_ResponseArrived("+MQTTSUBRECV:0,");
 }
 
-static bool MQTT_Broker_CutResponseToBuffer(Posting *response);
-
-bool MQTT_Broker_GetResponse(Posting *response) {
-    ASSERT(MQTT_Broker_IsResponseAvailable())
-    return MQTT_Broker_CutResponseToBuffer(response);
+void MQTT_Broker_handleReceivingError(void) {
+    receiveErrorCount++;
+    if (receiveErrorCount > MAX_NUMBER_OF_RECEIVE_ERRORS) {
+        uartToESP_CleanReceiveBuffer();
+        receiveErrorCount = 0;
+        PRINT_DEBUG("To many faulty messages received, flushing buffer...")
+    }
 }
 
-bool MQTT_Broker_CutResponseToBuffer(Posting *response) {
+bool MQTT_Broker_Receive(Posting *response) {
 #define DIGITS_OF_LENGTH 4
     char metaDataBuf[MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1];
     char *cmd = "+MQTTSUBRECV:0,\"";
 
     // look for the response command in the uart responseBuffer
-    // format: +MQTTSUBRECV:0,"topic",5,Hallo
+    // format: +MQTTSUBRECV:0,"topic",4,data
     uartToESP_Read(cmd, metaDataBuf, MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1);
+
+    if (strlen(metaDataBuf) == 0) {
+        PRINT_DEBUG("No message found")
+        MQTT_Broker_handleReceivingError();
+        return false;
+    }
 
     //Find the Topic attribute
     char *endOfTopic = strstr(metaDataBuf, "\",");
     int lengthOfTopic = endOfTopic - metaDataBuf;
-    if (endOfTopic == NULL || lengthOfTopic > MAX_TOPIC_NAME_LENGTH - 1) {
-        PRINT("Topic name too long")
+    if (endOfTopic == NULL) {
+        PRINT_DEBUG("No Topic length found.")
+        MQTT_Broker_handleReceivingError();
+        return false;
+    }
+    if (lengthOfTopic > MAX_TOPIC_NAME_LENGTH - 1) {
+        PRINT_DEBUG("Topic name too long: %d", lengthOfTopic)
+        MQTT_Broker_handleReceivingError();
         return false;
     }
 
@@ -191,8 +210,16 @@ bool MQTT_Broker_CutResponseToBuffer(Posting *response) {
     // Find the length of Data attribute
     char *endOfLength = strstr(endOfTopic + 2, ",");
     int lengthOfLength = endOfLength - (endOfTopic + 2);
-    if (endOfLength == NULL || lengthOfLength > DIGITS_OF_LENGTH - 1) {
-        PRINT("Length has too many digits")
+    if (endOfLength == NULL) {
+        PRINT_DEBUG("No data length found")
+        free(topicBuffer);
+        MQTT_Broker_handleReceivingError();
+        return false;
+    }
+    if (lengthOfLength > DIGITS_OF_LENGTH - 1) {
+        PRINT_DEBUG("Length has too many digits: %d", lengthOfLength)
+        free(topicBuffer);
+        MQTT_Broker_handleReceivingError();
         return false;
     }
 
@@ -207,15 +234,30 @@ bool MQTT_Broker_CutResponseToBuffer(Posting *response) {
     char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1 + 1));
     sprintf(startAtString, "%s%s\",%i,", cmd, topicBuffer, dataLength);
     char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
-    bool returnValue = false;
+
+    bool receivedCorrect = true;
     if (uartToESP_Cut(startAtString, dataBuffer, dataLength)) {
         response->data = dataBuffer;
-        returnValue = true;
+        if (strlen(dataBuffer) != dataLength) {
+            PRINT_DEBUG("Some data got lost, discarding message")
+            receivedCorrect = false;
+        }
     } else {
-        PRINT("response got lost during processing (possibly due to another transmission via uart)")
+        PRINT_DEBUG("Response got lost during processing (possibly due to another transmission via uart)")
+        receivedCorrect = false;
     }
-    free(startAtString);
-    return returnValue;
+
+    if (receivedCorrect) {
+        free(startAtString);
+        receiveErrorCount = 0;
+        return true;
+    } else {
+        free(topicBuffer);
+        free(dataBuffer);
+        free(startAtString);
+        MQTT_Broker_handleReceivingError();
+        return false;
+    }
 }
 
 void MQTT_Broker_SetClientId(char *clientId) {
@@ -243,12 +285,13 @@ void MQTT_Broker_Disconnect(bool force) {
     NetworkStatus.MQTTStatus = NOT_CONNECTED;
 }
 
-_Noreturn void MQTT_Broker_ReceiverTask() {
+_Noreturn void MQTT_Broker_ReceiverTask(void) {
     MQTT_Broker_ReceiverTaskRegistered = true;
+    TaskSleep(100);
     Posting posting = {};
     while (true) {
         if (MQTT_Broker_IsResponseAvailable()) {
-            if (MQTT_Broker_GetResponse(&posting)) {
+            if (MQTT_Broker_Receive(&posting)) {
                 for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
                     if (MQTT_Broker_checkIfTopicMatches(MQTT_Broker_subscriberList[i].topic, posting.topic)) {
                         MQTT_Broker_subscriberList[i].subscriber.deliver(posting);
@@ -258,7 +301,7 @@ _Noreturn void MQTT_Broker_ReceiverTask() {
                 free(posting.data);
             }
         }
-        TaskSleep(100);
+        TaskSleep(50);
     }
 }
 

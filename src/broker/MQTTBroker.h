@@ -7,6 +7,7 @@
 
 #define MAX_TOPIC_NAME_LENGTH 50
 #define MAX_SUBSCRIBER 100
+#define MAX_NUMBER_OF_RECEIVE_ERRORS 10
 
 typedef struct Subscription {
     char *topic;

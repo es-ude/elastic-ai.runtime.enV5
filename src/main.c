@@ -13,25 +13,22 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 
-#include "communicationEndpoint.h"
-
-void enterBootModeTask(void);
-
-void init(void);
-
-void mainTask(void) {
+_Noreturn void mainTask(void) {
     while (true) {
         PRINT("Hello, World!")
         TaskSleep(5000);
     }
 }
 
-int main() {
-    init();
-
-    RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
-    StartScheduler();
+_Noreturn void enterBootModeTask(void) {
+    while (true) {
+        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
+            MQTT_Broker_Disconnect(true);
+            reset_usb_boot(0, 0);
+        }
+        watchdog_update();
+        TaskSleep(1000);
+    }
 }
 
 void init(void) {
@@ -42,18 +39,15 @@ void init(void) {
     while (!Network_init());
     // init usb, queue and watchdog
     stdio_init_all();
-    while ((!stdio_usb_connected())) {}
+    while ((!stdio_usb_connected())) {} // waits for usb connections
     CreateQueue();
     watchdog_enable(2000, 1);
 }
 
-void _Noreturn enterBootModeTask(void) {
-    while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true);
-            reset_usb_boot(0, 0);
-        }
-        watchdog_update();
-        TaskSleep(1000);
-    }
+int main() {
+    init();
+
+    RegisterTask(enterBootModeTask, "enterBootModeTask");
+    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
+    StartScheduler();
 }
