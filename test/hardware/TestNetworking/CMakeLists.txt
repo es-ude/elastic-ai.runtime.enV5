@@ -6,6 +6,7 @@ target_link_libraries(hardware-testHelper
         espBroker_lib
         network_lib
         FreeRTOSUtils)
+target_compile_definitions(hardware-testHelper PRIVATE DEBUG)
 pico_enable_stdio_usb(hardware-testHelper 1)
 pico_enable_stdio_uart(hardware-testHelper 0)
 
@@ -15,6 +16,7 @@ target_link_libraries(hardware-test_MQTTPublish
         pico_stdlib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTPublish PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTPublish)
 
 ################## test_MQTTPublishSubscribe ##################
@@ -24,6 +26,7 @@ target_link_libraries(hardware-test_MQTTPublishSubscribe
         espBroker_lib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTPublishSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTPublishSubscribe)
 
 ################## test_MQTTSubscribe ##################
@@ -34,6 +37,7 @@ target_link_libraries(hardware-test_MQTTSubscribe
         espBroker_lib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTSubscribe)
 
 ################## test_network ##################
@@ -42,6 +46,7 @@ target_link_libraries(hardware-test_network
         pico_stdlib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_network PRIVATE DEBUG)
 make_to_output_file(hardware-test_network)
 
 ################## test_StressTestPublish ##################
@@ -50,6 +55,7 @@ target_link_libraries(hardware-test_StressTestPublish
         pico_stdlib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_StressTestPublish PRIVATE DEBUG)
 make_to_output_file(hardware-test_StressTestPublish)
 
 ################## test_StressTestSubscribe ##################
@@ -58,4 +64,5 @@ target_link_libraries(hardware-test_StressTestSubscribe
         pico_stdlib
         FreeRTOSUtils
         hardware-testHelper)
+target_compile_definitions(hardware-test_StressTestSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_StressTestSubscribe)

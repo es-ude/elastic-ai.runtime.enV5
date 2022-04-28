@@ -1,5 +1,3 @@
-#include <sys/cdefs.h>
-
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
 #include <stdio.h>

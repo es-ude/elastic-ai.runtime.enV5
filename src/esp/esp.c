@@ -22,11 +22,9 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
             break;
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
-#ifndef NDEBUG
     if (!responseArrived) {
-        PRINT("Command: %s\nResponse: %s", cmd, uartToESP_GetReceiveBuffer())
+        PRINT_DEBUG("Command: %s\nResponse: %s", cmd, uartToESP_GetReceiveBuffer())
     }
-#endif
     return responseArrived;
 }
 

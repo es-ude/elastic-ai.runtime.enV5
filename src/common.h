@@ -14,6 +14,17 @@
         printf("\n");                                                                                        \
     }
 
+#ifdef DEBUG
+#define PRINT_DEBUG(str, ...)                                                                                      \
+    {                                                                                                        \
+        printf("\033[0;33m[%s: %s] ", SOURCE_FILE, __FUNCTION__);                                                       \
+        printf(str, ##__VA_ARGS__);                                                                          \
+        printf("\033[0m\n");                                                                                        \
+    }
+#else
+#define PRINT_DEBUG(str, ...) {}
+#endif
+
 #define ASSERT(test)                                                                                    \
     if (!(test))                                                                                        \
         return 0;

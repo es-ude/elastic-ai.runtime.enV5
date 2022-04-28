@@ -48,7 +48,7 @@ static UARTDevice esp32UartDevice = {
 
 extern NetworkStatus_t NetworkStatus;
 
-bool Network_init();
+bool Network_init(void);
 
 bool Network_ConnectToNetwork(NetworkCredentials credentials);
 

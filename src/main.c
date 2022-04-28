@@ -19,7 +19,7 @@ void enterBootModeTask(void);
 
 void init(void);
 
-void mainTask(void) {
+_Noreturn void mainTask(void) {
     while (true) {
         PRINT("Hello, World!")
         TaskSleep(5000);
@@ -47,7 +47,7 @@ void init(void) {
     watchdog_enable(2000, 1);
 }
 
-void _Noreturn enterBootModeTask(void) {
+_Noreturn void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             MQTT_Broker_Disconnect(true);
