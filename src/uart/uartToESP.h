@@ -2,7 +2,6 @@
 #define UART_TO_ESP_H
 
 #include "stdbool.h"
-#include "pico/types.h"
 
 #define UART_BUFFER_SIZE 2048
 
@@ -16,16 +15,16 @@ typedef enum {
 typedef struct {
     char name[15];
     UartInstance *uartInstance;
-    int uartId;
-    int tx_pin;
-    int rx_pin;
-    int baudrate_set;
-    uint baudrate_actual;
-    int data_bits;
-    int stop_bits;
+    unsigned int uartId;
+    unsigned int tx_pin;
+    unsigned int rx_pin;
+    unsigned int baudrate_set;
+    unsigned int baudrate_actual;
+    unsigned int data_bits;
+    unsigned int stop_bits;
     UartParity parity;
     char receive_buf[UART_BUFFER_SIZE];
-    uint receive_count;
+    unsigned int receive_count;
 } UARTDevice;
 
 void uartToEsp_Init(UARTDevice device);

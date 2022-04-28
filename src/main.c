@@ -13,38 +13,11 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 
-#include "communicationEndpoint.h"
-
-void enterBootModeTask(void);
-
-void init(void);
-
 _Noreturn void mainTask(void) {
     while (true) {
         PRINT("Hello, World!")
         TaskSleep(5000);
     }
-}
-
-int main() {
-    init();
-
-    RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
-    StartScheduler();
-}
-
-void init(void) {
-    // Did we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot()) {
-        reset_usb_boot(0, 0);
-    }
-    while (!Network_init());
-    // init usb, queue and watchdog
-    stdio_init_all();
-    while ((!stdio_usb_connected())) {}
-    CreateQueue();
-    watchdog_enable(2000, 1);
 }
 
 _Noreturn void enterBootModeTask(void) {
@@ -56,4 +29,25 @@ _Noreturn void enterBootModeTask(void) {
         watchdog_update();
         TaskSleep(1000);
     }
+}
+
+void init(void) {
+    // Did we crash last time -> reboot into boot rom mode
+    if (watchdog_enable_caused_reboot()) {
+        reset_usb_boot(0, 0);
+    }
+    while (!Network_init());
+    // init usb, queue and watchdog
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {} // waits for usb connections
+    CreateQueue();
+    watchdog_enable(2000, 1);
+}
+
+int main() {
+    init();
+
+    RegisterTask(enterBootModeTask, "enterBootModeTask");
+    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
+    StartScheduler();
 }
