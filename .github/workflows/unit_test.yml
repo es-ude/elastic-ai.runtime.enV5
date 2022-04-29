@@ -14,9 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install gdb-multiarch
-        run: sudo apt-get install gdb-multiarch
-
       - name: Create build test directory
         run: mkdir ${{github.workspace}}/build_test
 
