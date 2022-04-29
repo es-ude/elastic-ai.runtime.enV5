@@ -15,7 +15,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup
-        run: mkdir ${{github.workspace}}/build_test
+        run: |
+          sudo apt-get install ninja-build
+          mkdir ${{github.workspace}}/build_test
 
       - name: Configure CMake
         working-directory: ${{github.workspace}}/build_test
