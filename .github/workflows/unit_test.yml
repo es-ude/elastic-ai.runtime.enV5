@@ -14,16 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Create build test directory
+      - name: Setup
         run: mkdir ${{github.workspace}}/build_test
 
-      - name: CMAKE
+      - name: Configure CMake
         working-directory: ${{github.workspace}}/build_test
-        run: cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
+        run: cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
-      - name: Make all
+      - name: Build
         working-directory: ${{github.workspace}}/build_test
-        run: make -j4
+        run: ninja -j4
 
       - name: Run tests
         working-directory: ${{github.workspace}}/build_test/test/unit/

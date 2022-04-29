@@ -14,16 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install gdb-multiarch
-        run: sudo apt-get install gdb-multiarch
+      - name: Setup
+        run: |
+          sudo apt-get install gcc-arm-none-eabi
+          sudo apt-get install ninja-build
+          mkdir ${{github.workspace}}/build_test
 
-      - name: Create build test directory
-        run: mkdir ${{github.workspace}}/build_test
-
-      - name: CMAKE
+      - name: Configure CMake
         working-directory: ${{github.workspace}}/build_test
-        run: cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
+        run: cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
-      - name: Make all
+      - name: Build
         working-directory: ${{github.workspace}}/build_test
-        run: make -j4
+        run: ninja -j4
