@@ -1,4 +1,4 @@
-name: Tests
+name: Hardware Tests
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  unitTests:
+  build_hardware_tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,14 +19,8 @@ jobs:
 
       - name: CMAKE
         working-directory: ${{github.workspace}}/build_test
-        run: cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
+        run: cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG ..
 
       - name: Make all
         working-directory: ${{github.workspace}}/build_test
         run: make -j4
-
-      - name: Run tests
-        working-directory: ${{github.workspace}}/build_test/test/unit/
-        env:
-          FILES: unit-*
-        run: for file in $FILES; do ./$file; done
