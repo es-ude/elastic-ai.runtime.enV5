@@ -44,7 +44,7 @@ static void getSerialNumber ( )
       }
     else
       {
-        printf ( "\033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode );
+        printf ( "  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode );
       }
     
   }
@@ -53,24 +53,25 @@ static void getGValue ( )
   {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     
-    printf ( "Requesting g values." );
+    printf ( "Requesting g values.\n" );
     adxl345b_errorCode errorCode = adxl345b_readMeasurements ( & xAxis, & yAxis, & zAxis );
     if ( errorCode == ADXL345B_NO_ERROR )
       {
         float sumOfAxis = floatToAbs ( xAxis ) + floatToAbs ( yAxis ) + floatToAbs ( zAxis );
-        printf ( compareFloatsWithinRange ( 1.0f, sumOfAxis, 0.1f ) ? "  \033[0;32mPASSED\033[0m\n" : "  \033[0;31mFAILED\033[0m\n" );
+        printf ( compareFloatsWithinRange ( 1.0f, sumOfAxis, 0.1f ) ? "  \033[0;32mPASSED\033[0m; " : "  \033[0;31mFAILED\033[0m; " );
         printf ( "Expected: 1.0f, Actual: %2.4f = %2.4f + %2.4f + %2.4f = X + Y + Z\n", sumOfAxis, xAxis, yAxis, zAxis );
       }
     else
       {
-        printf ( "\033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode );
+        printf ( "  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode );
       }
   }
 
 static void makeSelfTest ( )
   {
     printf ( "Start self test:\n" );
-    adxl345b_errorCode errorCode = adxl345b_performSelfTest ( );
+    int                delta_x, delta_y, delta_z;
+    adxl345b_errorCode errorCode = adxl345b_performSelfTest ( & delta_x, & delta_y, & delta_z );
     if ( errorCode == ADXL345B_NO_ERROR )
       {
         printf ( "  \033[0;32mPASSED\033[0m\n" );
@@ -79,6 +80,8 @@ static void makeSelfTest ( )
       {
         printf ( "  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02x\n", errorCode );
       }
+    
+    printf ( "  X: %i, Y: %i, Z: %i\n", delta_x, delta_y, delta_z );
   }
 
 static void enterBootMode ( )
