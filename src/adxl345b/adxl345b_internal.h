@@ -5,7 +5,10 @@
 #ifndef ENV5_ADXL345B_INTERNAL_HEADER
 #define ENV5_ADXL345B_INTERNAL_HEADER
 
-/*! \b Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf \n
+/*! \b Datasheet: \n
+ *      https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf \n
+ *  \b Quick \b Start \b Guide: \n
+ *      https://www.analog.com/media/en/technical-documentation/application-notes/AN-1077.pdf \n
  * \n
  * \b INTERRUPTS -> Not connected!\n
  * \b FIFO -> Can not be used effectively due to unconnected interrupt pins\n
@@ -19,18 +22,12 @@
 
 /* region CONSTANTS */
 
-static const adxl345b_rangeSettings MEASUREMENTS_RANGE_SETTINGS = ADXL345B_2G_RANGE_SETTING;
-static const adxl345b_maxValue      MAX_VALUE                   = ADXL345B_2G_MAX_VALUE;
-static const adxl345b_msbMask       MSB_MASK                    = 0b00000011;
+static adxl345b_i2cSensorConfiguration i2c_SensorConfiguration; /*!< i2c configuration for the sensor */
 
-/*! possible Values for scale factor depends on Range and resolution,\n
- * resolution is always 10 bit => only range is relevant:\n
- *   ->  2G range: 0.0043f \n
- *   ->  4G range: 0.0087f \n
- *   ->  8G range: 0.0175f \n
- *   -> 16G range: 0.0345f
- */
-static const adxl345b_scaleFactor SCALE_FACTOR_FOR_RANGE = 0.0043f;
+static adxl345b_range         sensorMeasurementRange    = ADXL345B_2G_RANGE;
+static adxl345b_rangeSettings measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
+static adxl345b_msbMask       msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
+static adxl345b_scaleFactor   scaleFactorForRange       = 0.0043f;
 
 /* endregion */
 
@@ -45,21 +42,35 @@ static const adxl345b_scaleFactor SCALE_FACTOR_FOR_RANGE = 0.0043f;
  */
 static adxl345b_errorCode readDataFromSensor ( adxl345b_register registerToRead, uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
 
-/*! function to send the configuration to the sensor
+/*! function to convert the raw value received from the sensor to a lsb value
  *
- * @param registerToWrite[in] address of the register to write the configuration bit to
- * @param configuration[in]   configuration bit to write to the sensor
- * @return                    return the error code (0 if everything passed)
+ * @param rawData[in]   raw data received from the sensor
+ * @param lsbValue[out] LSB value
+ * @return              return the error code (0 if everything passed)
  */
-static adxl345b_errorCode writeConfigurationToSensor ( adxl345b_register registerToWrite, uint8_t configuration );
+static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int * lsbValue );
 
-/*! function to convert the raw value received from the sensor to a actual float value
+/*! function to convert the lsb value received from the sensor to a actual float value
+ *
+ * @param lsb[in] raw data received from the sensor
+ * @param gValue[out] real world G value
+ * @return            return the error code (0 if everything passed)
+ */
+static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue );
+
+/*! combination of convertRawValueToLSB(...) and convertLSBtoGValue(...)
  *
  * @param rawData[in] raw data received from the sensor
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
 static adxl345b_errorCode convertRawValueToGValue ( const uint8_t rawData[2], float * gValue );
+
+/*! function to set the sensor into low power mode at 2G range with full resolution
+ *
+ * @return return the error code (0 if everything passed)
+ */
+static adxl345b_errorCode writeDefaultLowPowerConfiguration ( );
 
 /* endregion*/
 

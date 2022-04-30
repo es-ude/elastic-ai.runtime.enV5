@@ -5,9 +5,7 @@
 #ifndef ENV5_ADXL345B_PUBLIC_HEADER
 #define ENV5_ADXL345B_PUBLIC_HEADER
 
-/* TODO: Enable change of settings */
 /* TODO: Implement standby mode */
-/* TODO: Enable full resolution for data */
 /* TODO: Implement Offset calibration via self test */
 
 #include "typedefs.h"
@@ -22,6 +20,21 @@
  * @return            return the error code (0 if everything passed)
  */
 adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost );
+
+/*! function to send the configuration to the sensor
+ *
+ * @param registerToWrite[in] address of the register to write the configuration bit to
+ * @param configuration[in]   configuration bit to write to the sensor
+ * @return                    return the error code (0 if everything passed)
+ */
+adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register registerToWrite, uint8_t configuration );
+
+/*! function to chagne the measurement range of the sensor
+ *
+ * @param newRange[in] value of \enum in typedefs.h
+ * @return             return the error code (0 if everything passed)
+ */
+adxl345b_errorCode adxl345b_chagneMeasurementRange ( adxl345b_range newRange );
 
 /*! function to read the serial number from the sensor
  *
@@ -41,6 +54,6 @@ adxl345b_errorCode adxl345b_readMeasurements ( float * xAxis, float * yAxis, flo
  *
  * @return             return the error code (0 if self test passed)
  */
-adxl345b_errorCode adxl345b_performSelfTest ( );
+adxl345b_errorCode adxl345b_performSelfTest ( int * delta_x, int * delta_y, int * delta_z );
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */

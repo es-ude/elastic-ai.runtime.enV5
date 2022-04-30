@@ -10,12 +10,6 @@
 #include <stdint.h>
 
 
-/* region VARIABLES */
-
-static adxl345b_i2cSensorConfiguration i2c_SensorConfiguration; /*!< i2c configuration for the sensor */
-
-/* endregion */
-
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost )
@@ -45,29 +39,69 @@ adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost )
         return ADXL345B_INIT_ERROR;
       }
     
-    /* enable low power mode at 12.5Hz data output rate */
-    adxl345b_errorCode errorCode = writeConfigurationToSensor ( ADXL345B_REGISTER_BW_RATE, 0b00010111 );
+    adxl345b_errorCode errorCode = writeDefaultLowPowerConfiguration ( );
     if ( errorCode != ADXL345B_NO_ERROR )
       {
         return errorCode;
       }
     
-    /* disable auto sleep, enable normal operation mode */
-    errorCode = writeConfigurationToSensor ( ADXL345B_REGISTER_POWER_CONTROL, 0b00001000 );
-    if ( errorCode != ADXL345B_NO_ERROR )
+    return ADXL345B_NO_ERROR;
+  }
+
+adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register registerToWrite, uint8_t configuration )
+  {
+    uint8_t sizeOfCommandBuffer = 2;
+    uint8_t commandBuffer[sizeOfCommandBuffer];
+    commandBuffer[ 0 ] = registerToWrite;
+    commandBuffer[ 1 ] = configuration;
+    
+    I2C_ErrorCode errorCode = I2C_WriteCommand ( commandBuffer, sizeOfCommandBuffer, i2c_SensorConfiguration.i2c_slave_address, i2c_SensorConfiguration.i2c_host
+                                               );
+    if ( errorCode != I2C_NO_ERROR )
       {
-        return errorCode;
+        return ADXL345B_CONFIGURATION_ERROR;
       }
     
-    /* disable all interrupts */
-    errorCode = writeConfigurationToSensor ( ADXL345B_REGISTER_INTERRUPT_ENABLE, 0b00000000 );
-    if ( errorCode != ADXL345B_NO_ERROR )
+    return ADXL345B_NO_ERROR;
+  }
+
+adxl345b_errorCode adxl345b_changeMeasurementRange ( adxl345b_range measurementRange )
+  {
+    switch ( measurementRange )
       {
-        return errorCode;
+        case ADXL345B_16G_RANGE:
+          sensorMeasurementRange  = ADXL345B_16G_RANGE;
+        measurementsRangeSettings = ADXL345B_16G_RANGE_SETTING;
+        msbMask                   = ADXL345B_16G_FULL_RESOLUTION;
+        scaleFactorForRange       = 0.0345f;
+        break;
+        case ADXL345B_8G_RANGE:
+          sensorMeasurementRange  = ADXL345B_8G_RANGE;
+        measurementsRangeSettings = ADXL345B_8G_FULL_RESOLUTION;
+        msbMask                   = ADXL345B_8G_FULL_RESOLUTION;
+        scaleFactorForRange       = 0.0175f;
+        break;
+        case ADXL345B_4G_RANGE:
+          sensorMeasurementRange  = ADXL345B_4G_RANGE;
+        measurementsRangeSettings = ADXL345B_4G_RANGE_SETTING;
+        msbMask                   = ADXL345B_4G_FULL_RESOLUTION;
+        scaleFactorForRange       = 0.0087f;
+        break;
+        case ADXL345B_2G_RANGE:
+          sensorMeasurementRange  = ADXL345B_2G_RANGE;
+        measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
+        msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
+        scaleFactorForRange       = 0.0043f;
+        break;
+        default:
+          sensorMeasurementRange  = ADXL345B_2G_RANGE;
+        measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
+        msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
+        scaleFactorForRange       = 0.0043f;
       }
     
-    /* right adjusted storage, enable full resolution for selected range */
-    errorCode = writeConfigurationToSensor ( ADXL345B_REGISTER_DATA_FORMAT, MEASUREMENTS_RANGE_SETTINGS );
+    /* right adjusted storage, selected range settings for full resolution */
+    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_DATA_FORMAT, measurementsRangeSettings );
     if ( errorCode != ADXL345B_NO_ERROR )
       {
         return errorCode;
@@ -94,10 +128,22 @@ adxl345b_errorCode adxl345b_readSerialNumber ( uint8_t * serialNumber )
 
 adxl345b_errorCode adxl345b_readMeasurements ( float * xAxis, float * yAxis, float * zAxis )
   {
-    uint8_t sizeOfResponseBuffer = 6;
-    uint8_t responseBuffer[sizeOfResponseBuffer];
+    adxl345b_errorCode errorCode;
+    uint8_t            interruptSources;
+    uint8_t            sizeOfResponseBuffer = 6;
+    uint8_t            responseBuffer[sizeOfResponseBuffer];
     
-    adxl345b_errorCode errorCode = readDataFromSensor ( ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer );
+    /* check if data is ready */
+    do
+      {
+        errorCode = readDataFromSensor ( ADXL345B_REGISTER_INTERRUPT_SOURCE, & interruptSources, 1 );
+        if ( errorCode != ADXL345B_NO_ERROR )
+          {
+            return errorCode;
+          }
+      } while ( ! ( interruptSources & 0b10000000 ) );
+    
+    errorCode = readDataFromSensor ( ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer );
     if ( errorCode != ADXL345B_NO_ERROR )
       {
         return errorCode;
@@ -118,10 +164,198 @@ adxl345b_errorCode adxl345b_readMeasurements ( float * xAxis, float * yAxis, flo
     return errorCode;
   }
 
-adxl345b_errorCode adxl345b_performSelfTest ( )
+adxl345b_errorCode adxl345b_performSelfTest ( int * delta_x, int * delta_y, int * delta_z )
   {
-    // TODO: Implement self test
-    return ADXL345B_CONFIGURATION_ERROR;
+    adxl345b_errorCode errorCode;
+    
+    /* standard mode, 100Hz */
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_BW_RATE, 0b00001010 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    /* disable sleep/wakeup functions, start measurements */
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_POWER_CONTROL, 0b00001000 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    /* right adjusted, 16G range */
+    errorCode = adxl345b_changeMeasurementRange ( ADXL345B_16G_RANGE );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
+    sleep_ms ( 2 );
+    
+    /* collect 100 samples without force */
+    int samplesWithoutForce[100][3];
+    int counter = 0;
+    while ( counter < 100 )
+      {
+        uint8_t interrupt_source;
+        errorCode = readDataFromSensor ( ADXL345B_REGISTER_INTERRUPT_SOURCE, & interrupt_source, 1 );
+        if ( errorCode != ADXL345B_NO_ERROR )
+          {
+            return errorCode;
+          }
+        
+        if ( interrupt_source & 0b10000000 )
+          {
+            uint8_t sizeOfResponseBuffer = 6;
+            uint8_t responseBuffer[sizeOfResponseBuffer];
+            errorCode = readDataFromSensor ( ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            
+            int data_x, data_y, data_z;
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 0 ], & data_x );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 2 ], & data_y );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 4 ], & data_z );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            
+            samplesWithoutForce[ counter ][ 0 ] = data_x;
+            samplesWithoutForce[ counter ][ 1 ] = data_y;
+            samplesWithoutForce[ counter ][ 2 ] = data_z;
+            
+            sleep_ms ( 20 );
+            counter ++;
+          }
+      }
+    
+    /* calculate average of samples without force */
+    int       sum_samplesWithoutForce_x = 0;
+    int       sum_samplesWithoutForce_y = 0;
+    int       sum_samplesWithoutForce_z = 0;
+    for ( int index                     = 0 ; index < 100 ; index ++ )
+      {
+        sum_samplesWithoutForce_x += samplesWithoutForce[ index ][ 0 ];
+        sum_samplesWithoutForce_y += samplesWithoutForce[ index ][ 1 ];
+        sum_samplesWithoutForce_z += samplesWithoutForce[ index ][ 2 ];
+      }
+    int       avg_sampleWithoutForce_x  = sum_samplesWithoutForce_x / 100;
+    int       avg_sampleWithoutForce_y  = sum_samplesWithoutForce_y / 100;
+    int       avg_sampleWithoutForce_z  = sum_samplesWithoutForce_z / 100;
+    
+    /* enable self test force */
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_DATA_FORMAT, 0b10001000 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
+    sleep_ms ( 2 );
+    
+    /* collect 100 samples with force */
+    int samplesWithForce[100][3];
+    counter = 0;
+    while ( counter < 100 )
+      {
+        uint8_t interrupt_source;
+        errorCode = readDataFromSensor ( ADXL345B_REGISTER_INTERRUPT_SOURCE, & interrupt_source, 1 );
+        if ( errorCode != ADXL345B_NO_ERROR )
+          {
+            return errorCode;
+          }
+        
+        if ( ( interrupt_source & 0b10000000 ) == 0b10000000 )
+          {
+            uint8_t sizeOfResponseBuffer = 6;
+            uint8_t responseBuffer[sizeOfResponseBuffer];
+            
+            errorCode = readDataFromSensor ( ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            
+            int data_x, data_y, data_z;
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 0 ], & data_x );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 2 ], & data_y );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            errorCode = convertRawValueToLSB ( & responseBuffer[ 4 ], & data_z );
+            if ( errorCode != ADXL345B_NO_ERROR )
+              {
+                return errorCode;
+              }
+            
+            samplesWithForce[ counter ][ 0 ] = data_x;
+            samplesWithForce[ counter ][ 1 ] = data_y;
+            samplesWithForce[ counter ][ 2 ] = data_z;
+            
+            sleep_ms ( 20 );
+            counter ++;
+          }
+      }
+    
+    /* calculate average of samples without force */
+    int       sum_samplesWithForce_x = 0;
+    int       sum_samplesWithForce_y = 0;
+    int       sum_samplesWithForce_z = 0;
+    for ( int index                  = 0 ; index < 100 ; index ++ )
+      {
+        sum_samplesWithForce_x += samplesWithForce[ index ][ 0 ];
+        sum_samplesWithForce_y += samplesWithForce[ index ][ 1 ];
+        sum_samplesWithForce_z += samplesWithForce[ index ][ 2 ];
+      }
+    int       avg_sampleWithForce_x  = sum_samplesWithForce_x / 100;
+    int       avg_sampleWithForce_y  = sum_samplesWithForce_y / 100;
+    int       avg_sampleWithForce_z  = sum_samplesWithForce_z / 100;
+    
+    // return to default operation mode
+    writeDefaultLowPowerConfiguration ( );
+    
+    /* compare average to datasheet */
+    int deltaOfAverage_x = avg_sampleWithForce_x - avg_sampleWithoutForce_x;
+    deltaOfAverage_x = deltaOfAverage_x < 0 ? ( - 1 ) * deltaOfAverage_x : deltaOfAverage_x;
+    * delta_x = deltaOfAverage_x;
+    
+    int deltaOfAverage_y = avg_sampleWithForce_y - avg_sampleWithoutForce_y;
+    deltaOfAverage_y = deltaOfAverage_y < 0 ? ( - 1 ) * deltaOfAverage_y : deltaOfAverage_y;
+    * delta_y = deltaOfAverage_y;
+    
+    int deltaOfAverage_z = avg_sampleWithForce_z - avg_sampleWithoutForce_z;
+    deltaOfAverage_z = deltaOfAverage_z < 0 ? ( - 1 ) * deltaOfAverage_z : deltaOfAverage_z;
+    * delta_z = deltaOfAverage_z;
+    
+    int max_delta = 282;
+    if ( deltaOfAverage_x > max_delta )
+      {
+        return ADXL345B_SELF_TEST_FAILED;
+      }
+    
+    if ( deltaOfAverage_y > max_delta )
+      {
+        return ADXL345B_SELF_TEST_FAILED;
+      }
+    
+    if ( deltaOfAverage_z > max_delta )
+      {
+        return ADXL345B_SELF_TEST_FAILED;
+      }
+    
+    return ADXL345B_NO_ERROR;
   }
 
 /* endregion */
@@ -150,47 +384,87 @@ static adxl345b_errorCode readDataFromSensor ( adxl345b_register registerToRead,
     return ADXL345B_NO_ERROR;
   }
 
-static adxl345b_errorCode writeConfigurationToSensor ( adxl345b_register registerToWrite, uint8_t configuration )
+static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int * lsbValue )
   {
-    uint8_t sizeOfCommandBuffer = 2;
-    uint8_t commandBuffer[sizeOfCommandBuffer];
-    commandBuffer[ 0 ] = registerToWrite;
-    commandBuffer[ 1 ] = configuration;
-    
-    I2C_ErrorCode errorCode = I2C_WriteCommand ( commandBuffer, sizeOfCommandBuffer, i2c_SensorConfiguration.i2c_slave_address, i2c_SensorConfiguration.i2c_host
-                                               );
-    if ( errorCode != I2C_NO_ERROR )
+    if ( rawData[ 1 ] <= ( msbMask >> 1 ) )
       {
-        return ADXL345B_CONFIGURATION_ERROR;
+        /* CASE: positive value */
+        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & msbMask ) << 8 ) | ( uint16_t ) rawData[ 0 ];
+        * lsbValue = ( int ) rawValue;
       }
+    else
+      {
+        /* CASE: negative value => manual translation needed
+         *
+         * 1. revert two complement: number minus 1 and flip bits
+         * 2. convert to int and multiply with -1
+         */
+        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & ( msbMask >> 1 ) ) << 8 ) | ( uint16_t ) rawData[ 0 ];
+        rawValue = ( rawValue - 0x0001 ) ^ ( ( msbMask >> 1 ) << 8 | 0x00FF );
+        * lsbValue = ( - 1 ) * ( int ) rawValue;
+      }
+      
+    return ADXL345B_NO_ERROR;
+  }
+
+static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue )
+  {
+    float realValue = ( float ) lsb * scaleFactorForRange;
+    * gValue = realValue;
     
     return ADXL345B_NO_ERROR;
   }
 
 static adxl345b_errorCode convertRawValueToGValue ( const uint8_t rawData[2], float * gValue )
   {
-    if ( rawData[ 1 ] <= ( MSB_MASK >> 1 ) )
+    int                intermediate_lsb = 0;
+    adxl345b_errorCode errorCode        = convertRawValueToLSB ( rawData, & intermediate_lsb );
+    if ( errorCode != ADXL345B_NO_ERROR )
       {
-        /* CASE: positive value */
-        int16_t rawValue  = ( int16_t ) ( ( ( uint16_t ) ( rawData[ 1 ] & MSB_MASK ) << 8 ) | ( uint16_t ) rawData[ 0 ] );
-        float   realValue = ( float ) rawValue * SCALE_FACTOR_FOR_RANGE;
-        * gValue = realValue;
+        return errorCode;
       }
-    else
+    
+    float intermediate_gValue = 0;
+    errorCode = convertLSBtoGValue ( intermediate_lsb, & intermediate_gValue );
+    if ( errorCode != ADXL345B_NO_ERROR )
       {
-        /* CASE: negative value => manual translation needed
-         *
-         * 1. revert 10 bit two complement
-         * -> number-1 and Flip least 9 bits
-         * 2. convert to float value
-         * 3. multiply with (-1)
-         * 4. multiply with scale factor
-         */
-        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & ( MSB_MASK >> 1 ) ) << 8 ) | ( uint16_t ) rawData[ 0 ];
-        rawValue = ( rawValue - 0x0001 ) ^ 0x01FF;
-        float realValue = ( - 1 ) * ( float ) rawValue * SCALE_FACTOR_FOR_RANGE;
-        * gValue = realValue;
+        return errorCode;
       }
+    
+    * gValue = intermediate_gValue;
+    return ADXL345B_NO_ERROR;
+  }
+
+static adxl345b_errorCode writeDefaultLowPowerConfiguration ( )
+  {
+    /* enable low power mode at 12.5Hz data output rate */
+    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_BW_RATE, 0b00010111 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
+    /* disable auto sleep, enable normal operation mode */
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_POWER_CONTROL, 0b00001000 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
+    /* disable all interrupts */
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_INTERRUPT_ENABLE, 0b00000000 );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
+    /* right adjusted storage, enable 10 bit 2G resolution */
+    errorCode = adxl345b_changeMeasurementRange ( ADXL345B_2G_RANGE );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    
     return ADXL345B_NO_ERROR;
   }
 

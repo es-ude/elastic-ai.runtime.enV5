@@ -12,9 +12,9 @@ typedef struct i2c_inst i2c_inst_t;
 
 typedef struct
   {
-    uint8_t    i2c_slave_address;
+    uint8_t i2c_slave_address;
     i2c_inst_t * i2c_host;
-  }                     adxl345b_i2cSensorConfiguration;
+  }             adxl345b_i2cSensorConfiguration;
 
 enum
   {
@@ -46,28 +46,37 @@ enum
     ADXL345B_FIFO_CONTROL                = 0x38,
     ADXL345B_FIFO_STATUS                 = 0x39
   };
-typedef uint8_t         adxl345b_register;
-typedef uint8_t         adxl345b_command;
+typedef uint8_t adxl345b_register;
+typedef uint8_t adxl345b_command;
 
 enum
   {
-    ADXL345B_16G_RANGE_SETTING = 0b00000011,
-    ADXL345B_8G_RANGE_SETTING  = 0b00000010,
-    ADXL345B_4G_RANGE_SETTING  = 0b00000001,
-    ADXL345B_2G_RANGE_SETTING  = 0b00000000,
+    ADXL345B_16G_RANGE = 16,
+    ADXL345B_8G_RANGE  = 8,
+    ADXL345B_4G_RANGE  = 4,
+    ADXL345B_2G_RANGE  = 2,
   };
-typedef uint8_t         adxl345b_rangeSettings;
-typedef uint8_t         adxl345b_msbMask;
-typedef float           adxl345b_scaleFactor;
+typedef uint8_t adxl345b_range;
 
 enum
   {
-    ADXL345B_16G_MAX_VALUE = 16,
-    ADXL345B_8G_MAX_VALUE  = 8,
-    ADXL345B_4G_MAX_VALUE  = 4,
-    ADXL345B_2G_MAX_VALUE  = 2,
+    ADXL345B_16G_RANGE_SETTING = 0b00001011,
+    ADXL345B_8G_RANGE_SETTING  = 0b00001010,
+    ADXL345B_4G_RANGE_SETTING  = 0b00001001,
+    ADXL345B_2G_RANGE_SETTING  = 0b00001000,
   };
-typedef float           adxl345b_maxValue;
+typedef uint8_t adxl345b_rangeSettings;
+
+enum
+  {
+    ADXL345B_10BIT_RESOLUTION    = 0b00000011,
+    ADXL345B_2G_FULL_RESOLUTION  = 0b00000011,
+    ADXL345B_4G_FULL_RESOLUTION  = 0b00000111,
+    ADXL345B_8G_FULL_RESOLUTION  = 0b00001111,
+    ADXL345B_16G_FULL_RESOLUTION = 0b00011111,
+  };
+typedef uint8_t adxl345b_msbMask;
+typedef float   adxl345b_scaleFactor;
 
 enum
   {
@@ -79,7 +88,8 @@ enum
     ADXL345B_PARM_ERROR          = 0x11,
     ADXL345B_CONFIGURATION_ERROR = 0x12,
     ADXL345B_UNDEFINED_ERROR     = 0x20,
+    ADXL345B_SELF_TEST_FAILED    = 0x30,
   };
-typedef uint8_t         adxl345b_errorCode;
+typedef uint8_t adxl345b_errorCode;
 
 #endif /* ENV5_ADXL345B_TYPEDEFS */
