@@ -26,11 +26,6 @@ static adxl345b_i2cSensorConfiguration i2c_SensorConfiguration; /*!< i2c configu
 
 static adxl345b_range selectedRange; /*!< measurement range configuration */
 
-const static adxl345b_range ADXL345B_16G_RANGE = { 16, 0b00001011, 0b00111111, 0.0345f };
-const static adxl345b_range ADXL345B_8G_RANGE  = { 8, 0b00001010, 0b00001111, 0.0175f };
-const static adxl345b_range ADXL345B_4G_RANGE  = { 4, 0b00001001, 0b00000111, 0.0087f };
-const static adxl345b_range ADXL345B_2G_RANGE  = { 2, 0b00001000, 0b00000011, 0.0043f };
-
 /* endregion */
 
 /* region FUNCTION PROTOTYPES */

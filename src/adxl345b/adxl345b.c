@@ -395,7 +395,7 @@ static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int *
     if ( rawData[ 1 ] <= ( selectedRange.msbMask >> 1 ) )
       {
         /* CASE: positive value */
-        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & selectedRange.msbMask ) << 8 ) | ( uint16_t ) rawData[ 0 ];
+        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & ( selectedRange.msbMask >> 1 ) ) << 8 ) | ( uint16_t ) rawData[ 0 ];
         * lsbValue = ( int ) rawValue;
       }
     else
@@ -423,14 +423,14 @@ static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue )
 
 static adxl345b_errorCode convertRawValueToGValue ( const uint8_t rawData[2], float * gValue )
   {
-    int                intermediate_lsb = 0;
-    adxl345b_errorCode errorCode        = convertRawValueToLSB ( rawData, & intermediate_lsb );
+    int                intermediate_lsb;
+    adxl345b_errorCode errorCode = convertRawValueToLSB ( rawData, & intermediate_lsb );
     if ( errorCode != ADXL345B_NO_ERROR )
       {
         return errorCode;
       }
     
-    float intermediate_gValue = 0;
+    float intermediate_gValue;
     errorCode = convertLSBtoGValue ( intermediate_lsb, & intermediate_gValue );
     if ( errorCode != ADXL345B_NO_ERROR )
       {

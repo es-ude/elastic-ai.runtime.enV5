@@ -11,6 +11,12 @@
 #include <stdint.h>
 
 
+const static adxl345b_range ADXL345B_16G_RANGE = { 16, 0b00001011, 0b00111111, 0.0345f };
+const static adxl345b_range ADXL345B_8G_RANGE  = { 8, 0b00001010, 0b00001111, 0.0175f };
+const static adxl345b_range ADXL345B_4G_RANGE  = { 4, 0b00001001, 0b00000111, 0.0087f };
+const static adxl345b_range ADXL345B_2G_RANGE  = { 2, 0b00001000, 0b00000011, 0.0043f };
+
+
 /*! initializes the sensor\n
  *  function has to be called before use of the sensor can be used \n
  *  \b IMPORTANT: needs max 1.5ms for idle state after power up
@@ -34,7 +40,7 @@ adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register regis
  * @param newRange[in] value of \enum in typedefs.h
  * @return             return the error code (0 if everything passed)
  */
-adxl345b_errorCode adxl345b_chagneMeasurementRange ( adxl345b_range newRange );
+adxl345b_errorCode adxl345b_changeMeasurementRange ( adxl345b_range newRange );
 
 /*! function to read the serial number from the sensor
  *
@@ -64,6 +70,6 @@ adxl345b_errorCode adxl345b_performSelfTest ( int * delta_x, int * delta_y, int 
  *
  * @return return the error code (0 if self test passed)
  */
-adxl345b_errorCode adxl345b_runSelfCalibration ();
+adxl345b_errorCode adxl345b_runSelfCalibration ( );
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */
