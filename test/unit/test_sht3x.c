@@ -12,8 +12,8 @@
 void setUp ( void )
   {
     /* Default: Point to Pass */
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Pass;
-    I2C_ReadCommand_ptr  = I2C_ReadCommand_Pass;
+    I2C_WriteCommand_ptr = I2C_WriteCommand_Pass_for_SHT3X;
+    I2C_ReadCommand_ptr  = I2C_ReadCommand_Pass_for_SHT3X;
   }
 
 void tearDown ( void )
@@ -61,7 +61,7 @@ void SHT3X_ReadStatusRegister_get_RECEIVE_DATA_FAIL_error_if_ACK_missing ( void 
 void SHT3X_ReadStatusRegister_get_CHECKSUM_FAIL_error ( void )
   {
     sht3x_statusRegister statusRegister;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_readStatusRegister ( & statusRegister );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
@@ -128,7 +128,7 @@ void SHT3X_ReadSerialNumber_get_RECEIVE_DATA_FAIL_error_if_ACK_missing ( void )
 void SHT3X_ReadSerialNumber_get_CHECKSUM_FAIL_error ( void )
   {
     uint32_t serialNumber;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_readSerialNumber ( & serialNumber );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
@@ -186,7 +186,7 @@ void SHT3X_GetTemperature_get_RECEIVE_DATA_FAIL_error_if_hardware_fails ( void )
 void SHT3X_GetTemperature_get_CHECKSUM_FAIL_error ( void )
   {
     float temperature;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_getTemperature ( & temperature );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
@@ -263,7 +263,7 @@ void SHT3X_GetHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing ( void )
 void SHT3X_GetHumidity_get_CHECKSUM_FAIL_error ( void )
   {
     float humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_getHumidity ( & humidity );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
@@ -331,7 +331,7 @@ void SHT3X_GetTemperatureAndHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing 
 void SHT3X_GetTemperatureAndHumidity_get_CHECKSUM_FAIL_error ( void )
   {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity ( & temperature, & humidity );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
@@ -403,7 +403,7 @@ void SHT3X_ReadMeasurementBuffer_get_RECEIVE_DATA_FAIL_error_if_ACK_missing ( vo
 void SHT3X_ReadMeasurementBuffer_get_CHECKSUM_FAIL_error ( void )
   {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail;
+    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
     
     sht3x_errorCode errorCode = sht3x_readMeasurementBuffer ( & temperature, & humidity );
     TEST_ASSERT_EQUAL_UINT8( SHT3X_CHECKSUM_ERROR, errorCode );
