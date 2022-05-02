@@ -24,10 +24,12 @@
 
 static adxl345b_i2cSensorConfiguration i2c_SensorConfiguration; /*!< i2c configuration for the sensor */
 
-static adxl345b_range         sensorMeasurementRange    = ADXL345B_2G_RANGE;
-static adxl345b_rangeSettings measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
-static adxl345b_msbMask       msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
-static adxl345b_scaleFactor   scaleFactorForRange       = 0.0043f;
+static adxl345b_range selectedRange; /*!< measurement range configuration */
+
+const static adxl345b_range ADXL345B_16G_RANGE = { 16, 0b00001011, 0b00111111, 0.0345f };
+const static adxl345b_range ADXL345B_8G_RANGE  = { 8, 0b00001010, 0b00001111, 0.0175f };
+const static adxl345b_range ADXL345B_4G_RANGE  = { 4, 0b00001001, 0b00000111, 0.0087f };
+const static adxl345b_range ADXL345B_2G_RANGE  = { 2, 0b00001000, 0b00000011, 0.0043f };
 
 /* endregion */
 
@@ -71,6 +73,15 @@ static adxl345b_errorCode convertRawValueToGValue ( const uint8_t rawData[2], fl
  * @return return the error code (0 if everything passed)
  */
 static adxl345b_errorCode writeDefaultLowPowerConfiguration ( );
+
+/*! function to calculate the offset that should be passed to the sensor
+ *
+ * @param measuredDelta[in] delta measured during self test
+ * @param maxValue[in]      max value that would be accepted
+ * @param minValue[in]      min value that would be accepted
+ * @return                  8 bit two complement that should be passed to the sensor as offset
+ */
+static int8_t calculateCalibrationOffset ( int measuredDeltam, int maxValue, int minValue );
 
 /* endregion*/
 

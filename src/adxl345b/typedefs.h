@@ -8,14 +8,29 @@
 #include <stdint.h>
 
 
+/* abstraction to avoid dependencies to pico libraries */
 typedef struct i2c_inst i2c_inst_t;
 
-typedef struct
+/* i2c address of the sensor
+ *
+ * defines the possible i2c addresses of the sensor:
+ * ADXL345B_I2C_ALTERNATE_ADDRESS should be chosen if the ALT ADDRESS pin (12) is connected to GND
+ * ADXL345B_I2C_ADDRESS otherwise
+ */
+enum
   {
-    uint8_t i2c_slave_address;
+    ADXL345B_I2C_ADDRESS           = 0x1D,
+    ADXL345B_I2C_ALTERNATE_ADDRESS = 0x53,
+  };
+typedef uint8_t         adxl345b_i2c_slave_address;
+
+typedef struct i2cConfiguration
+  {
+    adxl345b_i2c_slave_address i2c_slave_address;
     i2c_inst_t * i2c_host;
   }             adxl345b_i2cSensorConfiguration;
 
+/* All Register + address of the ADXL345B */
 enum
   {
     ADXL345B_REGISTER_DEVICE_ID          = 0x00,
@@ -47,48 +62,33 @@ enum
     ADXL345B_FIFO_STATUS                 = 0x39
   };
 typedef uint8_t adxl345b_register;
-typedef uint8_t adxl345b_command;
+typedef uint8_t adxl345b_configuration;
 
-enum
-  {
-    ADXL345B_16G_RANGE = 16,
-    ADXL345B_8G_RANGE  = 8,
-    ADXL345B_4G_RANGE  = 4,
-    ADXL345B_2G_RANGE  = 2,
-  };
-typedef uint8_t adxl345b_range;
 
-enum
-  {
-    ADXL345B_16G_RANGE_SETTING = 0b00001011,
-    ADXL345B_8G_RANGE_SETTING  = 0b00001010,
-    ADXL345B_4G_RANGE_SETTING  = 0b00001001,
-    ADXL345B_2G_RANGE_SETTING  = 0b00001000,
-  };
-typedef uint8_t adxl345b_rangeSettings;
-
-enum
-  {
-    ADXL345B_10BIT_RESOLUTION    = 0b00000011,
-    ADXL345B_2G_FULL_RESOLUTION  = 0b00000011,
-    ADXL345B_4G_FULL_RESOLUTION  = 0b00000111,
-    ADXL345B_8G_FULL_RESOLUTION  = 0b00001111,
-    ADXL345B_16G_FULL_RESOLUTION = 0b00011111,
-  };
 typedef uint8_t adxl345b_msbMask;
 typedef float   adxl345b_scaleFactor;
+typedef uint8_t adxl345b_rangeSettings;
+typedef struct range
+  {
+    uint8_t                maxRange;
+    adxl345b_rangeSettings settingForRange;
+    adxl345b_msbMask       msbMask;
+    adxl345b_scaleFactor   scaleFactor;
+  }             adxl345b_range;
 
 enum
   {
-    ADXL345B_NO_ERROR            = 0x00,
-    ADXL345B_SEND_COMMAND_ERROR  = 0x01,
-    ADXL345B_RECEIVE_DATA_ERROR  = 0x02,
-    ADXL345B_CHECKSUM_ERROR      = 0x03,
-    ADXL345B_INIT_ERROR          = 0x10,
-    ADXL345B_PARM_ERROR          = 0x11,
-    ADXL345B_CONFIGURATION_ERROR = 0x12,
-    ADXL345B_UNDEFINED_ERROR     = 0x20,
-    ADXL345B_SELF_TEST_FAILED    = 0x30,
+    ADXL345B_NO_ERROR               = 0x00,
+    ADXL345B_SEND_COMMAND_ERROR     = 0x01,
+    ADXL345B_RECEIVE_DATA_ERROR     = 0x02,
+    ADXL345B_CHECKSUM_ERROR         = 0x03,
+    ADXL345B_INIT_ERROR             = 0x10,
+    ADXL345B_PARM_ERROR             = 0x11,
+    ADXL345B_CONFIGURATION_ERROR    = 0x12,
+    ADXL345B_UNDEFINED_ERROR        = 0x20,
+    ADXL345B_SELF_TEST_FAILED_FOR_X = 0x31,
+    ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,
+    ADXL345B_SELF_TEST_FAILED_FOR_Z = 0x33,
   };
 typedef uint8_t adxl345b_errorCode;
 

@@ -12,11 +12,11 @@
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost )
+adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost, adxl345b_i2c_slave_address i2cAddress )
   {
     /* save i2c access for later usage */
     i2c_SensorConfiguration.i2c_host          = i2cHost;
-    i2c_SensorConfiguration.i2c_slave_address = 0x53;
+    i2c_SensorConfiguration.i2c_slave_address = i2cAddress;
     
     I2C_Init ( i2c_SensorConfiguration.i2c_host, ( 100 * 1000 ), 0, 1 );
     
@@ -48,7 +48,7 @@ adxl345b_errorCode adxl345b_init ( i2c_inst_t * i2cHost )
     return ADXL345B_NO_ERROR;
   }
 
-adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register registerToWrite, uint8_t configuration )
+adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register registerToWrite, adxl345b_configuration configuration )
   {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
@@ -65,43 +65,12 @@ adxl345b_errorCode adxl345b_writeConfigurationToSensor ( adxl345b_register regis
     return ADXL345B_NO_ERROR;
   }
 
-adxl345b_errorCode adxl345b_changeMeasurementRange ( adxl345b_range measurementRange )
+adxl345b_errorCode adxl345b_changeMeasurementRange ( adxl345b_range newRange )
   {
-    switch ( measurementRange )
-      {
-        case ADXL345B_16G_RANGE:
-          sensorMeasurementRange  = ADXL345B_16G_RANGE;
-        measurementsRangeSettings = ADXL345B_16G_RANGE_SETTING;
-        msbMask                   = ADXL345B_16G_FULL_RESOLUTION;
-        scaleFactorForRange       = 0.0345f;
-        break;
-        case ADXL345B_8G_RANGE:
-          sensorMeasurementRange  = ADXL345B_8G_RANGE;
-        measurementsRangeSettings = ADXL345B_8G_FULL_RESOLUTION;
-        msbMask                   = ADXL345B_8G_FULL_RESOLUTION;
-        scaleFactorForRange       = 0.0175f;
-        break;
-        case ADXL345B_4G_RANGE:
-          sensorMeasurementRange  = ADXL345B_4G_RANGE;
-        measurementsRangeSettings = ADXL345B_4G_RANGE_SETTING;
-        msbMask                   = ADXL345B_4G_FULL_RESOLUTION;
-        scaleFactorForRange       = 0.0087f;
-        break;
-        case ADXL345B_2G_RANGE:
-          sensorMeasurementRange  = ADXL345B_2G_RANGE;
-        measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
-        msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
-        scaleFactorForRange       = 0.0043f;
-        break;
-        default:
-          sensorMeasurementRange  = ADXL345B_2G_RANGE;
-        measurementsRangeSettings = ADXL345B_2G_RANGE_SETTING;
-        msbMask                   = ADXL345B_2G_FULL_RESOLUTION;
-        scaleFactorForRange       = 0.0043f;
-      }
+    selectedRange = newRange;
     
     /* right adjusted storage, selected range settings for full resolution */
-    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_DATA_FORMAT, measurementsRangeSettings );
+    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_REGISTER_DATA_FORMAT, selectedRange.settingForRange );
     if ( errorCode != ADXL345B_NO_ERROR )
       {
         return errorCode;
@@ -328,31 +297,68 @@ adxl345b_errorCode adxl345b_performSelfTest ( int * delta_x, int * delta_y, int 
     
     /* compare average to datasheet */
     int deltaOfAverage_x = avg_sampleWithForce_x - avg_sampleWithoutForce_x;
-    deltaOfAverage_x = deltaOfAverage_x < 0 ? ( - 1 ) * deltaOfAverage_x : deltaOfAverage_x;
     * delta_x = deltaOfAverage_x;
     
     int deltaOfAverage_y = avg_sampleWithForce_y - avg_sampleWithoutForce_y;
-    deltaOfAverage_y = deltaOfAverage_y < 0 ? ( - 1 ) * deltaOfAverage_y : deltaOfAverage_y;
     * delta_y = deltaOfAverage_y;
     
     int deltaOfAverage_z = avg_sampleWithForce_z - avg_sampleWithoutForce_z;
-    deltaOfAverage_z = deltaOfAverage_z < 0 ? ( - 1 ) * deltaOfAverage_z : deltaOfAverage_z;
     * delta_z = deltaOfAverage_z;
     
-    int max_delta = 282;
-    if ( deltaOfAverage_x > max_delta )
+    int max_delta_x = 489, max_delta_y = - 46, max_delta_z = 791;
+    int min_delta_x = 46, min_delta_y = - 489, min_delta_z = 69;
+    if ( ! ( min_delta_x <= deltaOfAverage_x && deltaOfAverage_x <= max_delta_x ) )
       {
-        return ADXL345B_SELF_TEST_FAILED;
+        return ADXL345B_SELF_TEST_FAILED_FOR_X;
       }
     
-    if ( deltaOfAverage_y > max_delta )
+    if ( ! ( min_delta_y <= deltaOfAverage_y && deltaOfAverage_y <= max_delta_y ) )
       {
-        return ADXL345B_SELF_TEST_FAILED;
+        return ADXL345B_SELF_TEST_FAILED_FOR_Y;
       }
     
-    if ( deltaOfAverage_z > max_delta )
+    if ( ! ( min_delta_z <= deltaOfAverage_z && deltaOfAverage_z <= max_delta_z ) )
       {
-        return ADXL345B_SELF_TEST_FAILED;
+        return ADXL345B_SELF_TEST_FAILED_FOR_Z;
+      }
+    
+    return ADXL345B_NO_ERROR;
+  }
+
+adxl345b_errorCode adxl345b_runSelfCalibration ( )
+  {
+    int                delta_x, delta_y, delta_z;
+    adxl345b_errorCode errorCode = adxl345b_performSelfTest ( & delta_x, & delta_y, & delta_z );
+    if ( errorCode == ADXL345B_NO_ERROR )
+      {
+        return ADXL345B_NO_ERROR;
+      }
+    if ( errorCode != ADXL345B_SELF_TEST_FAILED_FOR_X && errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Y && errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Z )
+      {
+        return errorCode;
+      }
+    
+    int8_t offset_x, offset_y, offset_z;
+    int    max_delta_x = 489, max_delta_y = - 46, max_delta_z = 791;
+    int    min_delta_x = 46, min_delta_y = - 489, min_delta_z = 69;
+    offset_x = calculateCalibrationOffset ( delta_x, max_delta_x, min_delta_x );
+    offset_y = calculateCalibrationOffset ( delta_y, max_delta_y, min_delta_y );
+    offset_z = calculateCalibrationOffset ( delta_z, max_delta_z, min_delta_z );
+    
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_OFFSET_X, offset_x );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_OFFSET_Y, offset_y );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
+      }
+    errorCode = adxl345b_writeConfigurationToSensor ( ADXL345B_OFFSET_Z, offset_z );
+    if ( errorCode != ADXL345B_NO_ERROR )
+      {
+        return errorCode;
       }
     
     return ADXL345B_NO_ERROR;
@@ -386,10 +392,10 @@ static adxl345b_errorCode readDataFromSensor ( adxl345b_register registerToRead,
 
 static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int * lsbValue )
   {
-    if ( rawData[ 1 ] <= ( msbMask >> 1 ) )
+    if ( rawData[ 1 ] <= ( selectedRange.msbMask >> 1 ) )
       {
         /* CASE: positive value */
-        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & msbMask ) << 8 ) | ( uint16_t ) rawData[ 0 ];
+        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & selectedRange.msbMask ) << 8 ) | ( uint16_t ) rawData[ 0 ];
         * lsbValue = ( int ) rawValue;
       }
     else
@@ -399,17 +405,17 @@ static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int *
          * 1. revert two complement: number minus 1 and flip bits
          * 2. convert to int and multiply with -1
          */
-        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & ( msbMask >> 1 ) ) << 8 ) | ( uint16_t ) rawData[ 0 ];
-        rawValue = ( rawValue - 0x0001 ) ^ ( ( msbMask >> 1 ) << 8 | 0x00FF );
+        uint16_t rawValue = ( ( uint16_t ) ( rawData[ 1 ] & ( selectedRange.msbMask >> 1 ) ) << 8 ) | ( uint16_t ) rawData[ 0 ];
+        rawValue = ( rawValue - 0x0001 ) ^ ( ( selectedRange.msbMask >> 1 ) << 8 | 0x00FF );
         * lsbValue = ( - 1 ) * ( int ) rawValue;
       }
-      
+    
     return ADXL345B_NO_ERROR;
   }
 
 static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue )
   {
-    float realValue = ( float ) lsb * scaleFactorForRange;
+    float realValue = ( float ) lsb * selectedRange.scaleFactor;
     * gValue = realValue;
     
     return ADXL345B_NO_ERROR;
@@ -466,6 +472,19 @@ static adxl345b_errorCode writeDefaultLowPowerConfiguration ( )
       }
     
     return ADXL345B_NO_ERROR;
+  }
+
+static int8_t calculateCalibrationOffset ( int measuredDelta, int maxValue, int minValue )
+  {
+    if ( measuredDelta <= minValue )
+      {
+        return ( int8_t ) ( minValue - measuredDelta );
+      }
+    if ( measuredDelta >= maxValue )
+      {
+        return ( int8_t ) ( maxValue - measuredDelta );
+      }
+    return 0;
   }
 
 /* endregion */
