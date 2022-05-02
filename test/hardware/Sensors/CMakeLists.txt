@@ -12,3 +12,16 @@ pico_enable_stdio_uart(hardware-test_sht3 0)
 # create map/bin/hex/uf2 file etc.
 pico_add_uf2_output(hardware-test_sht3)
 ##############################################
+## ADD EXECUTABLE: hardware-test_adxl345b
+add_executable(hardware-test_adxl345b test_adxl345b.c)
+target_link_libraries(hardware-test_adxl345b
+        pico_stdio
+        pico_time
+        hardware_i2c
+        sensor_lib_adxl345b)
+# enable usb output, disable uart output
+pico_enable_stdio_usb(hardware-test_adxl345b 1)
+pico_enable_stdio_uart(hardware-test_adxl345b 0)
+# create map/bin/hex/uf2 file etc.
+pico_add_uf2_output(hardware-test_adxl345b)
+##############################################

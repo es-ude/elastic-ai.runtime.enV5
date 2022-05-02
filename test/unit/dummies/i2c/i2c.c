@@ -40,10 +40,16 @@ I2C_ErrorCode I2C_WriteCommand_ACK_missing ( const uint8_t * commandBuffer, uint
     return I2C_ACK_ERROR;
   }
 
-I2C_ErrorCode I2C_WriteCommand_Pass ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+I2C_ErrorCode I2C_WriteCommand_Pass_for_SHT3X ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
   {
     return I2C_NO_ERROR;
   }
+
+I2C_ErrorCode I2C_WriteCommand_Pass_for_ADXL345B ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+  {
+    return I2C_NO_ERROR;
+  }
+
 
 /* endregion */
 
@@ -66,7 +72,7 @@ I2C_ErrorCode I2C_ReadCommand_ACK_missing ( uint8_t * readBuffer, uint8_t sizeOf
     return I2C_ACK_ERROR;
   }
 
-I2C_ErrorCode I2C_ReadCommand_Pass ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+I2C_ErrorCode I2C_ReadCommand_Pass_for_SHT3X ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
   {
     /**
      * @brief failing I²C implementation
@@ -88,7 +94,7 @@ I2C_ErrorCode I2C_ReadCommand_Pass ( uint8_t * readBuffer, uint8_t sizeOfReadBuf
     return 0x00;
   }
 
-I2C_ErrorCode I2C_ReadCommand_provoke_checksum_fail ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+I2C_ErrorCode I2C_ReadCommand_provoke_checksum_fail_for_SHT3X ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
   {
     /**
      * @brief failing I2C implementation
@@ -105,6 +111,17 @@ I2C_ErrorCode I2C_ReadCommand_provoke_checksum_fail ( uint8_t * readBuffer, uint
         readBuffer[ index ]     = byteZero;
         readBuffer[ index + 1 ] = byteOne;
         readBuffer[ index + 2 ] = wrongByteChecksum;
+      }
+    
+    return 0x00;
+  }
+
+I2C_ErrorCode I2C_ReadCommand_Pass_for_ADXL345B ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+  {
+    /* generate sample data without any real world connection to test implementation */
+    for ( uint8_t index = 0 ; index < sizeOfReadBuffer ; index ++ )
+      {
+        readBuffer[ index ] = byteZero;
       }
     
     return 0x00;
