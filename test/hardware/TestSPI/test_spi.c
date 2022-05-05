@@ -34,7 +34,7 @@ void readDeviceID(){
     spi_inst_t *spi = spi0;
     spi_init_handler(spi, 1000 * 1000);
     uint8_t id[3];
-    spi_read_data(spi, REG_DEVID, id, 3);
+    spi_read_id(spi, id, 3);
     printf("Device ID is: ");
     printf("%02X%02X%02X", id[0], id[1], id[2]);
     printf("\n");
@@ -52,24 +52,31 @@ void writeSPI (){
     for (uint16_t i = 0; i < page_length; i++) {
         data[i] = i;
     }
-    int wrote_page = flash_write_page(spi, 0, data, page_length);
+    int wrote_page = flash_write_page(spi, REG_DEVID, data, page_length);
     printf("%u", wrote_page);
     printf(" bytes written\n");
-
     spi_deinit(spi);
-    TaskSleep(1000);
+
 }
 
 
+void eraseSPISector(){
+    spi_inst_t *spi = spi0;
+    spi_init_handler(spi, 1000 * 1000);
+    int erased_sector= flash_erase_data(spi, 0);
+    if(erased_sector==1){
+        printf("erased sector\n");
+    }
+    spi_deinit(spi);
 
+}
 void readSPI(){
     spi_inst_t *spi = spi0;
     // Initialize SPI port at 1 MHz
     spi_init_handler(spi, 1000 * 1000);
     uint16_t page_length = 256;
     uint8_t data_read[page_length];
-    TaskSleep(5000);
-    int page_read = flash_read_data(spi, 0, data_read, page_length);
+    int page_read = flash_read_data(spi, REG_DEVID, data_read, page_length);
     printf("%u", page_read);
     printf(" bytes read \n");
     for (uint16_t i = 0; i < page_length; i++) {
@@ -85,6 +92,9 @@ void spiTask(){
         switch (input) {
             case 'i':
                 readDeviceID();
+                break;
+            case 'e':
+                eraseSPISector();
                 break;
             case 'w':
                 writeSPI();
