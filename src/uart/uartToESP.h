@@ -3,13 +3,13 @@
 
 #include "stdbool.h"
 
-#define UART_BUFFER_SIZE 512
+#define UART_BUFFER_SIZE 1024
 
 typedef struct {
-    char *cmd;
+    char cmd[512];
     bool responseArrived;
-    char *expectedResponse;
-    char *response;
+    char expectedResponse[512];
+    char data[512];
 } esp_command;
 
 typedef struct uartInstance UartInstance;

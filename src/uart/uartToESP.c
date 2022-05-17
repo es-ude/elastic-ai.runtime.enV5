@@ -9,24 +9,21 @@
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 
-#include <malloc.h>
+#include "common.h"
 
 UARTDevice uartDev;
 bool lastWasR = false;
 
-esp_command command = {.cmd=NULL};
+esp_command command = {.cmd="\0"};
 
 void handleNewLine(void) {
-    char receive_buf[UART_BUFFER_SIZE];
-    memcpy(receive_buf, uartDev.receive_buf, strlen(uartDev.receive_buf) + 1);
-    if (strlen(receive_buf) != 0) {
-        if (strncmp("+MQTTSUBRECV", receive_buf, 12) == 0) {
-            MQTT_Broker_Receive(receive_buf);
+    if (strlen(uartDev.receive_buf) != 0) {
+        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
+            MQTT_Broker_Receive(uartDev.receive_buf);
         }
-        if (command.cmd != NULL &&
-            strncmp(command.expectedResponse, receive_buf, strlen(command.expectedResponse)) == 0) {
+        if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
             command.responseArrived = true;
-            command.response = receive_buf;
+            strcpy(command.data, &uartDev.receive_buf[strlen(command.expectedResponse)]);
         }
     }
 }

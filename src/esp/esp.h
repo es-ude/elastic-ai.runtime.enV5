@@ -8,8 +8,10 @@
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
-void ESP_SoftReset();
+bool ESP_SendCommandAndGetResponse(char *cmd, char *expectedResponse, int timeoutMs, char * response);
 
-bool ESP_CheckIsResponding();
+void ESP_SoftReset(void);
+
+bool ESP_CheckIsResponding(void);
 
 #endif //SENSOR_BOARD_ESP_H
