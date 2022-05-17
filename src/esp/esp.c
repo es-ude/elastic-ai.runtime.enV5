@@ -8,24 +8,30 @@
 #include "TaskWrapper.h"
 #include "uartToESP.h"
 
-bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
-    // Clean the uart receive buffer before send the command
-    uartToESP_ResetReceiveBuffer();
-    // send the command
-    uartToESP_Println(cmd);
 
-    bool responseArrived = false;
+extern esp_command command;
+
+bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
+    if (command.cmd != NULL) {
+        PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
+        return false;
+    }
+
+    command.cmd = cmd;
+    command.responseArrived = false;
+    command.expectedResponse = expectedResponse;
+
+    uartToESP_SendCommand();
+
     TaskSleep(REFRESH_RESPOND_IN_MS / 2);
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        responseArrived = uartToESP_ResponseArrived(expectedResponse);
-        if (responseArrived)
+        if (command.responseArrived)
             break;
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
-    if (!responseArrived) {
-        PRINT_DEBUG("Command: %s\nResponse: %s", cmd, uartToESP_GetReceiveBuffer())
-    }
-    return responseArrived;
+
+    command.cmd = NULL;
+    return command.responseArrived;
 }
 
 void ESP_SoftReset() {

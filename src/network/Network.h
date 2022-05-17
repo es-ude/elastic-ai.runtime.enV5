@@ -43,7 +43,6 @@ static UARTDevice esp32UartDevice = {
         .data_bits        = 8,
         .stop_bits        = 1,
         .parity           = UartParity_NONE,
-        .receive_count    = 0,
 };
 
 extern NetworkStatus_t NetworkStatus;

@@ -21,11 +21,13 @@ bool Network_init(void) {
     uartToEsp_Init(esp32UartDevice);
 
     ESP_SoftReset();
+
     while (!ESP_CheckIsResponding()) {
         PRINT("ESP ACK_CHECK failed")
         TaskSleep(1000);
         ESP_SoftReset();
     }
+
     PRINT("ESP is responding")
     // disable echo, make the output more clean
     ESP_SendCommand("ATE0", "OK", 100);
@@ -59,9 +61,7 @@ bool Network_ConnectToNetwork(NetworkCredentials credentials) {
     strcat(cmd, credentials.password);
     strcat(cmd, "\"");
 
-    bool response = ESP_SendCommand(cmd, "WIFI GOT IP", 1000);
-
-    if (response) {
+    if (ESP_SendCommand(cmd, "WIFI GOT IP", 1000)) {
         PRINT("Connected to %s", credentials.ssid)
         NetworkStatus.WIFIStatus = CONNECTED;
     } else {
@@ -94,7 +94,8 @@ void Network_PrintIP(void) {
     bool response = ESP_SendCommand("AT+CIFSR", "+CIFSR", 1000);
     if (response) {
         char ipAddress[20];
-        uartToESP_ReadLine("+CIFSR:", ipAddress);
+        //TODO
+//        uartToESP_ReadLine("+CIFSR:", ipAddress);
         PRINT("IP Address: %s", ipAddress)
     } else {
         PRINT("Command timed out.")
@@ -118,7 +119,8 @@ void Network_Ping(char *ipAddress) {
     bool response = ESP_SendCommand(cmd, "+PING:", 1000);
     if (response) {
         char timeElapsedStr[20];
-        uartToESP_ReadLine("+PING:", timeElapsedStr);
+        //TODO
+//        uartToESP_ReadLine("+PING:", timeElapsedStr);
         PRINT("PING host IP %s, %sms", ipAddress, timeElapsedStr)
     } else {
         PRINT("PING Timeout")

@@ -10,6 +10,4 @@ fi
   cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
 
   ninja -j4
-
-  ninja clean
 )

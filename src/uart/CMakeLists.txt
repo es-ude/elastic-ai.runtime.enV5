@@ -5,4 +5,5 @@ target_include_directories(uart_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(uart_lib INTERFACE
         pico_stdlib
         hardware_gpio
-        hardware_uart)
+        hardware_uart
+        espBroker_lib)
