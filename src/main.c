@@ -36,11 +36,13 @@ void init(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    while (!Network_init());
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {} // waits for usb connections
+
+    while (!Network_init());
     CreateQueue();
+
     watchdog_enable(2000, 1);
 }
 

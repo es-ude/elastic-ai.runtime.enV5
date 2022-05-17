@@ -75,8 +75,6 @@ bool TCP_SendData(char *data, int timeoutMs) {
     char cmd[20];
     sprintf(cmd, "AT+CIPSEND=%d", strlen(data));
 
-    // Clean the uart receive buffer before send the command
-    uartToESP_CleanReceiveBuffer();
     // send the command and data
     if (!(ESP_SendCommand(cmd, ">", 100) && ESP_SendCommand(data, "SEND OK", 1000))) {
         PRINT("Failed to send data. Make sure everything is connected and try again later.")
@@ -94,9 +92,11 @@ bool TCP_SendData(char *data, int timeoutMs) {
 
     if (!responseArrived) {
         PRINT("Timeout: No response arrived!")
-    } else if (uartToESP_ResponseArrived("CLOSED")) {
-        NetworkStatus.TCPStatus = NOT_CONNECTED;
     }
+    //TODO
+//    else if (uartToESP_ResponseArrived("CLOSED")) {
+//        NetworkStatus.TCPStatus = NOT_CONNECTED;
+//    }
 
     return responseArrived;
 }
@@ -104,14 +104,16 @@ bool TCP_SendData(char *data, int timeoutMs) {
 char *TCP_GetResponse(void) {
     ASSERT(TCP_IsResponseAvailable())
     char *ret = TCP_CutResponseToBuffer();
-    if (uartToESP_ResponseArrived("CLOSED")) {
-        NetworkStatus.TCPStatus = NOT_CONNECTED;
-    }
+    //TODO
+//    if (uartToESP_ResponseArrived("CLOSED")) {
+//        NetworkStatus.TCPStatus = NOT_CONNECTED;
+//    }
     return ret;
 }
 
 bool TCP_IsResponseAvailable(void) {
-    return uartToESP_ResponseArrived("+IPD,");
+    return true;
+//    return uartToESP_ResponseArrived("+IPD,"); TODO
 }
 
 static char *TCP_CutResponseToBuffer(void) {
@@ -120,7 +122,7 @@ static char *TCP_CutResponseToBuffer(void) {
     char data_length[20];
     // look for the response command in the uart responseBuffer
     // format: +IPD,5:Hallo
-    uartToESP_Read("+IPD,", metaDataBuf, 20);
+//    uartToESP_Read("+IPD,", metaDataBuf, 20); //TODO
     char *endOfLength = strstr(metaDataBuf, ":");
     if (endOfLength == NULL || endOfLength - metaDataBuf > 19) {
         PRINT("Response too long")
@@ -138,6 +140,6 @@ static char *TCP_CutResponseToBuffer(void) {
 
     // allocate memory for the response data and copy
     responseBuf = malloc(len + 1);
-    uartToESP_Cut(startAtString, responseBuf, len);
+//    uartToESP_Cut(startAtString, responseBuf, len); //TODO
     return responseBuf;
 }

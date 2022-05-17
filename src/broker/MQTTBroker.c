@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <sys/unistd.h>
 
 #include "MQTTBroker.h"
 
@@ -11,8 +12,6 @@
 
 #include "common.h"
 #include "esp.h"
-#include "uartToESP.h"
-#include "TaskWrapper.h"
 #include "Network.h"
 
 char *MQTT_Broker_brokerDomain = NULL;
@@ -60,10 +59,6 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port) {
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
         PRINT("Connected to %s at Port %s", target, port)
         NetworkStatus.MQTTStatus = CONNECTED;
-        if (!MQTT_Broker_ReceiverTaskRegistered) {
-            RegisterTask(MQTT_Broker_ReceiverTask, "mqttBrokerReceiverTask");
-            TaskSleep(100);
-        }
     } else {
         PRINT("Could not connect to %s at Port %s", target, port)
     }
@@ -124,16 +119,18 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     // Quality of service 0 - 2 see MQTT documentation
     strcat(command, "\",0");
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {
-        PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
-    } else {
-        if (MQTT_Broker_numberSubscriber != MAX_SUBSCRIBER) {
+    if (MQTT_Broker_numberSubscriber != MAX_SUBSCRIBER) {
+        if (!ESP_SendCommand(command, "OK", 1000)) {
+            PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
+        } else {
+
             MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber] = (Subscription) {.topic=topic, .subscriber=subscriber};
             MQTT_Broker_numberSubscriber++;
             PRINT("Subscribed to %s", topic)
-        } else {
-            PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
+
         }
+    } else {
+        PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
     }
     free(topic);
 }
@@ -167,107 +164,6 @@ char *ID() {
     return MQTT_Broker_brokerDomain;
 }
 
-bool MQTT_Broker_IsResponseAvailable() {
-    return uartToESP_ResponseArrived("+MQTTSUBRECV:0,");
-}
-
-void MQTT_Broker_handleReceivingError(void) {
-    receiveErrorCount++;
-    if (receiveErrorCount > MAX_NUMBER_OF_RECEIVE_ERRORS) {
-        uartToESP_CleanReceiveBuffer();
-        receiveErrorCount = 0;
-        PRINT_DEBUG("To many faulty messages received, flushing buffer...")
-    }
-}
-
-bool MQTT_Broker_Receive(Posting *response) {
-#define DIGITS_OF_LENGTH 4
-    char metaDataBuf[MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1];
-    char *cmd = "+MQTTSUBRECV:0,\"";
-
-    // look for the response command in the uart responseBuffer
-    // format: +MQTTSUBRECV:0,"topic",4,data
-    uartToESP_Read(cmd, metaDataBuf, MAX_TOPIC_NAME_LENGTH + DIGITS_OF_LENGTH + 1);
-
-    if (strlen(metaDataBuf) == 0) {
-        PRINT_DEBUG("No message found")
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-
-    //Find the Topic attribute
-    char *endOfTopic = strstr(metaDataBuf, "\",");
-    int lengthOfTopic = endOfTopic - metaDataBuf;
-    if (endOfTopic == NULL) {
-        PRINT_DEBUG("No Topic length found.")
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-    if (lengthOfTopic > MAX_TOPIC_NAME_LENGTH - 1) {
-        PRINT_DEBUG("Topic name too long: %d", lengthOfTopic)
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-
-    // copy Topic to the Message struct
-    char *topicBuffer = malloc(sizeof(char) * (lengthOfTopic + 1));
-    strncpy(topicBuffer, metaDataBuf, lengthOfTopic);
-    topicBuffer[lengthOfTopic] = 0;
-    response->topic = topicBuffer;
-
-    // Find the length of Data attribute
-    char *endOfLength = strstr(endOfTopic + 2, ",");
-    int lengthOfLength = endOfLength - (endOfTopic + 2);
-    if (endOfLength == NULL) {
-        PRINT_DEBUG("No data length found")
-        free(topicBuffer);
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-    if (lengthOfLength > DIGITS_OF_LENGTH - 1) {
-        PRINT_DEBUG("Length has too many digits: %d", lengthOfLength)
-        free(topicBuffer);
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-
-    // convert length of the data to int
-    char dataLengthBuf[DIGITS_OF_LENGTH];
-    strncpy(dataLengthBuf, endOfTopic + 2, lengthOfLength);
-    dataLengthBuf[lengthOfLength] = 0;
-    int dataLength = strtol(dataLengthBuf, NULL, 10);
-    //PRINT("Got %d bytes", dataLength) // Debug
-
-    // allocate memory for the response data and copy
-    char *startAtString = malloc(sizeof(char) * (strlen(cmd) + lengthOfTopic + 2 + lengthOfLength + 1 + 1));
-    sprintf(startAtString, "%s%s\",%i,", cmd, topicBuffer, dataLength);
-    char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
-
-    bool receivedCorrect = true;
-    if (uartToESP_Cut(startAtString, dataBuffer, dataLength)) {
-        response->data = dataBuffer;
-        if (strlen(dataBuffer) != dataLength) {
-            PRINT_DEBUG("Some data got lost, discarding message")
-            receivedCorrect = false;
-        }
-    } else {
-        PRINT_DEBUG("Response got lost during processing (possibly due to another transmission via uart)")
-        receivedCorrect = false;
-    }
-
-    if (receivedCorrect) {
-        free(startAtString);
-        receiveErrorCount = 0;
-        return true;
-    } else {
-        free(topicBuffer);
-        free(dataBuffer);
-        free(startAtString);
-        MQTT_Broker_handleReceivingError();
-        return false;
-    }
-}
-
 void MQTT_Broker_SetClientId(char *clientId) {
 //    ASSERT(NetworkStatus.ChipStatus)
     char cmd[100];
@@ -293,23 +189,49 @@ void MQTT_Broker_Disconnect(bool force) {
     NetworkStatus.MQTTStatus = NOT_CONNECTED;
 }
 
-_Noreturn void MQTT_Broker_ReceiverTask(void) {
-    MQTT_Broker_ReceiverTaskRegistered = true;
-    TaskSleep(100);
+bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
+    if (strlen(response) == 0) {
+        return false;
+    }
+
+    char *start;
+    char *end;
+    start = strstr(response, ",\"") + 2;
+    end = strstr(start, "\",");
+    int lengthOfTopic = end - start;
+    char *topicBuffer = malloc(sizeof(char) * (lengthOfTopic + 1));
+    memset(topicBuffer, '\0', lengthOfTopic + 1);
+    strncpy(topicBuffer, start, lengthOfTopic);
+    posting->topic = topicBuffer;
+
+    start = end + 2;
+    end = strstr(start, ",");
+    int lengthOfLength = end - start;
+    char *lengthBuffer = malloc(sizeof(char) * (lengthOfLength + 1));
+    memset(lengthBuffer, '\0', lengthOfLength + 1);
+    strncpy(lengthBuffer, start, lengthOfLength);
+    int dataLength = strtol(lengthBuffer, NULL, 10);
+
+    char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
+    memset(dataBuffer, '\0', dataLength + 1);
+    strncpy(dataBuffer, end + 1, dataLength);
+    posting->data = dataBuffer;
+
+    free(lengthBuffer);
+
+    return true;
+}
+
+void MQTT_Broker_Receive(char *response) {
     Posting posting = {};
-    while (true) {
-        if (MQTT_Broker_IsResponseAvailable()) {
-            if (MQTT_Broker_Receive(&posting)) {
-                for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
-                    if (MQTT_Broker_checkIfTopicMatches(MQTT_Broker_subscriberList[i].topic, posting.topic)) {
-                        MQTT_Broker_subscriberList[i].subscriber.deliver(posting);
-                    }
-                }
-                free(posting.topic);
-                free(posting.data);
+    if (MQTT_Broker_HandleResponse(&posting, response)) {
+        for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
+            if (MQTT_Broker_checkIfTopicMatches(MQTT_Broker_subscriberList[i].topic, posting.topic)) {
+                MQTT_Broker_subscriberList[i].subscriber.deliver(posting);
             }
         }
-        TaskSleep(50);
+        free(posting.topic);
+        free(posting.data);
     }
 }
 
