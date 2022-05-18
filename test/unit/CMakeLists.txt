@@ -50,6 +50,7 @@ target_link_libraries(unit-test_adxl345b unity)
 add_executable(unit-test_pac193x
         ${CMAKE_CURRENT_LIST_DIR}/test_pac193x.c
         ${CMAKE_SOURCE_DIR}/src/pac193x/pac193x.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/gpio.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/i2c.c)
 target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies

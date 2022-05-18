@@ -30,6 +30,8 @@ I2C_ErrorCode I2C_WriteCommand_Pass_for_SHT3X ( const uint8_t * commandBuffer, u
 
 I2C_ErrorCode I2C_WriteCommand_Pass_for_ADXL345B ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
 
+I2C_ErrorCode I2C_WriteCommand_Pass_for_PAC193X ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
+
 I2C_ErrorCode I2C_ReadCommand_Hardware_defect ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
 
 I2C_ErrorCode I2C_ReadCommand_ACK_missing ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
@@ -39,6 +41,8 @@ I2C_ErrorCode I2C_ReadCommand_Pass_for_SHT3X ( uint8_t * readBuffer, uint8_t siz
 I2C_ErrorCode I2C_ReadCommand_provoke_checksum_fail_for_SHT3X ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
 
 I2C_ErrorCode I2C_ReadCommand_Pass_for_ADXL345B ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
+
+I2C_ErrorCode I2C_ReadCommand_Pass_for_PAC193X ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost );
 
 /* endregion */
 
