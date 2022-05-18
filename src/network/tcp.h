@@ -11,8 +11,6 @@ bool TCP_SendData(char *data, int timeoutMs);
 
 char *TCP_GetResponse(void);
 
-bool TCP_IsResponseAvailable(void);
-
-static char *TCP_CutResponseToBuffer(void);
+void TCP_Closed(void);
 
 #endif //TEST_SH_TCP_H

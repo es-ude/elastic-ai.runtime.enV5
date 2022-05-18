@@ -9,9 +9,7 @@
 #include "TaskWrapper.h"
 #include "uartToESP.h"
 
-
 extern esp_command command;
-
 
 inline bool ESP_SendCommandIntern(char *cmd, char *expectedResponse, int timeoutMs) {
     if (strcmp(command.cmd, "\0") != 0) {
