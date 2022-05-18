@@ -113,9 +113,9 @@ static uint64_t transformResponseBufferToUInt64 ( const uint8_t * responseBuffer
 
 static float convertToFloat ( uint64_t input );
 
-static float calculateVoltageOfSense ( uint64_t input );
+static float calculateVoltageOfSense ( uint64_t input, uint8_t channel );
 
-static float calculateVoltageOfSource ( uint64_t input );
+static float calculateVoltageOfSource ( uint64_t input, uint8_t channel );
 
 static float calculateCurrentOfSense ( uint64_t input, uint8_t channel );
 
