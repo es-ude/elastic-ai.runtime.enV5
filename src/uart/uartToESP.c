@@ -9,7 +9,7 @@
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 
-#include "common.h"
+#include "tcp.h"
 
 UARTDevice uartDev;
 bool lastWasR = false;
@@ -20,6 +20,9 @@ void handleNewLine(void) {
     if (strlen(uartDev.receive_buf) != 0) {
         if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
             MQTT_Broker_Receive(uartDev.receive_buf);
+        }
+        if (strcmp("CLOSED", uartDev.receive_buf) == 0) {
+            TCP_Closed();
         }
         if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
             command.responseArrived = true;
@@ -43,6 +46,11 @@ void callback_uart_rx_interrupt() {
             uartDev.receive_count++;
         }
         uartDev.receive_buf[uartDev.receive_count] = '\0';
+
+        if (ch == '>' && uartDev.receive_count == 1) {
+            handleNewLine();
+            uartDev.receive_count = 0;
+        }
 
         if (ch == '\r') {
             lastWasR = true;
