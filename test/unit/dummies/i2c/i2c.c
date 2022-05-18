@@ -53,6 +53,10 @@ I2C_WriteCommand_Pass_for_ADXL345B(const uint8_t *commandBuffer, uint16_t sizeOf
     return I2C_NO_ERROR;
 }
 
+I2C_ErrorCode I2C_WriteCommand_Pass_for_PAC193X ( const uint8_t * commandBuffer, uint16_t sizeOfCommandBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+  {
+    return I2C_NO_ERROR;
+  }
 
 /* endregion */
 
@@ -128,5 +132,16 @@ I2C_ErrorCode I2C_ReadCommand_Pass_for_ADXL345B(uint8_t *readBuffer, uint8_t siz
     return 0x00;
 }
 
+I2C_ErrorCode I2C_ReadCommand_Pass_for_PAC193X ( uint8_t * readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress, i2c_inst_t * i2cHost )
+  {
+    /* generate sample data without any real world connection to test implementation */
+    for ( uint8_t index = 0 ; index < sizeOfReadBuffer ; index ++ )
+      {
+        readBuffer[ index ] = byteZero;
+      }
+    
+    return 0x00;
+  }
+  
 /* endregion */
   
