@@ -7,38 +7,67 @@
 
 #include <stdint.h>
 
+
 typedef struct i2c_inst i2c_inst_t;
 
-typedef struct {
-    uint8_t     i2c_slave_address;
-    i2c_inst_t *i2c_host;
-    float       rSense[4];
-    /* Channels 1 to maxChannelNumber are going to be used.
-    Note that some channels might be disabled by the ctrl-register. */
-    uint8_t highestChannelInUse;
-  } pac193x_sensor_configuration;
+typedef union
+  {
+    struct
+      {
+        uint8_t : 4;
+        uint8_t channel1 : 1;
+        uint8_t channel2 : 1;
+        uint8_t channel3 : 1;
+        uint8_t channel4 : 1;
+      }     struct_channelsInUse;
+    uint8_t uint_channelsInUse;
+  }                     pac193x_usedChannels;
 
-typedef struct {
+typedef struct
+  {
+    uint8_t i2c_slave_address;
+    i2c_inst_t * i2c_host;
+    float                rSense[4];
+    pac193x_usedChannels usedChannels; /*!< Channels to be used. \Note Some channels might be disabled by the ctrl-register. */
+  }                     pac193x_sensorConfiguration;
+
+enum
+  {
+    PAC193X_CHANNEL01,
+    PAC193X_CHANNEL02,
+    PAC193X_CHANNEL03,
+    PAC193X_CHANNEL04,
+  };
+typedef uint8_t         pac193x_channel;
+
+
+typedef struct
+  {
     uint8_t product_id;
     uint8_t manufacturer_id;
     uint8_t revision_id;
-  } pac193x_info;
+  }                     pac193x_info;
 
-typedef struct {
+typedef struct
+  {
     float voltageSource;
     float voltageSense;
     float iSense;
     float powerActual;
     float energy;
-  } pac193x_measurements;
+  }                     pac193x_measurements;
 
-typedef struct {
-    uint8_t command;
-    float (*calculationFunction)(uint64_t value, uint8_t channel);
+typedef struct
+  {
+    uint8_t startReadAddress;
+    
+    float (* calculationFunction) ( uint64_t value, uint8_t channel );
+    
     uint8_t sizeOfResponseBuffer;
-  } pac193x_measurement_properties;
+  }                     pac193x_measurementProperties;
 
-enum {
+enum
+  {
     PAC193X_CMD_REFRESH              = 0x00,
     PAC193X_CMD_CTRL                 = 0x01,
     PAC193X_CMD_READ_ACC_COUNT       = 0x02,
@@ -81,38 +110,24 @@ enum {
     PAC193X_CMD_READ_MANUFACTURER_ID = 0xFE,
     PAC193X_CMD_READ_REVISION_ID     = 0xFF,
   };
-typedef uint8_t pac193x_registerAddress;
-typedef uint8_t pac193x_settings;
+typedef uint8_t         pac193x_registerAddress;
+typedef uint8_t         pac193x_settings;
 
-/*! \enum pac193x_Channels
- *
- *  Channels of pac193x
- *  The Sensors are connected to channel 1
- *  Wifi is connected to channel 2
- *  channels 3 and 4 are currently not used.
- */
-enum {
-    PAC193X_CHANNEL_SENSORS = 1,
-    PAC193X_CHANNEL_WIFI    = 2,
-  };
-typedef uint8_t pac193x_channel;
-
-/* values with postfix '_AVG' are the rolling
- * average of the last eight values.
- */
-enum {
+enum
+  {
     PAC193X_VSOURCE,
-    PAC193X_VSOURCE_AVG,
+    PAC193X_VSOURCE_AVG, /*!< rolling average of the last eight values. */
     PAC193X_VSENSE,
-    PAC193X_VSENSE_AVG,
+    PAC193X_VSENSE_AVG, /*!< rolling average of the last eight values. */
     PAC193X_ISENSE,
-    PAC193X_ISENSE_AVG,
+    PAC193X_ISENSE_AVG, /*!< rolling average of the last eight values. */
     PAC193X_PACTUAL,
     PAC193X_ENERGY,
   };
-typedef uint8_t pac193x_valueToMeasure;
+typedef uint8_t         pac193x_valueToMeasure;
 
-enum {
+enum
+  {
     PAC193X_NO_ERROR            = 0x00,
     PAC193X_SEND_COMMAND_ERROR  = 0x01,
     PAC193X_RECEIVE_DATA_ERROR  = 0x02,
@@ -123,7 +138,7 @@ enum {
     PAC193X_INVALID_CHANNEL     = 0x13,
     PAC193X_UNDEFINED_ERROR     = 0x20,
   };
-typedef uint8_t pac193x_errorCode;
+typedef uint8_t         pac193x_errorCode;
 
 #endif /* ENV5_PAC193X_TYPEDEFS */
 
