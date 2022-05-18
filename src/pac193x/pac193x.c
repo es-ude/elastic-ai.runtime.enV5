@@ -441,13 +441,13 @@ static float convertToFloat ( uint64_t input )
     return ( float ) input;
   }
 
-static float calculateVoltageOfSource ( uint64_t input )
+static float calculateVoltageOfSource ( uint64_t input, uint8_t channel )
   {
     float vSource = 32.0f * ( convertToFloat ( input ) / UNIPOLAR_VOLTAGE_DENOMINATOR );
     return vSource;
   }
 
-static float calculateVoltageOfSense ( uint64_t input )
+static float calculateVoltageOfSense ( uint64_t input, uint8_t channel )
   {
     float vSense = 0.1f * ( convertToFloat ( input ) / UNIPOLAR_VOLTAGE_DENOMINATOR );
     return vSense;
