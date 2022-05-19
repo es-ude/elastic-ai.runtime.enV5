@@ -14,7 +14,9 @@ char *MQTT_Broker_brokerDomain = NULL;
 bool MQTT_Broker_ReceiverTaskRegistered = false;
 uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
-bool MQTT_BROKER_ReceiverFunctionSet = false;
+uint8_t receiveErrorCount = 0;
+
+_Noreturn void MQTT_Broker_ReceiverTask(void);
 
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
