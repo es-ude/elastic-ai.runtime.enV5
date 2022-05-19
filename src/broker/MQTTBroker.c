@@ -17,11 +17,11 @@
 
 char *MQTT_Broker_brokerDomain = "";
 bool MQTT_Broker_ReceiverTaskRegistered = false;
-uint MQTT_Broker_numberSubscriber = 0;
+uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 uint8_t receiveErrorCount = 0;
 
-     _Noreturn void MQTT_Broker_ReceiverTask(void);
+_Noreturn void MQTT_Broker_ReceiverTask(void);
 
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
