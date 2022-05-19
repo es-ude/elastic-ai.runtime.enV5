@@ -29,6 +29,16 @@ target_link_libraries(hardware-test_MQTTPublishSubscribe
 target_compile_definitions(hardware-test_MQTTPublishSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTPublishSubscribe)
 
+################## test_MQTTResetBrokerDomainDuringRuntime ##################
+add_executable(hardware-test_MQTTResetBrokerDomainDuringRuntime test_MQTTResetBrokerDomainDuringRuntime.c)
+target_link_libraries(hardware-test_MQTTResetBrokerDomainDuringRuntime
+        pico_stdlib
+        espBroker_lib
+        FreeRTOSUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTResetBrokerDomainDuringRuntime PRIVATE DEBUG)
+make_to_output_file(hardware-test_MQTTResetBrokerDomainDuringRuntime)
+
 ################## test_MQTTSubscribe ##################
 # creates executable
 add_executable(hardware-test_MQTTSubscribe test_MQTTSubscribe.c)
