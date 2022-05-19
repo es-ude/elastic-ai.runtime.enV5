@@ -1,17 +1,15 @@
 #define SOURCE_FILE "MAIN"
 #define NDEBUG
-
-#include <stdio.h>
-
+// src headers
+#include "QueueWrapper.h"
+#include "TaskWrapper.h"
+#include "common.h"
+#include "MQTTBroker.h"
+#include "Network.h"
+// external headers
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
-
-#include "common.h"
-#include "MQTTBroker.h"
-#include "QueueWrapper.h"
-#include "TaskWrapper.h"
-#include "Network.h"
 
 _Noreturn void mainTask(void) {
     while (true) {

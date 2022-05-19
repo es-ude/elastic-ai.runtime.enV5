@@ -1,13 +1,11 @@
 #define SOURCE_FILE "TCP"
 
-#include <string.h>
-
 #include "tcp.h"
 #include "Network.h"
-
 #include "common.h"
 #include "esp.h"
 #include "TaskWrapper.h"
+#include <string.h>
 
 char TCP_response[100];
 

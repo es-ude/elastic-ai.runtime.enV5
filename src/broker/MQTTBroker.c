@@ -1,18 +1,14 @@
 #define SOURCE_FILE "MQTT-BROKER"
 
-#include <string.h>
-#include <stdlib.h>
-#include <sys/unistd.h>
-
 #include "MQTTBroker.h"
-
-#include "posting.h"
-#include "protocol.h"
-#include "communicationEndpoint.h"
-
 #include "common.h"
 #include "esp.h"
 #include "Network.h"
+#include "posting.h"
+#include "protocol.h"
+#include "communicationEndpoint.h"
+#include <string.h>
+#include <stdlib.h>
 
 char *MQTT_Broker_brokerDomain = "";
 uint MQTT_Broker_numberSubscriber = 0;

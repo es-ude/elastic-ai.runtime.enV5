@@ -1,15 +1,12 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
-#include <string.h>
-
 #include "uartToESP.h"
-#include "MQTTBroker.h"
-
+//#include "MQTTBroker.h"
+#include "tcp.h"
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-
-#include "tcp.h"
+#include <string.h>
 
 UARTDevice uartDev;
 bool lastWasR = false;
@@ -18,9 +15,9 @@ esp_command command = {.cmd="\0"};
 
 void handleNewLine(void) {
     if (strlen(uartDev.receive_buf) != 0) {
-        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
-            MQTT_Broker_Receive(uartDev.receive_buf);
-        }
+//        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
+//            MQTT_Broker_Receive(uartDev.receive_buf);
+//        }
         if (strcmp("CLOSED", uartDev.receive_buf) == 0) {
             TCP_Closed();
         }

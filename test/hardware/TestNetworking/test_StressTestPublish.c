@@ -1,20 +1,14 @@
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
-#include <stdio.h>
-
-#include "TaskWrapper.h"
-
-#include "Network.h"
-
-#include "communicationEndpoint.h"
-#include "MQTTBroker.h"
-
-#include <string.h>
-#include "malloc.h"
-#include "common.h"
-
 #include "hardwareTestHelper.h"
-
+#include "TaskWrapper.h"
+#include "Network.h"
+#include "MQTTBroker.h"
+#include "common.h"
+#include "communicationEndpoint.h"
+#include <stdio.h>
+#include <string.h>
+#include <malloc.h>
 /***
     Similar to test_MQTTPublish.c
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).

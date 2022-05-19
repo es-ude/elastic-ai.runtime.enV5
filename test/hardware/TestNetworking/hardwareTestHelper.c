@@ -1,21 +1,14 @@
 #define SOURCE_FILE "TEST-HELPER"
 
 #include "hardwareTestHelper.h"
-
-#include "Network.h"
-#include "MQTTBroker.h"
-
-#include "TaskWrapper.h"
-#include "esp.h"
-
+#include "NetworkSettings.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
+#include "TaskWrapper.h"
+#include "Network.h"
+#include "MQTTBroker.h"
 #include "QueueWrapper.h"
-
-#include "NetworkSettings.h"
-
-#include "common.h"
 
 void connectToNetwork(void) {
     while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {

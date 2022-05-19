@@ -1,7 +1,7 @@
 #ifndef UART_TO_ESP_H
 #define UART_TO_ESP_H
 
-#include "stdbool.h"
+#include <stdbool.h>
 
 #define UART_BUFFER_SIZE 1024
 

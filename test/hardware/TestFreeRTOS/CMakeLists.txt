@@ -9,11 +9,7 @@ target_include_directories(freeRTOS_task PUBLIC
 target_link_libraries(freeRTOS_task
         pico_stdlib
         FreeRTOSUtils)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(freeRTOS_task 1)
-pico_enable_stdio_uart(freeRTOS_task 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_extra_outputs(freeRTOS_task)
+make_to_output_file(freeRTOS_task)
 
 ##############################################
 ## ADD EXECUTABLE: freeRTOS_queues
@@ -27,8 +23,4 @@ target_link_libraries(freeRTOS_queues
         pico_stdlib
         esp_lib
         FreeRTOSUtils)
-# enable usb output, disable uart output
-pico_enable_stdio_usb(freeRTOS_queues 1)
-pico_enable_stdio_uart(freeRTOS_queues 0)
-# create map/bin/hex/uf2 file etc.
-pico_add_extra_outputs(freeRTOS_queues)
+make_to_output_file(freeRTOS_queues)

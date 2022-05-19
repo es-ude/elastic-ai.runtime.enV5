@@ -1,13 +1,12 @@
 #define SOURCE_FILE "NETWORK-TEST"
 
-#include <stdio.h>
-#include <string.h>
-
+#include "hardwareTestHelper.h"
+#include "common.h"
 #include "TaskWrapper.h"
 #include "Network.h"
 #include "tcp.h"
-#include "hardwareTestHelper.h"
-#include "common.h"
+#include <string.h>
+#include <stdio.h>
 
 _Noreturn void ConnectAndSendTCPData() {
     connectToNetwork();

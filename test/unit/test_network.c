@@ -1,10 +1,10 @@
 #define TEST_BUILD
 
+#include "hardware/uart.h"
 #include "Network.h"
 #include "tcp.h"
-#include "hardware/uart.h"
 #include "unity.h"
-#include "stdlib.h"
+#include <stdlib.h>
 
 void setUp(void) {
     Network_DisconnectFromNetwork();

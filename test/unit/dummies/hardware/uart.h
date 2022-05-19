@@ -1,8 +1,8 @@
 #ifndef SENSOR_BOARD_UART_H
 #define SENSOR_BOARD_UART_H
 
-#include "string.h"
-#include "stdbool.h"
+#include <string.h>
+#include <stdbool.h>
 
 typedef struct uart_inst uart_inst_t;
 typedef unsigned int uint;

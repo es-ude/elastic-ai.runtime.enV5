@@ -1,10 +1,9 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+#include "uartToESP.h"
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "uartToESP.h"
 
 #define ESP_CHIP_OK 1
 #define ESP_CHIP_NOT_OK 0

@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #ifndef ENV5_SHT3X_INTERNAL_HEADER
 #define ENV5_SHT3X_INTERNAL_HEADER
 
@@ -22,7 +18,7 @@ static const uint16_t CRC8_POLYNOMIAL = 0x31;
 /*! constant to store the denominator used to calculate the temperature in degrees celsius \n
  *  calculation : 2^16 - 1
  */
-static const float DENOMINATOR = ( 1 << 16 ) - 1.0f;
+static const float DENOMINATOR = (1 << 16) - 1.0f;
 
 /* endregion */
 
@@ -33,7 +29,7 @@ static const float DENOMINATOR = ( 1 << 16 ) - 1.0f;
  * @param command[in] the 16 bit long command to be send to the sensor
  * @return            returns the error code (0 if everything passed)
  */
-static sht3x_errorCode sendRequestToSensor ( sht3x_command command );
+static sht3x_errorCode sendRequestToSensor(sht3x_command command);
 
 /*! function to receive data from the sensor via i2c bus
  *
@@ -42,7 +38,7 @@ static sht3x_errorCode sendRequestToSensor ( sht3x_command command );
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3x_errorCode receiveDataFromSensor ( uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
+static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! function to perform a CRC8 checksum check on the received data
  *  calculates the 8 bit checksum of the first two bytes and compares it to
@@ -54,7 +50,7 @@ static sht3x_errorCode receiveDataFromSensor ( uint8_t * responseBuffer, uint8_t
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3x_errorCode performChecksumCheck ( const uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
+static sht3x_errorCode performChecksumCheck(const uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! function to calculate the CRC8 checksum of two given bytes
  *  based on the CRC8 algorithm from the datasheet
@@ -62,7 +58,7 @@ static sht3x_errorCode performChecksumCheck ( const uint8_t * responseBuffer, ui
  * @param dataBuffer[in] pointer to memory where two bytes are stored
  * @return               checksum of the input
  */
-static uint8_t calculateChecksum ( const uint8_t * dataBuffer );
+static uint8_t calculateChecksum(const uint8_t *dataBuffer);
 
 /*! function to convert the raw data from the sensor to a real world
  * temperature value
@@ -70,7 +66,7 @@ static uint8_t calculateChecksum ( const uint8_t * dataBuffer );
  * @param rawValue[in] 16 bit raw data from the sensor
  * @return             returns the temperature in degree celcius
  */
-static float calculateTemperature ( uint16_t rawValue );
+static float calculateTemperature(uint16_t rawValue);
 
 /*! function to convert the raw data from the sensor to a real world humidity
  * value
@@ -78,7 +74,7 @@ static float calculateTemperature ( uint16_t rawValue );
  * @param rawValue[in] 16 bit raw data from the sensor
  * @return             returns the humidity in RH\%
  */
-static float calculateHumidity ( uint16_t rawValue );
+static float calculateHumidity(uint16_t rawValue);
 
 /* endregion */
 
