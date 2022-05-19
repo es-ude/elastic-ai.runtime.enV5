@@ -37,6 +37,7 @@ void _Noreturn mqttTask(void) {
         publishTestData(i);
         TaskSleep(1000);
     }
+    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {
