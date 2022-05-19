@@ -70,7 +70,7 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port) {
 }
 
 char *MQTT_Broker_concatIDWithTopic(const char *topic) {
-    char *result = malloc(strlen(MQTT_Broker_brokerDomain) + strlen(topic) + 1);
+    char *result = malloc(strlen(MQTT_Broker_brokerDomain) + strlen(topic) + 2);
     strcpy(result, MQTT_Broker_brokerDomain);
     strcat(result, "/");
     strcat(result, topic);
