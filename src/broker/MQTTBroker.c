@@ -15,7 +15,7 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 
-char *MQTT_Broker_brokerDomain;
+char *MQTT_Broker_brokerDomain = NULL;
 bool MQTT_Broker_ReceiverTaskRegistered = false;
 uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
@@ -26,6 +26,9 @@ _Noreturn void MQTT_Broker_ReceiverTask(void);
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
+    if (MQTT_Broker_brokerDomain != NULL) {
+        free(MQTT_Broker_brokerDomain);
+    }
     MQTT_Broker_brokerDomain = malloc(strlen(ID));
     strcpy(MQTT_Broker_brokerDomain, ID);
 }
