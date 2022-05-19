@@ -1,31 +1,61 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
 #include <string.h>
-#include "common.h"
+
 #include "uartToESP.h"
+#include "MQTTBroker.h"
 
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 
-bool cleaning = false;
+#include "tcp.h"
 
 UARTDevice uartDev;
+bool lastWasR = false;
+
+esp_command command = {.cmd="\0"};
+
+void handleNewLine(void) {
+    if (strlen(uartDev.receive_buf) != 0) {
+        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
+            MQTT_Broker_Receive(uartDev.receive_buf);
+        }
+        if (strcmp("CLOSED", uartDev.receive_buf) == 0) {
+            TCP_Closed();
+        }
+        if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
+            command.responseArrived = true;
+            strcpy(command.data, &uartDev.receive_buf[strlen(command.expectedResponse)]);
+        }
+    }
+}
 
 // RX interrupt handler
 void callback_uart_rx_interrupt() {
     while (uart_is_readable((uart_inst_t *) uartDev.uartInstance)) {
         char ch = uart_getc((uart_inst_t *) uartDev.uartInstance);
-        if (uartDev.receive_count >= UART_BUFFER_SIZE) {
-            PRINT_DEBUG("Buffer full, flushing...")
-            uartToESP_CleanReceiveBuffer();
-        }
-        if (!cleaning) {
+
+        if (ch == '\n' || ch == '\r' || ch == '\0') {
+            if (lastWasR && ch == '\n') {
+                handleNewLine();
+                uartDev.receive_count = 0;
+            }
+        } else {
             uartDev.receive_buf[uartDev.receive_count] = ch;
             uartDev.receive_count++;
-            uartDev.receive_buf[uartDev.receive_count] = 0;
-        } else if (ch == '\n') {
-            cleaning = false;
+        }
+        uartDev.receive_buf[uartDev.receive_count] = '\0';
+
+        if (ch == '>' && uartDev.receive_count == 1) {
+            handleNewLine();
+            uartDev.receive_count = 0;
+        }
+
+        if (ch == '\r') {
+            lastWasR = true;
+        } else {
+            lastWasR = false;
         }
     }
 }
@@ -68,68 +98,16 @@ void uartToEsp_Init(UARTDevice device) {
 
     // Now enable the UART to send interrupts - RX only
     uart_set_irq_enables((uart_inst_t *) uartDev.uartInstance, true, false);
+
+    uartDev.receive_count = 0;
+    uartDev.receive_buf[0] = '\0';
+}
+
+void uartToESP_SendCommand(void) {
+    uartToESP_Println(command.cmd);
 }
 
 void uartToESP_Println(char *data) {
     uart_puts((uart_inst_t *) uartDev.uartInstance, data);
     uart_puts((uart_inst_t *) uartDev.uartInstance, "\r\n");
 }
-
-void uartToESP_ResetReceiveBuffer(void) {
-    uartDev.receive_buf[0] = 0;
-    uartDev.receive_count = 0;
-}
-
-void uartToESP_CleanReceiveBuffer(void) {
-    uartDev.receive_buf[0] = 0;
-    uartDev.receive_count = 0;
-    cleaning = true;
-}
-
-bool uartToESP_ResponseArrived(char *expected_response) {
-    return (strstr(uartDev.receive_buf, expected_response) != NULL);
-}
-
-bool uartToESP_ReadLine(char *startAtString, char *responseBuf) {
-    if (uartDev.receive_count > 0) {
-        char *start = strstr(uartDev.receive_buf, startAtString);
-        if (start != NULL) {
-            char *end = strstr(start, "\r\n");
-            if (end != NULL) {
-                memcpy(responseBuf, start + strlen(startAtString), end - start);
-                responseBuf[end - start + 1] = 0;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-bool uartToESP_Read(char *startAtString, char *responseBuf, int length) {
-    if (uartDev.receive_count > 0) {
-        char *start = strstr(uartDev.receive_buf, startAtString);
-        if (start != NULL) {
-            memcpy(responseBuf, start + strlen(startAtString), length - 1);
-            responseBuf[length] = 0;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool uartToESP_Cut(char *startAtString, char *responseBuf, int length) {
-    if (uartDev.receive_count > 0) {
-        char *start = strstr(uartDev.receive_buf, startAtString);
-        if (start != NULL) {
-            memcpy(responseBuf, start + strlen(startAtString), length);
-            responseBuf[length] = 0;
-            uartDev.receive_count -= strlen(startAtString) + length;
-            strcpy(start, start + strlen(startAtString) + length);
-            return true;
-        }
-    }
-    return false;
-}
-
-// DO NOT USE except for debugging purposes
-char *uartToESP_GetReceiveBuffer() { return uartDev.receive_buf; }

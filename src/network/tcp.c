@@ -1,7 +1,6 @@
 #define SOURCE_FILE "TCP"
 
 #include <string.h>
-#include <stdlib.h>
 
 #include "tcp.h"
 #include "Network.h"
@@ -9,6 +8,12 @@
 #include "common.h"
 #include "esp.h"
 #include "TaskWrapper.h"
+
+char TCP_response[100];
+
+void TCP_Closed(void) {
+    NetworkStatus.TCPStatus = NOT_CONNECTED;
+}
 
 bool TCP_Open(char *target, int port) {
     if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
@@ -36,6 +41,7 @@ bool TCP_Open(char *target, int port) {
     if (ESP_SendCommand(cmd, "CONNECT", 2000)) {
         PRINT("Connected to %s at Port %s", target, port_buf)
         NetworkStatus.TCPStatus = CONNECTED;
+        TaskSleep(1000);
     } else {
         PRINT("Could not connect to %s at Port %s", target, port_buf)
     }
@@ -73,71 +79,18 @@ bool TCP_SendData(char *data, int timeoutMs) {
     }
 
     char cmd[20];
-    sprintf(cmd, "AT+CIPSEND=%d", strlen(data));
+    sprintf(cmd, "AT+CIPSEND=%d", strlen(data) + 2); // +2 for /r/n which will be appended
 
-    // Clean the uart receive buffer before send the command
-    uartToESP_CleanReceiveBuffer();
-    // send the command and data
-    if (!(ESP_SendCommand(cmd, ">", 100) && ESP_SendCommand(data, "SEND OK", 1000))) {
-        PRINT("Failed to send data. Make sure everything is connected and try again later.")
+    if (!ESP_SendCommand(cmd, ">", timeoutMs)) {
+        PRINT_DEBUG("Not found >")
+        return false;
     }
 
-    // waiting for the response from the server
-    bool responseArrived = false;
-    TaskSleep(REFRESH_RESPOND_IN_MS / 2);
-    for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        responseArrived = TCP_IsResponseAvailable();
-        if (responseArrived)
-            break;
-        TaskSleep(REFRESH_RESPOND_IN_MS);
-    }
-
-    if (!responseArrived) {
-        PRINT("Timeout: No response arrived!")
-    } else if (uartToESP_ResponseArrived("CLOSED")) {
-        NetworkStatus.TCPStatus = NOT_CONNECTED;
-    }
+    bool responseArrived = ESP_SendCommandAndGetResponse(data, "+IPD,", timeoutMs, TCP_response);
 
     return responseArrived;
 }
 
 char *TCP_GetResponse(void) {
-    ASSERT(TCP_IsResponseAvailable())
-    char *ret = TCP_CutResponseToBuffer();
-    if (uartToESP_ResponseArrived("CLOSED")) {
-        NetworkStatus.TCPStatus = NOT_CONNECTED;
-    }
-    return ret;
-}
-
-bool TCP_IsResponseAvailable(void) {
-    return uartToESP_ResponseArrived("+IPD,");
-}
-
-static char *TCP_CutResponseToBuffer(void) {
-    char *responseBuf;
-    char metaDataBuf[20];
-    char data_length[20];
-    // look for the response command in the uart responseBuffer
-    // format: +IPD,5:Hallo
-    uartToESP_Read("+IPD,", metaDataBuf, 20);
-    char *endOfLength = strstr(metaDataBuf, ":");
-    if (endOfLength == NULL || endOfLength - metaDataBuf > 19) {
-        PRINT("Response too long")
-        return 0;
-    }
-    // copy the length of the data to a new buffer and convert to int
-    strncpy(data_length, metaDataBuf, endOfLength - metaDataBuf);
-    data_length[endOfLength - metaDataBuf] = 0;
-    int len = strtol(data_length, NULL, 10); //atoi(data_length);
-    char startAtString[20];
-    strcpy(startAtString, "+IPD,");
-    strcat(startAtString, data_length);
-    strcat(startAtString, ":");
-    PRINT("Got %d bytes", len)
-
-    // allocate memory for the response data and copy
-    responseBuf = malloc(len + 1);
-    uartToESP_Cut(startAtString, responseBuf, len);
-    return responseBuf;
+    return TCP_response;
 }
