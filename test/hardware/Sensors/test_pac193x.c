@@ -2,124 +2,207 @@
 // Created by David P. Federl
 //
 
-#include "pac193x.h"
-#include <hardware/i2c.h>
-#include <math.h>
-#include <pico/stdlib.h>
 #include <stdio.h>
+#include "hardware/i2c.h"
+#include "pico/bootrom.h"
+#include "pico/stdlib.h"
+#include "pac193x_public.h"
 
-int main(void) {
-    stdio_init_all();
-    sleep_ms(5000);
+
+/* region HELPER */
+
+float floatToAbs ( float input )
+  {
+    if ( input < 0 )
+      {
+        return ( - 1 ) * input;
+      }
+    else
+      {
+        return input;
+      }
+  }
+
+_Bool compareFloatsWithinRange ( float expected, float actual, float epsilon )
+  {
+    return floatToAbs ( expected - actual ) <= epsilon;
+  }
+
+
+/* endregion */
+
+#define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
+#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
+
+float                resistanceValues[4] = { 0.82f, 0.82f, 0, 0 };
+pac193x_usedChannels usedChannels        = { .uint_channelsInUse = 0b00000011 };
+
+static void getValuesOfChannelWifi ( )
+  {
+    pac193x_measurements measurements;
     
-    /* initialize sensor */
+    printf ( "Requesting measurements for wifi board." );
+    pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel ( PAC193X_CHANNEL_WIFI, & measurements );
+    if ( errorCode != PAC193X_NO_ERROR )
+      {
+        printf ( "  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X\n", errorCode );
+        return;
+      }
+    
+    printf ( "  Measurements:\n    VSource=%4.6fV\n    VSense=%4.6fmV\n    ISense=%4.6fmA\n",
+             measurements.voltageSource,
+             measurements.voltageSense * 1000,
+             measurements.iSense * 1000
+           );
+    
+    printf ( "  RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
+    if ( compareFloatsWithinRange ( resistanceValues[ 0 ], measurements.voltageSense / measurements.iSense, 0.1f ) )
+      {
+        printf ( "\033[0;32mPASSED\033[0m;\n" );
+      }
+    else
+      {
+        printf ( "\033[0;31mFAILED\033[0m; Resistance values do not match!\n" );
+      }
+    
+    printf ( "  Measured Power => %4.6fW; ", measurements.powerActual );
+    printf ( "  Calculating Power = Voltage_source * Current_Sense => %4.6fW; ", measurements.iSense * measurements.voltageSource );
+    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.0001f ) )
+      {
+        printf ( "\033[0;32mPASSED\033[0m;\n" );
+      }
+    else
+      {
+        printf ( "\033[0;31mFAILED\033[0m; Values do not match!\n" );
+      }
+    
+    printf ( "  Energy = %4.6fWs\n", measurements.energy );
+  }
+
+static void getValuesOfChannelSensors ( )
+  {
+    pac193x_measurements measurements;
+    
+    printf ( "Requesting measurements for wifi board." );
+    pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel ( PAC193X_CHANNEL_SENSORS, & measurements );
+    if ( errorCode != PAC193X_NO_ERROR )
+      {
+        printf ( "  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X\n", errorCode );
+        return;
+      }
+    
+    printf ( "  Measurements:\n    VSource=%4.6fV\n    VSense=%4.6fmV\n    ISense=%4.6fmA\n",
+             measurements.voltageSource,
+             measurements.voltageSense * 1000,
+             measurements.iSense * 1000
+           );
+    
+    printf ( "  RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
+    if ( compareFloatsWithinRange ( resistanceValues[ 0 ], measurements.voltageSense / measurements.iSense, 0.1f ) )
+      {
+        printf ( "\033[0;32mPASSED\033[0m;\n" );
+      }
+    else
+      {
+        printf ( "\033[0;31mFAILED\033[0m; Resistance values do not match!\n" );
+      }
+    
+    printf ( "  Measured Power => %4.6fW; ", measurements.powerActual );
+    printf ( "  Calculating Power = Voltage_Source * Current_Sense => %4.6fW; ", measurements.iSense * measurements.voltageSource );
+    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.0001f ) )
+      {
+        printf ( "\033[0;32mPASSED\033[0m;\n" );
+      }
+    else
+      {
+        printf ( "\033[0;31mFAILED\033[0m; Values do not match!\n" );
+      }
+    
+    printf ( "  Energy = %4.6fWs\n", measurements.energy );
+  }
+
+static void getSerialNumber ( )
+  {
+    pac193x_info sensorID;
+    
+    printf ( "Requesting serial number." );
+    pac193x_errorCode errorCode = pac193x_getSensorInfo ( & sensorID );
+    if ( errorCode == PAC193X_NO_ERROR )
+      {
+        printf ( "  Expected: Product ID: 0x%2x to 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%02x\r\n", 0x58, 0x5A, 0x5D, 0x03 );
+        printf ( "  Actual:   Product ID: 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%2x\r\n",
+                 sensorID.product_id,
+                 sensorID.manufacturer_id,
+                 sensorID.revision_id
+               );
+        
+        bool valid_product_id = ( sensorID.product_id >= 0x58 ) && ( sensorID.product_id <= 0x5B );
+        if ( valid_product_id && 0x5D == sensorID.manufacturer_id && 0x03 == sensorID.revision_id )
+          {
+            printf ( "  \033[0;32mPASSED\033[0m;\n" );
+          }
+        else
+          {
+            printf ( "  \033[0;31mFAILED\033[0m; IDs do not match!\n" );
+          }
+      }
+    else
+      {
+        printf ( "  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X\n", errorCode );
+      }
+  }
+
+static void enterBootMode ( )
+  {
+    reset_usb_boot ( 0, 0 );
+  }
+
+
+int main ( void )
+  {
+    /* enable print to console */
+    stdio_init_all ( );
+    /* wait to initialize screen session by user */
+    sleep_ms ( 5000 );
+    
+    /* initialize PAC193X sensor */
     pac193x_errorCode errorCode;
-    float             resistorValues[4]   = {0.82f, 0.82f, 0, 0};
-    uint8_t           highestChannelInUse = 2;
-    float             time_past;
-    absolute_time_t   startTime, currentTime;
-    while (1) {
-        errorCode = pac193x_init(i2c1, resistorValues, highestChannelInUse);
-        if (errorCode == PAC193X_NO_ERROR) {
+    while ( 1 )
+      {
+        errorCode = pac193x_init ( i2c1, resistanceValues, usedChannels );
+        if ( errorCode == PAC193X_NO_ERROR )
+          {
+            printf ( "Initialised PAC193X.\n" );
             break;
           }
-        printf("INIT_ERROR: %i\r\n", errorCode);
-        sleep_ms(500);
+        printf ( "Initialise PAC193X failed; pac193x_ERROR: %02x\n", errorCode );
+        sleep_ms ( 500 );
       }
     
-    startTime = get_absolute_time();
-#pragma clang diagnostic push
-#pragma ide diagnostic   ignored "EndlessLoop"
-    while (1) {
-        /* get ID of sensor */
-        pac193x_info senseIDs;
-        errorCode = pac193x_getSensorInfo(&senseIDs);
-        if (errorCode != PAC193X_NO_ERROR) {
-            printf("PAC193X ErrorCode: %i\r\n", errorCode);
-          } else {
-            /* expected values for PAC1933:
-             *   Product ID: 0x5A
-             *   Manufacturer ID: 0x5D
-             *   Revision ID: 0x03
-             */
-            printf("Expected Product ID: 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%02x\r\n", 0x5A, 0x5D,
-                   0x03);
-            printf("Actual Product ID: 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%2x\r\n",
-                   senseIDs.product_id, senseIDs.manufacturer_id, senseIDs.revision_id);
-            bool valid_product_id = (senseIDs.product_id >= 0x59) && (senseIDs.product_id <= 0x5B);
-            if (valid_product_id && 0x5D == senseIDs.manufacturer_id && 0x03 == senseIDs.revision_id) {
-                printf("Valid product ID.\r\n\r\n");
-              } else {
-                printf("IDs don't match!\r\n\r\n");
-              }
-          }
-        sleep_ms(500);
+    printf ( "Please enter to request i (product ID), w (channel wifi), s (channel sensor) or b (Boot mode)\n" );
+    while ( 1 )
+      {
+        char input = getchar_timeout_us ( 10000000 ); /* 10 seconds wait */
         
-        /* read *all* values from sensor */
-        pac193x_measurements measurements;
-        errorCode = pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
-        if (errorCode != PAC193X_NO_ERROR) {
-            printf("PAC193X ErrorCode: %i\r\n", errorCode);
-          } else {
-            printf("Measurements for channel 1 (Sensors):\r\n  VSource=%4.6fV\r\n  VSense=%4.6fmV\r\n  "
-                   "ISense=%4.6fmA\r\n",
-                   measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000);
-            printf("RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ ", resistorValues[0],
-                   measurements.voltageSense / (measurements.iSense));
-            if (fabs(resistorValues[0] - measurements.voltageSense / (measurements.iSense)) < 0.01) {
-                printf("SUCCESS\r\n");
-              } else {
-                printf("FAIL\r\n");
-              }
-            printf("Calculating from VPower:         PActual=%4.6f W\r\n", measurements.powerActual);
-            printf("Calculating from Vsource,ISense: PActual=%4.6f W\r\n",
-                   measurements.iSense * measurements.voltageSource);
-            printf("Checking if both values are approximately the same: ");
-            if (fabs(measurements.powerActual - measurements.iSense * measurements.voltageSource) < 1e-5) {
-                printf("SUCCESS\r\n");
-              } else {
-                printf("FAIL\r\n");
-              }
-            printf("Energy = %4.6f Ws\r\n", measurements.energy);
-            time_past = (float)absolute_time_diff_us(startTime, currentTime) * 1e-6;
-            printf("Time past : %4.6f s\r\n", time_past);
-            printf("Energy / Time  = %4.6f W\r\n", measurements.energy / time_past);
+        switch ( input )
+          {
+            case 's':
+              getSerialNumber ( );
+            break;
+            case 't':
+              getValuesOfChannelWifi ( );
+            break;
+            case 'c':
+              getValuesOfChannelSensors ( );
+            break;
+            case 'b':
+              enterBootMode ( );
+            break;
+            default:
+              printf ( "Please enter to request i (product ID), w (channel wifi), s (channel sensor) or b (Boot mode)\n" );
+            break;
           }
-        errorCode   = pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_WIFI, &measurements);
-        currentTime = get_absolute_time();
-        if (errorCode != PAC193X_NO_ERROR) {
-            printf("PAC193X ErrorCode: %i\r\n", errorCode);
-          } else {
-            printf("Measurements for channel 2 (Wifi):\r\n  VSource=%4.6fV\r\n  VSense=%4.6fmV\r\n  "
-                   "ISense=%4.6fmA\r\n",
-                   measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000);
-            printf("RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ ", resistorValues[1],
-                   measurements.voltageSense / (measurements.iSense));
-            if (fabs(resistorValues[0] - measurements.voltageSense / (measurements.iSense)) < 0.1) {
-                printf("SUCCESS\r\n");
-              } else {
-                printf("FAIL\r\n");
-              }
-            printf("Calculating from VPower:         PActual=%4.6f W\r\n", measurements.powerActual);
-            printf("Calculating from Vsource,Isense: PActual=%4.6f W\r\n",
-                   measurements.iSense * measurements.voltageSource);
-            printf("Checking if both values are approximately the same: ");
-            if (fabs(measurements.powerActual - measurements.iSense * measurements.voltageSource) < 10e-5) {
-                printf("SUCCESS\r\n");
-              } else {
-                printf("FAIL\r\n");
-              }
-            printf("Energy = %4.6f Ws\r\n", measurements.energy);
-            time_past = (float)absolute_time_diff_us(startTime, currentTime) * 0.000001;
-            printf("Time past : %4.6f s\r\n", time_past);
-            printf("Energy / Time  = %4.6f W\r\n", measurements.energy / time_past);
-          }
-        sleep_ms(500);
-        
-        sleep_ms(2000);
-        printf("\r\n");
       }
-#pragma clang diagnostic pop
     
     return 0;
   }

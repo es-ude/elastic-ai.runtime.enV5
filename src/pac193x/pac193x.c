@@ -9,10 +9,6 @@
 #include "gpio.h"
 #include "i2c.h"
 
-
-#define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
-
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 pac193x_errorCode pac193x_powerUpSensor ( void )
