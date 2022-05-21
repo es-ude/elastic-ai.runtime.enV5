@@ -14,11 +14,11 @@ typedef union
   {
     struct
       {
-        uint8_t : 4;
         uint8_t channel1 : 1;
         uint8_t channel2 : 1;
         uint8_t channel3 : 1;
         uint8_t channel4 : 1;
+        uint8_t : 4;
       }     struct_channelsInUse;
     uint8_t uint_channelsInUse;
   }                     pac193x_usedChannels;
