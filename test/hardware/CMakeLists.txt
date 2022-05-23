@@ -1,3 +1,3 @@
 add_subdirectory(TestFreeRTOS)
 add_subdirectory(TestNetworking)
-add_subdirectory(TestSPI)
+add_subdirectory(TestFlash)

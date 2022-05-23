@@ -3,12 +3,17 @@
 #include <pico/bootrom.h>
 #include <hardware/spi.h>
 #include "spi/spi_handler.h"
+#include "flash/flash.h"
 #include "TaskWrapper.h"
 #include "QueueWrapper.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
 
 static const uint8_t REG_DEVID = 0x00;
+static const uint8_t sck_pin=2;
+static const uint8_t  miso_pin=0;
+static const uint8_t  mosi_pin=3;
+ static const uint8_t cs_pin=1;
 
 void initHardwareTest(void) {
     // Did we crash last time -> reboot into boot rom mode
@@ -30,21 +35,27 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
         TaskSleep(1000);
     }
 }
+
+void init_helper(spi_inst_t *spi, uint32_t baudrate){
+    SPI_init(spi, baudrate,cs_pin, sck_pin, mosi_pin, miso_pin);
+  //  flash_set_cs_pin(cs_pin);
+}
+
 void readDeviceID(){
     spi_inst_t *spi = spi0;
-    spi_init_handler(spi, 1000 * 1000);
+    init_helper(spi, 1000 * 1000);
     uint8_t id[3];
-    spi_read_id(spi, id, 3);
+    flash_read_id(spi, cs_pin, id, 3);
     printf("Device ID is: ");
     printf("%02X%02X%02X", id[0], id[1], id[2]);
     printf("\n");
 
-    spi_deinit(spi);
+    SPI_deinit(spi);
 }
 void writeSPI (){
     spi_inst_t *spi = spi0;
     // Initialize SPI port at 1 MHz
-    spi_init_handler(spi, 1000 * 1000);
+    init_helper(spi, 1000 * 1000);
 
 
     uint16_t page_length = 256;
@@ -52,38 +63,38 @@ void writeSPI (){
     for (uint16_t i = 0; i < page_length; i++) {
         data[i] = i;
     }
-    int wrote_page = flash_write_page(spi, REG_DEVID, data, page_length);
+    int wrote_page = flash_write_page(spi, cs_pin, REG_DEVID, data, page_length);
     printf("%u", wrote_page);
     printf(" bytes written\n");
-    spi_deinit(spi);
+    SPI_deinit(spi);
 
 }
 
 
 void eraseSPISector(){
     spi_inst_t *spi = spi0;
-    spi_init_handler(spi, 1000 * 1000);
-    int erased_sector= flash_erase_data(spi, 0);
+    init_helper(spi, 1000 * 1000);
+    int erased_sector= flash_erase_data(spi, cs_pin, 0);
     if(erased_sector==1){
         printf("erased sector\n");
     }
-    spi_deinit(spi);
+    SPI_deinit(spi);
 
 }
 void readSPI(){
     spi_inst_t *spi = spi0;
     // Initialize SPI port at 1 MHz
-    spi_init_handler(spi, 1000 * 1000);
+    init_helper(spi, 1000 * 1000);
     uint16_t page_length = 256;
     uint8_t data_read[page_length];
-    int page_read = flash_read_data(spi, REG_DEVID, data_read, page_length);
+    int page_read = flash_read_data(spi, cs_pin, REG_DEVID, data_read, page_length);
     printf("%u", page_read);
     printf(" bytes read \n");
     for (uint16_t i = 0; i < page_length; i++) {
         printf("%u", data_read[i]);
     }
     printf("\n");
-    spi_deinit(spi);
+    SPI_deinit(spi);
 }
 void spiTask(){
 

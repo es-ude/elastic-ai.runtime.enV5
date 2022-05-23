@@ -7,22 +7,19 @@
 #include "hardware/spi.h"
 
 
-#define CS_PIN 1
-#define MISO_PIN 0
-#define MOSI_PIN 3
-#define SCK_PIN 2
 
-void spi_init_handler(spi_inst_t *spi, uint32_t baudrate);
+void SPI_init(spi_inst_t *spi, uint32_t baudrate,
+               const uint8_t cs_pin, const uint8_t sck_pin,
+               const uint8_t mosi_pin, const uint8_t miso_pin);
+void SPI_deinit(spi_inst_t *spi);
+void SPI_enable(const uint8_t cs_pin);
 
-uint8_t flash_erase_data(spi_inst_t *spi,
-               const uint32_t address);
-int spi_read_id(  spi_inst_t *spi,
-                    uint8_t *data_buffer,
-                    uint16_t length);
+void SPI_disable(const uint8_t cs_pin);
 
-int flash_read_data(spi_inst_t *spi, const uint32_t address, uint8_t *data_buffer, uint16_t length);
+int SPI_read_blocking(spi_inst_t *spi, const uint8_t cs_pin, uint8_t *data_read, uint16_t length_read);
+int SPI_write_blocking(spi_inst_t *spi, const uint8_t cs_pin, uint8_t *data_to_write,
+                       uint16_t length_write );
 
-int flash_write_page(spi_inst_t *spi,uint32_t address, uint8_t *data, uint16_t page_size );
 
 
 
