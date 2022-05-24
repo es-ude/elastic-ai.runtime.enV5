@@ -22,6 +22,7 @@ uint8_t receiveErrorCount = 0;
 
 _Noreturn void MQTT_Broker_ReceiverTask(void);
 
+
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
