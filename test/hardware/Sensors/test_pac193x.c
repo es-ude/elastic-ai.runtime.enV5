@@ -41,7 +41,7 @@ static void getValuesOfChannelWifi ( )
   {
     pac193x_measurements measurements;
     
-    printf ( "Requesting measurements for wifi board." );
+    printf ( "Requesting measurements for wifi board.\n" );
     pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel ( PAC193X_CHANNEL_WIFI, & measurements );
     if ( errorCode != PAC193X_NO_ERROR )
       {
@@ -55,7 +55,7 @@ static void getValuesOfChannelWifi ( )
              measurements.iSense * 1000
            );
     
-    printf ( "  RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
+    printf ( "  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
     if ( compareFloatsWithinRange ( resistanceValues[ 0 ], measurements.voltageSense / measurements.iSense, 0.1f ) )
       {
         printf ( "\033[0;32mPASSED\033[0m;\n" );
@@ -67,7 +67,7 @@ static void getValuesOfChannelWifi ( )
     
     printf ( "  Measured Power => %4.6fW; ", measurements.powerActual );
     printf ( "  Calculating Power = Voltage_source * Current_Sense => %4.6fW; ", measurements.iSense * measurements.voltageSource );
-    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.0001f ) )
+    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.001f ) )
       {
         printf ( "\033[0;32mPASSED\033[0m;\n" );
       }
@@ -83,7 +83,7 @@ static void getValuesOfChannelSensors ( )
   {
     pac193x_measurements measurements;
     
-    printf ( "Requesting measurements for wifi board." );
+    printf ( "Requesting measurements for sensors.\n" );
     pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel ( PAC193X_CHANNEL_SENSORS, & measurements );
     if ( errorCode != PAC193X_NO_ERROR )
       {
@@ -97,7 +97,7 @@ static void getValuesOfChannelSensors ( )
              measurements.iSense * 1000
            );
     
-    printf ( "  RSense_expected=%4.2fΩ, RSense_actual=%4.2fΩ; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
+    printf ( "  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ", resistanceValues[ 1 ], measurements.voltageSense / ( measurements.iSense ) );
     if ( compareFloatsWithinRange ( resistanceValues[ 0 ], measurements.voltageSense / measurements.iSense, 0.1f ) )
       {
         printf ( "\033[0;32mPASSED\033[0m;\n" );
@@ -109,7 +109,7 @@ static void getValuesOfChannelSensors ( )
     
     printf ( "  Measured Power => %4.6fW; ", measurements.powerActual );
     printf ( "  Calculating Power = Voltage_Source * Current_Sense => %4.6fW; ", measurements.iSense * measurements.voltageSource );
-    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.0001f ) )
+    if ( compareFloatsWithinRange ( measurements.powerActual, measurements.iSense * measurements.voltageSource, 0.001f ) )
       {
         printf ( "\033[0;32mPASSED\033[0m;\n" );
       }
@@ -125,12 +125,12 @@ static void getSerialNumber ( )
   {
     pac193x_info sensorID;
     
-    printf ( "Requesting serial number." );
+    printf ( "Requesting serial number.\n" );
     pac193x_errorCode errorCode = pac193x_getSensorInfo ( & sensorID );
     if ( errorCode == PAC193X_NO_ERROR )
       {
-        printf ( "  Expected: Product ID: 0x%2x to 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%02x\r\n", 0x58, 0x5A, 0x5D, 0x03 );
-        printf ( "  Actual:   Product ID: 0x%2x; Manufacture ID: 0x%2x; Revision ID: 0x%2x\r\n",
+        printf ( "  Expected:\n    Product ID: 0x%2X to 0x%2X; Manufacture ID: 0x%2X; Revision ID: 0x%02X\n", 0x58, 0x5B, 0x5D, 0x03 );
+        printf ( "  Actual:\n    Product ID: 0x%2X; Manufacture ID: 0x%2X; Revision ID: 0x%2X\n",
                  sensorID.product_id,
                  sensorID.manufacturer_id,
                  sensorID.revision_id
@@ -186,13 +186,13 @@ int main ( void )
         
         switch ( input )
           {
-            case 's':
+            case 'i':
               getSerialNumber ( );
             break;
-            case 't':
+            case 'w':
               getValuesOfChannelWifi ( );
             break;
-            case 'c':
+            case 's':
               getValuesOfChannelSensors ( );
             break;
             case 'b':
