@@ -13,9 +13,8 @@ void SPI_init_chipselect(const uint8_t cs_pin) {
 }
 
 void SPI_init(spi_inst_t *spi, uint32_t baudrate,
-                      const uint8_t cs_pin, const uint8_t sck_pin,
-                      const uint8_t mosi_pin, const uint8_t miso_pin) {
-
+              const uint8_t cs_pin, const uint8_t sck_pin,
+              const uint8_t mosi_pin, const uint8_t miso_pin) {
 
     SPI_init_chipselect(cs_pin);
     spi_init(spi, baudrate);
@@ -25,7 +24,7 @@ void SPI_init(spi_inst_t *spi, uint32_t baudrate,
     gpio_set_function(miso_pin, GPIO_FUNC_SPI);
 }
 
-void SPI_deinit(spi_inst_t *spi){
+void SPI_deinit(spi_inst_t *spi) {
     spi_deinit(spi);
 }
 
@@ -37,17 +36,12 @@ void SPI_disable(const uint8_t cs_pin) {
     gpio_put(cs_pin, 1);
 }
 
-int SPI_read_blocking(spi_inst_t *spi, const uint8_t cs_pin, uint8_t *data_read, uint16_t length_read) {
-    SPI_enable(cs_pin);
-    int blocks_read= spi_read_blocking(spi, 0, data_read,length_read);
-    SPI_disable(cs_pin);
-    return  blocks_read;
-}
-int SPI_write_blocking(spi_inst_t *spi, const uint8_t cs_pin, uint8_t *data_to_write, uint16_t length_write ){
-    SPI_enable(cs_pin);
-    int blocks_written= spi_write_blocking(spi, data_to_write, length_write);
-    SPI_disable(cs_pin);
-    return  blocks_written;
+int SPI_read_blocking(spi_inst_t *spi, uint8_t *data_read, uint16_t length_read) {
+    int blocks_read = spi_read_blocking(spi, 0, data_read, length_read);
+    return blocks_read;
 }
 
-
+int SPI_write_blocking(spi_inst_t *spi, uint8_t *data_to_write, uint16_t length_write) {
+    int blocks_written = spi_write_blocking(spi, data_to_write, length_write);
+    return blocks_written;
+}
