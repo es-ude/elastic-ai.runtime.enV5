@@ -38,65 +38,50 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
 
 void init_helper(spi_inst_t *spi, uint32_t baudrate){
     SPI_init(spi, baudrate,cs_pin, sck_pin, mosi_pin, miso_pin);
-  //  flash_set_cs_pin(cs_pin);
+    init_flash(cs_pin, spi);
 }
 
 void readDeviceID(){
-    spi_inst_t *spi = spi0;
-    init_helper(spi, 1000 * 1000);
     uint8_t id[3];
-    flash_read_id(spi, cs_pin, id, 3);
+    flash_read_id( id, 3);
     printf("Device ID is: ");
     printf("%02X%02X%02X", id[0], id[1], id[2]);
     printf("\n");
 
-    SPI_deinit(spi);
 }
 void writeSPI (){
-    spi_inst_t *spi = spi0;
-    // Initialize SPI port at 1 MHz
-    init_helper(spi, 1000 * 1000);
-
-
     uint16_t page_length = 256;
     uint8_t data[page_length];
     for (uint16_t i = 0; i < page_length; i++) {
         data[i] = i;
     }
-    int wrote_page = flash_write_page(spi, cs_pin, REG_DEVID, data, page_length);
+    int wrote_page = flash_write_page(REG_DEVID, data, page_length);
     printf("%u", wrote_page);
     printf(" bytes written\n");
-    SPI_deinit(spi);
 
 }
 
 
 void eraseSPISector(){
-    spi_inst_t *spi = spi0;
-    init_helper(spi, 1000 * 1000);
-    int erased_sector= flash_erase_data(spi, cs_pin, 0);
+    int erased_sector= flash_erase_data( 0);
     if(erased_sector==1){
         printf("erased sector\n");
     }
-    SPI_deinit(spi);
-
 }
 void readSPI(){
-    spi_inst_t *spi = spi0;
-    // Initialize SPI port at 1 MHz
-    init_helper(spi, 1000 * 1000);
     uint16_t page_length = 256;
     uint8_t data_read[page_length];
-    int page_read = flash_read_data(spi, cs_pin, REG_DEVID, data_read, page_length);
+    int page_read = flash_read_data( REG_DEVID, data_read, page_length);
     printf("%u", page_read);
     printf(" bytes read \n");
     for (uint16_t i = 0; i < page_length; i++) {
         printf("%u", data_read[i]);
     }
     printf("\n");
-    SPI_deinit(spi);
 }
 void spiTask(){
+    spi_inst_t *spi = spi0;
+    init_helper(spi, 1000 * 1000);
 
     while(1){
         char input= getchar_timeout_us(10000);
@@ -117,6 +102,7 @@ void spiTask(){
                 break;
         }
     }
+
 
 }
 int main() {
