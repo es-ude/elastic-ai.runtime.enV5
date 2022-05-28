@@ -2,7 +2,6 @@
 
 #include "uartToESP.h"
 //#include "MQTTBroker.h"
-#include "tcp.h"
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
@@ -18,9 +17,6 @@ void handleNewLine(void) {
 //        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
 //            MQTT_Broker_Receive(uartDev.receive_buf);
 //        }
-        if (strcmp("CLOSED", uartDev.receive_buf) == 0) {
-            TCP_Closed();
-        }
         if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
             command.responseArrived = true;
             strcpy(command.data, &uartDev.receive_buf[strlen(command.expectedResponse)]);
