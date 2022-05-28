@@ -10,9 +10,7 @@ if (UNIT_TEST)
 
     add_subdirectory(extern/unity)
     add_subdirectory(test/unit)
-endif ()
-
-if (NOT UNIT_TEST)
+else ()
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
     fetch_git_submodules()
 
@@ -32,6 +30,7 @@ if (NOT UNIT_TEST)
 
         add_executable(main src/main.c) # creates executable
         target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
+
         target_link_libraries(main
                 pico_stdlib
                 FreeRTOSUtils
@@ -40,6 +39,8 @@ if (NOT UNIT_TEST)
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
+    else ()
+        message(WARNING "else")
     endif ()
 endif ()
 
