@@ -1,7 +1,3 @@
-#
-# Created by David P. Federl
-#
-
 add_library(sensor_lib_adxl345b INTERFACE)
 target_sources(sensor_lib_adxl345b INTERFACE ${CMAKE_CURRENT_LIST_DIR}/adxl345b.c)
 target_include_directories(sensor_lib_adxl345b INTERFACE ${CMAKE_CURRENT_LIST_DIR})

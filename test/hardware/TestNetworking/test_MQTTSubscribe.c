@@ -1,16 +1,11 @@
 #define SOURCE_FILE "MQTT-SUBSCRIBE-TEST"
 
-#include <stdio.h>
-
-#include "TaskWrapper.h"
-#include "QueueWrapper.h"
-
-#include "communicationEndpoint.h"
-#include "MQTTBroker.h"
-
-#include "common.h"
-
 #include "hardwareTestHelper.h"
+#include "TaskWrapper.h"
+#include "MQTTBroker.h"
+#include "common.h"
+#include "communicationEndpoint.h"
+#include <stdio.h>
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).

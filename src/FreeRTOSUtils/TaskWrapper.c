@@ -1,12 +1,10 @@
 #define SOURCE_FILE "TASK-WRAPPER"
 
 #include "TaskWrapper.h"
-
+#include "common.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "pico/time.h"
-
-#include "common.h"
 
 static void InvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc) p_taskCode;

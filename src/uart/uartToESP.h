@@ -1,7 +1,7 @@
 #ifndef UART_TO_ESP_H
 #define UART_TO_ESP_H
 
-#include "stdbool.h"
+#include <stdbool.h>
 
 #define UART_BUFFER_SIZE 1024
 
@@ -42,5 +42,6 @@ void uartToESP_SendCommand(void);
 
 void uartToESP_Println(char *data);
 
+void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
 
 #endif // UART_TO_ESP_H

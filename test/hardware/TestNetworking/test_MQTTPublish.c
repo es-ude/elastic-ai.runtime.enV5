@@ -4,11 +4,10 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 #include "MQTTBroker.h"
-
-#include <stdlib.h>
-#include <communicationEndpoint.h>
+#include "communicationEndpoint.h"
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
@@ -30,11 +29,13 @@ void _Noreturn mqttTask(void) {
     MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
     MQTT_Broker_SetClientId("ENV5");
 
-    for (uint16_t i = 0; i < 65536; ++i) {
+    uint64_t i = 0;
+    while (true) {
         connectToNetwork();
         connectToMQTT();
 
         publishTestData(i);
+        i++;
         TaskSleep(1000);
     }
     MQTT_Broker_freeBrokerDomain();

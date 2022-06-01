@@ -2,19 +2,23 @@
 
 Elastic AI implementation for the Elastic Node version 5.
 
-## Development
+## Setup
 
-For development, for example in an IDE, the development flag can be set to include everything:
+First you need to load cMake once (CLion does that for you):
 
 ```
--DDEVELOP:BOOL=ON
+cmake -B cmake-build-debug -G Ninja .
 ```
 
 ## Build Main
 
-The main executable ([main.c](src/main.c)) can be build with the [build.sh](build.sh) script.
+The main executable ([main.c](src/main.c)) can be build with:
 
-The resulting uf2 file can be found in the build_pico/src directory.
+```
+cmake --build cmake-build-debug [-j 4] --target main
+```
+
+The resulting uf2 file can be found in the `out` folder.
 
 ## Unit Tests
 
@@ -24,9 +28,13 @@ The test can then be found under build_test/test/unit as executables.
 
 ## Hardware Tests
 
-The hardware tests can be build using the [hardware_test.sh](hardware_test.sh) script.
+The hardware tests can be build using, replacing `test_name` with the name of the test:
 
-The resulting u2f files can be found under build_pico/test/hardware.
+```
+cmake --build cmake-build-debug [-j 4] --target test_name
+```
+
+The resulting u2f files can be found in the `out` folder.
 
 ## Submodules
 

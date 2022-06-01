@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #ifndef ENV5_ADXL345B_INTERNAL_HEADER
 #define ENV5_ADXL345B_INTERNAL_HEADER
 
@@ -18,7 +14,6 @@
 
 #include "typedefs.h"
 #include <stdint.h>
-
 
 /* region CONSTANTS */
 
@@ -37,7 +32,8 @@ static adxl345b_range selectedRange; /*!< measurement range configuration */
  * @param sizeOfResponseBuffer[in] size of the response buffer
  * @return                         return the error code (0 if everything passed)
  */
-static adxl345b_errorCode readDataFromSensor ( adxl345b_register registerToRead, uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
+static adxl345b_errorCode
+readDataFromSensor(adxl345b_register registerToRead, uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! function to convert the raw value received from the sensor to a lsb value
  *
@@ -45,7 +41,7 @@ static adxl345b_errorCode readDataFromSensor ( adxl345b_register registerToRead,
  * @param lsbValue[out] LSB value
  * @return              return the error code (0 if everything passed)
  */
-static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int * lsbValue );
+static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2], int *lsbValue);
 
 /*! function to convert the lsb value received from the sensor to a actual float value
  *
@@ -53,7 +49,7 @@ static adxl345b_errorCode convertRawValueToLSB ( const uint8_t rawData[2], int *
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
-static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue );
+static adxl345b_errorCode convertLSBtoGValue(int lsb, float *gValue);
 
 /*! combination of convertRawValueToLSB(...) and convertLSBtoGValue(...)
  *
@@ -61,13 +57,13 @@ static adxl345b_errorCode convertLSBtoGValue ( int lsb, float * gValue );
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
-static adxl345b_errorCode convertRawValueToGValue ( const uint8_t rawData[2], float * gValue );
+static adxl345b_errorCode convertRawValueToGValue(const uint8_t rawData[2], float *gValue);
 
 /*! function to set the sensor into low power mode at 2G range with full resolution
  *
  * @return return the error code (0 if everything passed)
  */
-static adxl345b_errorCode writeDefaultLowPowerConfiguration ( );
+static adxl345b_errorCode writeDefaultLowPowerConfiguration();
 
 /*! function to calculate the offset that should be passed to the sensor
  *
@@ -76,7 +72,7 @@ static adxl345b_errorCode writeDefaultLowPowerConfiguration ( );
  * @param minValue[in]      min value that would be accepted
  * @return                  8 bit two complement that should be passed to the sensor as offset
  */
-static int8_t calculateCalibrationOffset ( int measuredDeltam, int maxValue, int minValue );
+static int8_t calculateCalibrationOffset(int measuredDeltam, int maxValue, int minValue);
 
 /* endregion*/
 

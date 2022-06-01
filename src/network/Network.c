@@ -1,14 +1,11 @@
 #define SOURCE_FILE "NETWORK"
 
-#include <string.h>
-
 #include "Network.h"
-#include "tcp.h"
-
 #include "common.h"
 #include "esp.h"
 #include "TaskWrapper.h"
 #include "uartToESP.h"
+#include <string.h>
 
 NetworkStatus_t NetworkStatus = {
         .ChipStatus = ESP_CHIP_NOT_OK,
@@ -84,7 +81,6 @@ void Network_DisconnectFromNetwork(void) {
         PRINT("No connection to disconnect from!")
         return;
     }
-    TCP_Close(true);
     ESP_SendCommand("AT+CWQAP", "OK", 5000);
     NetworkStatus.WIFIStatus = NOT_CONNECTED;
 }

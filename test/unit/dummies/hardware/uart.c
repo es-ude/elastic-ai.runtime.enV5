@@ -1,5 +1,5 @@
 #include "uart.h"
-#include "string.h"
+#include <string.h>
 
 char *uartMessage;
 char uartReceive[1000];

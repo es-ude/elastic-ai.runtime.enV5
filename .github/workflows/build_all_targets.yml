@@ -1,0 +1,26 @@
+name: Build all Targets
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_all_targets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup
+        run: |
+          sudo apt-get install gcc-arm-none-eabi
+          sudo apt-get install ninja-build
+
+      - name: Configure CMake
+        run: cmake -B cmake-build-debug -G Ninja .
+
+      - name: Build targets
+        run: cmake --build cmake-build-debug -j 4

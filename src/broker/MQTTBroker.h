@@ -2,8 +2,8 @@
 #define SENSOR_BOARD_MQTT_BROKER_H
 
 #include "posting.h"
-#include <stdbool.h>
 #include "subscriber.h"
+#include <stdbool.h>
 
 #define MAX_SUBSCRIBER 100
 

@@ -1,28 +1,22 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
-#include <string.h>
-
 #include "uartToESP.h"
-#include "MQTTBroker.h"
-
 #include "hardware/irq.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
-
-#include "tcp.h"
+#include <string.h>
 
 UARTDevice uartDev;
 bool lastWasR = false;
 
 esp_command command = {.cmd="\0"};
 
+void (*uartToESP_MQTT_Broker_Receive)(char *) = NULL;
+
 void handleNewLine(void) {
     if (strlen(uartDev.receive_buf) != 0) {
-        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0) {
-            MQTT_Broker_Receive(uartDev.receive_buf);
-        }
-        if (strcmp("CLOSED", uartDev.receive_buf) == 0) {
-            TCP_Closed();
+        if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0 && uartToESP_MQTT_Broker_Receive != NULL) {
+            uartToESP_MQTT_Broker_Receive(uartDev.receive_buf);
         }
         if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
             command.responseArrived = true;
@@ -110,4 +104,8 @@ void uartToESP_SendCommand(void) {
 void uartToESP_Println(char *data) {
     uart_puts((uart_inst_t *) uartDev.uartInstance, data);
     uart_puts((uart_inst_t *) uartDev.uartInstance, "\r\n");
+}
+
+void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
+    uartToESP_MQTT_Broker_Receive = receive;
 }

@@ -5,7 +5,6 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/FreeRTOSUtils/TaskWrapper.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
-        ${CMAKE_SOURCE_DIR}/src/network/tcp.c
         ${CMAKE_SOURCE_DIR}/src/esp/esp.c
         ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
 target_include_directories(unit-test_network PUBLIC
@@ -19,8 +18,8 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_network unity)
 
-##############################################
-## ADD EXECUTABLE: unit-test_sht3x
+#############################################
+# ADD EXECUTABLE: unit-test_sht3x
 add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/test_sht3x.c
         ${CMAKE_SOURCE_DIR}/src/sht3x/sht3x.c
