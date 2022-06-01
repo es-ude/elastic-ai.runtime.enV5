@@ -20,15 +20,13 @@ jobs:
           mkdir ${{github.workspace}}/build_test
 
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build_test
-        run: cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
+        run: cmake -B cmake-build-debug/unit_test -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -G Ninja .
 
       - name: Build
-        working-directory: ${{github.workspace}}/build_test
-        run: ninja -j4
+        run: cmake --build cmake-build-debug/unit_test -j 4
 
       - name: Run tests
-        working-directory: ${{github.workspace}}/build_test/test/unit/
+        working-directory: ${{github.workspace}}/cmake-build-debug/unit_test/test/unit/
         env:
           FILES: unit-*
         run: for file in $FILES; do ./$file; done

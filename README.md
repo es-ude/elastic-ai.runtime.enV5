@@ -2,12 +2,20 @@
 
 Elastic AI implementation for the Elastic Node version 5.
 
+## Setup
+
+First you need to load cMake once (CLion does that for you):
+
+```
+cmake -B cmake-build-debug -G Ninja .
+```
+
 ## Build Main
 
 The main executable ([main.c](src/main.c)) can be build with:
 
 ```
-cmake --build cmake-build-debug --target main [-j 4]
+cmake --build cmake-build-debug [-j 4] --target main
 ```
 
 The resulting uf2 file can be found in the `out` folder.
@@ -23,7 +31,7 @@ The test can then be found under build_test/test/unit as executables.
 The hardware tests can be build using, replacing `test_name` with the name of the test:
 
 ```
-cmake --build cmake-build-debug --target test_name [-j 4]
+cmake --build cmake-build-debug [-j 4] --target test_name
 ```
 
 The resulting u2f files can be found in the `out` folder.

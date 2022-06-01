@@ -20,4 +20,7 @@ jobs:
           sudo apt-get install ninja-build
 
       - name: Configure CMake
+        run: cmake -B cmake-build-debug -G Ninja .
+
+      - name: Build targets
         run: cmake --build cmake-build-debug -j 4
