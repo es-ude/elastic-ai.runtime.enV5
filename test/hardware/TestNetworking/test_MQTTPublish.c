@@ -38,6 +38,7 @@ void _Noreturn mqttTask(void) {
         i++;
         TaskSleep(1000);
     }
+    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

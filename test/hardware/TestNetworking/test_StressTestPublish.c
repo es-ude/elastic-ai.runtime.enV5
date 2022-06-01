@@ -32,6 +32,7 @@ void _Noreturn mqttTask(void) {
         publishTestData(i);
         i++;
     }
+    MQTT_Broker_freeBrokerDomain();
 }
 
 void publishTestData(uint16_t i) {

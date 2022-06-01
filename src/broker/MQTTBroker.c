@@ -10,8 +10,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-char *MQTT_Broker_brokerDomain = "";
-uint MQTT_Broker_numberSubscriber = 0;
+char *MQTT_Broker_brokerDomain = NULL;
+bool MQTT_Broker_ReceiverTaskRegistered = false;
+uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
@@ -20,7 +21,15 @@ bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic
 bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
-    MQTT_Broker_brokerDomain = ID;
+    if (MQTT_Broker_brokerDomain != NULL) {
+        free(MQTT_Broker_brokerDomain);
+    }
+    MQTT_Broker_brokerDomain = malloc(strlen(ID));
+    strcpy(MQTT_Broker_brokerDomain, ID);
+}
+
+void MQTT_Broker_freeBrokerDomain() {
+    free(MQTT_Broker_brokerDomain);
 }
 
 void MQTT_Broker_ConnectToBroker(char *target, char *port) {
@@ -56,7 +65,7 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port) {
 }
 
 char *MQTT_Broker_concatIDWithTopic(const char *topic) {
-    char *result = malloc(strlen(MQTT_Broker_brokerDomain) + strlen(topic) + 1);
+    char *result = malloc(strlen(MQTT_Broker_brokerDomain) + strlen(topic) + 2);
     strcpy(result, MQTT_Broker_brokerDomain);
     strcat(result, "/");
     strcat(result, topic);
