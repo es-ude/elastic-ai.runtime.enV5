@@ -1,4 +1,4 @@
-name: Hardware Tests
+name: Build all Targets
 
 on:
   push:
@@ -18,12 +18,6 @@ jobs:
         run: |
           sudo apt-get install gcc-arm-none-eabi
           sudo apt-get install ninja-build
-          mkdir ${{github.workspace}}/build_test
 
       - name: Configure CMake
-        working-directory: ${{github.workspace}}/build_test
-        run: cmake -DHARDWARE_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
-
-      - name: Build
-        working-directory: ${{github.workspace}}/build_test
-        run: ninja -j4
+        run: cmake --build cmake-build-debug -j 4
