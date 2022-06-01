@@ -42,5 +42,6 @@ void uartToESP_SendCommand(void);
 
 void uartToESP_Println(char *data);
 
+void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
 
 #endif // UART_TO_ESP_H

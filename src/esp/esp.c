@@ -53,3 +53,7 @@ void ESP_SoftReset(void) {
 bool ESP_CheckIsResponding(void) {
     return ESP_SendCommand("AT", "OK", 100);
 }
+
+void ESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
+    uartToESP_SetMQTTReceiverFunction(receive);
+}

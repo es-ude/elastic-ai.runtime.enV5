@@ -13,8 +13,11 @@
 char *MQTT_Broker_brokerDomain = "";
 uint MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
+bool MQTT_BROKER_ReceiverFunctionSet = false;
 
 bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
+
+bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
     MQTT_Broker_brokerDomain = ID;
@@ -43,6 +46,10 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port) {
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
         PRINT("Connected to %s at Port %s", target, port)
         NetworkStatus.MQTTStatus = CONNECTED;
+        if (!MQTT_BROKER_ReceiverFunctionSet) {
+            ESP_SetMQTTReceiverFunction(MQTT_Broker_Receive);
+            MQTT_BROKER_ReceiverFunctionSet = true;
+        }
     } else {
         PRINT("Could not connect to %s at Port %s", target, port)
     }
