@@ -29,7 +29,6 @@ _Noreturn void mqttTask(void) {
     subscribe("stresstest", (Subscriber) {.deliver=deliver});
 
     while (true) {
-        Network_PrintIP();
         TaskSleep(1000);
     }
 }
