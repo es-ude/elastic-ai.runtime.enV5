@@ -5,35 +5,27 @@
 #include "TaskWrapper.h"
 #include "uartToESP.h"
 #include <stdbool.h>
-#include <string.h>
 
-extern esp_command command;
-
-bool ESP_SendCommandIntern(char *cmd, char *expectedResponse, int timeoutMs) {
-    if (strcmp(command.cmd, "\0") != 0) {
+bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
+    if (uartToESP_IsBusy()) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
         return false;
     }
 
-    strcpy(command.cmd, cmd);
-    command.responseArrived = false;
-    strcpy(command.expectedResponse, expectedResponse);
+    uartToESP_SendCommand(cmd, expectedResponse);
 
-    uartToESP_SendCommand();
+    bool responseArrived = false;
 
     TaskSleep(REFRESH_RESPOND_IN_MS / 2);
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        if (command.responseArrived)
+        responseArrived = uartToESP_ResponseArrived();
+        if (responseArrived)
             break;
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
 
-    return command.responseArrived;
-}
+    uartToESP_Free();
 
-bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
-    bool responseArrived = ESP_SendCommandIntern(cmd, expectedResponse, timeoutMs);
-    strcpy(command.cmd, "\0");
     return responseArrived;
 }
 

@@ -31,17 +31,22 @@ typedef struct {
     unsigned int data_bits;
     unsigned int stop_bits;
     UartParity parity;
-//    circular_buffer receive_buf;
     char receive_buf[UART_BUFFER_SIZE];
     unsigned int receive_count;
 } UARTDevice;
 
 void uartToEsp_Init(UARTDevice device);
 
-void uartToESP_SendCommand(void);
+void uartToESP_SendCommand(char *, char *string);
 
 void uartToESP_Println(char *data);
 
 void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
+
+bool uartToESP_IsBusy(void);
+
+bool uartToESP_ResponseArrived(void);
+
+void uartToESP_Free(void);
 
 #endif // UART_TO_ESP_H

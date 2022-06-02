@@ -62,7 +62,7 @@ bool Network_ConnectToNetwork(NetworkCredentials credentials) {
         PRINT("Connected to %s", credentials.ssid)
         NetworkStatus.WIFIStatus = CONNECTED;
     } else {
-        PRINT("Failed to connect to %s", credentials.ssid)
+        PRINT("Failed to connect to Network: %s", credentials.ssid)
         NetworkStatus.WIFIStatus = NOT_CONNECTED;
     }
     return NetworkStatus.WIFIStatus;
