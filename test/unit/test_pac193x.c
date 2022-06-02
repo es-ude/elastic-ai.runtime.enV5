@@ -259,7 +259,7 @@ void pac193x_GetMeasurementForChannel_read__correct_value_ISENSE ( void )
     
     pac193x_getMeasurementForChannel ( PAC193X_CHANNEL02, PAC193X_ISENSE, & actualValue );
     
-    TEST_ASSERT_EQUAL( expectedValue, actualValue );
+    TEST_ASSERT_EQUAL_FLOAT( expectedValue, actualValue );
   }
 
 void pac193x_GetMeasurementForChannel_read__successful_value_ISENSE_AVG ( void )

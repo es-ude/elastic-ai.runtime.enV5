@@ -62,6 +62,13 @@ static pac193x_errorCode refresh ( void );
 static pac193x_errorCode refreshV ( void );
 
 
+/*! translate a passed Channel to the index of the RSense Array
+ *
+ * @param channel[in] Channel to use
+ * @return            Index of the correct RSense value
+ */
+static uint8_t translateChannelToRSenseArrayIndex(pac193x_channel channel);
+
 /*! store adequate properties for the requested measurement
  *
  * \Information

@@ -9,6 +9,7 @@
 #include "gpio.h"
 #include "i2c.h"
 
+
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 pac193x_errorCode pac193x_powerUpSensor ( void )
@@ -216,7 +217,7 @@ pac193x_errorCode pac193x_getMeasurementForChannel ( pac193x_channel channel, pa
     
     /* transform raw data */
     uint64_t rawValue = transformResponseBufferToUInt64 ( responseBuffer, properties.sizeOfResponseBuffer );
-    * value = ( * properties.calculationFunction ) ( rawValue, channel );
+    * value = ( * properties.calculationFunction ) ( rawValue, translateChannelToRSenseArrayIndex ( channel ) );
     
     return errorCode;
   }
@@ -289,6 +290,29 @@ static pac193x_errorCode refreshV ( void )
     return PAC193X_NO_ERROR;
   }
 
+
+static uint8_t translateChannelToRSenseArrayIndex ( pac193x_channel channel )
+  {
+    uint8_t channelIndex;
+    switch ( channel )
+      {
+        case ( PAC193X_CHANNEL01 ):
+          channelIndex = 0;
+        break;
+        case ( PAC193X_CHANNEL02 ):
+          channelIndex = 1;
+        break;
+        case ( PAC193X_CHANNEL03 ):
+          channelIndex = 2;
+        break;
+        case ( PAC193X_CHANNEL04 ):
+          channelIndex = 3;
+        break;
+        default:
+          channelIndex = - 1;
+      }
+    return channelIndex;
+  }
 
 static pac193x_errorCode setMeasurementProperties ( pac193x_measurementProperties * properties, pac193x_valueToMeasure valueToMeasure )
   {
@@ -451,14 +475,14 @@ static float calculateVoltageOfSense ( uint64_t input, uint8_t channel )
 
 static float calculateCurrentOfSense ( uint64_t input, uint8_t channel )
   {
-    float fsc    = 0.1f / sensorConfiguration.rSense[ channel - 1 ];
+    float fsc    = 0.1f / sensorConfiguration.rSense[ channel];
     float iSense = fsc * ( convertToFloat ( input ) / UNIPOLAR_VOLTAGE_DENOMINATOR );
     return iSense;
   }
 
 static float calculateActualPower ( uint64_t input, uint8_t channel )
   {
-    float powerFSR              = 3.2f / sensorConfiguration.rSense[ channel - 1 ];
+    float powerFSR              = 3.2f / sensorConfiguration.rSense[ channel];
     float powerConversionFactor = convertToFloat ( input ) / UNIPOLAR_POWER_DENOMINATOR;
     float powerActual           = powerFSR * powerConversionFactor;
     return powerActual;
@@ -466,7 +490,7 @@ static float calculateActualPower ( uint64_t input, uint8_t channel )
 
 static float calculateEnergy ( uint64_t input, uint8_t channel )
   {
-    float powerFSR = 3.2f / sensorConfiguration.rSense[ channel - 1 ];
+    float powerFSR = 3.2f / sensorConfiguration.rSense[ channel];
     float energy   = convertToFloat ( input ) * powerFSR / ( ENERGY_DENOMINATOR * SAMPLING_RATE );
     return energy;
   }
