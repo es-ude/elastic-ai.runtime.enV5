@@ -54,8 +54,4 @@ void Network_ConnectToNetworkPlain(char *ssid, char *password);
 
 void Network_DisconnectFromNetwork(void);
 
-void Network_PrintIP(void);
-
-void Network_Ping(char *ipAddress);
-
 #endif

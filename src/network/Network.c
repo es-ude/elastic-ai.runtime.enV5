@@ -84,36 +84,3 @@ void Network_DisconnectFromNetwork(void) {
     ESP_SendCommand("AT+CWQAP", "OK", 5000);
     NetworkStatus.WIFIStatus = NOT_CONNECTED;
 }
-
-void Network_PrintIP(void) {
-    char response[15];
-    bool responseArrived = ESP_SendCommandAndGetResponse("AT+CIFSR", "+CIFSR:STAIP,", 1000, response);
-    if (responseArrived) {
-        PRINT("IP Address: %s", response)
-    } else {
-        PRINT("Could not get IP Address.")
-    }
-}
-
-void Network_Ping(char *ipAddress) {
-    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT("Chip not working!")
-        return;
-    }
-    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
-        PRINT("No network connection!")
-        return;
-    }
-    char cmd[30];
-    strcpy(cmd, "AT+PING=\"");
-    strcat(cmd, ipAddress);
-    strcat(cmd, "\"");
-
-    char timeElapsedStr[10];
-    bool responseArrived = ESP_SendCommandAndGetResponse(cmd, "+PING:", 1000, timeElapsedStr);
-    if (responseArrived) {
-        PRINT("PING host IP %s, %sms", ipAddress, timeElapsedStr)
-    } else {
-        PRINT("PING Timeout")
-    }
-}
