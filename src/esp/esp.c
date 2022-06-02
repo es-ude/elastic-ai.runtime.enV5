@@ -37,14 +37,6 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return responseArrived;
 }
 
-
-bool ESP_SendCommandAndGetResponse(char *cmd, char *expectedResponse, int timeoutMs, char *response) {
-    bool responseArrived = ESP_SendCommandIntern(cmd, expectedResponse, timeoutMs);
-    strcpy(response, command.data);
-    strcpy(command.cmd, "\0");
-    return responseArrived;
-}
-
 void ESP_SoftReset(void) {
     ESP_SendCommand("AT+RST", "OK", 1000);
     TaskSleep(2000); // wait until the esp is ready
