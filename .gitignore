@@ -1,9 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode
 
-build_pico
-build_tests
-
 ### CMake ###
 CMakeLists.txt.user
 CMakeCache.txt
@@ -41,3 +38,4 @@ _deps
 cmake-build-*
 build/
 build_*/
+out/
