@@ -8,6 +8,8 @@
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
+bool ESP_SendCommandForce(char *cmd, char *expectedResponse, int timeoutMs);
+
 void ESP_SoftReset(void);
 
 bool ESP_CheckIsResponding(void);

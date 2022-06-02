@@ -29,6 +29,24 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return responseArrived;
 }
 
+bool ESP_SendCommandForce(char *cmd, char *expectedResponse, int timeoutMs) {
+    uartToESP_SendCommand(cmd, expectedResponse);
+
+    bool responseArrived = false;
+
+    TaskSleep(REFRESH_RESPOND_IN_MS / 2);
+    for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
+        responseArrived = uartToESP_ResponseArrived();
+        if (responseArrived)
+            break;
+        TaskSleep(REFRESH_RESPOND_IN_MS);
+    }
+
+    uartToESP_Free();
+
+    return responseArrived;
+}
+
 void ESP_SoftReset(void) {
     ESP_SendCommand("AT+RST", "OK", 1000);
     TaskSleep(2000); // wait until the esp is ready

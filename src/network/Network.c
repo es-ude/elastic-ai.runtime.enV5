@@ -81,6 +81,7 @@ void Network_DisconnectFromNetwork(void) {
         PRINT("No connection to disconnect from!")
         return;
     }
+
     ESP_SendCommand("AT+CWQAP", "OK", 5000);
     NetworkStatus.WIFIStatus = NOT_CONNECTED;
 }
