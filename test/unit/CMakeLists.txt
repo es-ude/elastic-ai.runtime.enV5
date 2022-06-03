@@ -2,10 +2,10 @@
 ## ADD EXECUTABLE: unit-test_network
 add_executable(unit-test_network
         ${CMAKE_CURRENT_LIST_DIR}/test_network.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/FreeRTOSUtils/TaskWrapper.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
-        ${CMAKE_SOURCE_DIR}/src/esp/esp.c
         ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
 target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/hardware

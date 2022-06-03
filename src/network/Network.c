@@ -4,18 +4,16 @@
 #include "common.h"
 #include "esp.h"
 #include "TaskWrapper.h"
-#include "uartToESP.h"
 #include <string.h>
 
 NetworkStatus_t NetworkStatus = {
         .ChipStatus = ESP_CHIP_NOT_OK,
         .WIFIStatus = NOT_CONNECTED,
-        .TCPStatus = NOT_CONNECTED,
         .MQTTStatus = NOT_CONNECTED};
 
 bool Network_init(void) {
     // init the uart interface for at
-    uartToEsp_Init(esp32UartDevice);
+    ESP_Init();
 
     ESP_SoftReset();
 
@@ -36,7 +34,6 @@ bool Network_init(void) {
     }
     NetworkStatus.ChipStatus = ESP_CHIP_OK;
     NetworkStatus.WIFIStatus = NOT_CONNECTED;
-    NetworkStatus.TCPStatus = NOT_CONNECTED;
     NetworkStatus.MQTTStatus = NOT_CONNECTED;
     return true;
 }
@@ -59,7 +56,7 @@ bool Network_ConnectToNetwork(NetworkCredentials credentials) {
     strcat(cmd, "\"");
 
     if (ESP_SendCommand(cmd, "WIFI GOT IP", 1000)) {
-        PRINT("Connected to %s", credentials.ssid)
+        PRINT("Connected to Network: %s", credentials.ssid)
         NetworkStatus.WIFIStatus = CONNECTED;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)

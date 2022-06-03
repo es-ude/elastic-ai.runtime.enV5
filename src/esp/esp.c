@@ -6,6 +6,10 @@
 #include "uartToESP.h"
 #include <stdbool.h>
 
+void ESP_Init(void) {
+    uartToEsp_Init();
+}
+
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     if (uartToESP_IsBusy()) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)

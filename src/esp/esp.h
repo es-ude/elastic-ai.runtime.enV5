@@ -6,6 +6,8 @@
 // Speed at which the uart response buffer is checked in MS
 #define REFRESH_RESPOND_IN_MS 500
 
+void ESP_Init(void);
+
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
 bool ESP_SendCommandForce(char *cmd, char *expectedResponse, int timeoutMs);

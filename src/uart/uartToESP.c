@@ -53,7 +53,7 @@ void callback_uart_rx_interrupt() {
     }
 }
 
-void uartToEsp_Init(UARTDevice device) {
+void uartToEsp_Init(void) {
     if (device.uartId == 0)
         device.uartInstance = (UartInstance *) uart0;
     else if (device.uartId == 1)
