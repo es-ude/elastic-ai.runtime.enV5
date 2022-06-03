@@ -8,8 +8,7 @@
 
 UARTDevice uartDev;
 bool lastWasR = false;
-
-esp_command command = {.cmd="\0"};
+esp_command command = {.cmd="\0", .responseArrived=false};
 
 void (*uartToESP_MQTT_Broker_Receive)(char *) = NULL;
 
@@ -54,7 +53,7 @@ void callback_uart_rx_interrupt() {
     }
 }
 
-void uartToEsp_Init(UARTDevice device) {
+void uartToEsp_Init(void) {
     if (device.uartId == 0)
         device.uartInstance = (UartInstance *) uart0;
     else if (device.uartId == 1)
@@ -97,7 +96,10 @@ void uartToEsp_Init(UARTDevice device) {
     uartDev.receive_buf[0] = '\0';
 }
 
-void uartToESP_SendCommand(void) {
+void uartToESP_SendCommand(char *cmd, char *expectedResponse) {
+    strcpy(command.cmd, cmd);
+    command.responseArrived = false;
+    strcpy(command.expectedResponse, expectedResponse);
     uartToESP_Println(command.cmd);
 }
 
@@ -108,4 +110,18 @@ void uartToESP_Println(char *data) {
 
 void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
     uartToESP_MQTT_Broker_Receive = receive;
+}
+
+bool uartToESP_IsBusy(void) {
+    if (strcmp(command.cmd, "\0") == 0)
+        return false;
+    return true;
+}
+
+bool uartToESP_ResponseArrived(void) {
+    return command.responseArrived;
+}
+
+void uartToESP_Free(void) {
+    strcpy(command.cmd, "\0");
 }

@@ -185,7 +185,7 @@ void MQTT_Broker_Disconnect(bool force) {
         }
     }
 
-    ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 5000);
+    ESP_SendCommandForce("AT+MQTTCLEAN=0", "OK", 5000);
     NetworkStatus.MQTTStatus = NOT_CONNECTED;
 }
 

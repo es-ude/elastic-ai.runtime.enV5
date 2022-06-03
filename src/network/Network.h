@@ -1,7 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "uartToESP.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -15,8 +14,6 @@ typedef struct {
     int ChipStatus;
     // Is the esp connected to a Wi-Fi
     int WIFIStatus;
-    // is the esp connected to a server?
-    int TCPStatus;
     // is the board connected to an MQTT Broker
     int MQTTStatus;
 } NetworkStatus_t;
@@ -27,22 +24,6 @@ typedef struct {
     // the Password for your WI-FI
     char *password;
 } NetworkCredentials;
-
-static UARTDevice esp32UartDevice = {
-        // Below depends on the hardware connection
-        // you should modify it according to your hardware
-        .name     = "uart_to_esp32",
-        .uartId  = 1,
-        .tx_pin   = 4,
-        .rx_pin   = 5,
-
-        // Below depends on the firmware on the esp32 module
-        .baudrate_set    = 115200,
-        .baudrate_actual = 0,
-        .data_bits        = 8,
-        .stop_bits        = 1,
-        .parity           = UartParity_NONE,
-};
 
 extern NetworkStatus_t NetworkStatus;
 
