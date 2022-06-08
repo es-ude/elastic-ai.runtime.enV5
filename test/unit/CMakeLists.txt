@@ -57,5 +57,6 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/src/pac193x
-        ${CMAKE_SOURCE_DIR}/extern)
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
