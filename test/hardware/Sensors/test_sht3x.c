@@ -62,7 +62,7 @@ static void getSerialNumber ( )
     sht3x_errorCode sht_errorCode = sht3x_readSerialNumber ( & serialNumber );
     if ( sht_errorCode == SHT3X_NO_ERROR )
       {
-        printf ( "Serial number: %08lx\n", serialNumber );
+        printf ( "Serial number: %li\n", serialNumber );
       }
     else
       {
