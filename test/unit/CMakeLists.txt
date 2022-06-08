@@ -18,3 +18,29 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_network unity)
+
+##############################################
+## ADD EXECUTABLE: unit-test_network
+add_executable(unit-test_configuration
+        ${CMAKE_CURRENT_LIST_DIR}/test_configuration.c
+        ${CMAKE_SOURCE_DIR}/src/fpga_config/configuration.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/flash.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/config_data_handler.c)
+target_include_directories(unit-test_configuration PUBLIC
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/flash
+        ${CMAKE_SOURCE_DIR}/src/fpga_config
+        ${CMAKE_SOURCE_DIR}/extern)
+target_link_libraries(unit-test_configuration unity)
+
+#add_executable(unit-test_sht3x
+#        ${CMAKE_CURRENT_LIST_DIR}/test_sht3x.c
+#        ${CMAKE_SOURCE_DIR}/src/sht3x/sht3x.c
+#        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/i2c.c)
+#target_include_directories(unit-test_sht3x PUBLIC
+#        ${CMAKE_CURRENT_LIST_DIR}/dummies
+#        ${CMAKE_SOURCE_DIR}/src/i2c
+#        ${CMAKE_SOURCE_DIR}/src/sht3x
+#        ${CMAKE_SOURCE_DIR}/extern)
+#target_link_libraries(unit-test_sht3x unity)

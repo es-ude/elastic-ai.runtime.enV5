@@ -85,6 +85,7 @@ void spiTask(){
 
     while(1){
         char input= getchar_timeout_us(10000);
+
         switch (input) {
             case 'i':
                 readDeviceID();
