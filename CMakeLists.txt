@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 include(helpers.cmake)
 
+if (DEBUG_OUTPUT)
+    add_definitions(-DDEBUG)
+endif()
+
 if (UNIT_TEST)
     message(NOTICE "INFO: Building Unit tests")
 
