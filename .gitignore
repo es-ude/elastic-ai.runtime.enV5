@@ -39,3 +39,6 @@ cmake-build-*
 build/
 build_*/
 out/
+
+## IntelliJ IDEA
+.idea/workspace.xml
