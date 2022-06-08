@@ -1,4 +1,4 @@
-#define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
+#define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH/SUBSCRIBE"
 
 #include "hardwareTestHelper.h"
 #include "TaskWrapper.h"
@@ -46,15 +46,11 @@ _Noreturn void mqttTask(void) {
         connectToMQTT();
         publishTestData(i);
         i++;
-        TaskSleep(1000);
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {
     initHardwareTest();
-
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

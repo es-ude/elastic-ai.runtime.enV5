@@ -1,19 +1,14 @@
-#define SOURCE_FILE "MAIN"
-#define NDEBUG
-
-#include <stdio.h>
+#define SOURCE_FILE "RESET-BROKER-TEST"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-#include "common.h"
 #include "MQTTBroker.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "Network.h"
-
-#include "communicationEndpoint.h"
+#include "protocol.h"
 
 void enterBootModeTask(void);
 
@@ -29,7 +24,7 @@ void _Noreturn mainTask(void) {
 
     while (true) {
         MQTT_Broker_ConnectToBroker("PUT_BROKER_IP_HERE", "1883");//Kostenloser Broker
-        publish((Posting) {.topic="testENv5Pub", .data="data"});
+        publishData("testENv5Pub", "data");
         TaskSleep(5000);
         MQTT_Broker_setBrokerDomain("second_device_with_longer_name");
     }

@@ -4,14 +4,14 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 #include "MQTTBroker.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
-    When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/test.
+    When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test.
     Can be received with the Java Integration Test IntegrationTestWhereENv5IsPublishing.
 ***/
 
@@ -21,7 +21,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publish((Posting) {.topic="testENv5Pub", .data=data});
+    publishData("testENv5Pub", data);
     free(data);
 }
 

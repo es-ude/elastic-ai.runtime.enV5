@@ -9,6 +9,6 @@ NetworkCredentials credentials = {
         .password = "curjeq343j"};
 
 /* FIXME: Set IP address of MQTT Host */
-char *mqttHost = "192.168.203.46";
+char *mqttHost = "192.168.203.50";
 
 #endif //SENSOR_BOARD_NETWORK_SETTINGS_H

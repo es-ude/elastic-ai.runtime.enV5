@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.13)
 include(helpers.cmake)
 
+if (DEBUG_OUTPUT)
+    add_definitions(-DDEBUG)
+endif()
+
 if (UNIT_TEST)
     message(NOTICE "INFO: Building Unit tests")
 
     project(enV5 C CXX ASM)
 
     fetch_git_submodules()
+
+    include(CTest)
 
     add_subdirectory(extern/unity)
     add_subdirectory(test/unit)
@@ -18,7 +24,6 @@ else ()
 
     project(enV5 C CXX ASM)
 
-    SET(TARGET_GROUP extern)
     add_subdirectory(extern/elastic-ai.runtime.c)
     pico_sdk_init()
     add_subdirectory(extern/freeRTOS/)

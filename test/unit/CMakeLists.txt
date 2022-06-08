@@ -1,5 +1,5 @@
 ##############################################
-## ADD EXECUTABLE: unit-test_network
+## ADD TEST: unit-test_network
 add_executable(unit-test_network
         ${CMAKE_CURRENT_LIST_DIR}/test_network.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c
@@ -17,9 +17,10 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_network unity)
+add_test(unit-test_network unit-test_network)
 
 #############################################
-# ADD EXECUTABLE: unit-test_sht3x
+# ADD TEST: unit-test_sht3x
 add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/test_sht3x.c
         ${CMAKE_SOURCE_DIR}/src/sht3x/sht3x.c
@@ -30,9 +31,10 @@ target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_SOURCE_DIR}/src/sht3x
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_sht3x unity)
+add_test(unit-test_sht3x unit-test_sht3x)
 
 ##############################################
-## ADD EXECUTABLE: unit-test_adxl345b
+## ADD TEST: unit-test_adxl345b
 add_executable(unit-test_adxl345b
         ${CMAKE_CURRENT_LIST_DIR}/test_adxl345b.c
         ${CMAKE_SOURCE_DIR}/src/adxl345b/adxl345b.c
@@ -43,9 +45,10 @@ target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_SOURCE_DIR}/src/adxl345b
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_adxl345b unity)
+add_test(unit-test_adxl345b unit-test_adxl345b)
 
 ##############################################
-## ADD EXECUTABLE: unit-test_pac193x
+## ADD TEST: unit-test_pac193x
 add_executable(unit-test_pac193x
         ${CMAKE_CURRENT_LIST_DIR}/test_pac193x.c
         ${CMAKE_SOURCE_DIR}/src/pac193x/pac193x.c
@@ -58,3 +61,4 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_SOURCE_DIR}/src/pac193x
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_pac193x unity)
+add_test(unit-test_pac193x unit-test_pac193x)

@@ -1,24 +1,20 @@
 #define SOURCE_FILE "MQTT-BROKER"
 
 #include "MQTTBroker.h"
+#include "MQTTBroker_internal.h"
 #include "common.h"
 #include "esp.h"
 #include "Network.h"
+#include "subscriber.h"
 #include "posting.h"
-#include "protocol.h"
 #include "communicationEndpoint.h"
 #include <string.h>
 #include <stdlib.h>
 
 char *MQTT_Broker_brokerDomain = NULL;
-bool MQTT_Broker_ReceiverTaskRegistered = false;
 uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
-
-bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
-
-bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
     if (MQTT_Broker_brokerDomain != NULL) {
@@ -103,13 +99,13 @@ void subscribe(char *topic, Subscriber subscriber) {
     if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
         return;
     subscribeRaw(MQTT_Broker_concatIDWithTopic(topic), subscriber);
-
 }
 
 void unsubscribe(char *topic, Subscriber subscriber) {
     if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
         return;
     unsubscribeRaw(MQTT_Broker_concatIDWithTopic(topic), subscriber);
+    free(topic);
 }
 
 void subscribeRaw(char *topic, Subscriber subscriber) {
@@ -123,16 +119,13 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
         if (!ESP_SendCommand(command, "OK", 1000)) {
             PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
         } else {
-
             MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber] = (Subscription) {.topic=topic, .subscriber=subscriber};
             MQTT_Broker_numberSubscriber++;
             PRINT("Subscribed to %s", topic)
-
         }
     } else {
         PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
     }
-    free(topic);
 }
 
 void unsubscribeRaw(char *topic, Subscriber subscriber) {
@@ -147,17 +140,18 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
         for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
             if (strcmp(MQTT_Broker_subscriberList[i].topic, topic) == 0) {
                 if (MQTT_Broker_subscriberList[i].subscriber.deliver == subscriber.deliver) {
+
                     strcpy(MQTT_Broker_subscriberList[i].topic,
                            MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
                     MQTT_Broker_subscriberList[i].subscriber = MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].subscriber;
                     strcpy(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic, "\0");
+                    free(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
                     MQTT_Broker_numberSubscriber--;
                 }
             }
         }
         PRINT("Unsubscribed from %s.", topic)
     }
-    free(topic);
 }
 
 char *ID() {
@@ -165,7 +159,6 @@ char *ID() {
 }
 
 void MQTT_Broker_SetClientId(char *clientId) {
-//    ASSERT(NetworkStatus.ChipStatus)
     char cmd[100];
     strcpy(cmd, "AT+MQTTUSERCFG=0,1,\"");
     strcat(cmd, clientId);

@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "MQTTBroker.h"
 #include "common.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 
 /***
@@ -24,7 +24,7 @@ void _Noreturn mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscribe("testENv5Sub", (Subscriber) {.deliver=deliver});
+    subscribeForData("testENv5Sub", (Subscriber) {.deliver=deliver});
 
     while (true) {
         connectToNetwork();

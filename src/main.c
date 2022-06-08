@@ -1,5 +1,4 @@
 #define SOURCE_FILE "MAIN"
-#define NDEBUG
 // src headers
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
