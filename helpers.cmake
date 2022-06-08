@@ -24,5 +24,7 @@ function(include_src)
     add_subdirectory(src/network)
     add_subdirectory(src/uart)
     add_subdirectory(src/spi)
+    add_subdirectory(src/fpga_config)
     add_subdirectory(src/flash)
+
 endfunction()
