@@ -41,7 +41,8 @@ target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/src/adxl345b
-        ${CMAKE_SOURCE_DIR}/extern)
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_adxl345b unity)
 
 ##############################################
