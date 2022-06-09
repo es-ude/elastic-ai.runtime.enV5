@@ -19,6 +19,10 @@ uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
+void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic);
+
+void MQTT_Broker_getData(Posting *posting, const char *end, int dataLength);
+
 void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID) {
     if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker. Chip problem.")
@@ -69,7 +73,9 @@ void MQTT_Broker_Disconnect(bool force) {
     NetworkStatus.MQTTStatus = NOT_CONNECTED;
 
     free(MQTT_Broker_brokerDomain);
+    MQTT_Broker_brokerDomain = NULL;
     free(MQTT_Broker_clientID);
+    MQTT_Broker_clientID = NULL;
 }
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
@@ -109,35 +115,46 @@ void MQTT_Broker_Receive(char *response) {
     }
 }
 
-bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
-    if (strlen(response) == 0) {
-        return false;
-    }
-
-    char *start;
-    char *end;
-    start = strstr(response, ",\"") + 2;
-    end = strstr(start, "\",");
-    int lengthOfTopic = end - start;
+void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic) {
     char *topicBuffer = malloc(sizeof(char) * (lengthOfTopic + 1));
     memset(topicBuffer, '\0', lengthOfTopic + 1);
     strncpy(topicBuffer, start, lengthOfTopic);
     posting->topic = topicBuffer;
+}
 
-    start = end + 2;
-    end = strstr(start, ",");
+int MQTT_Broker_getDataLength(char *start, const char *end) {
     int lengthOfLength = end - start;
     char *lengthBuffer = malloc(sizeof(char) * (lengthOfLength + 1));
     memset(lengthBuffer, '\0', lengthOfLength + 1);
     strncpy(lengthBuffer, start, lengthOfLength);
     int dataLength = strtol(lengthBuffer, NULL, 10);
+    free(lengthBuffer);
+    return dataLength;
+}
 
+void MQTT_Broker_getData(Posting *posting, const char *end, int dataLength) {
     char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
     memset(dataBuffer, '\0', dataLength + 1);
     strncpy(dataBuffer, end + 1, dataLength);
     posting->data = dataBuffer;
+}
 
-    free(lengthBuffer);
+bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
+    if (strlen(response) == 0) {
+        return false;
+    }
+
+    char *start = strstr(response, ",\"") + 2;;
+    char *end = strstr(start, "\",");
+
+    int lengthOfTopic = end - start;
+    MQTT_Broker_getTopic(posting, start, lengthOfTopic);
+
+    start = end + 2;
+    end = strstr(start, ",");
+    int dataLength = MQTT_Broker_getDataLength(start, end);
+
+    MQTT_Broker_getData(posting, end, dataLength);
 
     return true;
 }
