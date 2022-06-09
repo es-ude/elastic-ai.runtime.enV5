@@ -27,6 +27,8 @@ void publishTestData(uint16_t i) {
 }
 
 void _Noreturn mqttTask(void) {
+    PRINT("Starting Test")
+
     uint64_t i = 0;
     while (true) {
         connectToNetwork();

@@ -1,11 +1,10 @@
+#define SOURCE_FILE "src/sht3x/sht3x.c"
+
 #include "sht3x_public.h"
 #include "sht3x_internal.h"
 #include "i2c.h"
 #include "pico/time.h"
 #include "common.h"
-
-
-#define SOURCE_FILE "src/sht3x/sht3x.c"
 
 /* region VARIABLES */
 

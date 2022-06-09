@@ -21,6 +21,8 @@ void deliver(Posting posting) {
 }
 
 void _Noreturn mqttTask(void) {
+    PRINT("Starting Test")
+
     connectToNetwork();
     connectToMQTT();
 

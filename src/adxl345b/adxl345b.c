@@ -1,3 +1,5 @@
+#define SOURCE_FILE "src/adxl345b/adxl345b.c"
+
 #include "typedefs.h"
 #include "adxl345b_internal.h"
 #include "adxl345b_public.h"
@@ -5,9 +7,6 @@
 #include "pico/time.h"
 #include <stdint.h>
 #include "common.h"
-
-
-#define SOURCE_FILE "src/adxl345b/adxl345b.c"
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 

@@ -19,10 +19,6 @@ uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
-void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic);
-
-void MQTT_Broker_getData(Posting *posting, const char *end, int dataLength);
-
 void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID) {
     if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker. Chip problem.")
@@ -225,8 +221,9 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
 void unsubscribe(char *topic, Subscriber subscriber) {
     if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
         return;
-    unsubscribeRaw(MQTT_Broker_concatIDWithTopic(topic), subscriber);
-    free(topic);
+    char *fullTopic = MQTT_Broker_concatIDWithTopic(topic);
+    unsubscribeRaw(fullTopic, subscriber);
+    free(fullTopic);
 }
 
 void unsubscribeRaw(char *topic, Subscriber subscriber) {
@@ -241,10 +238,11 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
         for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
             if (strcmp(MQTT_Broker_subscriberList[i].topic, topic) == 0) {
                 if (MQTT_Broker_subscriberList[i].subscriber.deliver == subscriber.deliver) {
-
-                    strcpy(MQTT_Broker_subscriberList[i].topic,
-                           MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
-                    MQTT_Broker_subscriberList[i].subscriber = MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].subscriber;
+                    if (i != MQTT_Broker_numberSubscriber) {
+                        strcpy(MQTT_Broker_subscriberList[i].topic,
+                               MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
+                        MQTT_Broker_subscriberList[i].subscriber = MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].subscriber;
+                    }
                     strcpy(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic, "\0");
                     free(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
                     MQTT_Broker_numberSubscriber--;

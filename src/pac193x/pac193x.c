@@ -1,6 +1,4 @@
-//
-// Created by David P. Federl
-//
+#define SOURCE_FILE "src/pac193x/pac193x.c"
 
 #include <stdbool.h>
 #include "pico/time.h"
@@ -9,9 +7,6 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "common.h"
-
-
-#define SOURCE_FILE "src/pac193x/pac193x.c"
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 

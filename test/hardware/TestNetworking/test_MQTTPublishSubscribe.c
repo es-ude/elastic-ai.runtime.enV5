@@ -21,7 +21,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("testENv5PubSub",data);
+    publishData("testPubSub",data);
     free(data);
 }
 
@@ -30,7 +30,7 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
+    PRINT("Starting Test")
 
     connectToNetwork();
     connectToMQTT();
