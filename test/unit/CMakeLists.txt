@@ -29,7 +29,8 @@ target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/src/sht3x
-        ${CMAKE_SOURCE_DIR}/extern)
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_sht3x unity)
 add_test(unit-test_sht3x unit-test_sht3x)
 
@@ -43,7 +44,8 @@ target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/src/adxl345b
-        ${CMAKE_SOURCE_DIR}/extern)
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_adxl345b unity)
 add_test(unit-test_adxl345b unit-test_adxl345b)
 
@@ -59,6 +61,7 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/src/pac193x
-        ${CMAKE_SOURCE_DIR}/extern)
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
 add_test(unit-test_pac193x unit-test_pac193x)
