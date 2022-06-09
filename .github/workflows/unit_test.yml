@@ -15,9 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup
-        run: |
-          sudo apt-get install ninja-build
-          mkdir ${{github.workspace}}/build_test
+        run: sudo apt-get install ninja-build
 
       - name: Configure CMake
         run: cmake -B cmake-build-debug/unit_test -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -G Ninja .
@@ -26,7 +24,4 @@ jobs:
         run: cmake --build cmake-build-debug/unit_test -j 4
 
       - name: Run tests
-        working-directory: ${{github.workspace}}/cmake-build-debug/unit_test/test/unit/
-        env:
-          FILES: unit-*
-        run: for file in $FILES; do ./$file; done
+        run: ctest --test-dir cmake-build-debug/unit_test/test/unit --output-on-failure

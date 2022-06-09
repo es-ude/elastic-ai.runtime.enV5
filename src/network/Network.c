@@ -18,12 +18,12 @@ bool Network_init(void) {
     ESP_SoftReset();
 
     while (!ESP_CheckIsResponding()) {
-        PRINT("ESP ACK_CHECK failed")
+        PRINT("ESP Check failed, trying again...")
         TaskSleep(1000);
         ESP_SoftReset();
     }
 
-    PRINT("ESP is responding")
+    PRINT_DEBUG("ESP is responding")
     // disable echo, make the output more clean
     ESP_SendCommand("ATE0", "OK", 100);
     // disable multiple connections
@@ -79,6 +79,10 @@ void Network_DisconnectFromNetwork(void) {
         return;
     }
 
-    ESP_SendCommand("AT+CWQAP", "OK", 5000);
-    NetworkStatus.WIFIStatus = NOT_CONNECTED;
+    if (ESP_SendCommand("AT+CWQAP", "OK", 5000)) {
+        NetworkStatus.WIFIStatus = NOT_CONNECTED;
+        PRINT_DEBUG("Disconnected from Network")
+    } else {
+        PRINT("Failed to disconnect from Network")
+    }
 }

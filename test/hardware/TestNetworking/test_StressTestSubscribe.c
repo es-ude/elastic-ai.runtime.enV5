@@ -3,9 +3,8 @@
 #include "hardwareTestHelper.h"
 #include "TaskWrapper.h"
 #include "MQTTBroker.h"
-#include "Network.h"
 #include "common.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -20,13 +19,10 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
-    subscribe("stresstest", (Subscriber) {.deliver=deliver});
+    subscribeForData("stresstestSub", (Subscriber) {.deliver=deliver});
 
     while (true) {
         TaskSleep(1000);
@@ -35,8 +31,6 @@ _Noreturn void mqttTask(void) {
 
 int main() {
     initHardwareTest();
-
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

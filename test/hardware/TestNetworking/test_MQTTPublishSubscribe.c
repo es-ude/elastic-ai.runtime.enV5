@@ -5,10 +5,11 @@
 #include "Network.h"
 #include "MQTTBroker.h"
 #include "common.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
     Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
@@ -20,7 +21,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publish((Posting) {.topic="testENv5PubSub", .data=data});
+    publishData("testENv5PubSub",data);
     free(data);
 }
 
@@ -29,13 +30,12 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
+    PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
 
     connectToNetwork();
     connectToMQTT();
 
-    subscribe("testENv5PubSub", (Subscriber) {.deliver=deliver});
+    subscribeForData("testPubSub", (Subscriber) {.deliver=deliver});
 
     uint64_t i = 0;
     while (true) {
@@ -45,7 +45,6 @@ _Noreturn void mqttTask(void) {
         i++;
         TaskSleep(1000);
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

@@ -50,6 +50,15 @@ target_link_libraries(hardware-test_MQTTSubscribe
 target_compile_definitions(hardware-test_MQTTSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTSubscribe)
 
+################## test_StressTestSubscribe ##################
+add_executable(hardware-test_MQTTSubscribeUnsubscribe test_MQTTSubscribeUnsubscribe.c)
+target_link_libraries(hardware-test_MQTTSubscribeUnsubscribe
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTSubscribeUnsubscribe PRIVATE DEBUG)
+make_to_output_file(hardware-test_MQTTSubscribeUnsubscribe)
+
 ################## test_network ##################
 add_executable(hardware-test_network test_network.c)
 target_link_libraries(hardware-test_network
@@ -67,6 +76,15 @@ target_link_libraries(hardware-test_StressTestPublish
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestPublish PRIVATE DEBUG)
 make_to_output_file(hardware-test_StressTestPublish)
+
+################## test_StressTestSubscribe ##################
+add_executable(hardware-test_StressTestPublishSubscribe test_StressTestPublishSubscribe.c)
+target_link_libraries(hardware-test_StressTestPublishSubscribe
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_StressTestPublishSubscribe PRIVATE DEBUG)
+make_to_output_file(hardware-test_StressTestPublishSubscribe)
 
 ################## test_StressTestSubscribe ##################
 add_executable(hardware-test_StressTestSubscribe test_StressTestSubscribe.c)

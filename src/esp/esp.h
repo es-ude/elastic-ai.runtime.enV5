@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 // Speed at which the uart response buffer is checked in MS
-#define REFRESH_RESPOND_IN_MS 500
+#define REFRESH_RESPOND_IN_MS 250
 
 void ESP_Init(void);
 

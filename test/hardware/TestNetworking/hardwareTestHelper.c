@@ -19,7 +19,7 @@ void connectToNetwork(void) {
 
 void connectToMQTT(void) {
     while (NetworkStatus.MQTTStatus == NOT_CONNECTED) {
-        MQTT_Broker_ConnectToBroker(mqttHost, "1883");
+        MQTT_Broker_ConnectToBroker(mqttHost, "1883", "eip://uni-due.de/es", "enV5");
         TaskSleep(500);
     }
 }

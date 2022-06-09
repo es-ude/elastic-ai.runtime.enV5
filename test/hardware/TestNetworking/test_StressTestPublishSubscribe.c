@@ -1,19 +1,18 @@
-#define SOURCE_FILE "MQTT-PUBLISH-TEST"
+#define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH/SUBSCRIBE"
 
 #include "hardwareTestHelper.h"
 #include "TaskWrapper.h"
 #include "Network.h"
 #include "MQTTBroker.h"
-#include "protocol.h"
 #include "common.h"
+#include "protocol.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
-    When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test.
-    Can be received with the Java Integration Test IntegrationTestWhereENv5IsPublishing.
+    Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
 ***/
 
 void publishTestData(uint16_t i) {
@@ -22,26 +21,33 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("testPub", data);
+    publishData("stresstestPubSub",data);
     free(data);
 }
 
-void _Noreturn mqttTask(void) {
+void deliver(Posting posting) {
+    PRINT("Received Data: %s", posting.data)
+}
+
+_Noreturn void mqttTask(void) {
+    PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
+
+    connectToNetwork();
+    connectToMQTT();
+
+    subscribeForData("stresstestPubSub", (Subscriber) {.deliver=deliver});
+
     uint64_t i = 0;
     while (true) {
         connectToNetwork();
         connectToMQTT();
-
         publishTestData(i);
         i++;
-        TaskSleep(1000);
     }
 }
 
 int main() {
     initHardwareTest();
-
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "MQTTBroker.h"
 #include "common.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 
 /***
@@ -13,25 +13,24 @@
     The Java Integration Test IntegrationTestWhereENv5Subscribes can be used to publish the data.
 ***/
 
+uint64_t arrivedMessages = 0;
+
 void deliver(Posting posting) {
-    PRINT("Received Data: %s", posting.data)
+    arrivedMessages++;
+    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages)
 }
 
 void _Noreturn mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
-    subscribe("testENv5Sub", (Subscriber) {.deliver=deliver});
+    subscribeForData("testSub", (Subscriber) {.deliver=deliver});
 
     while (true) {
         connectToNetwork();
         connectToMQTT();
         TaskSleep(1000);
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

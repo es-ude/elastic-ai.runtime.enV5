@@ -2,13 +2,13 @@
 
 #include "hardwareTestHelper.h"
 #include "TaskWrapper.h"
-#include "Network.h"
 #include "MQTTBroker.h"
 #include "common.h"
-#include "communicationEndpoint.h"
+#include "protocol.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+
 /***
     Similar to test_MQTTPublish.c
     Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
@@ -18,9 +18,6 @@
 void publishTestData(uint16_t i);
 
 void _Noreturn mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es/");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
@@ -32,7 +29,6 @@ void _Noreturn mqttTask(void) {
         publishTestData(i);
         i++;
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 void publishTestData(uint16_t i) {
@@ -41,14 +37,12 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "stress: ");
     strcat(data, buffer);
-    publish((Posting) {.topic="stresstest", .data=data});
+    publishData("stresstestPub", data);
     free(data);
 }
 
 int main() {
     initHardwareTest();
-
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

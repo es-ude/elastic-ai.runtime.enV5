@@ -12,6 +12,8 @@ if (UNIT_TEST)
 
     fetch_git_submodules()
 
+    include(CTest)
+
     add_subdirectory(extern/unity)
     add_subdirectory(test/unit)
 else ()
@@ -22,7 +24,6 @@ else ()
 
     project(enV5 C CXX ASM)
 
-    SET(TARGET_GROUP extern)
     add_subdirectory(extern/elastic-ai.runtime.c)
     pico_sdk_init()
     add_subdirectory(extern/freeRTOS/)
@@ -47,5 +48,3 @@ else ()
         message(WARNING "else")
     endif ()
 endif ()
-
-unset(UNIT_TEST CACHE)
