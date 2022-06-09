@@ -9,9 +9,8 @@ typedef struct Subscription {
     Subscriber subscriber;
 } Subscription;
 
-bool MQTT_Broker_checkIfTopicMatches(char *subscribedTopic, char *publishedTopic);
-
 bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
+char *MQTT_Broker_concatIDWithTopic(const char *topic);
 
 #endif //ENV5_MQTTBROKER_INTERNAL_H

@@ -18,9 +18,6 @@
 void publishTestData(uint16_t i);
 
 void _Noreturn mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es/");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
@@ -40,7 +37,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "stress: ");
     strcat(data, buffer);
-    publishData("stresstest", data);
+    publishData("stresstestPub", data);
     free(data);
 }
 

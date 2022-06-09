@@ -48,5 +48,3 @@ else ()
         message(WARNING "else")
     endif ()
 endif ()
-
-unset(UNIT_TEST CACHE)

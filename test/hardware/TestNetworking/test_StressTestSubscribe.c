@@ -19,13 +19,10 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("stresstest", (Subscriber) {.deliver=deliver});
+    subscribeForData("stresstestSub", (Subscriber) {.deliver=deliver});
 
     while (true) {
         TaskSleep(1000);

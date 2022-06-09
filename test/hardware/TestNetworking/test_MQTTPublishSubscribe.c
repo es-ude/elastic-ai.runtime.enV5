@@ -32,13 +32,10 @@ void deliver(Posting posting) {
 _Noreturn void mqttTask(void) {
     PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
 
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
-
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("testENv5PubSub", (Subscriber) {.deliver=deliver});
+    subscribeForData("testPubSub", (Subscriber) {.deliver=deliver});
 
     uint64_t i = 0;
     while (true) {
@@ -48,7 +45,6 @@ _Noreturn void mqttTask(void) {
         i++;
         TaskSleep(1000);
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

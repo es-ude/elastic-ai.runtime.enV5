@@ -28,5 +28,3 @@ int main() {
     RegisterTask(networkTask, "networkTask");
     StartScheduler();
 }
-
-

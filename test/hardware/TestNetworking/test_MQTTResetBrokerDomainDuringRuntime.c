@@ -15,20 +15,17 @@ void enterBootModeTask(void);
 void init(void);
 
 void _Noreturn mainTask(void) {
-    MQTT_Broker_setBrokerDomain("embedded_dev_bro");
-    MQTT_Broker_SetClientId("embedded_device_bro");
-
     while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
-        Network_ConnectToNetworkPlain("PUT_YOUR_SSID_HERE", "PASSWORD");  //Hier Zugangsdaten eintragen.
+        Network_ConnectToNetworkPlain("PUT_YOUR_SSID_HERE", "PASSWORD");
     }
 
     while (true) {
-        MQTT_Broker_ConnectToBroker("PUT_BROKER_IP_HERE", "1883");//Kostenloser Broker
+        MQTT_Broker_ConnectToBroker("PUT_BROKER_IP_HERE", "1883", "embedded_dev_bro",
+                                    "embedded_device_bro"); //Free broker
         publishData("testENv5Pub", "data");
         TaskSleep(5000);
         MQTT_Broker_setBrokerDomain("second_device_with_longer_name");
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

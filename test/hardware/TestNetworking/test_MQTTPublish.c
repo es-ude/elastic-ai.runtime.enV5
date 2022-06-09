@@ -5,6 +5,7 @@
 #include "Network.h"
 #include "MQTTBroker.h"
 #include "protocol.h"
+#include "common.h"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
@@ -21,14 +22,11 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("testENv5Pub", data);
+    publishData("testPub", data);
     free(data);
 }
 
 void _Noreturn mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
-
     uint64_t i = 0;
     while (true) {
         connectToNetwork();
@@ -38,7 +36,6 @@ void _Noreturn mqttTask(void) {
         i++;
         TaskSleep(1000);
     }
-    MQTT_Broker_freeBrokerDomain();
 }
 
 int main() {

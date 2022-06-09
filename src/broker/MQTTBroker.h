@@ -5,16 +5,14 @@
 
 #define MAX_SUBSCRIBER 100
 
-void MQTT_Broker_setBrokerDomain(char *ID);
-
-void MQTT_Broker_freeBrokerDomain();
-
-void MQTT_Broker_SetClientId(char *clientId);
-
-void MQTT_Broker_ConnectToBroker(char *host, char *port);
+void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID);
 
 void MQTT_Broker_Disconnect(bool force);
 
-void MQTT_Broker_Receive(char * response);
+void MQTT_Broker_setBrokerDomain(char *ID);
+
+void MQTT_Broker_SetClientId(char *clientId);
+
+void MQTT_Broker_Receive(char *response);
 
 #endif //SENSOR_BOARD_MQTT_BROKER_H
