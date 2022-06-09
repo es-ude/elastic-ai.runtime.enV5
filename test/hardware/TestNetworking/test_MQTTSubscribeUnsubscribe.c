@@ -30,7 +30,7 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
+    PRINT("Starting Test")
 
     connectToNetwork();
     connectToMQTT();
@@ -45,13 +45,14 @@ _Noreturn void mqttTask(void) {
         PRINT("Should receive data with id: %llu", i)
         publishTestData(i);
         i++;
-        TaskSleep(1000);
+        TaskSleep(2500);
 
         unsubscribeFromData("testPubSub", sub);
         PRINT("Should NOT receive data with id: %llu", i)
         publishTestData(i);
         i++;
-        TaskSleep(1000);    }
+        TaskSleep(2500);
+    }
 }
 
 int main() {

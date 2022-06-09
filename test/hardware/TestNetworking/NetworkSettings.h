@@ -5,10 +5,10 @@
 
 /* FIXME: update wifi credentials */
 NetworkCredentials credentials = {
-        .ssid     = "ES-Stud",
-        .password = "curjeq343j"};
+        .ssid     = "SSID",
+        .password = "password"};
 
 /* FIXME: Set IP address of MQTT Host */
-char *mqttHost = "192.168.203.50";
+char *mqttHost = "1.2.3.4";
 
 #endif //SENSOR_BOARD_NETWORK_SETTINGS_H
