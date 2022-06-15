@@ -4,58 +4,62 @@
 #include "Network.h"
 #include "unity.h"
 
+NetworkCredentials_t credentials = {
+        .ssid = "SSID",
+        .password = "password"
+};
+
 void setUp(void) {
     ESP_ReturnTrue();
-    Network_init();
 }
 
 void tearDown(void) {
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.MQTTStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.MQTTStatus);
 }
 
 void TEST_NETWORK_INIT(void) {
-    TEST_ASSERT_EQUAL(ESP_CHIP_OK, NetworkStatus.ChipStatus);
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
 }
 
 void TEST_CONNECT_TO_NETWORK(void) {
-    Network_ConnectToNetworkPlain("SSID", "password");
-    TEST_ASSERT_EQUAL(CONNECTED, NetworkStatus.WIFIStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
 }
 
 void TEST_CONNECT_TO_NETWORK_TWICE(void) {
-    TEST_ASSERT_EQUAL(ESP_CHIP_OK, NetworkStatus.ChipStatus);
-    Network_ConnectToNetworkPlain("SSID", "password");
-    TEST_ASSERT_EQUAL(CONNECTED, NetworkStatus.WIFIStatus);
-    Network_ConnectToNetworkPlain("SSID2", "password2");
-    TEST_ASSERT_EQUAL(CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
 }
 
 void TEST_CONNECT_TO_NETWORK_FAIL(void) {
     ESP_ReturnFalse();
-    Network_ConnectToNetworkPlain("SSID", "password");
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.WIFIStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
 }
 
 void TEST_DISCONNECT_FROM_NETWORK(void) {
-    TEST_ASSERT_EQUAL(ESP_CHIP_OK, NetworkStatus.ChipStatus);
-    Network_ConnectToNetworkPlain("SSID", "password");
-    TEST_ASSERT_EQUAL(CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
 }
 
 void TEST_DISCONNECT_FROM_NETWORK_TWICE(void) {
-    TEST_ASSERT_EQUAL(ESP_CHIP_OK, NetworkStatus.ChipStatus);
-    Network_ConnectToNetworkPlain("SSID", "password");
-    TEST_ASSERT_EQUAL(CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    Network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();
-    TEST_ASSERT_EQUAL(NOT_CONNECTED, NetworkStatus.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
 }
 
 int main(void) {
