@@ -27,10 +27,8 @@ void ESP_Init(void) {
     // disable echo, make the output more clean
     ESP_SendCommand("ATE0", "OK", 100);
     // disable multiple connections
-    int retriesLeft = 2;
-    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100) && retriesLeft > 0) {
+    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100)) {
         PRINT("could not set esp to single connection mode!")
-        retriesLeft--;
     }
     ESP_Status.ChipStatus = ESP_CHIP_OK;
     ESP_Status.WIFIStatus = NOT_CONNECTED;
@@ -60,23 +58,6 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return responseArrived;
 }
 
-bool ESP_SendCommandForce(char *cmd, char *expectedResponse, int timeoutMs) {
-    uartToESP_SendCommand(cmd, expectedResponse);
-
-    bool responseArrived = false;
-
-    TaskSleep(REFRESH_RESPOND_IN_MS / 2);
-    for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        responseArrived = uartToESP_ResponseArrived();
-        if (responseArrived)
-            break;
-        TaskSleep(REFRESH_RESPOND_IN_MS);
-    }
-
-    uartToESP_Free();
-
-    return responseArrived;
-}
 
 void ESP_SoftReset(void) {
     ESP_SendCommand("AT+RST", "OK", 1000);

@@ -2,12 +2,14 @@
 #define ENV5_CONFIGURATION_H
 
 #include "Network.h"
+#include "MQTTBroker.h"
 
 NetworkCredentials_t NetworkCredentials = {
         .ssid     = "SSID",
         .password = "password"};
 
-// IP address of MQTT Broker
-char *mqttHost = "1.2.3.4";
+MQTTHost_t MQTTHost = {
+        .ip     = "1.2.3.4",
+        .port = "1883"};
 
 #endif //ENV5_CONFIGURATION_H
