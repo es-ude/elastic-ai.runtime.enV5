@@ -1,4 +1,4 @@
-## base provided by https://github.com/marketplace/actions/git-clang-format-action
+## base provided by https://github.com/marketplace/actions/clang-format-github-action
 
 name: "format code"
 
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  format:
+  clang-format-checking:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,13 +21,11 @@ jobs:
           # make sure the parent commit is grabbed as well, because
           # that's what will get formatted (i.e. the most recent commit)
           fetch-depth: 2
-      # format the latest commit
-      - uses: kevmo314/clang-format-action-1@1.0.0
-        # use one of clang-format's supported styles or leave this out to use the style in your .clang-format file
+          # format the latest commit
+      - uses: RafikFarhad/clang-format-github-action@v2.1.0
         with:
           style: file
-      # commit the changes (if there are any)
-      - name: Commit changes
+      - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
         with:
           commit_message: apply clang-format changes
