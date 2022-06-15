@@ -14,6 +14,8 @@
 
 _Noreturn void mainTask(void) {
     Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es",
+                                              "enV5");
 
     while (true) {
         PRINT("Hello, World!")
@@ -56,7 +58,7 @@ int main() {
     init();
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask((TaskCodeFunc)mainTask, "mainTask");
+    RegisterTask(mainTask, "mainTask");
     // Starts FreeRTOS tasks
     StartScheduler();
 }

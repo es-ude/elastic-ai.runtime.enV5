@@ -73,7 +73,8 @@ minicom -b 115200 -o -D /dev/ttyACM0
 
 ## Debug Output
 
-To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake build call.
+To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or
+add it in the CLion CMake options).
 This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 ## Submodules

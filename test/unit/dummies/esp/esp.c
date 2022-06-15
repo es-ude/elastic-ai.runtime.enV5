@@ -17,10 +17,6 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return commandSucceed;
 }
 
-bool ESP_SendCommandForce(char *cmd, char *expectedResponse, int timeoutMs) {
-    return commandSucceed;
-}
-
 void ESP_SoftReset(void) {}
 
 bool ESP_CheckIsResponding(void) { return commandSucceed; }
