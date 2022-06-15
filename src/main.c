@@ -55,7 +55,7 @@ int main() {
     init();
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
+    RegisterTask(mainTask, "mainTask");
     // Starts FreeRTOS tasks
     StartScheduler();
 }
