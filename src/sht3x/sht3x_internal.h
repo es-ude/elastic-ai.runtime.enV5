@@ -15,8 +15,8 @@
  */
 static const uint16_t CRC8_POLYNOMIAL = 0x31;
 
-/*! constant to store the denominator used to calculate the temperature in degrees celsius \n
- *  calculation : 2^16 - 1
+/*! constant to store the denominator used to calculate the temperature in
+ * degrees celsius \n calculation : 2^16 - 1
  */
 static const float DENOMINATOR = (1 << 16) - 1.0f;
 
@@ -38,7 +38,8 @@ static sht3x_errorCode sendRequestToSensor(sht3x_command command);
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
+static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
+                                             uint8_t sizeOfResponseBuffer);
 
 /*! function to perform a CRC8 checksum check on the received data
  *  calculates the 8 bit checksum of the first two bytes and compares it to
@@ -50,7 +51,8 @@ static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t si
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3x_errorCode performChecksumCheck(const uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
+static sht3x_errorCode performChecksumCheck(const uint8_t *responseBuffer,
+                                            uint8_t sizeOfResponseBuffer);
 
 /*! function to calculate the CRC8 checksum of two given bytes
  *  based on the CRC8 algorithm from the datasheet

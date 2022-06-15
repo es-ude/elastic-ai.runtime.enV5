@@ -8,7 +8,8 @@
 void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials) {
     if (ESP_Status.WIFIStatus == CONNECTED)
         return;
-    while (!Network_ConnectToNetwork(credentials));
+    while (!Network_ConnectToNetwork(credentials))
+        ;
 }
 
 bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {

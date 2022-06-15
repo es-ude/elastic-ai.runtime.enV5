@@ -4,12 +4,12 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-#include "hardwareTestHelper.h"
 #include "MQTTBroker.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
-#include "protocol.h"
 #include "esp.h"
+#include "hardwareTestHelper.h"
+#include "protocol.h"
 
 void enterBootModeTask(void);
 
@@ -32,13 +32,14 @@ int main() {
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
     RegisterTask(mainTask, "mainTask");
-//    RegisterTask((TaskCodeFunc) mainTask, 0);
+    //    RegisterTask((TaskCodeFunc) mainTask, 0);
     StartScheduler();
 }
 
 void init(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {}
+    while ((!stdio_usb_connected())) {
+    }
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -50,7 +51,7 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true);//
+            MQTT_Broker_Disconnect(true); //
             reset_usb_boot(0, 0);
         }
         watchdog_update();

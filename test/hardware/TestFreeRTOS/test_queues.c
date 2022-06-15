@@ -1,9 +1,9 @@
-#include "TaskWrapper.h"
 #include "QueueWrapper.h"
-#include <pico/stdlib.h>
-#include <pico/bootrom.h>
-#include <stdio.h>
+#include "TaskWrapper.h"
 #include <hardware/watchdog.h>
+#include <pico/bootrom.h>
+#include <pico/stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 void SenderTask(void);
@@ -18,7 +18,8 @@ int main(void) {
     // init usb and watchdog
     stdio_init_all();
     TaskSleep(1000);
-    while ((!stdio_usb_connected())) {}
+    while ((!stdio_usb_connected())) {
+    }
     watchdog_enable(2000, 1);
     CreateQueue();
 

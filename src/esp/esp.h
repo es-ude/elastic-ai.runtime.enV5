@@ -34,4 +34,4 @@ bool ESP_CheckIsResponding(void);
 
 void ESP_SetMQTTReceiverFunction(void (*receive)(char *));
 
-#endif //SENSOR_BOARD_ESP_H
+#endif // SENSOR_BOARD_ESP_H

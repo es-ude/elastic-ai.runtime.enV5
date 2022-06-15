@@ -1,15 +1,14 @@
 #define SOURCE_FILE "ESP"
 
 #include "esp.h"
-#include "common.h"
 #include "TaskWrapper.h"
+#include "common.h"
 #include "uartToESP.h"
 #include <stdbool.h>
 
-ESP_Status_t ESP_Status = {
-        .ChipStatus = ESP_CHIP_NOT_OK,
-        .WIFIStatus = NOT_CONNECTED,
-        .MQTTStatus = NOT_CONNECTED};
+ESP_Status_t ESP_Status = {.ChipStatus = ESP_CHIP_NOT_OK,
+                           .WIFIStatus = NOT_CONNECTED,
+                           .MQTTStatus = NOT_CONNECTED};
 
 void ESP_Init(void) {
     // init the uart interface for at
@@ -39,7 +38,8 @@ void ESP_Init(void) {
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     if (uartToESP_IsBusy()) {
-        PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
+        PRINT("Only one ESP command at a time can be send, did not send %s.",
+              cmd)
         return false;
     }
 
@@ -83,9 +83,7 @@ void ESP_SoftReset(void) {
     TaskSleep(2000); // wait until the esp is ready
 }
 
-bool ESP_CheckIsResponding(void) {
-    return ESP_SendCommand("AT", "OK", 100);
-}
+bool ESP_CheckIsResponding(void) { return ESP_SendCommand("AT", "OK", 100); }
 
 void ESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
     uartToESP_SetMQTTReceiverFunction(receive);

@@ -1,22 +1,23 @@
 #define SOURCE_FILE "TEST-HELPER"
 
 #include "hardwareTestHelper.h"
+#include "MQTTBroker.h"
+#include "Network.h"
 #include "NetworkSettings.h"
+#include "QueueWrapper.h"
+#include "TaskWrapper.h"
+#include "esp.h"
+#include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
-#include "hardware/watchdog.h"
-#include "TaskWrapper.h"
-#include "Network.h"
-#include "MQTTBroker.h"
-#include "QueueWrapper.h"
-#include "esp.h"
 
 void connectToNetwork(void) {
     Network_ConnectToNetworkUntilConnected(credentials);
 }
 
 void connectToMQTT(void) {
-    MQTT_Broker_ConnectToBrokerUntilConnected(mqttHost, "1883", "eip://uni-due.de/es", "enV5");
+    MQTT_Broker_ConnectToBrokerUntilConnected(mqttHost, "1883",
+                                              "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
@@ -26,7 +27,8 @@ void initHardwareTest(void) {
     }
     // init usb, queue and watchdog
     stdio_init_all();
-    while ((!stdio_usb_connected())) {}
+    while ((!stdio_usb_connected())) {
+    }
     ESP_Init();
     CreateQueue();
     watchdog_enable(2000, 1);

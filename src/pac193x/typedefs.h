@@ -7,10 +7,10 @@ typedef struct i2c_inst i2c_inst_t;
 
 typedef union {
     struct {
-        uint8_t channel1: 1;
-        uint8_t channel2: 1;
-        uint8_t channel3: 1;
-        uint8_t channel4: 1;
+        uint8_t channel1 : 1;
+        uint8_t channel2 : 1;
+        uint8_t channel3 : 1;
+        uint8_t channel4 : 1;
         uint8_t : 4;
     } struct_channelsInUse;
     uint8_t uint_channelsInUse;
@@ -20,7 +20,9 @@ typedef struct {
     uint8_t i2c_slave_address;
     i2c_inst_t *i2c_host;
     float rSense[4];
-    pac193x_usedChannels usedChannels; /*!< Channels to be used. \Note Some channels might be disabled by the ctrl-register. */
+    pac193x_usedChannels
+        usedChannels; /*!< Channels to be used. \Note Some channels might be
+                         disabled by the ctrl-register. */
 } pac193x_sensorConfiguration;
 
 enum {
@@ -30,7 +32,6 @@ enum {
     PAC193X_CHANNEL04,
 };
 typedef uint8_t pac193x_channel;
-
 
 typedef struct {
     uint8_t product_id;
@@ -126,4 +127,3 @@ enum {
 typedef uint8_t pac193x_errorCode;
 
 #endif /* ENV5_PAC193X_TYPEDEFS */
-

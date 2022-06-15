@@ -11,17 +11,17 @@
 /* region CONSTANTS */
 
 /*! Denominator for unipolar voltage measurement: 2^{16} = 65536 */
-static const float UNIPOLAR_VOLTAGE_DENOMINATOR = (float) (1U << 16);
+static const float UNIPOLAR_VOLTAGE_DENOMINATOR = (float)(1U << 16);
 
 /*! Denominator for unipolar power measurement: 2^{32} = 4294967296
  *
  * \Information This denominator is 2^{28} according to the datasheet,
  *            however testing has shown that 2^{32} is actually correct
  */
-static const float UNIPOLAR_POWER_DENOMINATOR = (float) (1ULL << 32);
+static const float UNIPOLAR_POWER_DENOMINATOR = (float)(1ULL << 32);
 
 /*! Denominator for energy measurement: 2^28 = 268435456 */
-static const float ENERGY_DENOMINATOR = (float) (1ULL << 28);
+static const float ENERGY_DENOMINATOR = (float)(1ULL << 28);
 
 /*! rate for samples per second#
  *
@@ -57,7 +57,6 @@ static pac193x_errorCode refresh(void);
  */
 static pac193x_errorCode refreshV(void);
 
-
 /*! translate a passed Channel to the index of the RSense Array
  *
  * @param channel[in] Channel to use
@@ -77,31 +76,37 @@ static uint8_t translateChannelToRSenseArrayIndex(pac193x_channel channel);
  * @return                   return the error code (0 if everything passed)
  */
 static pac193x_errorCode
-setMeasurementProperties(pac193x_measurementProperties *properties, pac193x_valueToMeasure valueToMeasure);
+setMeasurementProperties(pac193x_measurementProperties *properties,
+                         pac193x_valueToMeasure valueToMeasure);
 
 /*! send configuration to the sensor
  *
- * @param registerToWrite[in] address of the register where the settings should be stored
+ * @param registerToWrite[in] address of the register where the settings should
+ * be stored
  * @param settingsToWrite[in] byte to store as settings
  * @return                    return the error code (0 if everything passed)
  */
 static pac193x_errorCode
-sendConfigurationToSensor(pac193x_registerAddress registerToWrite, pac193x_settings settingsToWrite);
+sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
+                          pac193x_settings settingsToWrite);
 
 /*! send request for register to read to sensor
  *
  * @param registerToRead[in] address of register to read
  * @return                   return the error code (0 if everything passed)
  */
-static pac193x_errorCode sendRequestToSensor(pac193x_registerAddress registerToRead);
+static pac193x_errorCode
+sendRequestToSensor(pac193x_registerAddress registerToRead);
 
 /*! receive data from sensor
  *
  * @param responseBuffer[out]      byte buffer where the received will be stored
  * @param sizeOfResponseBuffer[in] size of the buffer for the response
- * @return                         return the error code (0 if everything passed)
+ * @return                         return the error code (0 if everything
+ * passed)
  */
-static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
+static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
+                                               uint8_t sizeOfResponseBuffer);
 
 /*! requests and receives data from the sensor\n
  *  combines: sendRequestToSensor(...) and receiveDataFromSensor(...)
@@ -112,10 +117,11 @@ static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t 
  * @return
  */
 static pac193x_errorCode
-getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer, pac193x_registerAddress registerToRead);
+getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
+                  pac193x_registerAddress registerToRead);
 
-
-static uint64_t transformResponseBufferToUInt64(const uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
+static uint64_t transformResponseBufferToUInt64(const uint8_t *responseBuffer,
+                                                uint8_t sizeOfResponseBuffer);
 
 static float convertToFloat(uint64_t input);
 

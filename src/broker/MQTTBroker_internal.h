@@ -1,15 +1,16 @@
 #ifndef ENV5_MQTTBROKER_INTERNAL_H
 #define ENV5_MQTTBROKER_INTERNAL_H
 
-#include "subscriber.h"
 #include "posting.h"
+#include "subscriber.h"
 
 typedef struct Subscription {
     char *topic;
     Subscriber subscriber;
 } Subscription;
 
-void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic);
+void MQTT_Broker_getTopic(Posting *posting, const char *start,
+                          int lengthOfTopic);
 
 int MQTT_Broker_getDataLength(char *start, const char *end);
 
@@ -19,4 +20,4 @@ bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
 char *MQTT_Broker_concatIDWithTopic(const char *topic);
 
-#endif //ENV5_MQTTBROKER_INTERNAL_H
+#endif // ENV5_MQTTBROKER_INTERNAL_H

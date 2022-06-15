@@ -1,9 +1,8 @@
 #ifndef ENV5_PAC193X_HEADER
 #define ENV5_PAC193X_HEADER
 
-#include <stdint.h>
 #include "typedefs.h"
-
+#include <stdint.h>
 
 /*! function that power up the sensor by setting PWRDN Pin to HIGH
  *
@@ -23,24 +22,31 @@ pac193x_errorCode pac193x_powerDownSensor(void);
  *             needs max 1.5ms for idle state after power up
  *
  * @param i2cHost[in]               i2c line to be used with the sensor
- * @param resistanceValues[in]      array that holds the primary resistor values for each used channel
- * @param numberOfChannelsInUse[in] number between 1 and 4 which specifies the total number of used channels
- * @return                          return the error code (0 if everything passed)
+ * @param resistanceValues[in]      array that holds the primary resistor values
+ * for each used channel
+ * @param numberOfChannelsInUse[in] number between 1 and 4 which specifies the
+ * total number of used channels
+ * @return                          return the error code (0 if everything
+ * passed)
  */
-pac193x_errorCode pac193x_init(i2c_inst_t *i2cHost, float resistanceValues[4], pac193x_usedChannels usedChannels);
+pac193x_errorCode pac193x_init(i2c_inst_t *i2cHost, float resistanceValues[4],
+                               pac193x_usedChannels usedChannels);
 
 /*! updates the primary resistor values for each channel
  *  \Important values for \b all used channels must be specified!
  *
- * @param resistanceValues[in] array that holds the primary resistor values used for each channel
+ * @param resistanceValues[in] array that holds the primary resistor values used
+ * for each channel
  * @return                     return the error code (0 if everything passed)
  */
 pac193x_errorCode pac193x_setResistanceAtSense(const float resistanceValues[4]);
 
 /*! updates the number of used channels
  *
- * @param numberOfChannelsInUse[in] number between 1 and 4 which specifies the total number of used channels
- * @return                          return the error code (0 if everything passed)
+ * @param numberOfChannelsInUse[in] number between 1 and 4 which specifies the
+ * total number of used channels
+ * @return                          return the error code (0 if everything
+ * passed)
  */
 pac193x_errorCode pac193x_setChannelsInUse(pac193x_usedChannels usedChannels);
 
@@ -59,14 +65,20 @@ pac193x_errorCode pac193x_getSensorInfo(pac193x_info *info);
  * @return                   return the error code (0 if everything passed)
  */
 pac193x_errorCode
-pac193x_getMeasurementForChannel(pac193x_channel channel, pac193x_valueToMeasure valueToMeasure, float *value);
+pac193x_getMeasurementForChannel(pac193x_channel channel,
+                                 pac193x_valueToMeasure valueToMeasure,
+                                 float *value);
 
-/*! function to read \b all available values from the sensor for a specific channel
+/*! function to read \b all available values from the sensor for a specific
+ * channel
  *
  * @param channel[in]       channel where the measurement should be taken from
- * @param measurements[out] memory where the struct with the measured values will be stored
+ * @param measurements[out] memory where the struct with the measured values
+ * will be stored
  * @return
  */
-pac193x_errorCode pac193x_getAllMeasurementsForChannel(pac193x_channel channel, pac193x_measurements *measurements);
+pac193x_errorCode
+pac193x_getAllMeasurementsForChannel(pac193x_channel channel,
+                                     pac193x_measurements *measurements);
 
 #endif /* ENV5_PAC193X_HEADER */

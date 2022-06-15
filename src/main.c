@@ -1,11 +1,11 @@
 #define SOURCE_FILE "MAIN"
 // src headers
+#include "MQTTBroker.h"
+#include "Network.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "configuration.h"
-#include "MQTTBroker.h"
-#include "Network.h"
 #include "esp.h"
 // external headers
 #include "hardware/watchdog.h"
@@ -40,8 +40,10 @@ void init(void) {
     }
     // init usb, queue and watchdog
     stdio_init_all();
-    // waits for usb connection, REMOVE to continue without waiting for connection
-    while ((!stdio_usb_connected())) {}
+    // waits for usb connection, REMOVE to continue without waiting for
+    // connection
+    while ((!stdio_usb_connected())) {
+    }
     // Checks connection to ESP and initializes
     ESP_Init();
     // Create FreeRTOS task queue
@@ -54,7 +56,7 @@ int main() {
     init();
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask((TaskCodeFunc) mainTask, "mainTask");
+    RegisterTask((TaskCodeFunc)mainTask, "mainTask");
     // Starts FreeRTOS tasks
     StartScheduler();
 }
