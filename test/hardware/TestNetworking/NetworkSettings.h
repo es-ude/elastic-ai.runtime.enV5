@@ -4,7 +4,7 @@
 #include "Network.h"
 
 /* FIXME: update wifi credentials */
-NetworkCredentials credentials = {
+NetworkCredentials_t credentials = {
         .ssid     = "SSID",
         .password = "password"};
 

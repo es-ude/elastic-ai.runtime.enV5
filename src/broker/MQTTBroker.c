@@ -19,18 +19,24 @@ uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
-void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID) {
-    if (NetworkStatus.ChipStatus == ESP_CHIP_NOT_OK) {
+void MQTT_Broker_ConnectToBrokerUntilConnected(char *target, char *port, char *brokerDomain, char *clientID) {
+    if (ESP_Status.MQTTStatus == CONNECTED)
+        return;
+    while (!MQTT_Broker_ConnectToBroker(target, port, brokerDomain, clientID));
+}
+
+bool MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID) {
+    if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker. Chip problem.")
-        return;
+        return true;
     }
-    if (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
+    if (ESP_Status.WIFIStatus == NOT_CONNECTED) {
         PRINT("Could not connect to MQTT broker. No Wifi connection.")
-        return;
+        return true;
     }
-    if (NetworkStatus.MQTTStatus == CONNECTED) {
+    if (ESP_Status.MQTTStatus == CONNECTED) {
         PRINT("There is already a MQTT Connection open. Please close this one first")
-        return;
+        return true;
     }
 
     MQTT_Broker_SetClientId(clientID);
@@ -45,20 +51,22 @@ void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, c
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
         PRINT("Connected to %s at Port %s", target, port)
         TaskSleep(2000);
-        NetworkStatus.MQTTStatus = CONNECTED;
+        ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
             ESP_SetMQTTReceiverFunction(MQTT_Broker_Receive);
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
     } else {
         PRINT("Could not connect to %s at Port %s", target, port)
+        return false;
     }
+    return true;
 }
 
 void MQTT_Broker_Disconnect(bool force) {
     if (!force) {
-        if (NetworkStatus.ChipStatus && NetworkStatus.WIFIStatus == CONNECTED) {
-            if (NetworkStatus.MQTTStatus == NOT_CONNECTED) {
+        if (ESP_Status.ChipStatus && ESP_Status.WIFIStatus == CONNECTED) {
+            if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
                 PRINT("No connection to close")
                 return;
             }
@@ -66,7 +74,7 @@ void MQTT_Broker_Disconnect(bool force) {
     }
 
     ESP_SendCommandForce("AT+MQTTCLEAN=0", "OK", 5000);
-    NetworkStatus.MQTTStatus = NOT_CONNECTED;
+    ESP_Status.MQTTStatus = NOT_CONNECTED;
 
     free(MQTT_Broker_brokerDomain);
     MQTT_Broker_brokerDomain = NULL;
@@ -166,7 +174,7 @@ char *MQTT_Broker_concatIDWithTopic(const char *topic) {
 }
 
 void publish(Posting posting) {
-    if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
 
     char *topic = MQTT_Broker_concatIDWithTopic(posting.topic);
@@ -193,7 +201,7 @@ void publish(Posting posting) {
 }
 
 void subscribe(char *topic, Subscriber subscriber) {
-    if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
     subscribeRaw(MQTT_Broker_concatIDWithTopic(topic), subscriber);
 }
@@ -219,7 +227,7 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
 }
 
 void unsubscribe(char *topic, Subscriber subscriber) {
-    if (NetworkStatus.MQTTStatus == NOT_CONNECTED)
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
     char *fullTopic = MQTT_Broker_concatIDWithTopic(topic);
     unsubscribeRaw(fullTopic, subscriber);
