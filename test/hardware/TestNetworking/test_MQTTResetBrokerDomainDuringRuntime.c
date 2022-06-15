@@ -27,12 +27,10 @@ void _Noreturn mainTask(void) {
 }
 
 int main() {
-
     init();
 
     RegisterTask(enterBootModeTask, "enterBootModeTask");
     RegisterTask(mainTask, "mainTask");
-//    RegisterTask((TaskCodeFunc) mainTask, 0);
     StartScheduler();
 }
 
