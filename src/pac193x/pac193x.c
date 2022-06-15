@@ -474,7 +474,7 @@ static uint64_t transformResponseBufferToUInt64 ( const uint8_t * responseBuffer
                 scalar |= ( uint64_t ) ( responseBuffer[ index ] );
             }
         
-        PRINT_DEBUG( "output: %lu", scalar )
+        PRINT_DEBUG( "output: %llu", scalar )
         return scalar;
     }
 
