@@ -6,8 +6,35 @@
 #include "uartToESP.h"
 #include <stdbool.h>
 
+ESP_Status_t ESP_Status = {
+        .ChipStatus = ESP_CHIP_NOT_OK,
+        .WIFIStatus = NOT_CONNECTED,
+        .MQTTStatus = NOT_CONNECTED};
+
 void ESP_Init(void) {
+    // init the uart interface for at
     uartToEsp_Init();
+
+    ESP_SoftReset();
+
+    while (!ESP_CheckIsResponding()) {
+        PRINT("ESP Check failed, trying again...")
+        TaskSleep(1000);
+        ESP_SoftReset();
+    }
+
+    PRINT_DEBUG("ESP is responding")
+    // disable echo, make the output more clean
+    ESP_SendCommand("ATE0", "OK", 100);
+    // disable multiple connections
+    int retriesLeft = 2;
+    while (!ESP_SendCommand("AT+CIPMUX=0", "OK", 100) && retriesLeft > 0) {
+        PRINT("could not set esp to single connection mode!")
+        retriesLeft--;
+    }
+    ESP_Status.ChipStatus = ESP_CHIP_OK;
+    ESP_Status.WIFIStatus = NOT_CONNECTED;
+    ESP_Status.MQTTStatus = NOT_CONNECTED;
 }
 
 bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {

@@ -4,24 +4,22 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
+#include "hardwareTestHelper.h"
 #include "MQTTBroker.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
-#include "Network.h"
 #include "protocol.h"
+#include "esp.h"
 
 void enterBootModeTask(void);
 
 void init(void);
 
 void _Noreturn mainTask(void) {
-    while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
-        Network_ConnectToNetworkPlain("PUT_YOUR_SSID_HERE", "PASSWORD");
-    }
+    connectToNetwork();
 
     while (true) {
-        MQTT_Broker_ConnectToBroker("PUT_BROKER_IP_HERE", "1883", "embedded_dev_bro",
-                                    "embedded_device_bro"); //Free broker
+        connectToMQTT();
         publishData("testENv5Pub", "data");
         TaskSleep(5000);
         MQTT_Broker_setBrokerDomain("second_device_with_longer_name");
@@ -41,14 +39,10 @@ int main() {
 void init(void) {
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-
-    // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    while (!Network_init());//
-    // init usb, queue and watchdog
-
+    ESP_Init();
     CreateQueue();
     watchdog_enable(2000, 1);
 }

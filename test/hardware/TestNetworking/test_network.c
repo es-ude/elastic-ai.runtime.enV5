@@ -4,20 +4,21 @@
 #include "TaskWrapper.h"
 #include "Network.h"
 #include "common.h"
+#include "esp.h"
 
 /***
     Tries to connect to the network which is specified in NetworkSettings.h. When successful the connection is closed
     and the process repeats.
 ***/
 
-extern NetworkCredentials credentials;
+extern NetworkCredentials_t credentials;
 
 _Noreturn void networkTask() {
     PRINT("Starting Test")
     while (true) {
         connectToNetwork();
         TaskSleep(1000);
-        while (NetworkStatus.WIFIStatus == CONNECTED) {
+        while (ESP_Status.WIFIStatus == CONNECTED) {
             Network_DisconnectFromNetwork();
         }
         TaskSleep(1000);

@@ -9,19 +9,14 @@
 #include "Network.h"
 #include "MQTTBroker.h"
 #include "QueueWrapper.h"
+#include "esp.h"
 
 void connectToNetwork(void) {
-    while (NetworkStatus.WIFIStatus == NOT_CONNECTED) {
-        Network_ConnectToNetwork(credentials);
-        TaskSleep(500);
-    }
+    Network_ConnectToNetworkUntilConnected(credentials);
 }
 
 void connectToMQTT(void) {
-    while (NetworkStatus.MQTTStatus == NOT_CONNECTED) {
-        MQTT_Broker_ConnectToBroker(mqttHost, "1883", "eip://uni-due.de/es", "enV5");
-        TaskSleep(500);
-    }
+    MQTT_Broker_ConnectToBrokerUntilConnected(mqttHost, "1883", "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
@@ -32,7 +27,7 @@ void initHardwareTest(void) {
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    while (!Network_init());
+    ESP_Init();
     CreateQueue();
     watchdog_enable(2000, 1);
 }

@@ -5,7 +5,9 @@
 
 #define MAX_SUBSCRIBER 100
 
-void MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID);
+void MQTT_Broker_ConnectToBrokerUntilConnected(char *target, char *port, char *brokerDomain, char *clientID);
+
+bool MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID);
 
 void MQTT_Broker_Disconnect(bool force);
 

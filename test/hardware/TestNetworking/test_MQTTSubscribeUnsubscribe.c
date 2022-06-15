@@ -21,7 +21,7 @@ void publishTestData(uint16_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer));
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("testPubSub",data);
+    publishData("testPubSub", data);
     free(data);
 }
 

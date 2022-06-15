@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #ifndef ENV5_PAC193X_INTERNAL_HEADER
 #define ENV5_PAC193X_INTERNAL_HEADER
 
@@ -15,17 +11,17 @@
 /* region CONSTANTS */
 
 /*! Denominator for unipolar voltage measurement: 2^{16} = 65536 */
-static const float UNIPOLAR_VOLTAGE_DENOMINATOR = ( float ) ( 1U << 16 );
+static const float UNIPOLAR_VOLTAGE_DENOMINATOR = (float) (1U << 16);
 
 /*! Denominator for unipolar power measurement: 2^{32} = 4294967296
  *
  * \Information This denominator is 2^{28} according to the datasheet,
  *            however testing has shown that 2^{32} is actually correct
  */
-static const float UNIPOLAR_POWER_DENOMINATOR = ( float ) ( 1ULL << 32 );
+static const float UNIPOLAR_POWER_DENOMINATOR = (float) (1ULL << 32);
 
 /*! Denominator for energy measurement: 2^28 = 268435456 */
-static const float ENERGY_DENOMINATOR = ( float ) ( 1ULL << 28 );
+static const float ENERGY_DENOMINATOR = (float) (1ULL << 28);
 
 /*! rate for samples per second#
  *
@@ -47,7 +43,7 @@ static pac193x_sensorConfiguration sensorConfiguration;
  *
  * @return return the error code (0 if everything passed)
  */
-static pac193x_errorCode refresh ( void );
+static pac193x_errorCode refresh(void);
 
 /*! triggers reload of configuration and freezes accumulator
  *
@@ -59,7 +55,7 @@ static pac193x_errorCode refresh ( void );
  *
  * @return return the error code (0 if everything passed)
  */
-static pac193x_errorCode refreshV ( void );
+static pac193x_errorCode refreshV(void);
 
 
 /*! translate a passed Channel to the index of the RSense Array
@@ -80,7 +76,8 @@ static uint8_t translateChannelToRSenseArrayIndex(pac193x_channel channel);
  * @param valueToMeasure[in] defines which value should be measured
  * @return                   return the error code (0 if everything passed)
  */
-static pac193x_errorCode setMeasurementProperties ( pac193x_measurementProperties * properties, pac193x_valueToMeasure valueToMeasure );
+static pac193x_errorCode
+setMeasurementProperties(pac193x_measurementProperties *properties, pac193x_valueToMeasure valueToMeasure);
 
 /*! send configuration to the sensor
  *
@@ -88,14 +85,15 @@ static pac193x_errorCode setMeasurementProperties ( pac193x_measurementPropertie
  * @param settingsToWrite[in] byte to store as settings
  * @return                    return the error code (0 if everything passed)
  */
-static pac193x_errorCode sendConfigurationToSensor ( pac193x_registerAddress registerToWrite, pac193x_settings settingsToWrite );
+static pac193x_errorCode
+sendConfigurationToSensor(pac193x_registerAddress registerToWrite, pac193x_settings settingsToWrite);
 
 /*! send request for register to read to sensor
  *
  * @param registerToRead[in] address of register to read
  * @return                   return the error code (0 if everything passed)
  */
-static pac193x_errorCode sendRequestToSensor ( pac193x_registerAddress registerToRead );
+static pac193x_errorCode sendRequestToSensor(pac193x_registerAddress registerToRead);
 
 /*! receive data from sensor
  *
@@ -103,7 +101,7 @@ static pac193x_errorCode sendRequestToSensor ( pac193x_registerAddress registerT
  * @param sizeOfResponseBuffer[in] size of the buffer for the response
  * @return                         return the error code (0 if everything passed)
  */
-static pac193x_errorCode receiveDataFromSensor ( uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
+static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! requests and receives data from the sensor\n
  *  combines: sendRequestToSensor(...) and receiveDataFromSensor(...)
@@ -113,22 +111,23 @@ static pac193x_errorCode receiveDataFromSensor ( uint8_t * responseBuffer, uint8
  * @param registerToRead[in]
  * @return
  */
-static pac193x_errorCode getDataFromSensor ( uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer, pac193x_registerAddress registerToRead );
+static pac193x_errorCode
+getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer, pac193x_registerAddress registerToRead);
 
 
-static uint64_t transformResponseBufferToUInt64 ( const uint8_t * responseBuffer, uint8_t sizeOfResponseBuffer );
+static uint64_t transformResponseBufferToUInt64(const uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
-static float convertToFloat ( uint64_t input );
+static float convertToFloat(uint64_t input);
 
-static float calculateVoltageOfSense ( uint64_t input, uint8_t channel );
+static float calculateVoltageOfSense(uint64_t input, uint8_t channel);
 
-static float calculateVoltageOfSource ( uint64_t input, uint8_t channel );
+static float calculateVoltageOfSource(uint64_t input, uint8_t channel);
 
-static float calculateCurrentOfSense ( uint64_t input, uint8_t channel );
+static float calculateCurrentOfSense(uint64_t input, uint8_t channel);
 
-static float calculateActualPower ( uint64_t input, uint8_t channel );
+static float calculateActualPower(uint64_t input, uint8_t channel);
 
-static float calculateEnergy ( uint64_t input, uint8_t channel );
+static float calculateEnergy(uint64_t input, uint8_t channel);
 
 /* endregion */
 
