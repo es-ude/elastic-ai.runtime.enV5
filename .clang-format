@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle:  llvm
 IndentWidth: 4
