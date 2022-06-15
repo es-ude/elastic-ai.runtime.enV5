@@ -25,6 +25,7 @@ jobs:
       - uses: RafikFarhad/clang-format-github-action@v2.1.0
         with:
           style: file
+          sources: "src/**/*.h,src/**/*.c,test/**/*.c,test/**/*.h"
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v4.1.2
         with:
