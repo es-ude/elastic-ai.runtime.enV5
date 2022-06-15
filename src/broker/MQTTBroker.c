@@ -19,13 +19,13 @@ uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
-void MQTT_Broker_ConnectToBrokerUntilConnected(char *target, char *port, char *brokerDomain, char *clientID) {
+void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
     if (ESP_Status.MQTTStatus == CONNECTED)
         return;
-    while (!MQTT_Broker_ConnectToBroker(target, port, brokerDomain, clientID));
+    while (!MQTT_Broker_ConnectToBroker(credentials, brokerDomain, clientID));
 }
 
-bool MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, char *clientID) {
+bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker. Chip problem.")
         return true;
@@ -44,12 +44,12 @@ bool MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, c
 
     char cmd[100];
     strcpy(cmd, "AT+MQTTCONN=0,\"");
-    strcat(cmd, target);
+    strcat(cmd, credentials.ip);
     strcat(cmd, "\",");
-    strcat(cmd, port);
+    strcat(cmd, credentials.port);
     strcat(cmd, ",0");
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
-        PRINT("Connected to %s at Port %s", target, port)
+        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
         TaskSleep(2000);
         ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
@@ -57,7 +57,7 @@ bool MQTT_Broker_ConnectToBroker(char *target, char *port, char *brokerDomain, c
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
     } else {
-        PRINT("Could not connect to %s at Port %s", target, port)
+        PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
         return false;
     }
     return true;
@@ -73,13 +73,16 @@ void MQTT_Broker_Disconnect(bool force) {
         }
     }
 
-    ESP_SendCommandForce("AT+MQTTCLEAN=0", "OK", 5000);
-    ESP_Status.MQTTStatus = NOT_CONNECTED;
+    if (ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 5000)) {
+        ESP_Status.MQTTStatus = NOT_CONNECTED;
 
-    free(MQTT_Broker_brokerDomain);
-    MQTT_Broker_brokerDomain = NULL;
-    free(MQTT_Broker_clientID);
-    MQTT_Broker_clientID = NULL;
+        free(MQTT_Broker_brokerDomain);
+        MQTT_Broker_brokerDomain = NULL;
+        free(MQTT_Broker_clientID);
+        MQTT_Broker_clientID = NULL;
+    } else {
+        PRINT("Could not disconnect MQTT connection.")
+    }
 }
 
 void MQTT_Broker_setBrokerDomain(char *ID) {

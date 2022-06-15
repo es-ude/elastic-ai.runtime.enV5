@@ -1,7 +1,7 @@
 #define SOURCE_FILE "TEST-HELPER"
 
 #include "hardwareTestHelper.h"
-#include "NetworkSettings.h"
+#include "configuration.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
@@ -12,11 +12,11 @@
 #include "esp.h"
 
 void connectToNetwork(void) {
-    Network_ConnectToNetworkUntilConnected(credentials);
+    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
 }
 
 void connectToMQTT(void) {
-    MQTT_Broker_ConnectToBrokerUntilConnected(mqttHost, "1883", "eip://uni-due.de/es", "enV5");
+    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
