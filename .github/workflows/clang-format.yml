@@ -22,7 +22,7 @@ jobs:
       - name: Get files to apply Clang
         run: echo SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern) >> $GITHUB_ENV
       - name: Apply Clang
-        run: clang-format -style=file $SRC
+        run: clang-format -style=file --fallback_style=llvm -i $SRC
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
