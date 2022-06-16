@@ -20,10 +20,9 @@ jobs:
           version: latest
           platform: x64
       - name: Get files to apply Clang
-        run: echo ::set-output name=files_to_check::git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern
-        id: files_for_clang
+        run: export SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e '\.\(c\|h\)\$' | grep -v ^extern)
       - name: Apply Clang
-        run: clang-format -style=file ${{ steps.files_for_clang.output.files_to_check }}
+        run: clang-format -style=file $SRC
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
