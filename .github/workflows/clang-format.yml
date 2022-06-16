@@ -20,7 +20,7 @@ jobs:
           version: latest
           platform: x64
       - name: Get files to apply Clang
-        run: echo SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern) >> GITHUB_ENV
+        run: echo SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern) >> $GITHUB_ENV
       - name: Apply Clang
         run: clang-format -style=file $SRC
       - name: commit changes
