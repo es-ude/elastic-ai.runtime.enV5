@@ -25,7 +25,9 @@ void publishTestData(uint64_t i) {
     free(data);
 }
 
-void deliver(Posting posting) { PRINT("Received Data: %s", posting.data) }
+void deliver(Posting posting) {
+    PRINT("Received Data: %s", posting.data)
+}
 
 _Noreturn void mqttTask(void) {
     PRINT("=== STARTING TEST ===")

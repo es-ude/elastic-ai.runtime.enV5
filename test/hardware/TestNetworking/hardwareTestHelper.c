@@ -11,7 +11,9 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-void connectToNetwork(void) { Network_ConnectToNetworkUntilConnected(NetworkCredentials); }
+void connectToNetwork(void) {
+    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+}
 
 void connectToMQTT(void) {
     MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");

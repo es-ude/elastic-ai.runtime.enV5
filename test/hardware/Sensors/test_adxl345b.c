@@ -83,7 +83,9 @@ static void runCalibration() {
     }
 }
 
-static void enterBootMode() { reset_usb_boot(0, 0); }
+static void enterBootMode() {
+    reset_usb_boot(0, 0);
+}
 
 int main(void) {
     /* enable print to console */
