@@ -1,19 +1,20 @@
 #define SOURCE_FILE "MQTT-PUBLISH-TEST"
 
-#include "hardwareTestHelper.h"
-#include "TaskWrapper.h"
-#include "Network.h"
 #include "MQTTBroker.h"
-#include "protocol.h"
+#include "Network.h"
+#include "TaskWrapper.h"
 #include "common.h"
+#include "hardwareTestHelper.h"
+#include "protocol.h"
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
 
 /***
     Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test.
-    Can be received with the Java Integration Test IntegrationTestWhereENv5IsPublishing.
+    When connected publishes each second "testData" plus incrementing integer to
+eip://uni-due.de/es/DATA/test. Can be received with the Java Integration Test
+IntegrationTestWhereENv5IsPublishing.
 ***/
 
 void publishTestData(uint16_t i) {

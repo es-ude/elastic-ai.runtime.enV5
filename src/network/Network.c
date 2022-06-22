@@ -22,7 +22,8 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
         PRINT("Already connected to Network!")
         return true;
     }
-    char *cmd = malloc(14 + strlen(credentials.ssid) + strlen(credentials.password));
+    char *cmd =
+        malloc(14 + strlen(credentials.ssid) + strlen(credentials.password));
     strcpy(cmd, "AT+CWJAP=\"");
     strcat(cmd, credentials.ssid);
     strcat(cmd, "\",\"");

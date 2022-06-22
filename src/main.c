@@ -29,7 +29,8 @@ _Noreturn void enterBootModeTask(void) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }
-        // Watchdog update needs to be performed frequent, otherwise the device will crash
+        // Watchdog update needs to be performed frequent, otherwise the device
+        // will crash
         watchdog_update();
         TaskSleep(1000);
     }
