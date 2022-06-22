@@ -35,8 +35,7 @@ static adxl345b_range selectedRange; /*!< measurement range configuration */
  * passed)
  */
 static adxl345b_errorCode readDataFromSensor(adxl345b_register registerToRead,
-                                             uint8_t *responseBuffer,
-                                             uint8_t sizeOfResponseBuffer);
+                                             uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! function to convert the raw value received from the sensor to a lsb value
  *
@@ -44,8 +43,7 @@ static adxl345b_errorCode readDataFromSensor(adxl345b_register registerToRead,
  * @param lsbValue[out] LSB value
  * @return              return the error code (0 if everything passed)
  */
-static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2],
-                                               int *lsbValue);
+static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2], int *lsbValue);
 
 /*! function to convert the lsb value received from the sensor to a actual float
  * value
@@ -62,8 +60,7 @@ static adxl345b_errorCode convertLSBtoGValue(int lsb, float *gValue);
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
-static adxl345b_errorCode convertRawValueToGValue(const uint8_t rawData[2],
-                                                  float *gValue);
+static adxl345b_errorCode convertRawValueToGValue(const uint8_t rawData[2], float *gValue);
 
 /*! function to set the sensor into low power mode at 2G range with full
  * resolution
@@ -80,8 +77,7 @@ static adxl345b_errorCode writeDefaultLowPowerConfiguration();
  * @return                  8 bit two complement that should be passed to the
  * sensor as offset
  */
-static int8_t calculateCalibrationOffset(int measuredDeltam, int maxValue,
-                                         int minValue);
+static int8_t calculateCalibrationOffset(int measuredDeltam, int maxValue, int minValue);
 
 /* endregion*/
 

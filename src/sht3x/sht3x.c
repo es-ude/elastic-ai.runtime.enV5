@@ -8,8 +8,7 @@
 
 /* region VARIABLES */
 
-static sht3x_i2c_sensorConfiguration
-    sensorConfiguration; /*!< i2c configuration for the sensor */
+static sht3x_i2c_sensorConfiguration sensorConfiguration; /*!< i2c configuration for the sensor */
 
 /* endregion */
 
@@ -33,9 +32,9 @@ sht3x_errorCode sht3x_init(i2c_inst_t *i2cHost) {
     commandBuffer[1] = (SHT3X_CMD_READ_STATUS & 0xFF);
 
     /* if i2c returns error -> sensor not available on bus */
-    I2C_ErrorCode errorCode = I2C_WriteCommand(
-        commandBuffer, sizeOfCommandBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    I2C_ErrorCode errorCode =
+        I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer, sensorConfiguration.i2c_slave_address,
+                         sensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         return SHT3X_INIT_ERROR;
     }
@@ -47,8 +46,7 @@ sht3x_errorCode sht3x_readSerialNumber(uint32_t *serialNumber) {
     uint8_t sizeOfRequestBuffer = 6;
     uint8_t requestBuffer[sizeOfRequestBuffer];
 
-    sht3x_errorCode errorCode =
-        sendRequestToSensor(SHT3X_CMD_READ_SERIALNUMBER);
+    sht3x_errorCode errorCode = sendRequestToSensor(SHT3X_CMD_READ_SERIALNUMBER);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -63,10 +61,8 @@ sht3x_errorCode sht3x_readSerialNumber(uint32_t *serialNumber) {
         return errorCode;
     }
 
-    *serialNumber = ((uint32_t)(requestBuffer[0]) << 24) |
-                    ((uint32_t)(requestBuffer[1]) << 16) |
-                    ((uint32_t)(requestBuffer[3]) << 8) |
-                    (uint32_t)(requestBuffer[4]);
+    *serialNumber = ((uint32_t)(requestBuffer[0]) << 24) | ((uint32_t)(requestBuffer[1]) << 16) |
+                    ((uint32_t)(requestBuffer[3]) << 8) | (uint32_t)(requestBuffer[4]);
 
     return SHT3X_NO_ERROR;
 }
@@ -80,8 +76,7 @@ sht3x_errorCode sht3x_readStatusRegister(sht3x_statusRegister *statusRegister) {
         return sht3XErrorCode;
     }
 
-    sht3XErrorCode =
-        receiveDataFromSensor(responseBuffer, sizeOfResponseBuffer);
+    sht3XErrorCode = receiveDataFromSensor(responseBuffer, sizeOfResponseBuffer);
     if (sht3XErrorCode != SHT3X_NO_ERROR) {
         return sht3XErrorCode;
     }
@@ -91,8 +86,7 @@ sht3x_errorCode sht3x_readStatusRegister(sht3x_statusRegister *statusRegister) {
         return sht3XErrorCode;
     }
 
-    statusRegister->config =
-        ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
+    statusRegister->config = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
 
     return SHT3X_NO_ERROR;
 }
@@ -101,8 +95,7 @@ sht3x_errorCode sht3x_getTemperature(float *temperature) {
     uint8_t sizeOfResponseBuffer = 3;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3x_errorCode errorCode =
-        sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3x_errorCode errorCode = sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -117,8 +110,7 @@ sht3x_errorCode sht3x_getTemperature(float *temperature) {
         return errorCode;
     }
 
-    uint16_t rawTemperature =
-        ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
+    uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
     *temperature = calculateTemperature(rawTemperature);
 
     return SHT3X_NO_ERROR;
@@ -128,8 +120,7 @@ sht3x_errorCode sht3x_getHumidity(float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3x_errorCode errorCode =
-        sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3x_errorCode errorCode = sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -144,20 +135,17 @@ sht3x_errorCode sht3x_getHumidity(float *humidity) {
         return errorCode;
     }
 
-    uint16_t rawHumidity =
-        ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
+    uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
     *humidity = calculateHumidity(rawHumidity);
 
     return SHT3X_NO_ERROR;
 }
 
-sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature,
-                                                float *humidity) {
+sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature, float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3x_errorCode errorCode =
-        sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3x_errorCode errorCode = sendRequestToSensor(SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -172,19 +160,16 @@ sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature,
         return errorCode;
     }
 
-    uint16_t rawTemperature =
-        ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
+    uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
     *temperature = calculateTemperature(rawTemperature);
 
-    uint16_t rawHumidity =
-        ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
+    uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
     *humidity = calculateHumidity(rawHumidity);
 
     return SHT3X_NO_ERROR;
 }
 
-sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature,
-                                            float *humidity) {
+sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature, float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -203,28 +188,20 @@ sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature,
         return errorCode;
     }
 
-    uint16_t rawTemperature =
-        ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
+    uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
     *temperature = calculateTemperature(rawTemperature);
 
-    uint16_t rawHumidity =
-        ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
+    uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
     *humidity = calculateHumidity(rawHumidity);
 
     return SHT3X_NO_ERROR;
 }
 
-sht3x_errorCode sht3x_enableHeater(void) {
-    return sendRequestToSensor(SHT3X_CMD_HEATER_ENABLE);
-}
+sht3x_errorCode sht3x_enableHeater(void) { return sendRequestToSensor(SHT3X_CMD_HEATER_ENABLE); }
 
-sht3x_errorCode sht3x_disableHeater(void) {
-    return sendRequestToSensor(SHT3X_CMD_HEATER_DISABLE);
-}
+sht3x_errorCode sht3x_disableHeater(void) { return sendRequestToSensor(SHT3X_CMD_HEATER_DISABLE); }
 
-sht3x_errorCode sht3x_softReset(void) {
-    return sendRequestToSensor(SHT3X_CMD_SOFT_RESET);
-}
+sht3x_errorCode sht3x_softReset(void) { return sendRequestToSensor(SHT3X_CMD_SOFT_RESET); }
 
 /* endregion */
 
@@ -237,9 +214,9 @@ static sht3x_errorCode sendRequestToSensor(sht3x_command command) {
     commandBuffer[1] = (command & 0xFF);
 
     PRINT_DEBUG("requesting data from sensor")
-    sht3x_errorCode errorCode = I2C_WriteCommand(
-        commandBuffer, sizeOfCommandBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    sht3x_errorCode errorCode =
+        I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer, sensorConfiguration.i2c_slave_address,
+                         sensorConfiguration.i2c_host);
 
     if (errorCode == I2C_NO_ERROR) {
         return SHT3X_NO_ERROR;
@@ -252,9 +229,9 @@ static sht3x_errorCode sendRequestToSensor(sht3x_command command) {
 static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
                                              uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor")
-    sht3x_errorCode errorCode = I2C_ReadData(
-        responseBuffer, sizeOfResponseBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    sht3x_errorCode errorCode =
+        I2C_ReadData(responseBuffer, sizeOfResponseBuffer, sensorConfiguration.i2c_slave_address,
+                     sensorConfiguration.i2c_host);
 
     if (errorCode == I2C_NO_ERROR) {
         return SHT3X_NO_ERROR;
@@ -272,13 +249,12 @@ static sht3x_errorCode performChecksumCheck(const uint8_t *responseBuffer,
 
     while (group < numberOfTriplets) {
         uint8_t startIndex = group * 3;
-        uint8_t calculatedChecksum =
-            calculateChecksum(&(responseBuffer[startIndex]));
+        uint8_t calculatedChecksum = calculateChecksum(&(responseBuffer[startIndex]));
         uint8_t transmittedChecksum = responseBuffer[startIndex + 2];
 
         if (transmittedChecksum != calculatedChecksum) {
-            PRINT_DEBUG("checksum failed, input: %i, calculated: %i",
-                        transmittedChecksum, calculatedChecksum)
+            PRINT_DEBUG("checksum failed, input: %i, calculated: %i", transmittedChecksum,
+                        calculatedChecksum)
             return SHT3X_CHECKSUM_ERROR;
         }
 

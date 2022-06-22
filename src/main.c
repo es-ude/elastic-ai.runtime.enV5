@@ -14,8 +14,7 @@
 
 _Noreturn void mainTask(void) {
     Network_ConnectToNetworkUntilConnected(NetworkCredentials);
-    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es",
-                                              "enV5");
+    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
         PRINT("Hello, World!")
@@ -45,8 +44,8 @@ void init(void) {
     stdio_init_all();
     // waits for usb connection, REMOVE to continue without waiting for
     // connection
-    while ((!stdio_usb_connected())) {
-    }
+    while ((!stdio_usb_connected()))
+        ;
     // Checks connection to ESP and initializes
     ESP_Init();
     // Create FreeRTOS task queue

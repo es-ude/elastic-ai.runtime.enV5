@@ -10,12 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 
-/***
-    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    When connected publishes each second "testData" plus incrementing integer to
-eip://uni-due.de/es/DATA/test. Can be received with the Java Integration Test
-IntegrationTestWhereENv5IsPublishing.
-***/
+/*!
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). When connected publishes each
+ * second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test. Can be received
+ * with the Java Integration TestIntegrationTestWhereENv5IsPublishing.
+ */
 
 void publishTestData(uint16_t i) {
     char buffer[2];

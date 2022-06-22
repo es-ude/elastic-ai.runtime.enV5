@@ -18,8 +18,7 @@ uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
 bool MQTT_BROKER_ReceiverFunctionSet = false;
 
-void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t credentials,
-                                               char *brokerDomain,
+void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t credentials, char *brokerDomain,
                                                char *clientID) {
     if (ESP_Status.MQTTStatus == CONNECTED)
         return;
@@ -27,8 +26,7 @@ void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t credentials,
         ;
 }
 
-bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain,
-                                 char *clientID) {
+bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker. Chip problem.")
         return true;
@@ -60,8 +58,7 @@ bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain,
         }
         PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
     } else {
-        PRINT("Could not connect to %s at Port %s", credentials.ip,
-              credentials.port)
+        PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
         return false;
     }
     return true;
@@ -118,8 +115,7 @@ void MQTT_Broker_Receive(char *response) {
     Posting posting = {};
     if (MQTT_Broker_HandleResponse(&posting, response)) {
         for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
-            if (checkIfTopicMatches(MQTT_Broker_subscriberList[i].topic,
-                                    posting.topic)) {
+            if (checkIfTopicMatches(MQTT_Broker_subscriberList[i].topic, posting.topic)) {
                 MQTT_Broker_subscriberList[i].subscriber.deliver(posting);
             }
         }
@@ -128,8 +124,7 @@ void MQTT_Broker_Receive(char *response) {
     }
 }
 
-void MQTT_Broker_getTopic(Posting *posting, const char *start,
-                          int lengthOfTopic) {
+void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic) {
     char *topicBuffer = malloc(sizeof(char) * (lengthOfTopic + 1));
     memset(topicBuffer, '\0', lengthOfTopic + 1);
     strncpy(topicBuffer, start, lengthOfTopic);
@@ -175,8 +170,8 @@ bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
 }
 
 char *MQTT_Broker_concatIDWithTopic(const char *topic) {
-    char *result = malloc(strlen(MQTT_Broker_brokerDomain) +
-                          strlen(MQTT_Broker_clientID) + strlen(topic) + 2);
+    char *result =
+        malloc(strlen(MQTT_Broker_brokerDomain) + strlen(MQTT_Broker_clientID) + strlen(topic) + 2);
     strcpy(result, MQTT_Broker_brokerDomain);
     strcat(result, "/");
     strcat(result, MQTT_Broker_clientID);
@@ -195,9 +190,8 @@ void publish(Posting posting) {
     char *cmd2 = "\",\"";
     // Quality of service 0 - 2 see MQTT documentation
     char *cmd3 = "\",0,0";
-    char *command =
-        malloc(sizeof(char) * (strlen(cmd1) + strlen(cmd2) + strlen(cmd3) +
-                               strlen(topic) + strlen(posting.data) + 1));
+    char *command = malloc(sizeof(char) * (strlen(cmd1) + strlen(cmd2) + strlen(cmd3) +
+                                           strlen(topic) + strlen(posting.data) + 1));
     sprintf(command, "%s%s%s%s%s", cmd1, topic, cmd2, posting.data, cmd3);
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
@@ -261,25 +255,15 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     } else {
         for (int i = 0; i < MQTT_Broker_numberSubscriber; ++i) {
             if (strcmp(MQTT_Broker_subscriberList[i].topic, topic) == 0) {
-                if (MQTT_Broker_subscriberList[i].subscriber.deliver ==
-                    subscriber.deliver) {
+                if (MQTT_Broker_subscriberList[i].subscriber.deliver == subscriber.deliver) {
                     if (i != MQTT_Broker_numberSubscriber) {
                         strcpy(MQTT_Broker_subscriberList[i].topic,
-                               MQTT_Broker_subscriberList
-                                   [MQTT_Broker_numberSubscriber]
-                                       .topic);
+                               MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
                         MQTT_Broker_subscriberList[i].subscriber =
-                            MQTT_Broker_subscriberList
-                                [MQTT_Broker_numberSubscriber]
-                                    .subscriber;
+                            MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].subscriber;
                     }
-                    strcpy(
-                        MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber]
-                            .topic,
-                        "\0");
-                    free(
-                        MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber]
-                            .topic);
+                    strcpy(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic, "\0");
+                    free(MQTT_Broker_subscriberList[MQTT_Broker_numberSubscriber].topic);
                     MQTT_Broker_numberSubscriber--;
                 }
             }

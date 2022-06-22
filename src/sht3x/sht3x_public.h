@@ -33,8 +33,7 @@ sht3x_errorCode sht3x_readStatusRegister(sht3x_statusRegister *statusRegister);
  * @param[out] humidity    memory where the temperature is stored
  * @return                 return the error code (0 if everything passed)
  */
-sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature,
-                                                float *humidity);
+sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature, float *humidity);
 
 /*! function to read \b only the temperature from the sensor
  *
@@ -58,8 +57,7 @@ sht3x_errorCode sht3x_getHumidity(float *humidity);
  * @param humidity[out]    memory where the humidity is stored
  * @return                 return the error code (0 if everything passed)
  */
-sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature,
-                                            float *humidity);
+sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature, float *humidity);
 
 /*! function to enable the heater module of the sensor \n
  *  the heater can be used to check the plausibility of the measured values \n

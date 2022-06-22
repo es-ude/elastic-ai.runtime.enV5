@@ -23,12 +23,9 @@ enum {
         0x2C0D, /*!< measurement: clock stretching, medium repeatability */
     SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW =
         0x2C10, /*!< measurement: clock stretching, low repeatability */
-    SHT3X_CMD_MEASURE_POLLING_HIGH =
-        0x2400, /*!< measurement: polling, high repeatability */
-    SHT3X_CMD_MEASURE_POLLING_MEDIUM =
-        0x240B, /*!< measurement: polling, medium repeatability */
-    SHT3X_CMD_MEASURE_POLLING_LOW =
-        0x2416, /*!< measurement: polling, low repeatability */
+    SHT3X_CMD_MEASURE_POLLING_HIGH = 0x2400,   /*!< measurement: polling, high repeatability */
+    SHT3X_CMD_MEASURE_POLLING_MEDIUM = 0x240B, /*!< measurement: polling, medium repeatability */
+    SHT3X_CMD_MEASURE_POLLING_LOW = 0x2416,    /*!< measurement: polling, low repeatability */
     SHT3X_CMD_MEASURE_PERIODIC_05_HIGH =
         0x2032, /*!< measurement: periodic 0.5 mps, high repeatability */
     SHT3X_CMD_MEASURE_PERIODIC_05_MEDIUM =
@@ -58,25 +55,17 @@ enum {
     SHT3X_CMD_MEASURE_PERIODIC_10_MEDIUM =
         0x2721, /*!< measurement: periodic 10 mps, medium repeatability */
     SHT3X_CMD_MEASURE_PERIODIC_10_LOW =
-        0x272A, /*!< measurement: periodic 10 mps, low repeatability */
-    SHT3X_CMD_FETCH_DATA =
-        0xE000, /*!< readout measurements for periodic mode */
-    SHT3X_CMD_READ_ALERT_LIMITS_LOW = 0xE102, /*!< read alert limits, low set */
-    SHT3X_CMD_READ_ALERT_LIMITS_LOW_CLEAR =
-        0xE109, /*!< read alert limits, low clear */
-    SHT3X_CMD_READ_ALERT_LIMITS_HIGH_SET =
-        0xE11F, /*!< read alert limits, high set */
-    SHT3X_CMD_READ_ALERT_LIMITS_HIGH_CLEAR =
-        0xE114, /*!< read alert limits, high clear */
-    SHT3X_CMD_WRITE_ALERT_LIMITS_HIGH_SET =
-        0x611D, /*!< write alert limits, high set */
-    SHT3X_CMD_WRITE_ALERT_LIMITS_HIGH_CLEAR =
-        0x6116, /*!< write alert limits, high clear */
-    SHT3X_CMD_WRITE_ALERT_LIMITS_LOW_CLEAR =
-        0x610B, /*!< write alert limits, low clear */
-    SHT3X_CMD_WRITE_ALERT_LIMITS_LOW_SET =
-        0x6100,                  /*!< write alert limits, low set */
-    SHT3X_CMD_NO_SLEEP = 0x303E, /*!< disable sleep mode */
+        0x272A,                    /*!< measurement: periodic 10 mps, low repeatability */
+    SHT3X_CMD_FETCH_DATA = 0xE000, /*!< readout measurements for periodic mode */
+    SHT3X_CMD_READ_ALERT_LIMITS_LOW = 0xE102,         /*!< read alert limits, low set */
+    SHT3X_CMD_READ_ALERT_LIMITS_LOW_CLEAR = 0xE109,   /*!< read alert limits, low clear */
+    SHT3X_CMD_READ_ALERT_LIMITS_HIGH_SET = 0xE11F,    /*!< read alert limits, high set */
+    SHT3X_CMD_READ_ALERT_LIMITS_HIGH_CLEAR = 0xE114,  /*!< read alert limits, high clear */
+    SHT3X_CMD_WRITE_ALERT_LIMITS_HIGH_SET = 0x611D,   /*!< write alert limits, high set */
+    SHT3X_CMD_WRITE_ALERT_LIMITS_HIGH_CLEAR = 0x6116, /*!< write alert limits, high clear */
+    SHT3X_CMD_WRITE_ALERT_LIMITS_LOW_CLEAR = 0x610B,  /*!< write alert limits, low clear */
+    SHT3X_CMD_WRITE_ALERT_LIMITS_LOW_SET = 0x6100,    /*!< write alert limits, low set */
+    SHT3X_CMD_NO_SLEEP = 0x303E,                      /*!< disable sleep mode */
 };
 typedef uint16_t sht3x_command;
 

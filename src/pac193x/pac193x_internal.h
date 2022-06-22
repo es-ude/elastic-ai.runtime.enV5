@@ -75,9 +75,8 @@ static uint8_t translateChannelToRSenseArrayIndex(pac193x_channel channel);
  * @param valueToMeasure[in] defines which value should be measured
  * @return                   return the error code (0 if everything passed)
  */
-static pac193x_errorCode
-setMeasurementProperties(pac193x_measurementProperties *properties,
-                         pac193x_valueToMeasure valueToMeasure);
+static pac193x_errorCode setMeasurementProperties(pac193x_measurementProperties *properties,
+                                                  pac193x_valueToMeasure valueToMeasure);
 
 /*! send configuration to the sensor
  *
@@ -86,17 +85,15 @@ setMeasurementProperties(pac193x_measurementProperties *properties,
  * @param settingsToWrite[in] byte to store as settings
  * @return                    return the error code (0 if everything passed)
  */
-static pac193x_errorCode
-sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
-                          pac193x_settings settingsToWrite);
+static pac193x_errorCode sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
+                                                   pac193x_settings settingsToWrite);
 
 /*! send request for register to read to sensor
  *
  * @param registerToRead[in] address of register to read
  * @return                   return the error code (0 if everything passed)
  */
-static pac193x_errorCode
-sendRequestToSensor(pac193x_registerAddress registerToRead);
+static pac193x_errorCode sendRequestToSensor(pac193x_registerAddress registerToRead);
 
 /*! receive data from sensor
  *
@@ -116,9 +113,8 @@ static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
  * @param registerToRead[in]
  * @return
  */
-static pac193x_errorCode
-getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
-                  pac193x_registerAddress registerToRead);
+static pac193x_errorCode getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
+                                           pac193x_registerAddress registerToRead);
 
 static uint64_t transformResponseBufferToUInt64(const uint8_t *responseBuffer,
                                                 uint8_t sizeOfResponseBuffer);

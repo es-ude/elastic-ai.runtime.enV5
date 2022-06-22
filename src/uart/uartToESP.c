@@ -20,8 +20,7 @@ void handleNewLine(void) {
             uartToESP_MQTT_Broker_Receive != NULL) {
             uartToESP_MQTT_Broker_Receive(uartDev.receive_buf);
         }
-        if (strncmp(expecResponse, uartDev.receive_buf,
-                    strlen(expecResponse)) == 0) {
+        if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
             responseArrived = true;
         }
     }
@@ -76,15 +75,15 @@ void uartToEsp_Init(void) {
     // Actually, we want a different speed
     // The call will return the actual baud rate selected, which will be as
     // close as possible to that requested
-    uartDev.baudrate_actual = uart_set_baudrate(
-        (uart_inst_t *)uartDev.uartInstance, uartDev.baudrate_set);
+    uartDev.baudrate_actual =
+        uart_set_baudrate((uart_inst_t *)uartDev.uartInstance, uartDev.baudrate_set);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow((uart_inst_t *)uartDev.uartInstance, false, false);
 
     // Set our data format
-    uart_set_format((uart_inst_t *)uartDev.uartInstance, uartDev.data_bits,
-                    uartDev.stop_bits, (uart_parity_t)uartDev.parity);
+    uart_set_format((uart_inst_t *)uartDev.uartInstance, uartDev.data_bits, uartDev.stop_bits,
+                    (uart_parity_t)uartDev.parity);
 
     // Turn off FIFO's - we want to do this character by character
     uart_set_fifo_enabled((uart_inst_t *)uartDev.uartInstance, false);

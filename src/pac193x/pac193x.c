@@ -51,9 +51,9 @@ pac193x_errorCode pac193x_init(i2c_inst_t *i2cHost, float resistanceValues[4],
     commandBuffer[0] = PAC193X_CMD_READ_MANUFACTURER_ID;
 
     /* if i2c returns error -> sensor not available on bus */
-    I2C_ErrorCode i2CErrorCode = I2C_WriteCommand(
-        commandBuffer, sizeOfCommandBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    I2C_ErrorCode i2CErrorCode =
+        I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer, sensorConfiguration.i2c_slave_address,
+                         sensorConfiguration.i2c_host);
     if (i2CErrorCode != I2C_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -96,8 +96,7 @@ pac193x_errorCode pac193x_init(i2c_inst_t *i2cHost, float resistanceValues[4],
     return PAC193X_NO_ERROR;
 }
 
-pac193x_errorCode
-pac193x_setResistanceAtSense(const float resistanceValues[4]) {
+pac193x_errorCode pac193x_setResistanceAtSense(const float resistanceValues[4]) {
     sensorConfiguration.rSense[0] = resistanceValues[0];
     sensorConfiguration.rSense[1] = resistanceValues[1];
     sensorConfiguration.rSense[2] = resistanceValues[2];
@@ -117,8 +116,7 @@ pac193x_errorCode pac193x_setChannelsInUse(pac193x_usedChannels usedChannels) {
 
     /* send configuration to sensor */
     uint8_t channelsInUse = (usedChannels.uint_channelsInUse << 4) ^ 0xF0;
-    pac193x_errorCode errorCode =
-        sendConfigurationToSensor(PAC193X_CMD_CHANNEL_DIS, channelsInUse);
+    pac193x_errorCode errorCode = sendConfigurationToSensor(PAC193X_CMD_CHANNEL_DIS, channelsInUse);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -129,8 +127,8 @@ pac193x_errorCode pac193x_setChannelsInUse(pac193x_usedChannels usedChannels) {
 pac193x_errorCode pac193x_getSensorInfo(pac193x_info *info) {
     uint8_t sizeOfResponseBuffer = 1;
 
-    pac193x_errorCode errorCode = getDataFromSensor(
-        &info->product_id, sizeOfResponseBuffer, PAC193X_CMD_READ_PRODUCT_ID);
+    pac193x_errorCode errorCode =
+        getDataFromSensor(&info->product_id, sizeOfResponseBuffer, PAC193X_CMD_READ_PRODUCT_ID);
     if (errorCode != PAC193X_NO_ERROR) {
         info->product_id = 0;
         info->manufacturer_id = 0;
@@ -147,8 +145,8 @@ pac193x_errorCode pac193x_getSensorInfo(pac193x_info *info) {
         return errorCode;
     }
 
-    errorCode = getDataFromSensor(&info->revision_id, sizeOfResponseBuffer,
-                                  PAC193X_CMD_READ_REVISION_ID);
+    errorCode =
+        getDataFromSensor(&info->revision_id, sizeOfResponseBuffer, PAC193X_CMD_READ_REVISION_ID);
     if (errorCode != PAC193X_NO_ERROR) {
         info->product_id = 0;
         info->manufacturer_id = 0;
@@ -159,28 +157,23 @@ pac193x_errorCode pac193x_getSensorInfo(pac193x_info *info) {
     return PAC193X_NO_ERROR;
 }
 
-pac193x_errorCode
-pac193x_getMeasurementForChannel(pac193x_channel channel,
-                                 pac193x_valueToMeasure valueToMeasure,
-                                 float *value) {
+pac193x_errorCode pac193x_getMeasurementForChannel(pac193x_channel channel,
+                                                   pac193x_valueToMeasure valueToMeasure,
+                                                   float *value) {
     /* check if channel is activated */
     bool validChannel;
     switch (channel) {
     case (PAC193X_CHANNEL01):
-        validChannel =
-            sensorConfiguration.usedChannels.struct_channelsInUse.channel1 == 1;
+        validChannel = sensorConfiguration.usedChannels.struct_channelsInUse.channel1 == 1;
         break;
     case (PAC193X_CHANNEL02):
-        validChannel =
-            sensorConfiguration.usedChannels.struct_channelsInUse.channel2 == 1;
+        validChannel = sensorConfiguration.usedChannels.struct_channelsInUse.channel2 == 1;
         break;
     case (PAC193X_CHANNEL03):
-        validChannel =
-            sensorConfiguration.usedChannels.struct_channelsInUse.channel3 == 1;
+        validChannel = sensorConfiguration.usedChannels.struct_channelsInUse.channel3 == 1;
         break;
     case (PAC193X_CHANNEL04):
-        validChannel =
-            sensorConfiguration.usedChannels.struct_channelsInUse.channel4 == 1;
+        validChannel = sensorConfiguration.usedChannels.struct_channelsInUse.channel4 == 1;
         break;
     default:
         validChannel = false;
@@ -191,62 +184,57 @@ pac193x_getMeasurementForChannel(pac193x_channel channel,
 
     /* store configurations for measurements */
     pac193x_measurementProperties properties;
-    pac193x_errorCode errorCode =
-        setMeasurementProperties(&properties, valueToMeasure);
+    pac193x_errorCode errorCode = setMeasurementProperties(&properties, valueToMeasure);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
     /* retrieve data from sensor */
     uint8_t responseBuffer[properties.sizeOfResponseBuffer];
-    errorCode =
-        getDataFromSensor(responseBuffer, properties.sizeOfResponseBuffer,
-                          properties.startReadAddress);
+    errorCode = getDataFromSensor(responseBuffer, properties.sizeOfResponseBuffer,
+                                  properties.startReadAddress);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
     /* transform raw data */
-    uint64_t rawValue = transformResponseBufferToUInt64(
-        responseBuffer, properties.sizeOfResponseBuffer);
-    *value = (*properties.calculationFunction)(
-        rawValue, translateChannelToRSenseArrayIndex(channel));
+    uint64_t rawValue =
+        transformResponseBufferToUInt64(responseBuffer, properties.sizeOfResponseBuffer);
+    *value =
+        (*properties.calculationFunction)(rawValue, translateChannelToRSenseArrayIndex(channel));
 
     return errorCode;
 }
 
-pac193x_errorCode
-pac193x_getAllMeasurementsForChannel(pac193x_channel channel,
-                                     pac193x_measurements *measurements) {
+pac193x_errorCode pac193x_getAllMeasurementsForChannel(pac193x_channel channel,
+                                                       pac193x_measurements *measurements) {
     /* refresh to get latest values */
     refreshV();
 
-    pac193x_errorCode errorCode = pac193x_getMeasurementForChannel(
-        channel, PAC193X_VSOURCE, &measurements->voltageSource);
+    pac193x_errorCode errorCode =
+        pac193x_getMeasurementForChannel(channel, PAC193X_VSOURCE, &measurements->voltageSource);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
-    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_VSENSE,
-                                                 &measurements->voltageSense);
+    errorCode =
+        pac193x_getMeasurementForChannel(channel, PAC193X_VSENSE, &measurements->voltageSense);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
-    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_ISENSE,
-                                                 &measurements->iSense);
+    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_ISENSE, &measurements->iSense);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
-    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_PACTUAL,
-                                                 &measurements->powerActual);
+    errorCode =
+        pac193x_getMeasurementForChannel(channel, PAC193X_PACTUAL, &measurements->powerActual);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
-    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_ENERGY,
-                                                 &measurements->energy);
+    errorCode = pac193x_getMeasurementForChannel(channel, PAC193X_ENERGY, &measurements->energy);
 
     return errorCode;
 }
@@ -310,9 +298,8 @@ static uint8_t translateChannelToRSenseArrayIndex(pac193x_channel channel) {
     return channelIndex;
 }
 
-static pac193x_errorCode
-setMeasurementProperties(pac193x_measurementProperties *properties,
-                         pac193x_valueToMeasure valueToMeasure) {
+static pac193x_errorCode setMeasurementProperties(pac193x_measurementProperties *properties,
+                                                  pac193x_valueToMeasure valueToMeasure) {
     PRINT_DEBUG("setting properties for requested measurement")
     /*! address of a value to be measured are separated by 0x01 per channel:
      *   -> CMD_READ_VBUS1 = 0x07, CMD_READ_VBUS2 = 0x08, ...
@@ -371,9 +358,8 @@ setMeasurementProperties(pac193x_measurementProperties *properties,
     return PAC193X_NO_ERROR;
 }
 
-static pac193x_errorCode
-sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
-                          pac193x_settings settingsToWrite) {
+static pac193x_errorCode sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
+                                                   pac193x_settings settingsToWrite) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToWrite;
@@ -381,9 +367,9 @@ sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
 
     PRINT_DEBUG("send configuration to sensor")
     /* send new configuration to sensor */
-    I2C_ErrorCode i2cErrorCode = I2C_WriteCommand(
-        commandBuffer, sizeOfCommandBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    I2C_ErrorCode i2cErrorCode =
+        I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer, sensorConfiguration.i2c_slave_address,
+                         sensorConfiguration.i2c_host);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("send configuration failed, error was %02X", i2cErrorCode)
         return PAC193X_SEND_COMMAND_ERROR;
@@ -398,16 +384,15 @@ sendConfigurationToSensor(pac193x_registerAddress registerToWrite,
     return PAC193X_NO_ERROR;
 }
 
-static pac193x_errorCode
-sendRequestToSensor(pac193x_registerAddress registerToRead) {
+static pac193x_errorCode sendRequestToSensor(pac193x_registerAddress registerToRead) {
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
 
     PRINT_DEBUG("request data from sensor")
-    I2C_ErrorCode errorCode = I2C_WriteCommand(
-        commandBuffer, sizeOfCommandBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    I2C_ErrorCode errorCode =
+        I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer, sensorConfiguration.i2c_slave_address,
+                         sensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed, error was %02X", errorCode)
         return PAC193X_SEND_COMMAND_ERROR;
@@ -419,9 +404,9 @@ sendRequestToSensor(pac193x_registerAddress registerToRead) {
 static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor")
-    I2C_ErrorCode errorCode = I2C_ReadData(
-        responseBuffer, sizeOfResponseBuffer,
-        sensorConfiguration.i2c_slave_address, sensorConfiguration.i2c_host);
+    I2C_ErrorCode errorCode =
+        I2C_ReadData(responseBuffer, sizeOfResponseBuffer, sensorConfiguration.i2c_slave_address,
+                     sensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed, error was %02X", errorCode)
         return PAC193X_RECEIVE_DATA_ERROR;
@@ -431,9 +416,8 @@ static pac193x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
     return PAC193X_NO_ERROR;
 }
 
-static pac193x_errorCode
-getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
-                  pac193x_registerAddress registerToRead) {
+static pac193x_errorCode getDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
+                                           pac193x_registerAddress registerToRead) {
     /* trigger refresh to store current values for request */
     pac193x_errorCode errorCode = refresh();
     if (errorCode != PAC193X_NO_ERROR) {
@@ -474,16 +458,14 @@ static float convertToFloat(uint64_t input) {
 
 static float calculateVoltageOfSource(uint64_t input, uint8_t channel) {
     PRINT_DEBUG("calculating voltage of source")
-    float vSource =
-        32.0f * (convertToFloat(input) / UNIPOLAR_VOLTAGE_DENOMINATOR);
+    float vSource = 32.0f * (convertToFloat(input) / UNIPOLAR_VOLTAGE_DENOMINATOR);
     PRINT_DEBUG("output: %f", vSource)
     return vSource;
 }
 
 static float calculateVoltageOfSense(uint64_t input, uint8_t channel) {
     PRINT_DEBUG("calculating voltage of sense")
-    float vSense =
-        0.1f * (convertToFloat(input) / UNIPOLAR_VOLTAGE_DENOMINATOR);
+    float vSense = 0.1f * (convertToFloat(input) / UNIPOLAR_VOLTAGE_DENOMINATOR);
     PRINT_DEBUG("output: %f", vSense)
     return vSense;
 }
@@ -499,8 +481,7 @@ static float calculateCurrentOfSense(uint64_t input, uint8_t channel) {
 static float calculateActualPower(uint64_t input, uint8_t channel) {
     PRINT_DEBUG("calculating actual power")
     float powerFSR = 3.2f / sensorConfiguration.rSense[channel];
-    float powerConversionFactor =
-        convertToFloat(input) / UNIPOLAR_POWER_DENOMINATOR;
+    float powerConversionFactor = convertToFloat(input) / UNIPOLAR_POWER_DENOMINATOR;
     float powerActual = powerFSR * powerConversionFactor;
     PRINT_DEBUG("output: %f", powerActual)
     return powerActual;
@@ -509,8 +490,7 @@ static float calculateActualPower(uint64_t input, uint8_t channel) {
 static float calculateEnergy(uint64_t input, uint8_t channel) {
     PRINT_DEBUG("calculating energy")
     float powerFSR = 3.2f / sensorConfiguration.rSense[channel];
-    float energy =
-        convertToFloat(input) * powerFSR / (ENERGY_DENOMINATOR * SAMPLING_RATE);
+    float energy = convertToFloat(input) * powerFSR / (ENERGY_DENOMINATOR * SAMPLING_RATE);
     PRINT_DEBUG("output: %f", energy)
     return energy;
 }

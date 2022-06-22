@@ -64,10 +64,9 @@ pac193x_errorCode pac193x_getSensorInfo(pac193x_info *info);
  * @param value[out]         memory where the retrieved value will be stored
  * @return                   return the error code (0 if everything passed)
  */
-pac193x_errorCode
-pac193x_getMeasurementForChannel(pac193x_channel channel,
-                                 pac193x_valueToMeasure valueToMeasure,
-                                 float *value);
+pac193x_errorCode pac193x_getMeasurementForChannel(pac193x_channel channel,
+                                                   pac193x_valueToMeasure valueToMeasure,
+                                                   float *value);
 
 /*! function to read \b all available values from the sensor for a specific
  * channel
@@ -77,8 +76,7 @@ pac193x_getMeasurementForChannel(pac193x_channel channel,
  * will be stored
  * @return
  */
-pac193x_errorCode
-pac193x_getAllMeasurementsForChannel(pac193x_channel channel,
-                                     pac193x_measurements *measurements);
+pac193x_errorCode pac193x_getAllMeasurementsForChannel(pac193x_channel channel,
+                                                       pac193x_measurements *measurements);
 
 #endif /* ENV5_PAC193X_HEADER */

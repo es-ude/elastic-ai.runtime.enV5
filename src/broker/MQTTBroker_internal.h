@@ -9,8 +9,7 @@ typedef struct Subscription {
     Subscriber subscriber;
 } Subscription;
 
-void MQTT_Broker_getTopic(Posting *posting, const char *start,
-                          int lengthOfTopic);
+void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic);
 
 int MQTT_Broker_getDataLength(char *start, const char *end);
 

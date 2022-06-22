@@ -20,9 +20,8 @@ typedef struct {
     uint8_t i2c_slave_address;
     i2c_inst_t *i2c_host;
     float rSense[4];
-    pac193x_usedChannels
-        usedChannels; /*!< Channels to be used. \Note Some channels might be
-                         disabled by the ctrl-register. */
+    pac193x_usedChannels usedChannels; /*!< Channels to be used. \Note Some channels might be
+                                          disabled by the ctrl-register. */
 } pac193x_sensorConfiguration;
 
 enum {

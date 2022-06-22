@@ -9,12 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/***
-    Similar to test_MQTTPublish.c
-    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    When connected it publishes as fast as possible to
-eip://uni-due.de/es/stresstest.
-***/
+/*!
+ * Similar to test_MQTTPublish.c. Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
+ * When connected it publishes as fast as possible to eip://uni-due.de/es/stresstest.
+ */
 
 void publishTestData(uint64_t i) {
     char buffer[8];

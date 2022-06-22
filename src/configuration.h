@@ -4,8 +4,7 @@
 #include "MQTTBroker.h"
 #include "Network.h"
 
-NetworkCredentials_t NetworkCredentials = {.ssid = "SSID",
-                                           .password = "password"};
+NetworkCredentials_t NetworkCredentials = {.ssid = "SSID", .password = "password"};
 
 MQTTHost_t MQTTHost = {.ip = "1.2.3.4", .port = "1883"};
 

@@ -10,11 +10,10 @@
 #include <stdio.h>
 #include <string.h>
 
-/***
-    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the
-received Data.
-***/
+/*!
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). Subscribes and publishes to
+ * topic "eip://uni-due.de/es/test" and prints the received Data.
+ */
 
 void publishTestData(uint16_t i) {
     char buffer[2];

@@ -38,8 +38,7 @@ static sht3x_errorCode sendRequestToSensor(sht3x_command command);
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer,
-                                             uint8_t sizeOfResponseBuffer);
+static sht3x_errorCode receiveDataFromSensor(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer);
 
 /*! function to perform a CRC8 checksum check on the received data
  *  calculates the 8 bit checksum of the first two bytes and compares it to

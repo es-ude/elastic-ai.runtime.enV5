@@ -7,19 +7,17 @@
 #include "protocol.h"
 #include <stdio.h>
 
-/***
-    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    Subscribes to topic "eip://uni-due.de/es/test" and prints out the received
-Data. The Java Integration Test IntegrationTestWhereENv5Subscribes can be used
-to publish the data.
-***/
+/*!
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). Subscribes to topic
+ * "eip://uni-due.de/es/test" and prints out the received Data. The Java Integration Test
+ * IntegrationTestWhereENv5Subscribes can be used to publish the data.
+ */
 
 uint64_t arrivedMessages = 0;
 
 void deliver(Posting posting) {
     arrivedMessages++;
-    PRINT("Received Data: %s, Message number: %llu", posting.data,
-          arrivedMessages)
+    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages)
 }
 
 void _Noreturn mqttTask(void) {

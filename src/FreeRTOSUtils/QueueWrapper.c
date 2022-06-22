@@ -17,8 +17,7 @@ void CreateQueue() {
 }
 
 bool QueueSend(QueueMessage message) {
-    if (xQueueGenericSend(queue, &message,
-                          pdMS_TO_TICKS(QUEUE_WAIT_IF_BLOCKED_MS_AMOUNT),
+    if (xQueueGenericSend(queue, &message, pdMS_TO_TICKS(QUEUE_WAIT_IF_BLOCKED_MS_AMOUNT),
                           queueSEND_TO_BACK) != pdPASS) {
         PRINT("Queue full!")
         return false;
@@ -27,7 +26,5 @@ bool QueueSend(QueueMessage message) {
 }
 
 bool QueueReceive(QueueMessage *message) {
-    return xQueueReceive(queue, message,
-                         pdMS_TO_TICKS(QUEUE_WAIT_FOR_RECEIVE_MS_AMOUNT)) ==
-           pdPASS;
+    return xQueueReceive(queue, message, pdMS_TO_TICKS(QUEUE_WAIT_FOR_RECEIVE_MS_AMOUNT)) == pdPASS;
 }
