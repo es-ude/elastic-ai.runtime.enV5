@@ -3,6 +3,7 @@
 #include "Network.h"
 #include "common.h"
 #include "esp.h"
+#include <malloc.h>
 #include <string.h>
 
 void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials) {
@@ -20,21 +21,21 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
         PRINT("Already connected to Network!")
         return true;
     }
-    // if the length of the ssid + password cannot be longer than about 90 chars
-    char cmd[100];
+    char *cmd = malloc(14 + strlen(credentials.ssid) + strlen(credentials.password));
     strcpy(cmd, "AT+CWJAP=\"");
     strcat(cmd, credentials.ssid);
     strcat(cmd, "\",\"");
     strcat(cmd, credentials.password);
     strcat(cmd, "\"");
 
-    if (ESP_SendCommand(cmd, "WIFI GOT IP", 1000)) {
+    if (ESP_SendCommand(cmd, "WIFI GOT IP", 2500)) {
         PRINT("Connected to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = CONNECTED;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = NOT_CONNECTED;
     }
+    free(cmd);
     return ESP_Status.WIFIStatus;
 }
 

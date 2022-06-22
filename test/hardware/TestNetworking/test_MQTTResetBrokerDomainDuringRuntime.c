@@ -10,12 +10,15 @@
 #include "TaskWrapper.h"
 #include "protocol.h"
 #include "esp.h"
+#include "common.h"
 
 void enterBootModeTask(void);
 
 void init(void);
 
 void _Noreturn mainTask(void) {
+    PRINT("=== STARTING TEST ===")
+
     connectToNetwork();
 
     while (true) {

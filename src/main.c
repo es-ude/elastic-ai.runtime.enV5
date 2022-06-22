@@ -26,16 +26,16 @@ _Noreturn void mainTask(void) {
 _Noreturn void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true);
             reset_usb_boot(0, 0);
         }
+        // Watchdog update needs to be performed frequent, otherwise the device will crash
         watchdog_update();
         TaskSleep(1000);
     }
 }
 
 void init(void) {
-    // Did we crash last time -> reboot into boot rom mode
+    // First check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -53,7 +53,6 @@ void init(void) {
 
 int main() {
     init();
-
     RegisterTask(enterBootModeTask, "enterBootModeTask");
     RegisterTask(mainTask, "mainTask");
     // Starts FreeRTOS tasks

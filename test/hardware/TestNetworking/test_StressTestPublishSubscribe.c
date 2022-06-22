@@ -11,17 +11,17 @@
 #include <malloc.h>
 
 /***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
     Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
 ***/
 
-void publishTestData(uint16_t i) {
-    char buffer[2];
-    sprintf(buffer, "%d", i);
-    char *data = malloc(strlen("testData") + strlen(buffer));
+void publishTestData(uint64_t i) {
+    char buffer[8];
+    sprintf(buffer, "%llu", i);
+    char *data = malloc(strlen("testData") + strlen(buffer) + 1);
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("stresstestPubSub",data);
+    publishData("stresstestPubSub", data);
     free(data);
 }
 
@@ -30,7 +30,7 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("MQTT-PUBLISH/SUBSCRIBE-TEST")
+    PRINT("=== STARTING TEST ===")
 
     connectToNetwork();
     connectToMQTT();
@@ -39,8 +39,6 @@ _Noreturn void mqttTask(void) {
 
     uint64_t i = 0;
     while (true) {
-        connectToNetwork();
-        connectToMQTT();
         publishTestData(i);
         i++;
     }
@@ -48,6 +46,7 @@ _Noreturn void mqttTask(void) {
 
 int main() {
     initHardwareTest();
+    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

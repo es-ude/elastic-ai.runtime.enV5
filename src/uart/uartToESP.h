@@ -5,13 +5,6 @@
 
 #define UART_BUFFER_SIZE 1024
 
-typedef struct {
-    char cmd[512];
-    bool responseArrived;
-    char expectedResponse[512];
-    char data[512];
-} esp_command;
-
 typedef struct uartInstance UartInstance;
 
 typedef enum {
@@ -63,6 +56,6 @@ bool uartToESP_IsBusy(void);
 
 bool uartToESP_ResponseArrived(void);
 
-void uartToESP_Free(void);
+void uartToESP_FreeCommand(void);
 
 #endif // UART_TO_ESP_H
