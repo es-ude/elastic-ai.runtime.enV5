@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 /***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
     Subscribes to topic "eip://uni-due.de/es/test" and prints out the received Data.
     The Java Integration Test IntegrationTestWhereENv5Subscribes can be used to publish the data.
 ***/
@@ -21,7 +21,7 @@ void deliver(Posting posting) {
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("Starting Test")
+    PRINT("=== STARTING TEST ===")
 
     connectToNetwork();
     connectToMQTT();

@@ -11,7 +11,7 @@
 #include <malloc.h>
 
 /***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
     When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test.
     Can be received with the Java Integration Test IntegrationTestWhereENv5IsPublishing.
 ***/
@@ -27,7 +27,7 @@ void publishTestData(uint16_t i) {
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("Starting Test")
+    PRINT("=== STARTING TEST ===")
 
     uint64_t i = 0;
     while (true) {
@@ -42,7 +42,6 @@ void _Noreturn mqttTask(void) {
 
 int main() {
     initHardwareTest();
-
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();

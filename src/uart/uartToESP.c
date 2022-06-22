@@ -8,7 +8,9 @@
 
 UARTDevice uartDev;
 bool lastWasR = false;
-esp_command command = {.cmd="\0", .responseArrived=false};
+bool responseArrived = false;
+char *cmd = "\0";
+char *expecResponse = "\0";
 
 void (*uartToESP_MQTT_Broker_Receive)(char *) = NULL;
 
@@ -17,9 +19,8 @@ void handleNewLine(void) {
         if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0 && uartToESP_MQTT_Broker_Receive != NULL) {
             uartToESP_MQTT_Broker_Receive(uartDev.receive_buf);
         }
-        if (strncmp(command.expectedResponse, uartDev.receive_buf, strlen(command.expectedResponse)) == 0) {
-            command.responseArrived = true;
-            strcpy(command.data, &uartDev.receive_buf[strlen(command.expectedResponse)]);
+        if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
+            responseArrived = true;
         }
     }
 }
@@ -96,11 +97,11 @@ void uartToEsp_Init(void) {
     uartDev.receive_buf[0] = '\0';
 }
 
-void uartToESP_SendCommand(char *cmd, char *expectedResponse) {
-    strcpy(command.cmd, cmd);
-    command.responseArrived = false;
-    strcpy(command.expectedResponse, expectedResponse);
-    uartToESP_Println(command.cmd);
+void uartToESP_SendCommand(char *command, char *expectedResponse) {
+    cmd = command;
+    responseArrived = false;
+    expecResponse = expectedResponse;
+    uartToESP_Println(cmd);
 }
 
 void uartToESP_Println(char *data) {
@@ -113,15 +114,15 @@ void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
 }
 
 bool uartToESP_IsBusy(void) {
-    if (strcmp(command.cmd, "\0") == 0)
+    if (strcmp(cmd, "\0") == 0)
         return false;
     return true;
 }
 
 bool uartToESP_ResponseArrived(void) {
-    return command.responseArrived;
+    return responseArrived;
 }
 
-void uartToESP_Free(void) {
-    strcpy(command.cmd, "\0");
+void uartToESP_FreeCommand(void) {
+    cmd = "\0";
 }

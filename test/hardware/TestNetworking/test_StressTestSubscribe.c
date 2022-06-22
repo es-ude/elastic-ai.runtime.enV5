@@ -10,7 +10,7 @@
 
 /***
     Similar to test_MQTTSubscribe.c
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
     When connected it subscribes data published to eip://uni-due.de/es/stresstest.
 ***/
 
@@ -19,6 +19,8 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
+    PRINT("=== STARTING TEST ===")
+
     connectToNetwork();
     connectToMQTT();
 
@@ -31,6 +33,7 @@ _Noreturn void mqttTask(void) {
 
 int main() {
     initHardwareTest();
+    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
 }

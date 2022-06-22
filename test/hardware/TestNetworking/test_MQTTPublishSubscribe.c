@@ -11,7 +11,7 @@
 #include <malloc.h>
 
 /***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
     Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
 ***/
 
@@ -30,7 +30,7 @@ void deliver(Posting posting) {
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("Starting Test")
+    PRINT("=== STARTING TEST ===")
 
     connectToNetwork();
     connectToMQTT();

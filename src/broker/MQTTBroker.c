@@ -9,7 +9,6 @@
 #include "posting.h"
 #include "communicationEndpoint.h"
 #include "topicMatcher.h"
-#include "TaskWrapper.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -49,13 +48,12 @@ bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, cha
     strcat(cmd, credentials.port);
     strcat(cmd, ",0");
     if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
-        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
-        TaskSleep(2000);
         ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
             ESP_SetMQTTReceiverFunction(MQTT_Broker_Receive);
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
+        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
     } else {
         PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
         return false;
@@ -100,13 +98,14 @@ void MQTT_Broker_SetClientId(char *clientId) {
     MQTT_Broker_clientID = malloc(strlen(clientId));
     strcpy(MQTT_Broker_clientID, clientId);
 
-    char cmd[100];
+    char * cmd = malloc(34 + strlen(clientId));
     strcpy(cmd, "AT+MQTTUSERCFG=0,1,\"");
     strcat(cmd, clientId);
     strcat(cmd, "\",\"\",\"\",0,0,\"\"");
     if (!ESP_SendCommand(cmd, "OK", 1000)) {
         PRINT("Could not set client id to %s, aborting...", clientId)
     }
+    free(cmd);
 }
 
 void MQTT_Broker_Receive(char *response) {

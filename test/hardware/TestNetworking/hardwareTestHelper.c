@@ -35,7 +35,6 @@ void initHardwareTest(void) {
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true);
             reset_usb_boot(0, 0);
         }
         watchdog_update();
