@@ -34,8 +34,8 @@ static void getValuesOfChannelWifi() {
     pac193x_measurements measurements;
 
     printf("Requesting measurements for wifi board.\n");
-    pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel(
-        PAC193X_CHANNEL_WIFI, &measurements);
+    pac193x_errorCode errorCode =
+        pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_WIFI, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         printf("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X\n", errorCode);
         return;
@@ -46,12 +46,10 @@ static void getValuesOfChannelWifi() {
            measurements.voltageSource, measurements.voltageSense * 1000,
            measurements.iSense * 1000);
 
-    printf("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ",
-           resistanceValues[1],
+    printf("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ", resistanceValues[1],
            measurements.voltageSense / (measurements.iSense));
-    if (compareFloatsWithinRange(
-            resistanceValues[0],
-            measurements.voltageSense / measurements.iSense, 0.1f)) {
+    if (compareFloatsWithinRange(resistanceValues[0],
+                                 measurements.voltageSense / measurements.iSense, 0.1f)) {
         printf("\033[0;32mPASSED\033[0m;\n");
     } else {
         printf("\033[0;31mFAILED\033[0m; Resistance values do not match!\n");
@@ -60,9 +58,8 @@ static void getValuesOfChannelWifi() {
     printf("  Measured Power => %4.6fW; ", measurements.powerActual);
     printf("  Calculating Power = Voltage_source * Current_Sense => %4.6fW; ",
            measurements.iSense * measurements.voltageSource);
-    if (compareFloatsWithinRange(
-            measurements.powerActual,
-            measurements.iSense * measurements.voltageSource, 0.001f)) {
+    if (compareFloatsWithinRange(measurements.powerActual,
+                                 measurements.iSense * measurements.voltageSource, 0.001f)) {
         printf("\033[0;32mPASSED\033[0m;\n");
     } else {
         printf("\033[0;31mFAILED\033[0m; Values do not match!\n");
@@ -75,8 +72,8 @@ static void getValuesOfChannelSensors() {
     pac193x_measurements measurements;
 
     printf("Requesting measurements for sensors.\n");
-    pac193x_errorCode errorCode = pac193x_getAllMeasurementsForChannel(
-        PAC193X_CHANNEL_SENSORS, &measurements);
+    pac193x_errorCode errorCode =
+        pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         printf("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X\n", errorCode);
         return;
@@ -87,12 +84,10 @@ static void getValuesOfChannelSensors() {
            measurements.voltageSource, measurements.voltageSense * 1000,
            measurements.iSense * 1000);
 
-    printf("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ",
-           resistanceValues[1],
+    printf("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm; ", resistanceValues[1],
            measurements.voltageSense / (measurements.iSense));
-    if (compareFloatsWithinRange(
-            resistanceValues[0],
-            measurements.voltageSense / measurements.iSense, 0.1f)) {
+    if (compareFloatsWithinRange(resistanceValues[0],
+                                 measurements.voltageSense / measurements.iSense, 0.1f)) {
         printf("\033[0;32mPASSED\033[0m;\n");
     } else {
         printf("\033[0;31mFAILED\033[0m; Resistance values do not match!\n");
@@ -101,9 +96,8 @@ static void getValuesOfChannelSensors() {
     printf("  Measured Power => %4.6fW; ", measurements.powerActual);
     printf("  Calculating Power = Voltage_Source * Current_Sense => %4.6fW; ",
            measurements.iSense * measurements.voltageSource);
-    if (compareFloatsWithinRange(
-            measurements.powerActual,
-            measurements.iSense * measurements.voltageSource, 0.001f)) {
+    if (compareFloatsWithinRange(measurements.powerActual,
+                                 measurements.iSense * measurements.voltageSource, 0.001f)) {
         printf("\033[0;32mPASSED\033[0m;\n");
     } else {
         printf("\033[0;31mFAILED\033[0m; Values do not match!\n");
@@ -123,13 +117,10 @@ static void getSerialNumber() {
                0x58, 0x5B, 0x5D, 0x03);
         printf("  Actual:\n    Product ID: 0x%2X; Manufacture ID: 0x%2X; "
                "Revision ID: 0x%2X\n",
-               sensorID.product_id, sensorID.manufacturer_id,
-               sensorID.revision_id);
+               sensorID.product_id, sensorID.manufacturer_id, sensorID.revision_id);
 
-        bool valid_product_id =
-            (sensorID.product_id >= 0x58) && (sensorID.product_id <= 0x5B);
-        if (valid_product_id && 0x5D == sensorID.manufacturer_id &&
-            0x03 == sensorID.revision_id) {
+        bool valid_product_id = (sensorID.product_id >= 0x58) && (sensorID.product_id <= 0x5B);
+        if (valid_product_id && 0x5D == sensorID.manufacturer_id && 0x03 == sensorID.revision_id) {
             printf("  \033[0;32mPASSED\033[0m;\n");
         } else {
             printf("  \033[0;31mFAILED\033[0m; IDs do not match!\n");

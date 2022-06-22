@@ -21,8 +21,7 @@ int uart_set_baudrate(uart_inst_t *uart, uint baudrate) { return 1; }
 
 void uart_set_hw_flow(uart_inst_t *uart, bool cts, bool rts) {}
 
-void uart_set_format(uart_inst_t *uart, uint data_bits, uint stop_bits,
-                     uart_parity_t parity) {}
+void uart_set_format(uart_inst_t *uart, uint data_bits, uint stop_bits, uart_parity_t parity) {}
 
 void uart_set_fifo_enabled(uart_inst_t *uart, bool enabled) {}
 
@@ -35,8 +34,7 @@ void irq_set_exclusive_handler(uint num, void (*handler)()) {
 
 void irq_set_enabled(uint num, bool enabled) {}
 
-void uart_set_irq_enables(uart_inst_t *uart, bool rx_has_data,
-                          bool tx_needs_data) {}
+void uart_set_irq_enables(uart_inst_t *uart, bool rx_has_data, bool tx_needs_data) {}
 
 void InvokeIrqHandler() {
     interruptHandler();

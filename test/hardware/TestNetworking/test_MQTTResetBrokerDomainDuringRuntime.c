@@ -39,8 +39,7 @@ int main() {
 
 void init(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {
-    }
+    while ((!stdio_usb_connected())) {}
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }

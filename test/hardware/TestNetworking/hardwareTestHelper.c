@@ -11,13 +11,10 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-void connectToNetwork(void) {
-    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
-}
+void connectToNetwork(void) { Network_ConnectToNetworkUntilConnected(NetworkCredentials); }
 
 void connectToMQTT(void) {
-    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es",
-                                              "enV5");
+    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
@@ -27,8 +24,7 @@ void initHardwareTest(void) {
     }
     // init usb, queue and watchdog
     stdio_init_all();
-    while ((!stdio_usb_connected())) {
-    }
+    while ((!stdio_usb_connected())) {}
     ESP_Init();
     CreateQueue();
     watchdog_enable(2000, 1);

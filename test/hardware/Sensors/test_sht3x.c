@@ -12,11 +12,9 @@
 static void getTemperatureAndHumidity() {
     float temperature, humidity;
 
-    sht3x_errorCode sht_errorCode =
-        sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3x_errorCode sht_errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        printf("Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature,
-               humidity);
+        printf("Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature, humidity);
     } else {
         printf("ErrorCode: %i\n", sht_errorCode);
     }

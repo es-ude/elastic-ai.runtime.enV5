@@ -43,18 +43,15 @@ static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     printf("Requesting g values.\n");
-    adxl345b_errorCode errorCode =
-        adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345b_errorCode errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);
     if (errorCode == ADXL345B_NO_ERROR) {
         /* 0.2G equals a deviation of about 1% from the ideal value
          * this deviation is given by the datasheet as the accepted tolerance
          * for each axis therefore should epsilon be 0.6G
          */
-        float sumOfAxis =
-            floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
-        printf(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f)
-                   ? "  \033[0;32mPASSED\033[0m; "
-                   : "  \033[0;31mFAILED\033[0m; ");
+        float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
+        printf(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m; "
+                                                               : "  \033[0;31mFAILED\033[0m; ");
         printf("Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
                "|%2.4fG| = X + Y + Z\n",
                sumOfAxis, xAxis, yAxis, zAxis);
@@ -66,8 +63,7 @@ static void getGValue() {
 static void makeSelfTest() {
     printf("Start self test:\n");
     int delta_x, delta_y, delta_z;
-    adxl345b_errorCode errorCode =
-        adxl345b_performSelfTest(&delta_x, &delta_y, &delta_z);
+    adxl345b_errorCode errorCode = adxl345b_performSelfTest(&delta_x, &delta_y, &delta_z);
     if (errorCode == ADXL345B_NO_ERROR) {
         printf("  \033[0;32mPASSED\033[0m\n");
     } else {
