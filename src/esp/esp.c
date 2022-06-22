@@ -61,7 +61,9 @@ void ESP_SoftReset(void) {
     TaskSleep(2000); // wait until the esp is ready
 }
 
-bool ESP_CheckIsResponding(void) { return ESP_SendCommand("AT", "OK", 100); }
+bool ESP_CheckIsResponding(void) {
+    return ESP_SendCommand("AT", "OK", 100);
+}
 
 void ESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
     uartToESP_SetMQTTReceiverFunction(receive);

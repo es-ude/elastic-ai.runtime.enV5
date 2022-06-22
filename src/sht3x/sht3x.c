@@ -197,11 +197,17 @@ sht3x_errorCode sht3x_readMeasurementBuffer(float *temperature, float *humidity)
     return SHT3X_NO_ERROR;
 }
 
-sht3x_errorCode sht3x_enableHeater(void) { return sendRequestToSensor(SHT3X_CMD_HEATER_ENABLE); }
+sht3x_errorCode sht3x_enableHeater(void) {
+    return sendRequestToSensor(SHT3X_CMD_HEATER_ENABLE);
+}
 
-sht3x_errorCode sht3x_disableHeater(void) { return sendRequestToSensor(SHT3X_CMD_HEATER_DISABLE); }
+sht3x_errorCode sht3x_disableHeater(void) {
+    return sendRequestToSensor(SHT3X_CMD_HEATER_DISABLE);
+}
 
-sht3x_errorCode sht3x_softReset(void) { return sendRequestToSensor(SHT3X_CMD_SOFT_RESET); }
+sht3x_errorCode sht3x_softReset(void) {
+    return sendRequestToSensor(SHT3X_CMD_SOFT_RESET);
+}
 
 /* endregion */
 

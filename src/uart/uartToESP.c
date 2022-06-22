@@ -121,6 +121,10 @@ bool uartToESP_IsBusy(void) {
     return true;
 }
 
-bool uartToESP_ResponseArrived(void) { return responseArrived; }
+bool uartToESP_ResponseArrived(void) {
+    return responseArrived;
+}
 
-void uartToESP_FreeCommand(void) { cmd = "\0"; }
+void uartToESP_FreeCommand(void) {
+    cmd = "\0";
+}

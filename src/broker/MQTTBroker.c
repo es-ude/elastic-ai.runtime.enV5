@@ -272,4 +272,6 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     }
 }
 
-char *ID() { return MQTT_Broker_brokerDomain; }
+char *ID() {
+    return MQTT_Broker_brokerDomain;
+}
