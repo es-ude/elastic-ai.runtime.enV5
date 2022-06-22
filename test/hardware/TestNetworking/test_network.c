@@ -14,7 +14,8 @@ When successful the connection is closed and the process repeats.
 extern NetworkCredentials_t credentials;
 
 _Noreturn void networkTask() {
-    PRINT("Starting Test")
+    PRINT("=== STARTING TEST ===")
+
     while (true) {
         connectToNetwork();
         TaskSleep(1000);

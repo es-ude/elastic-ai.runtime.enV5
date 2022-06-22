@@ -4,18 +4,21 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
+#include "hardwareTestHelper.h"
 #include "MQTTBroker.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
-#include "esp.h"
-#include "hardwareTestHelper.h"
 #include "protocol.h"
+#include "esp.h"
+#include "common.h"
 
 void enterBootModeTask(void);
 
 void init(void);
 
 void _Noreturn mainTask(void) {
+    PRINT("=== STARTING TEST ===")
+
     connectToNetwork();
 
     while (true) {
@@ -36,8 +39,7 @@ int main() {
 
 void init(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {
-    }
+    while ((!stdio_usb_connected())) {}
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
@@ -49,7 +51,7 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true); //
+            MQTT_Broker_Disconnect(true);//
             reset_usb_boot(0, 0);
         }
         watchdog_update();

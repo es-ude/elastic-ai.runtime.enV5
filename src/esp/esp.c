@@ -53,7 +53,7 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
 
-    uartToESP_Free();
+    uartToESP_FreeCommand();
 
     return responseArrived;
 }

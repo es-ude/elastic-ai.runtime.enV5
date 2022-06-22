@@ -22,6 +22,15 @@ cmake -B cmake-build-debug -G Ninja .
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
 If this flag is not passed CMake will use the default build tool on your machine (mostly Makefiles).
 
+## Configuration
+
+In the [configuration.h](src/configuration.h) file the Network and MQTT connection settings can be change. To stop
+changes in these to be committed you can do:
+
+```bash
+git update-index --assume-unchanged src/configuration.h
+```
+
 ## Target local machine
 
 ### Unit Tests
@@ -76,6 +85,10 @@ minicom -b 115200 -o -D /dev/ttyACM0
 To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or
 add it in the CLion CMake options).
 This enables the `PRINT_DEBUG(...)` from common.h in all targets.
+
+## MQTT Stress behavior
+
+When MQTT messages are sent to fast to the device, some message will be dropped.
 
 ## Submodules
 

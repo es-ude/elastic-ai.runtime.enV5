@@ -1,20 +1,19 @@
 #define SOURCE_FILE "MQTT-PUBLISH-TEST"
 
-#include "MQTTBroker.h"
-#include "Network.h"
-#include "TaskWrapper.h"
-#include "common.h"
 #include "hardwareTestHelper.h"
+#include "TaskWrapper.h"
+#include "Network.h"
+#include "MQTTBroker.h"
 #include "protocol.h"
-#include <malloc.h>
+#include "common.h"
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 
 /***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
-    When connected publishes each second "testData" plus incrementing integer to
-eip://uni-due.de/es/DATA/test. Can be received with the Java Integration Test
-IntegrationTestWhereENv5IsPublishing.
+    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
+    When connected publishes each second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test.
+    Can be received with the Java Integration Test IntegrationTestWhereENv5IsPublishing.
 ***/
 
 void publishTestData(uint16_t i) {
@@ -28,7 +27,7 @@ void publishTestData(uint16_t i) {
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("Starting Test")
+    PRINT("=== STARTING TEST ===")
 
     uint64_t i = 0;
     while (true) {
@@ -43,7 +42,6 @@ void _Noreturn mqttTask(void) {
 
 int main() {
     initHardwareTest();
-
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();
