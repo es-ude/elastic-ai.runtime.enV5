@@ -2,15 +2,14 @@
 
 name: "Format code"
 
-# run on every merged pull request
 on:
   pull_request:
-    types: [ closed ]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   format:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -34,4 +33,3 @@ jobs:
           name: github-actions
           email: action@github.com
           commit-message: "style: apply clang-format"
-          force-push: "true"
