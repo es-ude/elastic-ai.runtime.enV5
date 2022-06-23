@@ -12,7 +12,8 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-_Noreturn void mainTask(void) {Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+_Noreturn void mainTask(void) {
+    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
     MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
@@ -36,8 +37,7 @@ _Noreturn void enterBootModeTask(void) {
 
 void init(void) {
     // First check if we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot())
-    {
+    if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
     // init usb, queue and watchdog
