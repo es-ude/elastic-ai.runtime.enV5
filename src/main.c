@@ -12,7 +12,8 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-_Noreturn void mainTask(void) {Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+_Noreturn void mainTask(void) {
+    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
     MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
