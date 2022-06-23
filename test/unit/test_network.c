@@ -1,13 +1,10 @@
 #define TEST_BUILD
 
-#include "esp/esp_test.h"
 #include "Network.h"
+#include "esp/esp_test.h"
 #include "unity.h"
 
-NetworkCredentials_t credentials = {
-        .ssid = "SSID",
-        .password = "password"
-};
+NetworkCredentials_t credentials = {.ssid = "SSID", .password = "password"};
 
 void setUp(void) {
     ESP_ReturnTrue();

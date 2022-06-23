@@ -36,7 +36,7 @@ sht3x_errorCode sht3x_readStatusRegister(sht3x_statusRegister *statusRegister);
 sht3x_errorCode sht3x_getTemperatureAndHumidity(float *temperature, float *humidity);
 
 /*! function to read \b only the temperature from the sensor
- * 
+ *
  * @param temperature[out] memory where the temperature is stored
  * @return                 return the error code (0 if everything passed)
  */
@@ -73,8 +73,9 @@ sht3x_errorCode sht3x_enableHeater(void);
  */
 sht3x_errorCode sht3x_disableHeater(void);
 
-/*! function to trigger a soft reset of the sensor which recalibrates the sensor and resets the system controller \n
- *  \b IMPORTANT: Hard RESET can be triggered by turning the power off and on again
+/*! function to trigger a soft reset of the sensor which recalibrates the sensor
+ * and resets the system controller \n \b IMPORTANT: Hard RESET can be triggered
+ * by turning the power off and on again
  *
  * @return return the error code (0 if everything passed)
  */

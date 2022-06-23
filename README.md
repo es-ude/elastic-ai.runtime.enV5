@@ -4,12 +4,14 @@ Elastic AI implementation for the Elastic Node version 5.
 
 ## Setup
 
-For compiling the project the required tools are:
-
-* gcc
-* arm-non-eabi-gcc
-* CMake
-* Ninja
+For compiling the project the tools are:
+* required:
+    * gcc
+    * arm-non-eabi-gcc
+    * CMake
+    * Ninja
+* recommended:
+  * pre-commit
 
 First you need to load CMake once (CLion does that for you):
 

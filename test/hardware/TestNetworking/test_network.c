@@ -1,15 +1,15 @@
 #define SOURCE_FILE "NETWORK-TEST"
 
-#include "hardwareTestHelper.h"
-#include "TaskWrapper.h"
 #include "Network.h"
+#include "TaskWrapper.h"
 #include "common.h"
 #include "esp.h"
+#include "hardwareTestHelper.h"
 
-/***
-    Tries to connect to the network which is specified in NetworkSettings.h. When successful the connection is closed
-    and the process repeats.
-***/
+/*!
+ * Tries to connect to the network which is specified in NetworkSettings.h. When successful the
+ * connection is closed and the process repeats.
+ */
 
 extern NetworkCredentials_t credentials;
 

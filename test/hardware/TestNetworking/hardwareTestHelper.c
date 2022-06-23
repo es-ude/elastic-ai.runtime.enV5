@@ -1,15 +1,15 @@
 #define SOURCE_FILE "TEST-HELPER"
 
 #include "hardwareTestHelper.h"
+#include "MQTTBroker.h"
+#include "Network.h"
+#include "QueueWrapper.h"
+#include "TaskWrapper.h"
 #include "configuration.h"
+#include "esp.h"
+#include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
-#include "hardware/watchdog.h"
-#include "TaskWrapper.h"
-#include "Network.h"
-#include "MQTTBroker.h"
-#include "QueueWrapper.h"
-#include "esp.h"
 
 void connectToNetwork(void) {
     Network_ConnectToNetworkUntilConnected(NetworkCredentials);

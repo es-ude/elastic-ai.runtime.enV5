@@ -1,11 +1,11 @@
 #define SOURCE_FILE "MAIN"
 // src headers
+#include "MQTTBroker.h"
+#include "Network.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "configuration.h"
-#include "MQTTBroker.h"
-#include "Network.h"
 #include "esp.h"
 // external headers
 #include "hardware/watchdog.h"
@@ -28,7 +28,8 @@ _Noreturn void enterBootModeTask(void) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }
-        // Watchdog update needs to be performed frequent, otherwise the device will crash
+        // Watchdog update needs to be performed frequent, otherwise the device
+        // will crash
         watchdog_update();
         TaskSleep(1000);
     }
@@ -41,8 +42,10 @@ void init(void) {
     }
     // init usb, queue and watchdog
     stdio_init_all();
-    // waits for usb connection, REMOVE to continue without waiting for connection
-    while ((!stdio_usb_connected())) {}
+    // waits for usb connection, REMOVE to continue without waiting for
+    // connection
+    while ((!stdio_usb_connected()))
+        ;
     // Checks connection to ESP and initializes
     ESP_Init();
     // Create FreeRTOS task queue
