@@ -2,15 +2,15 @@
 
 name: "Format code"
 
-# run on every merged pull request in main
+# run on every merged pull request
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [ closed ]
 
 jobs:
   format:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == 'true'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
