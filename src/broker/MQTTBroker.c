@@ -154,7 +154,6 @@ bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
     }
 
     char *start = strstr(response, ",\"") + 2;
-    ;
     char *end = strstr(start, "\",");
 
     int lengthOfTopic = end - start;
