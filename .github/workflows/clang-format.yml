@@ -1,14 +1,25 @@
 # Based on https://github.com/marketplace/actions/git-clang-format-action
 
-name: "format code"
+name: "Format Code"
 
-# run every push
 on:
-  push:
+  pull_request:
+    types: [ closed ]
     branches:
-      - main
+      - master
 
 jobs:
+  deploy:
+    runs-on: ubuntu-latest
+  if: github.event.pull_request.merged
+
+  steps:
+    - name: checkout
+      if: github.event.pull_request.merged
+      uses: actions/checkout@v1
+  with:
+  ref: master
+
   format:
     runs-on: ubuntu-latest
     steps:
@@ -26,7 +37,7 @@ jobs:
       - name: commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Apply clang-format based on .clang-format file"
+          commit_message: "Apply clang-format"
           commit_user_name: Format Bot
           commit_author: Format Bot <clang-format@noreply.de>
           commit_user_email: clang-format@noreply.de

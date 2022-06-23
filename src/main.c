@@ -16,7 +16,8 @@ _Noreturn void mainTask(void) {
     Network_ConnectToNetworkUntilConnected(NetworkCredentials);
     MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
 
-    while (true) {
+    while (true)
+    {
         PRINT("Hello, World!")
         TaskSleep(5000);
     }
@@ -38,8 +39,7 @@ _Noreturn void enterBootModeTask(void) {
 void init(void) {
     // First check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
-        reset_usb_boot(0, 0);
-    }
+        reset_usb_boot(0, 0);}
     // init usb, queue and watchdog
     stdio_init_all();
     // waits for usb connection, REMOVE to continue without waiting for
