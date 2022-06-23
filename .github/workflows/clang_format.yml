@@ -31,4 +31,5 @@ jobs:
         with:
           commit_message: "style: apply clang-format"
           commit_user_name: github-actions
+          commit_author: github-actions <action@github.com>
           commit_user_email: action@github.com
