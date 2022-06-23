@@ -33,5 +33,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           name: github-actions
           email: action@github.com
-          commit_message: "style: apply clang-format"
-          force-add: "true"
+          commit-message: "style: apply clang-format"
+          force-push: "true"
