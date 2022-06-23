@@ -1,8 +1,8 @@
 #define TEST_BUILD
 
 //#include "i2c/i2c.h"
-#include "sht3x_public.h"
 #include "i2c/i2c_test.h"
+#include "sht3x_public.h"
 #include "unity.h"
 
 void setUp(void) {
@@ -11,8 +11,7 @@ void setUp(void) {
     I2C_ReadCommand_ptr = I2C_ReadCommand_Pass_for_SHT3X;
 }
 
-void tearDown(void) {
-}
+void tearDown(void) {}
 
 /* region SHT3X_ReadStatusRegister */
 
@@ -188,7 +187,7 @@ void SHT3X_GetTemperature_read_correct_value(void) {
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
-    expected_temperature = 175.0f * ((float) expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
+    expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
     sht3x_getTemperature(&actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
@@ -249,7 +248,7 @@ void SHT3X_GetHumidity_read_correct_value(void) {
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_humidity = (byteZero << 8) | byteOne;
-    expected_humidity = 100.0f * ((float) expected_rawValue_humidity / (65536.0f - 1));
+    expected_humidity = 100.0f * ((float)expected_rawValue_humidity / (65536.0f - 1));
 
     sht3x_getHumidity(&actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
@@ -310,10 +309,10 @@ void SHT3X_GetTemperatureAndHumidity_read_correct_value(void) {
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_humidity = (byteZero << 8) | byteOne;
-    expected_humidity = 100.0f * ((float) expected_rawValue_humidity / (65536.0f - 1));
+    expected_humidity = 100.0f * ((float)expected_rawValue_humidity / (65536.0f - 1));
 
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
-    expected_temperature = 175.0f * ((float) expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
+    expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
     sht3x_getTemperatureAndHumidity(&actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
@@ -375,10 +374,10 @@ void SHT3X_ReadMeasurementBuffer_read_correct_value(void) {
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_humidity = (byteZero << 8) | byteOne;
-    expected_humidity = 100.0f * ((float) expected_rawValue_humidity / (65536.0f - 1));
+    expected_humidity = 100.0f * ((float)expected_rawValue_humidity / (65536.0f - 1));
 
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
-    expected_temperature = 175.0f * ((float) expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
+    expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
     sht3x_readMeasurementBuffer(&actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);

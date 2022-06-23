@@ -1,19 +1,19 @@
 #define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
 
-#include "hardwareTestHelper.h"
-#include "TaskWrapper.h"
-#include "Network.h"
 #include "MQTTBroker.h"
+#include "Network.h"
+#include "TaskWrapper.h"
 #include "common.h"
+#include "hardwareTestHelper.h"
 #include "protocol.h"
+#include <malloc.h>
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
 
-/***
-    Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
-    Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
-***/
+/*!
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). Subscribes and publishes to
+ * topic "eip://uni-due.de/es/test" and prints the received Data.
+ */
 
 void publishTestData(uint16_t i) {
     char buffer[2];
@@ -35,7 +35,7 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    Subscriber sub = (Subscriber) {.deliver=deliver};
+    Subscriber sub = (Subscriber){.deliver = deliver};
 
     uint64_t i = 0;
     while (true) {

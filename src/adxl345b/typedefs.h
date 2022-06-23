@@ -9,8 +9,8 @@ typedef struct i2c_inst i2c_inst_t;
 /* i2c address of the sensor
  *
  * defines the possible i2c addresses of the sensor:
- * ADXL345B_I2C_ALTERNATE_ADDRESS should be chosen if the ALT ADDRESS pin (12) is connected to GND
- * ADXL345B_I2C_ADDRESS otherwise
+ * ADXL345B_I2C_ALTERNATE_ADDRESS should be chosen if the ALT ADDRESS pin (12)
+ * is connected to GND ADXL345B_I2C_ADDRESS otherwise
  */
 enum {
     ADXL345B_I2C_ADDRESS = 0x1D,
@@ -55,7 +55,6 @@ enum {
 };
 typedef uint8_t adxl345b_register;
 typedef uint8_t adxl345b_configuration;
-
 
 typedef uint8_t adxl345b_msbMask;
 typedef float adxl345b_scaleFactor;

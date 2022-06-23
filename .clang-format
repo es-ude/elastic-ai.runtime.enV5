@@ -1,0 +1,6 @@
+Language: Cpp
+BasedOnStyle: llvm
+IndentWidth: 4
+ColumnLimit: 100
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty

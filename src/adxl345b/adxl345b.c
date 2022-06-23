@@ -1,12 +1,12 @@
 #define SOURCE_FILE "src/adxl345b/adxl345b.c"
 
-#include "typedefs.h"
 #include "adxl345b_internal.h"
 #include "adxl345b_public.h"
+#include "common.h"
 #include "i2c.h"
 #include "pico/time.h"
+#include "typedefs.h"
 #include <stdint.h>
-#include "common.h"
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -20,17 +20,16 @@ adxl345b_errorCode adxl345b_init(i2c_inst_t *i2cHost, adxl345b_i2c_slave_address
     /* sleep to make sure the sensor is fully initialized */
     sleep_ms(2);
 
-    /* Check if sensor ADXL345B is on Bus by requesting serial number without processing */
+    /* Check if sensor ADXL345B is on Bus by requesting serial number without
+     * processing */
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = ADXL345B_REGISTER_DEVICE_ID;
 
     /* if i2c returns error -> sensor not available on bus */
-    I2C_ErrorCode I2C_errorCode = I2C_WriteCommand(commandBuffer,
-                                                   sizeOfCommandBuffer,
+    I2C_ErrorCode I2C_errorCode = I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                    i2c_SensorConfiguration.i2c_slave_address,
-                                                   i2c_SensorConfiguration.i2c_host
-    );
+                                                   i2c_SensorConfiguration.i2c_host);
     if (I2C_errorCode != I2C_NO_ERROR) {
         return ADXL345B_INIT_ERROR;
     }
@@ -43,18 +42,16 @@ adxl345b_errorCode adxl345b_init(i2c_inst_t *i2cHost, adxl345b_i2c_slave_address
     return ADXL345B_NO_ERROR;
 }
 
-adxl345b_errorCode
-adxl345b_writeConfigurationToSensor(adxl345b_register registerToWrite, adxl345b_configuration configuration) {
+adxl345b_errorCode adxl345b_writeConfigurationToSensor(adxl345b_register registerToWrite,
+                                                       adxl345b_configuration configuration) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToWrite;
     commandBuffer[1] = configuration;
 
-    I2C_ErrorCode errorCode = I2C_WriteCommand(commandBuffer,
-                                               sizeOfCommandBuffer,
+    I2C_ErrorCode errorCode = I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                i2c_SensorConfiguration.i2c_slave_address,
-                                               i2c_SensorConfiguration.i2c_host
-    );
+                                               i2c_SensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         return ADXL345B_CONFIGURATION_ERROR;
     }
@@ -66,8 +63,8 @@ adxl345b_errorCode adxl345b_changeMeasurementRange(adxl345b_range newRange) {
     selectedRange = newRange;
 
     /* right adjusted storage, selected range settings for full resolution */
-    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor(ADXL345B_REGISTER_DATA_FORMAT,
-                                                                       selectedRange.settingForRange);
+    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor(
+        ADXL345B_REGISTER_DATA_FORMAT, selectedRange.settingForRange);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -79,9 +76,10 @@ adxl345b_errorCode adxl345b_readSerialNumber(uint8_t *serialNumber) {
     uint8_t sizeOfResponseBuffer = 1;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    adxl345b_errorCode adxl345bErrorCode = readDataFromSensor(ADXL345B_REGISTER_DEVICE_ID, responseBuffer,
-                                                              sizeOfResponseBuffer);
-    if (adxl345bErrorCode != ADXL345B_NO_ERROR)    /* if i2c returns error -> sensor not available on bus */
+    adxl345b_errorCode adxl345bErrorCode =
+        readDataFromSensor(ADXL345B_REGISTER_DEVICE_ID, responseBuffer, sizeOfResponseBuffer);
+    if (adxl345bErrorCode != ADXL345B_NO_ERROR) /* if i2c returns error -> sensor not available on
+                                                   bus */
     {
         return adxl345bErrorCode;
     }
@@ -157,7 +155,8 @@ adxl345b_errorCode adxl345b_performSelfTest(int *delta_x, int *delta_y, int *del
         if (interrupt_source & 0b10000000) {
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
-            errorCode = readDataFromSensor(ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer);
+            errorCode =
+                readDataFromSensor(ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -220,7 +219,8 @@ adxl345b_errorCode adxl345b_performSelfTest(int *delta_x, int *delta_y, int *del
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
 
-            errorCode = readDataFromSensor(ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer);
+            errorCode =
+                readDataFromSensor(ADXL345B_REGISTER_DATA_X, responseBuffer, sizeOfResponseBuffer);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -297,7 +297,8 @@ adxl345b_errorCode adxl345b_runSelfCalibration() {
     if (errorCode == ADXL345B_NO_ERROR) {
         return ADXL345B_NO_ERROR;
     }
-    if (errorCode != ADXL345B_SELF_TEST_FAILED_FOR_X && errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Y &&
+    if (errorCode != ADXL345B_SELF_TEST_FAILED_FOR_X &&
+        errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Y &&
         errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Z) {
         return errorCode;
     }
@@ -329,26 +330,26 @@ adxl345b_errorCode adxl345b_runSelfCalibration() {
 
 /* region HELPER FUNCTION IMPLEMENTATIONS */
 
-static adxl345b_errorCode
-readDataFromSensor(adxl345b_register registerToRead, uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer) {
+static adxl345b_errorCode readDataFromSensor(adxl345b_register registerToRead,
+                                             uint8_t *responseBuffer,
+                                             uint8_t sizeOfResponseBuffer) {
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
 
     PRINT_DEBUG("requesting data from sensor")
-    I2C_ErrorCode errorCode = I2C_WriteCommand(commandBuffer,
-                                               sizeOfCommandBuffer,
+    I2C_ErrorCode errorCode = I2C_WriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                i2c_SensorConfiguration.i2c_slave_address,
-                                               i2c_SensorConfiguration.i2c_host
-    );
+                                               i2c_SensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed")
         return ADXL345B_SEND_COMMAND_ERROR;
     }
 
     PRINT_DEBUG("receiving data from sensor")
-    errorCode = I2C_ReadData(responseBuffer, sizeOfResponseBuffer, i2c_SensorConfiguration.i2c_slave_address,
-                             i2c_SensorConfiguration.i2c_host);
+    errorCode =
+        I2C_ReadData(responseBuffer, sizeOfResponseBuffer,
+                     i2c_SensorConfiguration.i2c_slave_address, i2c_SensorConfiguration.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed")
         return ADXL345B_RECEIVE_DATA_ERROR;
@@ -362,8 +363,9 @@ static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2], int *ls
     PRINT_DEBUG("convert raw data to LSB value")
     if (rawData[1] <= (selectedRange.msbMask >> 1)) {
         PRINT_DEBUG("entered positive case")
-        uint16_t rawValue = ((uint16_t) (rawData[1] & (selectedRange.msbMask >> 1)) << 8) | (uint16_t) rawData[0];
-        *lsbValue = (int) rawValue;
+        uint16_t rawValue =
+            ((uint16_t)(rawData[1] & (selectedRange.msbMask >> 1)) << 8) | (uint16_t)rawData[0];
+        *lsbValue = (int)rawValue;
     } else {
         PRINT_DEBUG("entered negative case")
         /* manual translation needed
@@ -371,9 +373,10 @@ static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2], int *ls
          * 1. revert two complement: number minus 1 and flip bits
          * 2. convert to int and multiply with -1
          */
-        uint16_t rawValue = ((uint16_t) (rawData[1] & (selectedRange.msbMask >> 1)) << 8) | (uint16_t) rawData[0];
+        uint16_t rawValue =
+            ((uint16_t)(rawData[1] & (selectedRange.msbMask >> 1)) << 8) | (uint16_t)rawData[0];
         rawValue = (rawValue - 0x0001) ^ ((selectedRange.msbMask >> 1) << 8 | 0x00FF);
-        *lsbValue = (-1) * (int) rawValue;
+        *lsbValue = (-1) * (int)rawValue;
     }
 
     PRINT_DEBUG("conversion successful")
@@ -382,7 +385,7 @@ static adxl345b_errorCode convertRawValueToLSB(const uint8_t rawData[2], int *ls
 
 static adxl345b_errorCode convertLSBtoGValue(int lsb, float *gValue) {
     PRINT_DEBUG("convert LSB value to G value")
-    float realValue = (float) lsb * selectedRange.scaleFactor;
+    float realValue = (float)lsb * selectedRange.scaleFactor;
     *gValue = realValue;
     PRINT_DEBUG("LSB: %i, G value: %f", lsb, realValue);
 
@@ -412,7 +415,8 @@ static adxl345b_errorCode convertRawValueToGValue(const uint8_t rawData[2], floa
 static adxl345b_errorCode writeDefaultLowPowerConfiguration() {
     PRINT_DEBUG("write default config to sensor")
     /* enable low power mode at 12.5Hz data output rate */
-    adxl345b_errorCode errorCode = adxl345b_writeConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00010111);
+    adxl345b_errorCode errorCode =
+        adxl345b_writeConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00010111);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("send ADXL345B_REGISTER_BW_RATE failed")
         PRINT_DEBUG("error code was %i", errorCode)
@@ -450,11 +454,11 @@ static int8_t calculateCalibrationOffset(int measuredDelta, int maxValue, int mi
     PRINT_DEBUG("trying to calibrate offset")
     if (measuredDelta <= minValue) {
         PRINT_DEBUG("offset is %i", minValue - measuredDelta)
-        return (int8_t) (minValue - measuredDelta);
+        return (int8_t)(minValue - measuredDelta);
     }
     if (measuredDelta >= maxValue) {
         PRINT_DEBUG("offset is %i", minValue - measuredDelta)
-        return (int8_t) (maxValue - measuredDelta);
+        return (int8_t)(maxValue - measuredDelta);
     }
     PRINT_DEBUG("offset is %i", 0)
     return 0;

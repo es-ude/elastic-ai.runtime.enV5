@@ -1,15 +1,13 @@
 #define SOURCE_FILE "ESP"
 
 #include "esp.h"
-#include "common.h"
 #include "TaskWrapper.h"
+#include "common.h"
 #include "uartToESP.h"
 #include <stdbool.h>
 
 ESP_Status_t ESP_Status = {
-        .ChipStatus = ESP_CHIP_NOT_OK,
-        .WIFIStatus = NOT_CONNECTED,
-        .MQTTStatus = NOT_CONNECTED};
+    .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
 void ESP_Init(void) {
     // init the uart interface for at
@@ -57,7 +55,6 @@ bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
 
     return responseArrived;
 }
-
 
 void ESP_SoftReset(void) {
     ESP_SendCommand("AT+RST", "OK", 1000);

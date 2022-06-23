@@ -8,8 +8,8 @@
 #define QUEUE_WAIT_FOR_RECEIVE_MS_AMOUNT 1000
 
 typedef struct {
-    // be aware that only the pointer is copied and not the content of the message!
-    // see the queue hardware test for usage
+    // be aware that only the pointer is copied and not the content of the
+    // message! see the queue hardware test for usage
     char *Data;
 } QueueMessage;
 

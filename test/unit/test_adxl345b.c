@@ -1,7 +1,7 @@
 #define TEST_BUILD
 
-#include "i2c/i2c_test.h"
 #include "adxl345b_public.h"
+#include "i2c/i2c_test.h"
 #include "unity.h"
 
 void setUp(void) {
@@ -12,8 +12,7 @@ void setUp(void) {
     adxl345b_changeMeasurementRange(ADXL345B_2G_RANGE);
 }
 
-void tearDown(void) {
-}
+void tearDown(void) {}
 
 /* region ADXL345B_ReadSerialNumber */
 
@@ -121,8 +120,8 @@ void ADXL345B_ReadMeasurements_read_correct_value(void) {
     /* fill expected with random generated */
     if (topByte <= (MSB_MASK >> 1)) {
         /* CASE: positive value */
-        int rawValue = (int) (((uint16_t) (topByte & MSB_MASK) << 8) | (uint16_t) byteZero);
-        float realValue = (float) rawValue * SCALE_FACTOR_FOR_RANGE;
+        int rawValue = (int)(((uint16_t)(topByte & MSB_MASK) << 8) | (uint16_t)byteZero);
+        float realValue = (float)rawValue * SCALE_FACTOR_FOR_RANGE;
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     } else {
         /* CASE: negative value
@@ -133,9 +132,9 @@ void ADXL345B_ReadMeasurements_read_correct_value(void) {
          * 3. multiply with (-1)
          * 4. multiply with scale factor
          */
-        uint16_t rawValue = ((uint16_t) (topByte & (MSB_MASK >> 1)) << 8) | (uint16_t) byteZero;
+        uint16_t rawValue = ((uint16_t)(topByte & (MSB_MASK >> 1)) << 8) | (uint16_t)byteZero;
         rawValue = (rawValue - 0x0001) ^ (((MSB_MASK >> 1) << 8) | 0x00FF);
-        float realValue = (-1) * (float) rawValue * SCALE_FACTOR_FOR_RANGE;
+        float realValue = (-1) * (float)rawValue * SCALE_FACTOR_FOR_RANGE;
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     }
 
