@@ -6,7 +6,7 @@ name: "format code"
 on:
   push:
     branches:
-      - gh-apply-clang
+      - main
 
 jobs:
   format:
