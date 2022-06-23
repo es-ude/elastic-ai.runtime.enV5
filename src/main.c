@@ -37,8 +37,7 @@ _Noreturn void enterBootModeTask(void) {
 
 void init(void) {
     // First check if we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot())
-    {
+    if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
     // init usb, queue and watchdog
