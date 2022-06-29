@@ -18,42 +18,43 @@ uint8_t *buffer;
 void configurationFlash() {
 
     // getting address
-  //  readValue(&configAddress);
-    uint32_t test =12;
-   // printf("%u\n", sizeof(uint32_t));
-    //printf("x\n", test);
-    printf("%s%s%s%s\n",(char *)(test & 0xff),(char *)((test >> 8) & 0xff),
-           (char *)((test >> 16) & 0xff), (char *)((test >> 24) & 0xff));
-
-    //printf("%lu\n",test);
+    readValue(&configAddress);
+    printf("%lu\n",configAddress);
 
 
 
 
     //getting size of file
-   // readValue(&configSize);
-//    printf("%u",configSize);
-//    buffer = (uint8_t *) malloc(BUFFER_SIZE);
-//
-//    //flash_enable
-//
-//    uint16_t blockSize = BUFFER_SIZE;
-//
-//
-//
-//    uint16_t numBlocks4K = ceilf((float) (configSize) / 0x1000);
-//    //uint16_t numBlocks4K = ceil((float) (configSize) / 0x1000);
-//
-//
-//
-//    uint32_t blockAddress;
-//    for (uint16_t blockCounter = 0; blockCounter < numBlocks4K; blockCounter++) {
-//        blockAddress = configAddress + ((uint32_t) blockCounter) * 0x1000;
-//        flash_erase_data(blockAddress);
-//
-//    }
-//  //  debugReady();
-//    uint32_t currentAddress = configAddress;
+    readValue(&configSize);
+
+    printf("%lu\n",configSize);
+    buffer = (uint8_t *) malloc(BUFFER_SIZE);
+
+    //flash_enable
+
+    uint16_t blockSize = BUFFER_SIZE;
+
+
+
+    uint16_t numBlocks4K = ceilf((float) (configSize) / 0x1000);
+    //uint16_t numBlocks4K = ceil((float) (configSize) / 0x1000);
+
+
+    printf("%u\n",numBlocks4K);
+    uint32_t blockAddress;
+    for (uint16_t blockCounter = 0; blockCounter < numBlocks4K; blockCounter++) {
+        blockAddress = configAddress + ((uint32_t) blockCounter) * 0x1000;
+        flash_erase_data(blockAddress);
+    }
+    uint8_t *eraseTest= (uint8_t *) malloc(BUFFER_SIZE);
+    flash_read_data(blockAddress,eraseTest, BUFFER_SIZE);
+    for(uint32_t i=0; i<BUFFER_SIZE; i++){
+        printf("%u",eraseTest[i]);
+    }
+    printf("\n");
+    printf("ack\n");
+
+    uint32_t currentAddress = configAddress;
 //
 //    configRemaining = configSize;
 //

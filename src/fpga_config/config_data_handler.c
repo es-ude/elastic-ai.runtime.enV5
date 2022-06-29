@@ -4,11 +4,12 @@
 #include <stdint.h>
 #include <pico/stdio.h>
 #include "config_data_handler.h"
+#include "pico/printf.h"
 
 uint16_t readData(uint8_t *block, uint16_t buffer_length) {
     uint16_t buffer_index = 0;
     while (true) {
-        int c = getchar_timeout_us(200);
+        int c = getchar_timeout_us(15000);
         if (c != PICO_ERROR_TIMEOUT && buffer_index < buffer_length) {
             block[buffer_index++] = (c);
         } else {
@@ -19,6 +20,6 @@ uint16_t readData(uint8_t *block, uint16_t buffer_length) {
 }
 
 void readValue(uint32_t *destination) {
-    readData((uint8_t *) destination, sizeof(uint32_t));
+   readData((uint8_t *) destination, sizeof(uint32_t));
 
 }

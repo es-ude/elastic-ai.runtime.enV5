@@ -1,7 +1,7 @@
 import serial
 import sys
 from Configuration import Configuration
-ser = serial.Serial("/dev/tty.usbmodem14201", 500000)
+ser = serial.Serial("/dev/tty.usbmodem14101", 500000)
 
 bitfile = None
 
@@ -11,27 +11,22 @@ def verifyCorrectValueReceived(value, received, name):
             print(name, 'incorrect! aborting.')
             sys.exit(0)
     except:
-        print('did not receive', name, ':', len(received), '(', value, ')')
-        print('{:X}'.format(int(received)))
+        print('did not receive', name, ':', received, '(', value, ')')
         sys.exit(0)
 
 def writeValue(value, name):
-    data = bytearray([ (value >> 24) & 0xff,(value >> 16) & 0xff,(value >> 8) & 0xff, value & 0xff  ])
+   # data = bytearray([ (value << 24) & 0xff,(value << 16) & 0xff,(value << 8) & 0xff, value & 0xff  ])
+    data= int(value).to_bytes( 4 ,"little", signed=False)
     ser.write(data)
+
  #   ser.write(value)
 
     print(name, 'of bitfile: ')
-    receivedRaw =ser.read(4)
-    print(receivedRaw.hex())
-    print(len(receivedRaw))
-
+    receivedRaw= ser.readline()
+    receivedRaw.strip()
+    received = int(receivedRaw)
+    print(received)
     print("received")
-    received = 0
-    received =int.from_bytes(receivedRaw, byteorder='little', signed=False)
-  #  for i in range(4):
-    #    received += ((receivedRaw[i]) << (8 * i))&0xff
-     #   received += (receivedRaw[i] << (8*i))& 0xff
-    print(received, )
     verifyCorrectValueReceived(value, received, name)
 
 def sendConfig(config):
@@ -46,10 +41,14 @@ def sendConfig(config):
     address = config.address
     print('sending address', config.address)
     writeValue(config.address, "address")
-   # writeValue(config.size, "size")
+    writeValue(config.size, "size")
+    print(ser.readline())
     # print('[chao_debug] wainting for flash erase finished\r\n')
     # give device time for some debug
           #  self.waitSerialReady(quiet=False)
+    print(ser.readline())
+    print(ser.readline())
+    waitForAck()
     print('sending data')
 
 
