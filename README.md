@@ -90,6 +90,127 @@ This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 When MQTT messages are sent to fast to the device, some message will be dropped.
 
+## Sensors
+
+### Power Sensor
+
+- Type: **PAC193X**
+- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
+- Usage:
+  - Measure Power consumption of sensor array
+  - Measure Power consumption of WiFi module
+- Provided Functionality can be found in `src/pac193x/pac193x_public.h` 
+
+#### Basic Usage Example
+
+```C
+#include "pac193x/pac193x_public.h"
+#include "hardware/i2c.h"
+
+float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
+pac193x_usedChannels usedChannels = {.uint_channelsInUse = 0b00000011};
+
+int main(void) {
+    // Initialize Sensor (ALWAYS REQUIRED)
+    pac193x_errorCode errorCode = pac193x_init(i2c1, resistanceValues, usedChannels);
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // DO STUFF
+    
+    // Example: Read Values from Channel
+    pac193x_measurements measurements;
+    errorCode = pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+    // ...
+    
+    return 0;
+}
+```
+
+More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_pac193x.c`.
+
+### Temperature Sensor
+
+- Type: **SHT3X**
+- [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
+- Usage:
+  - Measure the current temperature
+  - Measure the current humidity
+- Provided functionality can be found in `src/sht3x/sht3x_public.h`
+
+#### Basic Usage Example
+
+```C
+#include "sht3x/sht3x_public.h"
+#include "hardware/i2c.h"
+
+int main(void) {
+    // Initialize Sensor (ALWAYS REQUIRED)
+    sht3x_errorCode errorCode = sht3x_init(i2c0);
+    if (errorCode != SHT3X_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // DO STUFF
+    
+    // Example: Read Temperature and Humidity
+    float temperature, humidity;
+    errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    if (errorCode != SHT3X_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // ...
+    
+    return 0;
+}
+
+```
+
+More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_sht3x.c`.
+
+### Acceleration Sensor
+
+- Type: **ADXL345B**
+- [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
+- Usage:
+  - Measure the acceleration in x,y,z direction
+- Provided functionality can be found in `src/adxl345b/adxl345b_public.h`
+
+#### Basic Usage Example
+
+```C
+#include "adxl345b/adxl345b_public.h"
+#include "hardware/i2c.h"
+
+int main(void) {
+    // Initialize Sensor (ALWAYS REQUIRED)
+    adxl345b_errorCode errorCode = adxl345b_init(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // DO STUFF
+    
+    // Example: Read G value in x, y and z direction
+    float xAxis, yAxis, zAxis;
+    errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);;
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // ...
+    
+    return 0;
+}
+```
+
+More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_adxl345b.c`.
+
 ## Submodules
 
 Following submodules are being used
