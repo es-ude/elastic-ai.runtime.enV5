@@ -90,6 +90,51 @@ This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 When MQTT messages are sent to fast to the device, some message will be dropped.
 
+## Sensors
+
+### Power Sensor
+
+- Type: **PAC193X**
+- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
+- Usage:
+  - Measure Power consumption of sensor array
+  - Measure Power consumption of WiFi module
+- Provided Functionality can be found in `src/pac193x/pac193x_public.h` 
+
+#### Basic Usage Example
+
+```C
+#include 'pac193x/pac193x_public.h'
+
+float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
+pac193x_usedChannels usedChannels = {.uint_channelsInUse = 0b00000011};
+
+int main(void) {
+    // Initialize Sensor (ALWAYS REQUIRED)
+    pac193x_errorCode errorCode = pac193x_init(i2c1, resistanceValues, usedChannels);
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+    
+    // DO STUFF
+    
+    // Example: Read Values from Channel
+    pac193x_measurements measurements;
+    errorCode = pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+    // ...
+}
+```
+
+More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_pac193x.c`.
+
+### Temperature Sensor
+
+
+### Acceleration Sensor
+
 ## Submodules
 
 Following submodules are being used
