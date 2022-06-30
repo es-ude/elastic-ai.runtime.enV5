@@ -196,7 +196,7 @@ int main(void) {
     
     // DO STUFF
     
-    // Example: Read G value in x, and z direction
+    // Example: Read G value in x, y and z direction
     float xAxis, yAxis, zAxis;
     errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);;
     if (errorCode != ADXL345B_NO_ERROR) {
@@ -204,7 +204,6 @@ int main(void) {
     }
     
     // ...
-    
     
     return 0;
 }
