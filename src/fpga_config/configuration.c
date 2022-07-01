@@ -36,22 +36,35 @@ void configurationFlash() {
 
 
 
-    uint16_t numBlocks4K = ceilf((float) (configSize) / 0x1000);
+    uint16_t numBlocks64K = ceilf((float) (configSize) / 64000);
     //uint16_t numBlocks4K = ceil((float) (configSize) / 0x1000);
 
-
-    printf("%u\n",numBlocks4K);
-    uint32_t blockAddress;
-    for (uint16_t blockCounter = 0; blockCounter < numBlocks4K; blockCounter++) {
-        blockAddress = configAddress + ((uint32_t) blockCounter) * 0x1000;
-        flash_erase_data(blockAddress);
-    }
     uint8_t *eraseTest= (uint8_t *) malloc(BUFFER_SIZE);
-    flash_read_data(blockAddress,eraseTest, BUFFER_SIZE);
-    for(uint32_t i=0; i<BUFFER_SIZE; i++){
-        printf("%u",eraseTest[i]);
+    printf("%u\n",numBlocks64K);
+    uint32_t blockAddress;
+    for (uint16_t blockCounter = 0; blockCounter < numBlocks64K; blockCounter++) {
+        blockAddress = configAddress + ((uint32_t) blockCounter) * 64000;
+        uint8_t status=flash_erase_data(blockAddress);
+        printf("error occured: %u , block: %u \n",status, blockCounter);
+        flash_read_data(blockAddress, eraseTest, BUFFER_SIZE);
+        for (int i = 0; i < BUFFER_SIZE; i++) {
+            printf("%u", eraseTest[i]);
+
+        }
+
+        printf("\n");
+
+        flash_read_data((blockAddress+64000-256), eraseTest, BUFFER_SIZE);
+        for (int i = 0; i < BUFFER_SIZE; i++) {
+            printf("%u", eraseTest[i]);
+        }
+        printf("\n");
     }
-    printf("\n");
+
+
+
+
+
     printf("ack\n");
 
     uint32_t currentAddress = configAddress;

@@ -2,6 +2,7 @@
 #include <pico/stdio.h>
 #include <pico/bootrom.h>
 #include <hardware/spi.h>
+#include <malloc.h>
 #include "spi/spi_handler.h"
 #include "flash/flash.h"
 #include "TaskWrapper.h"
@@ -41,11 +42,12 @@ void init_helper(spi_inst_t *spi, uint32_t baudrate){
     init_flash(cs_pin, spi);
 }
 
+//256Mb flash, 4kb + 64 kb sector
 void readDeviceID(){
-    uint8_t id[3];
-    flash_read_id( id, 3);
+    uint8_t *id= (uint8_t *) malloc(6);
+    flash_read_id( id, 6);
     printf("Device ID is: ");
-    printf("%02X%02X%02X", id[0], id[1], id[2]);
+    printf("%02X%02X%02X%02X%02X", id[0], id[1], id[2],id[3], id[4]);
     printf("\n");
 
 }
@@ -64,7 +66,7 @@ void writeSPI (){
 
 void eraseSPISector(){
     int erased_sector= flash_erase_data( 0);
-    if(erased_sector==1){
+    if(erased_sector==0){
         printf("erased sector\n");
     }
 }

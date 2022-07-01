@@ -60,8 +60,8 @@ uint8_t flash_read_status_reg() {
     return status_reg;
 }
 
-uint8_t flash_erase_succeeded() {
-    return ((flash_read_status_reg() >> 3) & 1);
+uint8_t erase_error_occured() {
+    return ((flash_read_status_reg() >> 5) & 1);
 }
 
 void flash_wait_for_done() {
@@ -74,7 +74,7 @@ void flash_wait_for_done() {
 
 uint8_t flash_erase_data(uint32_t address) {
     uint8_t cmd[4] = {
-            0x20,
+            0xD8,
             address >> 16,
             address >> 8,
             address
@@ -84,7 +84,7 @@ uint8_t flash_erase_data(uint32_t address) {
     SPI_write_blocking(spi, cmd, 4);
     SPI_disable(cs_pin);
     flash_wait_for_done(spi, cs_pin);
-    uint8_t status = flash_erase_succeeded(spi, cs_pin);
+    uint8_t status = erase_error_occured(spi, cs_pin);
     return status;
 
 }
