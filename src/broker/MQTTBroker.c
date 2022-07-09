@@ -180,8 +180,7 @@ char *MQTT_Broker_concatDomainAndClientWithTopic(const char *topic) {
 }
 
 char *MQTT_Broker_concatDomainWithTopic(const char *topic) {
-    char *result =
-        malloc(strlen(MQTT_Broker_brokerID) + strlen(topic) + 2);
+    char *result = malloc(strlen(MQTT_Broker_brokerID) + strlen(topic) + 2);
     strcpy(result, MQTT_Broker_brokerID);
     strcat(result, "/");
     strcat(result, topic);
