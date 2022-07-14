@@ -5,9 +5,10 @@
 #include "unity.h"
 
 NetworkCredentials_t credentials = {.ssid = "SSID", .password = "password"};
+extern _Bool ESP_DUMMY_RETURN_CODE;
 
 void setUp(void) {
-    ESP_ReturnTrue();
+    ESP_DUMMY_RETURN_CODE = true;
 }
 
 void tearDown(void) {
@@ -35,7 +36,7 @@ void TEST_CONNECT_TO_NETWORK_TWICE(void) {
 }
 
 void TEST_CONNECT_TO_NETWORK_FAIL(void) {
-    ESP_ReturnFalse();
+    ESP_DUMMY_RETURN_CODE = false;
     Network_ConnectToNetwork(credentials);
     TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
     Network_DisconnectFromNetwork();

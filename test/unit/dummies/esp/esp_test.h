@@ -6,6 +6,8 @@
 #define CONNECTED 1
 #define NOT_CONNECTED 0
 
+extern _Bool ESP_DUMMY_RETURN_CODE;
+
 typedef struct {
     // Can the two chips communicate?
     int ChipStatus;
