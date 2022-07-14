@@ -4,7 +4,7 @@
 #include "Network.h"
 #include "TaskWrapper.h"
 #include "common.h"
-#include "hardwareTestHelper.h"
+#include "../hardwareTestHelper.h"
 #include "protocol.h"
 #include <malloc.h>
 #include <stdio.h>

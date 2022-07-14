@@ -26,3 +26,16 @@ target_link_libraries(hardware-test_pac193x
         sensor_lib_pac193x)
 make_to_output_file(hardware-test_pac193x)
 ##############################################
+add_executable(hardware-test_PublishSensorValues test_PublishSensorValues.c)
+target_link_libraries(hardware-test_PublishSensorValues
+        pico_stdio
+        pico_time
+        hardware_i2c
+        sensor_lib_sht3x
+        sensor_lib_pac193x
+        sensor_lib_adxl345b
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_PublishSensorValues PRIVATE DEBUG)
+make_to_output_file(hardware-test_PublishSensorValues)

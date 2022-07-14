@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #include "hardware/i2c.h"
 #include "pac193x_public.h"
 #include "pico/bootrom.h"
@@ -176,6 +172,5 @@ int main(void) {
             break;
         }
     }
-
     return 0;
 }

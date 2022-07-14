@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "esp.h"
-#include "hardwareTestHelper.h"
+#include "../hardwareTestHelper.h"
 
 /*!
  * Tries to connect to the network which is specified in NetworkSettings.h. When successful the

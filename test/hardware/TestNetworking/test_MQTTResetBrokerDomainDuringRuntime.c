@@ -9,7 +9,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "esp.h"
-#include "hardwareTestHelper.h"
+#include "../hardwareTestHelper.h"
 #include "protocol.h"
 
 void enterBootModeTask(void);

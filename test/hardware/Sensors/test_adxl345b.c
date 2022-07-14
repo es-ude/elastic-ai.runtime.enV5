@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #include "adxl345b_public.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
