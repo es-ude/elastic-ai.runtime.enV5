@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *MQTT_Broker_brokerDomain = NULL;
+char *MQTT_Broker_brokerID = NULL;
 char *MQTT_Broker_clientID = NULL;
 uint8_t MQTT_Broker_numberSubscriber = 0;
 Subscription MQTT_Broker_subscriberList[MAX_SUBSCRIBER];
@@ -44,13 +44,13 @@ bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, cha
     MQTT_Broker_SetClientId(clientID);
     MQTT_Broker_setBrokerDomain(brokerDomain);
 
-    char cmd[100];
-    strcpy(cmd, "AT+MQTTCONN=0,\"");
-    strcat(cmd, credentials.ip);
-    strcat(cmd, "\",");
-    strcat(cmd, credentials.port);
-    strcat(cmd, ",0");
-    if (ESP_SendCommand(cmd, "+MQTTCONNECTED", 5000)) {
+    char *command = malloc(strlen(credentials.ip) + strlen(credentials.port) + 20);
+    strcpy(command, "AT+MQTTCONN=0,\"");
+    strcat(command, credentials.ip);
+    strcat(command, "\",");
+    strcat(command, credentials.port);
+    strcat(command, ",0");
+    if (ESP_SendCommand(command, "+MQTTCONNECTED", 5000)) {
         ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
             ESP_SetMQTTReceiverFunction(MQTT_Broker_Receive);
@@ -77,8 +77,8 @@ void MQTT_Broker_Disconnect(bool force) {
     if (ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 5000)) {
         ESP_Status.MQTTStatus = NOT_CONNECTED;
 
-        free(MQTT_Broker_brokerDomain);
-        MQTT_Broker_brokerDomain = NULL;
+        free(MQTT_Broker_brokerID);
+        MQTT_Broker_brokerID = NULL;
         free(MQTT_Broker_clientID);
         MQTT_Broker_clientID = NULL;
     } else {
@@ -87,11 +87,11 @@ void MQTT_Broker_Disconnect(bool force) {
 }
 
 void MQTT_Broker_setBrokerDomain(char *ID) {
-    if (MQTT_Broker_brokerDomain != NULL) {
-        free(MQTT_Broker_brokerDomain);
+    if (MQTT_Broker_brokerID != NULL) {
+        free(MQTT_Broker_brokerID);
     }
-    MQTT_Broker_brokerDomain = malloc(strlen(ID));
-    strcpy(MQTT_Broker_brokerDomain, ID);
+    MQTT_Broker_brokerID = malloc(strlen(ID));
+    strcpy(MQTT_Broker_brokerID, ID);
 }
 
 void MQTT_Broker_SetClientId(char *clientId) {
@@ -101,14 +101,14 @@ void MQTT_Broker_SetClientId(char *clientId) {
     MQTT_Broker_clientID = malloc(strlen(clientId));
     strcpy(MQTT_Broker_clientID, clientId);
 
-    char *cmd = malloc(34 + strlen(clientId));
-    strcpy(cmd, "AT+MQTTUSERCFG=0,1,\"");
-    strcat(cmd, clientId);
-    strcat(cmd, "\",\"\",\"\",0,0,\"\"");
-    if (!ESP_SendCommand(cmd, "OK", 1000)) {
+    char *command = malloc(strlen(clientId) + 35);
+    strcpy(command, "AT+MQTTUSERCFG=0,1,\"");
+    strcat(command, clientId);
+    strcat(command, "\",\"\",\"\",0,0,\"\"");
+    if (!ESP_SendCommand(command, "OK", 1000)) {
         PRINT("Could not set client id to %s, aborting...", clientId)
     }
-    free(cmd);
+    free(command);
 }
 
 void MQTT_Broker_Receive(char *response) {
@@ -168,12 +168,20 @@ bool MQTT_Broker_HandleResponse(Posting *posting, char *response) {
     return true;
 }
 
-char *MQTT_Broker_concatIDWithTopic(const char *topic) {
+char *MQTT_Broker_concatDomainAndClientWithTopic(const char *topic) {
     char *result =
-        malloc(strlen(MQTT_Broker_brokerDomain) + strlen(MQTT_Broker_clientID) + strlen(topic) + 2);
-    strcpy(result, MQTT_Broker_brokerDomain);
+        malloc(strlen(MQTT_Broker_brokerID) + strlen(MQTT_Broker_clientID) + strlen(topic) + 3);
+    strcpy(result, MQTT_Broker_brokerID);
     strcat(result, "/");
     strcat(result, MQTT_Broker_clientID);
+    strcat(result, "/");
+    strcat(result, topic);
+    return result;
+}
+
+char *MQTT_Broker_concatDomainWithTopic(const char *topic) {
+    char *result = malloc(strlen(MQTT_Broker_brokerID) + strlen(topic) + 2);
+    strcpy(result, MQTT_Broker_brokerID);
     strcat(result, "/");
     strcat(result, topic);
     return result;
@@ -183,14 +191,11 @@ void publish(Posting posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
 
-    char *topic = MQTT_Broker_concatIDWithTopic(posting.topic);
-
+    char *topic = MQTT_Broker_concatDomainAndClientWithTopic(posting.topic);
     char *cmd1 = "AT+MQTTPUB=0,\"";
     char *cmd2 = "\",\"";
-    // Quality of service 0 - 2 see MQTT documentation
-    char *cmd3 = "\",0,0";
-    char *command = malloc(sizeof(char) * (strlen(cmd1) + strlen(cmd2) + strlen(cmd3) +
-                                           strlen(topic) + strlen(posting.data) + 1));
+    char *cmd3 = "\",0,0"; // Quality of service 0 - 2 see MQTT documentation
+    char *command = malloc(sizeof(char) * (strlen(topic) + strlen(posting.data) + 23));
     sprintf(command, "%s%s%s%s%s", cmd1, topic, cmd2, posting.data, cmd3);
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
@@ -205,15 +210,14 @@ void publish(Posting posting) {
 void subscribe(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
-    subscribeRaw(MQTT_Broker_concatIDWithTopic(topic), subscriber);
+    subscribeRaw(MQTT_Broker_concatDomainWithTopic(topic), subscriber);
 }
 
 void subscribeRaw(char *topic, Subscriber subscriber) {
-    char command[50];
+    char *command = malloc(strlen(topic) + 18);
     strcpy(command, "AT+MQTTSUB=0,\"");
     strcat(command, topic);
-    // Quality of service 0 - 2 see MQTT documentation
-    strcat(command, "\",0");
+    strcat(command, "\",0"); // Quality of service 0 - 2 see MQTT documentation
 
     if (MQTT_Broker_numberSubscriber != MAX_SUBSCRIBER) {
         if (!ESP_SendCommand(command, "OK", 1000)) {
@@ -236,13 +240,13 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
 void unsubscribe(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
-    char *fullTopic = MQTT_Broker_concatIDWithTopic(topic);
+    char *fullTopic = MQTT_Broker_concatDomainWithTopic(topic);
     unsubscribeRaw(fullTopic, subscriber);
     free(fullTopic);
 }
 
 void unsubscribeRaw(char *topic, Subscriber subscriber) {
-    char command[50];
+    char *command = malloc(strlen(topic) + 18);
     strcpy(command, "AT+MQTTUNSUB=0,\"");
     strcat(command, topic);
     strcat(command, "\"");
@@ -272,5 +276,5 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
 }
 
 char *ID() {
-    return MQTT_Broker_brokerDomain;
+    return MQTT_Broker_brokerID;
 }

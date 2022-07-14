@@ -35,7 +35,7 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("stresstestPubSub", (Subscriber){.deliver = deliver});
+    subscribeForData("enV5", "stresstestPubSub", (Subscriber){.deliver = deliver});
 
     uint64_t i = 0;
     while (true) {

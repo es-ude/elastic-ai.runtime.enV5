@@ -41,13 +41,13 @@ _Noreturn void mqttTask(void) {
     while (true) {
         connectToNetwork();
         connectToMQTT();
-        subscribeForData("testPubSub", sub);
+        subscribeForData("enV5", "testPubSub", sub);
         PRINT("Should receive data with id: %llu", i)
         publishTestData(i);
         i++;
         TaskSleep(2500);
 
-        unsubscribeFromData("testPubSub", sub);
+        unsubscribeFromData("enV5", "testPubSub", sub);
         PRINT("Should NOT receive data with id: %llu", i)
         publishTestData(i);
         i++;

@@ -17,6 +17,8 @@ void MQTT_Broker_getData(Posting *posting, const char *end, int dataLength);
 
 bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
 
-char *MQTT_Broker_concatIDWithTopic(const char *topic);
+char *MQTT_Broker_concatDomainAndClientWithTopic(const char *topic);
+
+char *MQTT_Broker_concatDomainWithTopic(const char *topic);
 
 #endif // ENV5_MQTTBROKER_INTERNAL_H
