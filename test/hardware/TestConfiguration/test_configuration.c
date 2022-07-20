@@ -57,31 +57,11 @@ void configTask(){
             case 'F':
                 printf("ack\n");
                 configurationFlash();
-                //This the crucial case, enabled so that any debugging application can support writing new or
-                // different bitfiles to the flash
-                // certain assumptions made about addresses aligning
-                // addresses must be aligned to 4K blocks 0xFFF000
-                // calculate what blocks need to be erased
-                // acknowledge when ready to receive again
-
-                // For configure the FLASH chip
-//                char st[] = "lashFPGA!";
-//                uint8_t synced = 1;
-//                uint8_t i = 0;
-//                while (synced) {
-//                    if (st[i] == '!') {
-//                        break;
-//                    }
-//                    synced = check_for_acks_internal(st[i]);
-//                    i++;
-//                }
-//                if (synced) {
-//                    initFlash(); // SPI interface init and ..? Todo
-//                    unlockFlash(0); // To write data on FLASH, must unlock the flash
-//                    configurationFlash(readData_internal);
- //       }
                 break;
-
+            case 'V':
+                printf("ack\n");
+                verifyConfigurationFlash();
+                break;
             default:
                 break;
         }

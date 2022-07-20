@@ -15,11 +15,8 @@ def verifyCorrectValueReceived(value, received, name):
         sys.exit(0)
 
 def writeValue(value, name):
-   # data = bytearray([ (value << 24) & 0xff,(value << 16) & 0xff,(value << 8) & 0xff, value & 0xff  ])
     data= int(value).to_bytes( 4 ,"little", signed=False)
     ser.write(data)
-
- #   ser.write(value)
 
     print(name, 'of bitfile: ')
     receivedRaw= ser.readline()
@@ -30,31 +27,83 @@ def writeValue(value, name):
     verifyCorrectValueReceived(value, received, name)
 
 def sendConfig(config):
-    config.loadFile()
-    ser.write(b'F')
+
+        config.loadFile()
+        ser.write(b'F')
+        waitForAck()
+        bitfile = open(config.filename, "rb")
+        # skip the first bunch of data
+        print('skipping', config.skip)
+        bitfile.read(config.skip)
+
+        address = config.address
+        print('sending address', config.address)
+        writeValue(config.address, "address")
+        writeValue(config.size, "size")
+        print(ser.readline())
+        for i in range(9):
+            print(ser.readline())
+            print(ser.readline())
+            print(ser.readline())
+
+        # print('[chao_debug] wainting for flash erase finished\r\n')
+        # give device time for some debug
+              #  self.waitSerialReady(quiet=False)
+
+
+        waitForAck()
+        print('sending data')
+        sendData(config, bitfile)
+        bitfile.close()
+        verifyBitfile(config)
+
+
+def sendData(config, bitfile):
+    oldperc = -1
+
+    # self.ser.timeout = None
+    blockSize = 256
+    currentAddress = 0
+
+    while currentAddress < config.size:
+        # print('[chao_debug] in sending loop..\r\n')
+        perc = int(float(currentAddress) / config.size * 100)
+
+        if oldperc != perc:
+            sys.stdout.write('\r{}%'.format(perc))
+            sys.stdout.flush()
+            # print('\r{}%'.format(perc))
+            oldperc = perc
+
+        if (config.size - currentAddress) < blockSize:
+            print("Last block!")
+            blockSize = config.size - currentAddress
+            # print(blockSize)
+
+        elif (config.size - currentAddress) == blockSize:
+            print("Last full block!")
+
+        sending = bytearray(bitfile.read(blockSize))
+        # print('[chao_debug] a block is read out from bit file, type is',type(sending),',its size is:', len(sending))
+        # print('[chao_debug] data content', sending)
+
+        bytes_has_written = ser.write(sending)
+        ser.flush()
+
+        # if not confirmCommand(sending[-1]):
+        #     print("Could not confirm data!")
+
+            # if bitfile is not None:
+            #     bitfile.close()
+            # ret = False
+            # break
+        waitForAck()
+        currentAddress += blockSize
+        # print('[chao_debug] data has been send to the mcu wait for ack..\r\n')
+
+    # # confirm the last
+    print('ready to proceed with uart')
     waitForAck()
-    bitfile = open(config.filename, "rb")
-    # skip the first bunch of data
-    print('skipping', config.skip)
-    bitfile.read(config.skip)
-
-    address = config.address
-    print('sending address', config.address)
-    writeValue(config.address, "address")
-    writeValue(config.size, "size")
-    print(ser.readline())
-    for i in range(9):
-        print(ser.readline())
-        print(ser.readline())
-        print(ser.readline())
-
-    # print('[chao_debug] wainting for flash erase finished\r\n')
-    # give device time for some debug
-          #  self.waitSerialReady(quiet=False)
-
-
-    waitForAck()
-    print('sending data')
 
 
 def waitForAck():
@@ -69,6 +118,45 @@ def waitForAck():
 if __name__ == '__main__':
         config = Configuration("s15_p2.bit", 0x0,0x0)
         sendConfig(config)
+
+
+
+def verifyBitfile(config):
+    config.loadFile()
+    bitfile = open(config.filename, "rb")
+    # skip the first bunch of data
+    print('skipping', config.skip)
+    bitfile.read(config.skip)
+    errorCounter=0
+    ser.write(b'V')
+
+    waitForAck()
+    writeValue(config.address, "address")
+    writeValue(config.size, "size")
+    blockSize = 256
+    position=config.address
+    remaining=config.size
+    while remaining > 0:
+        if remaining < blockSize:
+            blockSize = remaining
+
+        flash_data_block=ser.readline()
+        flash_data_block=int(flash_data_block.strip())
+        expected_block= bitfile.read(blockSize)
+        if(flash_data_block!=int(expected_block)):
+            errorCounter+=1
+
+        remaining-=blockSize
+        position+=blockSize
+
+    waitForAck()
+    print(errorCounter)
+
+
+
+
+
+
 
 
 #
