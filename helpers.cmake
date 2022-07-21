@@ -39,6 +39,6 @@ function(make_to_output_file target)
     file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR})
     add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/cmake-build-debug/${relative_path}/${target}.uf2
+            ${CMAKE_BINARY_DIR}/${relative_path}/${target}.uf2
             ${CMAKE_SOURCE_DIR}/out/${relative_path}/${target}.uf2)
 endfunction()
