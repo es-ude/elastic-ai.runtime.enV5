@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 /*!
- * Tries to read out values from the sht3x, pac193x and adxl345b sensors, and publishes the them
+ * Tries to read out values from the sht3x, pac193x and adxl345b sensors and publishes them
  * over MQTT as DATA under the following data ids.
  * sht3x: temperature / humidity
  * pac193x: energy
@@ -41,8 +41,9 @@ static bool getGValue(float *sumOfAxis) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     adxl345b_errorCode errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);
-    if (errorCode != ADXL345B_NO_ERROR)
+    if (errorCode != ADXL345B_NO_ERROR) {
         return false;
+    }
     /* 0.2G equals a deviation of about 1% from the ideal value
      * this deviation is given by the datasheet as the accepted tolerance
      * for each axis therefore should epsilon be 0.6G
@@ -52,11 +53,12 @@ static bool getGValue(float *sumOfAxis) {
 }
 
 void publishAdxl345bData(void) {
-    float somOfAxis;
-    if (getGValue(&somOfAxis)) {
-        int len = snprintf(NULL, 0, "%f", somOfAxis);
+    float sumOfAxis;
+    if (getGValue(&sumOfAxis)) {
+        PRINT("G value: %f;\n", sumOfAxis)
+        int len = snprintf(NULL, 0, "%f", sumOfAxis);
         char *result = malloc(len + 1);
-        snprintf(result, len + 1, "%f", somOfAxis);
+        snprintf(result, len + 1, "%f", sumOfAxis);
         publishData("gValue", result);
         free(result);
     }
@@ -120,30 +122,33 @@ void _Noreturn mqttTask(void) {
     if (sht_errorCode == SHT3X_NO_ERROR)
         PRINT("Initialised SHT3X\n")
     else
-        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode);
+        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode)
 
     pac193x_errorCode pac_errorCode;
-    pac193x_powerUpSensor();
     pac_errorCode = pac193x_init(i2c1, resistanceValues, usedChannels);
     if (pac_errorCode == PAC193X_NO_ERROR)
-        PRINT("Initialised PAC193X\n");
+        PRINT("Initialised PAC193X\n")
     else
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02x\n", sht_errorCode);
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02x\n", sht_errorCode)
 
     adxl345b_errorCode errorCode;
     errorCode = adxl345b_init(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode == ADXL345B_NO_ERROR)
-        printf("Initialised ADXL345B.\n");
+        PRINT("Initialised ADXL345B.\n")
     else
-        printf("Initialise ADXL345B failed; adxl345b_ERROR: %02x\n", errorCode);
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02x\n", errorCode)
 
     while (true) {
         connectToNetwork();
         connectToMQTT();
 
+        /* TODO: test max number of possible actions */
         publishSht3xData();
+        TaskSleep(1000);
         publishPac193xData();
         TaskSleep(1000);
+        publishAdxl345bData();
+        TaskSleep(2000);
     }
 }
 

@@ -17,7 +17,8 @@ pac193x_errorCode pac193x_powerUpSensor(void);
  */
 pac193x_errorCode pac193x_powerDownSensor(void);
 
-/*! initializes the power sensor
+/*! initializes the power sensor \n
+ *  Calls pac193x_powerUpSensor() internally
  *  \Important function has to be called before the sensor can be used \n
  *             needs max 1.5ms for idle state after power up
  *
