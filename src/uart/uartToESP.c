@@ -23,6 +23,8 @@ void handleNewLine(void) {
         if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
             responseArrived = true;
         }
+        //TODO: transfer to large else-if and add else for debug purpose (print received message)
+        //TODO: rename responseArrived to correctResponseReceived
     }
 }
 
