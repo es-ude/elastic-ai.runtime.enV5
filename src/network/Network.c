@@ -22,22 +22,20 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
         PRINT("Already connected to Network!")
         return true;
     }
-    //TODO replace strcpy/strcat with malloc und snprintf
-    char *cmd = malloc(14 + strlen(credentials.ssid) + strlen(credentials.password));
-    strcpy(cmd, "AT+CWJAP=\"");
-    strcat(cmd, credentials.ssid);
-    strcat(cmd, "\",\"");
-    strcat(cmd, credentials.password);
-    strcat(cmd, "\"");
+    /* generate connect command with SSID and Password  from configuration.h*/
+    size_t lengthOfString = 14 + strlen(credentials.ssid) + strlen(credentials.password);
+    char *connectToNetwork = malloc(lengthOfString);
+    snprintf(connectToNetwork, lengthOfString, "AT+CWJAP\"%s\",\"%s\"", credentials.ssid,
+             credentials.password);
 
-    if (ESP_SendCommand(cmd, "WIFI GOT IP", 2500)) {
+    if (ESP_SendCommand(connectToNetwork, "WIFI GOT IP", 2500)) {
         PRINT("Connected to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = CONNECTED;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = NOT_CONNECTED;
     }
-    free(cmd);
+    free(connectToNetwork);
     return ESP_Status.WIFIStatus;
 }
 
