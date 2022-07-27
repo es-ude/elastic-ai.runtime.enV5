@@ -1,6 +1,7 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
 #include "uartToESP.h"
+#include "common.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
@@ -8,7 +9,7 @@
 
 UARTDevice uartDev;
 bool lastWasR = false;
-bool responseArrived = false;
+bool correctResponseReceived = false;
 char *cmd = "\0";
 char *expecResponse = "\0";
 
@@ -19,12 +20,12 @@ void handleNewLine(void) {
         if (strncmp("+MQTTSUBRECV", uartDev.receive_buf, 12) == 0 &&
             uartToESP_MQTT_Broker_Receive != NULL) {
             uartToESP_MQTT_Broker_Receive(uartDev.receive_buf);
+            correctResponseReceived = true;
+        } else if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
+            correctResponseReceived = true;
+        } else {
+            PRINT_DEBUG("Received message was: %s\n", uartDev.receive_buf)
         }
-        if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
-            responseArrived = true;
-        }
-        //TODO: transfer to large else-if and add else for debug purpose (print received message)
-        //TODO: rename responseArrived to correctResponseReceived
     }
 }
 
@@ -103,7 +104,7 @@ void uartToEsp_Init(void) {
 
 void uartToESP_SendCommand(char *command, char *expectedResponse) {
     cmd = command;
-    responseArrived = false;
+    correctResponseReceived = false;
     expecResponse = expectedResponse;
     uartToESP_Println(cmd);
 }
@@ -124,7 +125,7 @@ bool uartToESP_IsBusy(void) {
 }
 
 bool uartToESP_ResponseArrived(void) {
-    return responseArrived;
+    return correctResponseReceived;
 }
 
 void uartToESP_FreeCommand(void) {
