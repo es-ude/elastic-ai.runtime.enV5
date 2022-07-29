@@ -24,7 +24,7 @@ void handleNewLine(void) {
         } else if (strncmp(expecResponse, uartDev.receive_buf, strlen(expecResponse)) == 0) {
             correctResponseReceived = true;
         } else {
-            PRINT_DEBUG("Received message was: %s\n", uartDev.receive_buf)
+            PRINT_DEBUG("Received message was: %s", uartDev.receive_buf)
         }
     }
 }
