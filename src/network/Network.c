@@ -1,6 +1,7 @@
 #define SOURCE_FILE "NETWORK"
 
 #include "Network.h"
+#include "AT_commands.h"
 #include "common.h"
 #include "esp.h"
 #include <stdlib.h>
@@ -9,7 +10,8 @@
 void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials) {
     if (ESP_Status.WIFIStatus == CONNECTED)
         return;
-    while (!Network_ConnectToNetwork(credentials))
+    Network_ConnectToNetwork(credentials);
+    while (ESP_Status.WIFIStatus == CONNECTED)
         ;
 }
 
@@ -23,12 +25,14 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
         return true;
     }
     /* generate connect command with SSID and Password  from configuration.h*/
-    size_t lengthOfString = 14 + strlen(credentials.ssid) + strlen(credentials.password);
+    size_t lengthOfString =
+        AT_CONNECT_TO_NETWORK_LENGTH + strlen(credentials.ssid) + strlen(credentials.password);
     char *connectToNetwork = malloc(lengthOfString);
-    snprintf(connectToNetwork, lengthOfString, "AT+CWJAP\"%s\",\"%s\"", credentials.ssid,
+    snprintf(connectToNetwork, lengthOfString, AT_CONNECT_TO_NETWORK, credentials.ssid,
              credentials.password);
+    PRINT_DEBUG("AT Command: %s", connectToNetwork)
 
-    if (ESP_SendCommand(connectToNetwork, "WIFI GOT IP", 2500)) {
+    if (ESP_SendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 2500)) {
         PRINT("Connected to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = CONNECTED;
     } else {
