@@ -13,9 +13,9 @@
  * Expected Response:
  *   OK
  */
-const char AT_DISABLE_ECHO[] = "ATE0";
-const size_t AT_DISABLE_ECHO_LENGTH = 5;
-const char AT_DISABLE_ECHO_RESPONSE[] = "OK";
+extern char AT_DISABLE_ECHO[];
+extern size_t AT_DISABLE_ECHO_LENGTH;
+extern char AT_DISABLE_ECHO_RESPONSE[];
 
 /* Soft Reset (restart module)
  *
@@ -25,9 +25,9 @@ const char AT_DISABLE_ECHO_RESPONSE[] = "OK";
  * Expected Response:
  *   OK
  */
-const char AT_RESTART[] = "AT+RST";
-const size_t AT_RESTART_LENGTH = 7;
-const char AT_RESTART_RESPONSE[] = "OK";
+extern char AT_RESTART[];
+extern size_t AT_RESTART_LENGTH;
+extern char AT_RESTART_RESPONSE[];
 
 /* Disable multiple connections
  *
@@ -42,9 +42,9 @@ const char AT_RESTART_RESPONSE[] = "OK";
  * Expected Response:
  *   OK
  */
-const char AT_DISABLE_MULTI_CONNECT[] = "AT+CIPMUX=0";
-const size_t AT_DISABLE_MULTI_CONNECT_LENGTH = 12;
-const char AT_DISABLE_MULTI_CONNECT_RESPONSE[] = "OK";
+extern char AT_DISABLE_MULTI_CONNECT[];
+extern size_t AT_DISABLE_MULTI_CONNECT_LENGTH;
+extern char AT_DISABLE_MULTI_CONNECT_RESPONSE[];
 
 /* Connect to network
  *
@@ -69,9 +69,9 @@ const char AT_DISABLE_MULTI_CONNECT_RESPONSE[] = "OK";
  *   WIFI GOT IP
  *   OK
  */
-const char AT_CONNECT_TO_NETWORK[] = "AT+CWJAP=\"%s\",\"%s\",,1,5,3,0,120";
-const size_t AT_CONNECT_TO_NETWORK_LENGTH = 28;
-const char AT_CONNECT_TO_NETWORK_RESPONSE[] = "WIFI CONNECTED";
+extern char AT_CONNECT_TO_NETWORK[];
+extern size_t AT_CONNECT_TO_NETWORK_LENGTH;
+extern char AT_CONNECT_TO_NETWORK_RESPONSE[];
 
 /* Disconnect from network
  *
@@ -81,9 +81,9 @@ const char AT_CONNECT_TO_NETWORK_RESPONSE[] = "WIFI CONNECTED";
  * Expected Response:
  *   OK
  */
-const char AT_DISCONNECT[] = "AT+CWQAP";
-const size_t AT_DISCONNECT_LENGTH = 9;
-const char AT_DISCONNECT_RESPONSE[] = "OK";
+extern char AT_DISCONNECT[];
+extern size_t AT_DISCONNECT_LENGTH;
+extern char AT_DISCONNECT_RESPONSE[];
 
 /* endregion */
 

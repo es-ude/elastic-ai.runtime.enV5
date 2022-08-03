@@ -1,5 +1,5 @@
-#ifndef UART_TO_ESP_H
-#define UART_TO_ESP_H
+#ifndef SENSOR_BOARD_UART_H
+#define SENSOR_BOARD_UART_H
 
 #include <stdbool.h>
 
@@ -7,7 +7,7 @@
 
 typedef struct uartInstance UartInstance;
 
-typedef enum { UartParity_NONE, UartParity_EVEN, UartParity_ODD } UartParity;
+typedef enum { ParityNone, ParityEven, ParityOdd } uart_parity;
 
 typedef struct {
     char name[15];
@@ -19,7 +19,7 @@ typedef struct {
     unsigned int baudrate_actual;
     unsigned int data_bits;
     unsigned int stop_bits;
-    UartParity parity;
+    uart_parity parity;
     char receive_buf[UART_BUFFER_SIZE];
     unsigned int receive_count;
 } UARTDevice;
@@ -37,7 +37,7 @@ static UARTDevice device = {
     .baudrate_actual = 0,
     .data_bits = 8,
     .stop_bits = 1,
-    .parity = UartParity_NONE,
+    .parity = ParityNone,
 };
 
 void uartToEsp_Init(void);
@@ -54,4 +54,4 @@ bool uartToESP_ResponseArrived(void);
 
 void uartToESP_FreeCommand(void);
 
-#endif // UART_TO_ESP_H
+#endif // SENSOR_BOARD_UART_H
