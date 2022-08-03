@@ -12,7 +12,7 @@
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    network_ConnectToNetworkUntilConnected(NetworkCredentials);
 }
 
 void connectToMQTT(void) {
@@ -27,7 +27,7 @@ void initHardwareTest(void) {
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    ESP_Init();
+    esp_Init();
     CreateQueue();
     watchdog_enable(2000, 1);
 }

@@ -6,24 +6,24 @@ bool commandSucceed = true;
 ESP_Status_t ESP_Status = {
     .ChipStatus = ESP_CHIP_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-void ESP_ReturnTrue(void) {
+void esp_ReturnTrue(void) {
     commandSucceed = true;
 }
 
-void ESP_ReturnFalse(void) {
+void esp_ReturnFalse(void) {
     commandSucceed = false;
 }
 
-void ESP_Init(void) {}
+void esp_Init(void) {}
 
-bool ESP_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
+bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return commandSucceed;
 }
 
-void ESP_SoftReset(void) {}
+void esp_SoftReset(void) {}
 
-bool ESP_CheckIsResponding(void) {
+bool esp_CheckIsResponding(void) {
     return commandSucceed;
 }
 
-void ESP_SetMQTTReceiverFunction(void (*receive)(char *)) {}
+void esp_SetMQTTReceiverFunction(void (*receive)(char *)) {}

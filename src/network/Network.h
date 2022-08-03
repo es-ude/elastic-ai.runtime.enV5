@@ -15,7 +15,7 @@ typedef struct {
  *
  * \param credentials network credentials (SSID, password)
  */
-void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials);
+void network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials);
 
 /*! \brief tries to connect to network
  *
@@ -24,8 +24,8 @@ void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials);
  * \param credentials network credentials (SSID, password)
  * \return true if connection successful or already connected, otherwise false
  */
-bool Network_ConnectToNetwork(NetworkCredentials_t credentials);
+bool network_ConnectToNetwork(NetworkCredentials_t credentials);
 
-void Network_DisconnectFromNetwork(void);
+void network_DisconnectFromNetwork(void);
 
-#endif
+#endif /* NETWORK_H */

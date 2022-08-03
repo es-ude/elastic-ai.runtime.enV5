@@ -48,10 +48,10 @@ bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, cha
     char *command = malloc(commandLength);
     snprintf(command, commandLength, "AT+MQTTCONN=0,\"%s\",%s,0", credentials.ip, credentials.port);
 
-    if (ESP_SendCommand(command, "+MQTTCONNECTED", 5000)) {
+    if (esp_SendCommand(command, "+MQTTCONNECTED", 5000)) {
         ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
-            ESP_SetMQTTReceiverFunction(MQTT_Broker_Receive);
+            esp_SetMQTTReceiverFunction(MQTT_Broker_Receive);
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
         PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
@@ -75,7 +75,7 @@ void MQTT_Broker_Disconnect(bool force) {
         }
     }
 
-    if (ESP_SendCommand("AT+MQTTCLEAN=0", "OK", 5000)) {
+    if (esp_SendCommand("AT+MQTTCLEAN=0", "OK", 5000)) {
         ESP_Status.MQTTStatus = NOT_CONNECTED;
 
         free(MQTT_Broker_brokerID);
@@ -108,7 +108,7 @@ void MQTT_Broker_SetClientId(char *clientId) {
     char *command = malloc(commandLength);
     snprintf(command, commandLength, "AT+MQTTUSERCFG=0,1,\"%s\",\"\",\"\",0,0,\"\"", clientId);
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {
+    if (!esp_SendCommand(command, "OK", 1000)) {
         PRINT("Could not set client id to %s, aborting...", clientId)
     }
 
@@ -197,7 +197,7 @@ void publish(Posting posting) {
     // Quality of service 0 - 2 see MQTT documentation
     snprintf(command, commandLength, "AT+MQTTPUB=0,\"%s\",\"%s\",0,0", topic, posting.data);
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {
+    if (!esp_SendCommand(command, "OK", 1000)) {
         PRINT("Could not publish to topic: %s.", topic)
     } else {
         PRINT("Published to %s.", topic)
@@ -220,7 +220,7 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     snprintf(command, commandLength, "AT+MQTTSUB=0\"%s\",0", topic);
 
     if (MQTT_Broker_numberSubscriber != MAX_SUBSCRIBER) {
-        if (!ESP_SendCommand(command, "OK", 1000)) {
+        if (!esp_SendCommand(command, "OK", 1000)) {
             PRINT("Could not subscribe to topic: %s. Have You already "
                   "subscribed?",
                   topic)
@@ -252,7 +252,7 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     char *command = malloc(commandLength);
     snprintf(command, commandLength, "AT+MQTTUNSUB=0,\"%s\"", topic);
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {
+    if (!esp_SendCommand(command, "OK", 1000)) {
         PRINT("Could not unsubscribe to topic: %s. Have you subscribed "
               "beforehand?",
               topic)

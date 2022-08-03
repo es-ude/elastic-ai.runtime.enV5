@@ -18,9 +18,9 @@ _Noreturn void networkTask() {
 
     while (true) {
         connectToNetwork();
-        TaskSleep(1000);
+        TaskSleep(2000);
         while (ESP_Status.WIFIStatus == CONNECTED) {
-            Network_DisconnectFromNetwork();
+            network_DisconnectFromNetwork();
         }
         TaskSleep(1000);
     }

@@ -1,21 +1,20 @@
 #define SOURCE_FILE "NETWORK"
 
 #include "Network.h"
-#include "AT_commands.h"
+#include "at_commands.h"
 #include "common.h"
 #include "esp.h"
 #include <stdlib.h>
 #include <string.h>
 
-void Network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials) {
+void network_ConnectToNetworkUntilConnected(NetworkCredentials_t credentials) {
     if (ESP_Status.WIFIStatus == CONNECTED)
         return;
-    Network_ConnectToNetwork(credentials);
-    while (ESP_Status.WIFIStatus == CONNECTED)
+    while (!network_ConnectToNetwork(credentials))
         ;
 }
 
-bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
+bool network_ConnectToNetwork(NetworkCredentials_t credentials) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Chip not working!")
         return false;
@@ -32,7 +31,7 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
              credentials.password);
     PRINT_DEBUG("AT Command: %s", connectToNetwork)
 
-    if (ESP_SendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 2500)) {
+    if (esp_SendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 120000)) {
         PRINT("Connected to Network: %s", credentials.ssid)
         ESP_Status.WIFIStatus = CONNECTED;
     } else {
@@ -43,7 +42,7 @@ bool Network_ConnectToNetwork(NetworkCredentials_t credentials) {
     return ESP_Status.WIFIStatus;
 }
 
-void Network_DisconnectFromNetwork(void) {
+void network_DisconnectFromNetwork(void) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Chip not working!")
         return;
@@ -53,7 +52,7 @@ void Network_DisconnectFromNetwork(void) {
         return;
     }
 
-    if (ESP_SendCommand("AT+CWQAP", "OK", 5000)) {
+    if (esp_SendCommand("AT+CWQAP", "OK", 5000)) {
         PRINT_DEBUG("Disconnected from Network")
     } else {
         PRINT("Failed to disconnect from Network")

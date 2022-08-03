@@ -43,7 +43,7 @@ void init(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    ESP_Init();
+    esp_Init();
     CreateQueue();
     watchdog_enable(2000, 1);
 }
