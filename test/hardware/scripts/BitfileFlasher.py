@@ -1,7 +1,7 @@
 import serial
 import sys
 from Configuration import Configuration
-ser = serial.Serial("/dev/tty.usbmodem14201", 500000)
+ser = serial.Serial("/dev/tty.usbmodem14101", 500000)
 
 bitfile = None
 
@@ -53,9 +53,9 @@ def sendConfig(config):
 
         waitForAck()
         print('sending data')
-        sendData(config, bitfile)
-        bitfile.close()
-        verifyBitfile(config)
+        # sendData(config, bitfile)
+        # bitfile.close()
+        # verifyBitfile(config)
 
 
 def sendData(config, bitfile):

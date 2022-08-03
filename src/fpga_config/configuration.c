@@ -54,7 +54,7 @@ void configurationFlash() {
 
         printf("\n");
 
-        flash_read_data((blockAddress+64000-256), eraseTest, BUFFER_SIZE);
+        flash_read_data((blockAddress+32000-256), eraseTest, BUFFER_SIZE);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             printf("%u", eraseTest[i]);
         }
@@ -72,21 +72,21 @@ void configurationFlash() {
     configRemaining = configSize;
 
 
-    while (configRemaining > 0) {
-        if (configRemaining < BUFFER_SIZE) {
-            blockSize = configRemaining;
-        }
-        readData(buffer, blockSize);
-
-        flash_write_page(currentAddress, buffer, blockSize);
-    //    printf("%u\n", buffer[blockSize-1]);
-      //  debugAck(buffer[blockSize - 1]);
-        currentAddress += blockSize;
-        configRemaining -= blockSize;
-    //    debugDone();
-        printf("ack\n");
-
-    }
+//    while (configRemaining > 0) {
+//        if (configRemaining < BUFFER_SIZE) {
+//            blockSize = configRemaining;
+//        }
+//        readData(buffer, blockSize);
+//
+//        flash_write_page(currentAddress, buffer, blockSize);
+//    //    printf("%u\n", buffer[blockSize-1]);
+//      //  debugAck(buffer[blockSize - 1]);
+//        currentAddress += blockSize;
+//        configRemaining -= blockSize;
+//    //    debugDone();
+//        printf("ack\n");
+//
+//    }
     free(buffer);
     printf("ack\n");
 }
