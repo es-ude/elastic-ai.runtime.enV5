@@ -8,6 +8,7 @@
 #include "flash/flash.h"
 #include"config_data_handler.h"
 #include "configuration.h"
+#include "TaskWrapper.h"
 #include <stdio.h>
 
 #define BUFFER_SIZE 256
@@ -36,16 +37,16 @@ void configurationFlash() {
 
 
 
-    uint16_t numBlocks64K = ceilf((float) (configSize) / 64000);
+    uint16_t numBlocks64K = ceilf((float) (configSize) / 65536);
     //uint16_t numBlocks4K = ceil((float) (configSize) / 0x1000);
 
     uint8_t *eraseTest= (uint8_t *) malloc(BUFFER_SIZE);
     printf("%u\n",numBlocks64K);
     uint32_t blockAddress;
     for (uint16_t blockCounter = 0; blockCounter < numBlocks64K; blockCounter++) {
-        blockAddress = configAddress + ((uint32_t) blockCounter) * 64000;
+        blockAddress = configAddress + ((uint32_t) blockCounter) * 65536;
         uint8_t status=flash_erase_data(blockAddress);
-        printf("error occured: %u , block: %u \n",status, blockCounter);
+        printf("error occured: %u , block: %u , address: %x\n",status, blockCounter, blockAddress);
         flash_read_data(blockAddress, eraseTest, BUFFER_SIZE);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             printf("%u", eraseTest[i]);
@@ -53,8 +54,8 @@ void configurationFlash() {
         }
 
         printf("\n");
-
-        flash_read_data((blockAddress+32000-256), eraseTest, BUFFER_SIZE);
+        TaskSleep(1000);
+        flash_read_data((blockAddress+65536-256), eraseTest, BUFFER_SIZE);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             printf("%u", eraseTest[i]);
         }
@@ -72,21 +73,21 @@ void configurationFlash() {
     configRemaining = configSize;
 
 
-//    while (configRemaining > 0) {
-//        if (configRemaining < BUFFER_SIZE) {
-//            blockSize = configRemaining;
-//        }
-//        readData(buffer, blockSize);
-//
-//        flash_write_page(currentAddress, buffer, blockSize);
-//    //    printf("%u\n", buffer[blockSize-1]);
-//      //  debugAck(buffer[blockSize - 1]);
-//        currentAddress += blockSize;
-//        configRemaining -= blockSize;
-//    //    debugDone();
-//        printf("ack\n");
-//
-//    }
+    while (configRemaining > 0) {
+        if (configRemaining < BUFFER_SIZE) {
+            blockSize = configRemaining;
+        }
+        readData(buffer, blockSize);
+
+        flash_write_page(currentAddress, buffer, blockSize);
+    //    printf("%u\n", buffer[blockSize-1]);
+      //  debugAck(buffer[blockSize - 1]);
+        currentAddress += blockSize;
+        configRemaining -= blockSize;
+    //    debugDone();
+        printf("ack\n");
+
+    }
     free(buffer);
     printf("ack\n");
 }

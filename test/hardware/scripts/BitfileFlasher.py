@@ -53,8 +53,8 @@ def sendConfig(config):
 
         waitForAck()
         print('sending data')
-        # sendData(config, bitfile)
-        # bitfile.close()
+        sendData(config, bitfile)
+        bitfile.close()
         # verifyBitfile(config)
 
 

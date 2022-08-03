@@ -79,12 +79,12 @@ uint8_t flash_erase_data(uint32_t address) {
             address >> 8,
             address
     };
-    flash_write_enable(spi, cs_pin);
+    flash_write_enable();
     SPI_enable(cs_pin);
     SPI_write_blocking(spi, cmd, 4);
     SPI_disable(cs_pin);
-    flash_wait_for_done(spi, cs_pin);
-    uint8_t status = erase_error_occured(spi, cs_pin);
+    flash_wait_for_done();
+    uint8_t status = erase_error_occured();
     return status;
 
 }
