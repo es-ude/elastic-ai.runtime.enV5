@@ -56,13 +56,13 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
         ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
 target_include_directories(unit-test_network PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/at_commands
         ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
         ${CMAKE_SOURCE_DIR}/src/network
-        ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_network unity)

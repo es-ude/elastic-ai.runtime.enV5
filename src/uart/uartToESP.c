@@ -1,11 +1,11 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
 #include "uartToESP.h"
+#include "uartToESP_internal.h"
 #include "common.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
-#include "uartToESP_internal.h"
 #include <string.h>
 
 /* region VARIABLES */

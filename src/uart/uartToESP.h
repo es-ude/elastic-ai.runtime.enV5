@@ -1,5 +1,5 @@
-#ifndef SENSOR_BOARD_UART_H
-#define SENSOR_BOARD_UART_H
+#ifndef UART_TO_ESP_H
+#define UART_TO_ESP_H
 
 #include <stdbool.h>
 
@@ -38,4 +38,4 @@ bool uartToESP_ResponseArrived(void);
 
 void uartToESP_FreeCommand(void);
 
-#endif // SENSOR_BOARD_UART_H
+#endif // UART_TO_ESP_H
