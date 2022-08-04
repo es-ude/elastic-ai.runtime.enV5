@@ -52,7 +52,6 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/FreeRTOSUtils/TaskWrapper.c
-        ${CMAKE_SOURCE_DIR}/src/at_commands/at_commands.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
         ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
 target_include_directories(unit-test_network PUBLIC

@@ -4,5 +4,4 @@ target_sources(network_lib INTERFACE
 target_include_directories(network_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(network_lib INTERFACE
         uart_lib
-        esp_lib
-        at_commands)
+        esp_lib)

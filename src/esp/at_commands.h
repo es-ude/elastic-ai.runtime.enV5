@@ -13,9 +13,9 @@
  * Expected Response:
  *   OK
  */
-extern char AT_DISABLE_ECHO[];
-extern size_t AT_DISABLE_ECHO_LENGTH;
-extern char AT_DISABLE_ECHO_RESPONSE[];
+#define AT_DISABLE_ECHO "ATE0"
+#define AT_DISABLE_ECHO_LENGTH 5
+#define AT_DISABLE_ECHO_RESPONSE "OK"
 
 /* Soft Reset (restart module)
  *
@@ -25,9 +25,10 @@ extern char AT_DISABLE_ECHO_RESPONSE[];
  * Expected Response:
  *   OK
  */
-extern char AT_RESTART[];
-extern size_t AT_RESTART_LENGTH;
-extern char AT_RESTART_RESPONSE[];
+#define AT_RESTART "AT+RST"
+#define AT_RESTART_LENGTH 7
+#define AT_RESTART_RESPONSE "OK"
+
 
 /* Disable multiple connections
  *
@@ -42,16 +43,17 @@ extern char AT_RESTART_RESPONSE[];
  * Expected Response:
  *   OK
  */
-extern char AT_DISABLE_MULTI_CONNECT[];
-extern size_t AT_DISABLE_MULTI_CONNECT_LENGTH;
-extern char AT_DISABLE_MULTI_CONNECT_RESPONSE[];
+#define AT_DISABLE_MULTI_CONNECT "AT+CIPMUX=0"
+#define AT_DISABLE_MULTI_CONNECT_LENGTH 12
+#define AT_DISABLE_MULTI_CONNECT_RESPONSE "OK"
+
 
 /* Connect to network
  *
  * Command:
  *   AT+CWJAP=SSID,PWD,BSSID,PCI_EN,RECON_INTERVAL,LISTEN_INTERVAL,SCAN_MODE,TIMEOUT,PMF
  *
- *   If no arguments were passed => use settings from last successful connection
+ *   If no arguments were passed> use settings from last successful connection
  *
  * Fields are:
  * - SSID -> Network ID
@@ -69,9 +71,10 @@ extern char AT_DISABLE_MULTI_CONNECT_RESPONSE[];
  *   WIFI GOT IP
  *   OK
  */
-extern char AT_CONNECT_TO_NETWORK[];
-extern size_t AT_CONNECT_TO_NETWORK_LENGTH;
-extern char AT_CONNECT_TO_NETWORK_RESPONSE[];
+#define AT_CONNECT_TO_NETWORK "AT+CWJAP=\"%s\",\"%s\",,1,5,3,0,120"
+#define AT_CONNECT_TO_NETWORK_LENGTH 28
+#define AT_CONNECT_TO_NETWORK_RESPONSE "WIFI CONNECTED"
+
 
 /* Disconnect from network
  *
@@ -81,9 +84,10 @@ extern char AT_CONNECT_TO_NETWORK_RESPONSE[];
  * Expected Response:
  *   OK
  */
-extern char AT_DISCONNECT[];
-extern size_t AT_DISCONNECT_LENGTH;
-extern char AT_DISCONNECT_RESPONSE[];
+#define AT_DISCONNECT "AT+CWQAP"
+#define AT_DISCONNECT_LENGTH 9
+#define AT_DISCONNECT_RESPONSE "OK"
+
 
 /* endregion */
 
