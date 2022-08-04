@@ -1,24 +1,3 @@
-##############################################
-## ADD TEST: unit-test_network
-add_executable(unit-test_network
-        ${CMAKE_CURRENT_LIST_DIR}/test_network.c
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies/FreeRTOSUtils/TaskWrapper.c
-        ${CMAKE_SOURCE_DIR}/src/network/Network.c
-        ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
-target_include_directories(unit-test_network PUBLIC
-        ${CMAKE_SOURCE_DIR}/test/unit/hardware
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/src
-        ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
-        ${CMAKE_SOURCE_DIR}/src/network
-        ${CMAKE_SOURCE_DIR}/src/esp
-        ${CMAKE_SOURCE_DIR}/src/uart
-        ${CMAKE_SOURCE_DIR}/extern)
-target_link_libraries(unit-test_network unity)
-add_test(unit-test_network unit-test_network)
-
 #############################################
 # ADD TEST: unit-test_sht3x
 add_executable(unit-test_sht3x
@@ -65,3 +44,27 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
 add_test(unit-test_pac193x unit-test_pac193x)
+
+##############################################
+## ADD TEST: unit-test_network
+add_executable(unit-test_network
+        ${CMAKE_CURRENT_LIST_DIR}/test_network.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/FreeRTOSUtils/TaskWrapper.c
+        ${CMAKE_SOURCE_DIR}/src/at_commands/at_commands.c
+        ${CMAKE_SOURCE_DIR}/src/network/Network.c
+        ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c)
+target_include_directories(unit-test_network PUBLIC
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/at_commands
+        ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
+        ${CMAKE_SOURCE_DIR}/src/network
+        ${CMAKE_SOURCE_DIR}/src/esp
+        ${CMAKE_SOURCE_DIR}/src/uart
+        ${CMAKE_SOURCE_DIR}/extern)
+target_link_libraries(unit-test_network unity)
+add_test(unit-test_network unit-test_network)
+
