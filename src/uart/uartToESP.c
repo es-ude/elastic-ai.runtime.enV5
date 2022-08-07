@@ -1,14 +1,15 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
 #include "uartToESP.h"
-#include "uartToESP_internal.h"
 #include "common.h"
 #include "hardware/gpio.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
+#include "uartToESP_internal.h"
 #include <string.h>
 
 /* region VARIABLES */
+
 volatile bool lastReceivedCharacterWasReturn = false;
 volatile bool correctResponseReceived = false;
 
@@ -16,17 +17,19 @@ char *commandToSend = "\0";
 char *expectedResponseFromEsp = "\0";
 
 void (*uartToESP_MQTT_Broker_Receive)(char *) = NULL;
+
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 void uartToEsp_Init(void) {
-    if (device.uartId == 0)
+    if (device.uartId == 0) {
         device.uartInstance = (uartToESP_Instance *)uart0;
-    else if (device.uartId == 1)
+    } else if (device.uartId == 1) {
         device.uartInstance = (uartToESP_Instance *)uart1;
-    else
+    } else {
         return;
+    }
 
     // Set the TX and RX pins by using the function select on the GPIO
     // Set datasheet for more information on function select
@@ -76,8 +79,9 @@ void uartToESP_Println(char *data) {
 }
 
 bool uartToESP_IsBusy(void) {
-    if (strcmp(commandToSend, "\0") == 0)
+    if (strcmp(commandToSend, "\0") == 0) {
         return false;
+    }
     return true;
 }
 
@@ -93,10 +97,12 @@ void uartToESP_FreeCommand(void) {
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
 
+// TODO: refactor handle MQTT
 void handleNewLine(void) {
     if (strlen(device.receive_buffer) != 0) {
         if (strncmp("+MQTTSUBRECV", device.receive_buffer, 12) == 0 &&
             uartToESP_MQTT_Broker_Receive != NULL) {
+            // handle Received MQTT message -> pass to correct subscriber
             uartToESP_MQTT_Broker_Receive(device.receive_buffer);
             correctResponseReceived = true;
         } else if (strncmp(expectedResponseFromEsp, device.receive_buffer,

@@ -1,5 +1,3 @@
-#define TEST_BUILD
-
 #include "Network.h"
 #include "esp/esp_test.h"
 #include "unity.h"
@@ -11,8 +9,12 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+    network_DisconnectFromNetwork();
     TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.MQTTStatus);
 }
+/* region Test Functions */
+
+// TODO: refactor unit tests to be more meaningful
 
 void TEST_NETWORK_INIT(void) {
     TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
@@ -20,9 +22,9 @@ void TEST_NETWORK_INIT(void) {
 }
 
 void TEST_CONNECT_TO_NETWORK(void) {
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
     network_ConnectToNetwork(credentials);
     TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
-    network_DisconnectFromNetwork();
 }
 
 void TEST_CONNECT_TO_NETWORK_TWICE(void) {
@@ -58,6 +60,8 @@ void TEST_DISCONNECT_FROM_NETWORK_TWICE(void) {
     network_DisconnectFromNetwork();
     TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
 }
+
+/* endregion */
 
 int main(void) {
     UNITY_BEGIN();

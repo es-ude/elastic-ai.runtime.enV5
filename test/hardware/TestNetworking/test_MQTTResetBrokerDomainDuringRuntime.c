@@ -25,7 +25,7 @@ void _Noreturn mainTask(void) {
         connectToMQTT();
         publishData("testENv5Pub", "data");
         TaskSleep(5000);
-        MQTT_Broker_setBrokerDomain("second_device_with_longer_name");
+        mqtt_setBrokerDomain("second_device_with_longer_name");
     }
 }
 
@@ -51,7 +51,7 @@ void init(void) {
 void _Noreturn enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            MQTT_Broker_Disconnect(true); //
+            mqtt_Disconnect(true); //
             reset_usb_boot(0, 0);
         }
         watchdog_update();
