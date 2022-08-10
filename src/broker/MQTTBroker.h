@@ -17,7 +17,7 @@ typedef struct {
  *
  * \param mqttHost contains ip and port of MQTT host
  * \param brokerDomain domain of broker, added before every message
- * \param clientID ID of this client, used to Identify to the Broker and added
+ * \param clientID getDomain of this client, used to Identify to the Broker and added
  * after the Domain in every message
  */
 void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t mqttHost, char *brokerDomain,
@@ -30,17 +30,13 @@ void MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost_t mqttHost, char *broker
  *
  * \param mqttHost contains ip and port of MQTT host
  * \param brokerDomain domain of broker, added before every message
- * \param clientID ID of this client, used to Identify to the Broker and added after the Domain in
- * every message
- * \return true if connection successful or already connected, otherwise false
+ * \param clientID getDomain of this client, used to Identify to the Broker and added after the
+ * Domain in every message \return true if connection successful or already connected, otherwise
+ * false
  */
 bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID);
 
 void MQTT_Broker_Disconnect(bool force);
-
-void MQTT_Broker_setBrokerDomain(char *ID);
-
-void MQTT_Broker_SetClientId(char *clientId);
 
 /*! \brief called by uart when MQTT message is received
  *
