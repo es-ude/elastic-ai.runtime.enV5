@@ -38,7 +38,6 @@ def verifyBitfile(config):
     waitForAck()
     writeValue(config.address, "address")
     writeValue(config.size, "size")
-    ser.flush();
     blockSize = 256
     numBlock=0
     last_num_block=-1
@@ -51,19 +50,25 @@ def verifyBitfile(config):
         flash_data_block=ser.read(blockSize)
        # flash_data_block=ser.readline()
        # flash_data_block = bytearray(flash_data_block.strip())
+
         expected_block =bitfile.read(blockSize)
+
+        if numBlock < 10:
+            print(flash_data_block)
+            print(expected_block)
         if len(flash_data_block) != len(expected_block):
             print("different length of blocks block number:",numBlock,". Expected:",
                   len(expected_block), ",On Device: ", len(flash_data_block))
 
-        print(flash_data_block)
-        print(expected_block)
-        for i in range(min(len(expected_block), len(flash_data_block))):
-            if flash_data_block[i]!=expected_block[i]:
-                errorCounter+=1
-                if last_num_block!=numBlock:
-                    print(numBlock)
-                last_num_block=numBlock
+        else:
+            for i in range(len(expected_block)):
+                r = int(expected_block[i])
+                br = int(flash_data_block[i])
+                if r!=br:
+                    errorCounter+=1
+                    if(last_num_block!=numBlock):
+                        print(numBlock)
+                    last_num_block=numBlock
 
         remaining-=blockSize
         position+=blockSize

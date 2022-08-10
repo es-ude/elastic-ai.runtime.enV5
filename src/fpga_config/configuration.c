@@ -14,7 +14,7 @@
 #define BUFFER_SIZE 256
 
 uint32_t configAddress, configSize, configRemaining;
-uint8_t *buffer;
+uint8_t *buffer, *verifyBuffer;
 
 void configurationFlash() {
 
@@ -94,7 +94,7 @@ void configurationFlash() {
 
 
 void verifyConfigurationFlash() {
-    buffer = (uint8_t *) malloc(BUFFER_SIZE);
+    verifyBuffer = (uint8_t *) malloc(BUFFER_SIZE);
 
     //flash_enable
 
@@ -113,24 +113,22 @@ void verifyConfigurationFlash() {
     while (configRemaining > 0) {
         if (configRemaining < BUFFER_SIZE) {
             blockSize = configRemaining;
-        }else{
-            blockSize=BUFFER_SIZE;
         }
       //  readData(buffer, blockSize);
 
-        int num_read=flash_read_data(currentAddress, buffer, blockSize);
+        flash_read_data(currentAddress, verifyBuffer, blockSize);
         currentAddress += blockSize;
         configRemaining -= blockSize;
       //  if(num_read!=256){
         //    printf("not 256 rip %u", num_read);
        // }
         for (uint32_t i=0; i<blockSize; i++){
-            putchar(buffer[i]);
+            putchar(verifyBuffer[i]);
         }
        // printf("\n");
 
     }
-    free(buffer);
+    free(verifyBuffer);
     printf("ack\n");
 
 }
