@@ -26,6 +26,53 @@ def writeValue(value, name):
     print("received")
     verifyCorrectValueReceived(value, received, name)
 
+def verifyBitfile(config):
+    config.loadFile()
+    bitfile = open(config.filename, "rb")
+    # skip the first bunch of data
+    print('skipping', config.skip)
+    bitfile.read(config.skip)
+    errorCounter=0
+    ser.write(b'V')
+
+    waitForAck()
+    writeValue(config.address, "address")
+    writeValue(config.size, "size")
+    ser.flush();
+    blockSize = 256
+    numBlock=0
+    last_num_block=-1
+    position=config.address
+    remaining=config.size
+    while remaining > 0:
+        if remaining < blockSize:
+            blockSize = remaining
+
+        flash_data_block=ser.read(blockSize)
+       # flash_data_block=ser.readline()
+       # flash_data_block = bytearray(flash_data_block.strip())
+        expected_block =bitfile.read(blockSize)
+        if len(flash_data_block) != len(expected_block):
+            print("different length of blocks block number:",numBlock,". Expected:",
+                  len(expected_block), ",On Device: ", len(flash_data_block))
+
+        print(flash_data_block)
+        print(expected_block)
+        for i in range(min(len(expected_block), len(flash_data_block))):
+            if flash_data_block[i]!=expected_block[i]:
+                errorCounter+=1
+                if last_num_block!=numBlock:
+                    print(numBlock)
+                last_num_block=numBlock
+
+        remaining-=blockSize
+        position+=blockSize
+        numBlock+=1
+
+    print("so many errors :", errorCounter)
+    waitForAck()
+
+
 def sendConfig(config):
 
         config.loadFile()
@@ -55,7 +102,7 @@ def sendConfig(config):
         print('sending data')
         sendData(config, bitfile)
         bitfile.close()
-        # verifyBitfile(config)
+        verifyBitfile(config)
 
 
 def sendData(config, bitfile):
@@ -86,7 +133,6 @@ def sendData(config, bitfile):
         sending = bytearray(bitfile.read(blockSize))
         # print('[chao_debug] a block is read out from bit file, type is',type(sending),',its size is:', len(sending))
         # print('[chao_debug] data content', sending)
-
         bytes_has_written = ser.write(sending)
         ser.flush()
 
@@ -113,44 +159,14 @@ def waitForAck():
         str= data.decode("utf-8").strip()
         if(str=="ack"):
             acknowledged=True
-            print("acked")
+           # print("acked")
 
 if __name__ == '__main__':
-        config = Configuration("s15_p2.bit", 0x0,0x0)
+        config = Configuration("s15_p1.bit", 0x0,0x0)
         sendConfig(config)
 
 
 
-def verifyBitfile(config):
-    config.loadFile()
-    bitfile = open(config.filename, "rb")
-    # skip the first bunch of data
-    print('skipping', config.skip)
-    bitfile.read(config.skip)
-    errorCounter=0
-    ser.write(b'V')
-
-    waitForAck()
-    writeValue(config.address, "address")
-    writeValue(config.size, "size")
-    blockSize = 256
-    position=config.address
-    remaining=config.size
-    while remaining > 0:
-        if remaining < blockSize:
-            blockSize = remaining
-
-        flash_data_block=ser.readline()
-        flash_data_block=int(flash_data_block.strip())
-        expected_block= bitfile.read(blockSize)
-        if(flash_data_block!=int(expected_block)):
-            errorCounter+=1
-
-        remaining-=blockSize
-        position+=blockSize
-
-    waitForAck()
-    print(errorCounter)
 
 
 

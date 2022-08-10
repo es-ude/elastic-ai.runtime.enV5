@@ -113,19 +113,25 @@ void verifyConfigurationFlash() {
     while (configRemaining > 0) {
         if (configRemaining < BUFFER_SIZE) {
             blockSize = configRemaining;
+        }else{
+            blockSize=BUFFER_SIZE;
         }
-        readData(buffer, blockSize);
+      //  readData(buffer, blockSize);
 
-        flash_read_data(currentAddress, buffer, blockSize);
+        int num_read=flash_read_data(currentAddress, buffer, blockSize);
         currentAddress += blockSize;
         configRemaining -= blockSize;
-        for (uint32_t i=0; i<BUFFER_SIZE; i++){
-            printf("%u",buffer[i]);
+      //  if(num_read!=256){
+        //    printf("not 256 rip %u", num_read);
+       // }
+        for (uint32_t i=0; i<blockSize; i++){
+            putchar(buffer[i]);
         }
-        printf("\n");
+       // printf("\n");
 
     }
     free(buffer);
     printf("ack\n");
 
 }
+
