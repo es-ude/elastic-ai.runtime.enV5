@@ -41,8 +41,8 @@ bool MQTT_Broker_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, cha
         return true;
     }
 
-    MQTT_Broker_SetClientId(clientID);
-    MQTT_Broker_setBrokerDomain(brokerDomain);
+    setDeviceID(clientID);
+    setDomain(brokerDomain);
 
     char *command = malloc(strlen(credentials.ip) + strlen(credentials.port) + 20);
     strcpy(command, "AT+MQTTCONN=0,\"");
@@ -86,7 +86,7 @@ void MQTT_Broker_Disconnect(bool force) {
     }
 }
 
-void MQTT_Broker_setBrokerDomain(char *ID) {
+void setDomain(char *ID) {
     if (MQTT_Broker_brokerID != NULL) {
         free(MQTT_Broker_brokerID);
     }
@@ -94,7 +94,7 @@ void MQTT_Broker_setBrokerDomain(char *ID) {
     strcpy(MQTT_Broker_brokerID, ID);
 }
 
-void MQTT_Broker_SetClientId(char *clientId) {
+void setDeviceID(char *clientId) {
     if (MQTT_Broker_clientID != NULL) {
         free(MQTT_Broker_clientID);
     }
@@ -190,24 +190,44 @@ char *MQTT_Broker_concatDomainWithTopic(const char *topic) {
 void publish(Posting posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
+    posting.topic = MQTT_Broker_concatDomainAndClientWithTopic(posting.topic);
+    publishRaw(posting);
+    free(posting.topic);
+}
 
-    char *topic = MQTT_Broker_concatDomainAndClientWithTopic(posting.topic);
+void publishRemote(Posting posting) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
+        return;
+    posting.topic = MQTT_Broker_concatDomainWithTopic(posting.topic);
+    publishRemote(posting);
+    free(posting.topic);
+}
+
+void publishRaw(Posting posting) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
+        return;
+
     char *cmd1 = "AT+MQTTPUB=0,\"";
     char *cmd2 = "\",\"";
     char *cmd3 = "\",0,0"; // Quality of service 0 - 2 see MQTT documentation
-    char *command = malloc(sizeof(char) * (strlen(topic) + strlen(posting.data) + 23));
-    sprintf(command, "%s%s%s%s%s", cmd1, topic, cmd2, posting.data, cmd3);
+    char *command = malloc(sizeof(char) * (strlen(posting.topic) + strlen(posting.data) + 23));
+    sprintf(command, "%s%s%s%s%s", cmd1, posting.topic, cmd2, posting.data, cmd3);
 
     if (!ESP_SendCommand(command, "OK", 1000)) {
-        PRINT("Could not publish to topic: %s.", topic)
+        PRINT("Could not publish to topic: %s.", posting.topic)
     } else {
-        PRINT("Published to %s.", topic)
+        PRINT("Published to %s.", posting.topic)
     }
     free(command);
-    free(topic);
 }
 
 void subscribe(char *topic, Subscriber subscriber) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
+        return;
+    subscribeRaw(MQTT_Broker_concatDomainAndClientWithTopic(topic), subscriber);
+}
+
+void subscribeRemote(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
     subscribeRaw(MQTT_Broker_concatDomainWithTopic(topic), subscriber);
@@ -238,6 +258,14 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
 }
 
 void unsubscribe(char *topic, Subscriber subscriber) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
+        return;
+    char *fullTopic = MQTT_Broker_concatDomainAndClientWithTopic(topic);
+    unsubscribeRaw(fullTopic, subscriber);
+    free(fullTopic);
+}
+
+void unsubscribeRemote(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED)
         return;
     char *fullTopic = MQTT_Broker_concatDomainWithTopic(topic);
@@ -275,6 +303,10 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     }
 }
 
-char *ID() {
+char *getDomain() {
     return MQTT_Broker_brokerID;
+}
+
+char *getDeviceID() {
+    return MQTT_Broker_clientID;
 }

@@ -8,6 +8,7 @@
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
+#include "communicationEndpoint.h"
 #include "esp.h"
 #include "hardwareTestHelper.h"
 #include "protocol.h"
@@ -25,7 +26,7 @@ void _Noreturn mainTask(void) {
         connectToMQTT();
         publishData("testENv5Pub", "data");
         TaskSleep(5000);
-        MQTT_Broker_setBrokerDomain("second_device_with_longer_name");
+        setDomain("second_device_with_longer_name");
     }
 }
 

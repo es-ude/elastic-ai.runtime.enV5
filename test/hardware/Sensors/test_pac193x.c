@@ -112,11 +112,11 @@ static void getSerialNumber() {
     printf("Requesting serial number.\n");
     pac193x_errorCode errorCode = pac193x_getSensorInfo(&sensorID);
     if (errorCode == PAC193X_NO_ERROR) {
-        printf("  Expected:\n    Product ID: 0x%2X to 0x%2X; Manufacture ID: "
-               "0x%2X; Revision ID: 0x%02X\n",
+        printf("  Expected:\n    Product ID: 0x%2X to 0x%2X; Manufacture getDomain: "
+               "0x%2X; Revision getDomain: 0x%02X\n",
                0x58, 0x5B, 0x5D, 0x03);
-        printf("  Actual:\n    Product ID: 0x%2X; Manufacture ID: 0x%2X; "
-               "Revision ID: 0x%2X\n",
+        printf("  Actual:\n    Product ID: 0x%2X; Manufacture getDomain: 0x%2X; "
+               "Revision getDomain: 0x%2X\n",
                sensorID.product_id, sensorID.manufacturer_id, sensorID.revision_id);
 
         bool valid_product_id = (sensorID.product_id >= 0x58) && (sensorID.product_id <= 0x5B);
@@ -152,7 +152,7 @@ int main(void) {
         sleep_ms(500);
     }
 
-    printf("Please enter to request i (product ID), w (channel wifi), s "
+    printf("Please enter to request i (product getDomain), w (channel wifi), s "
            "(channel sensor) or b (Boot mode)\n");
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds wait */
@@ -171,7 +171,7 @@ int main(void) {
             enterBootMode();
             break;
         default:
-            printf("Please enter to request i (product ID), w (channel wifi), "
+            printf("Please enter to request i (product getDomain), w (channel wifi), "
                    "s (channel sensor) or b (Boot mode)\n");
             break;
         }
