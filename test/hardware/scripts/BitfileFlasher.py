@@ -1,7 +1,7 @@
 import serial
 import sys
 from Configuration import Configuration
-ser = serial.Serial("/dev/tty.usbmodem14101", 500000)
+ser = serial.Serial("/dev/tty.usbmodem14201", 500000)
 
 bitfile = None
 
@@ -15,7 +15,7 @@ def verifyCorrectValueReceived(value, received, name):
         sys.exit(0)
 
 def writeValue(value, name):
-    data= int(value).to_bytes( 4 ,"little", signed=False)
+    data = int(value).to_bytes( 4 ,"little", signed=False)
     ser.write(data)
 
     print(name, 'of bitfile: ')
@@ -32,49 +32,53 @@ def verifyBitfile(config):
     # skip the first bunch of data
     print('skipping', config.skip)
     bitfile.read(config.skip)
-    errorCounter=0
+    errorCounter = 0
     ser.write(b'V')
 
     waitForAck()
     writeValue(config.address, "address")
     writeValue(config.size, "size")
+
     blockSize = 256
-    numBlock=0
-    last_num_block=-1
-    position=config.address
-    remaining=config.size
+    numBlock = 0
+    last_num_block =- 1
+    position = config.address
+    remaining = config.size
+
     while remaining > 0:
         if remaining < blockSize:
             blockSize = remaining
 
-        flash_data_block=ser.read(blockSize)
+        flash_data_block = ser.read(blockSize)
        # flash_data_block=ser.readline()
        # flash_data_block = bytearray(flash_data_block.strip())
 
-        expected_block =bitfile.read(blockSize)
+        expected_block = bitfile.read(blockSize)
 
-        if numBlock < 10:
-            print(flash_data_block)
-            print(expected_block)
+        if numBlock < 2:
+            pass
+            # print(flash_data_block)
+            # print(expected_block)
+
         if len(flash_data_block) != len(expected_block):
-            print("different length of blocks block number:",numBlock,". Expected:",
-                  len(expected_block), ",On Device: ", len(flash_data_block))
-
+            print("Different length of blocks at block number {} \t Expected: {}, \t On Device {}".format(numBlock, expected_block, flash_data_block))
         else:
             for i in range(len(expected_block)):
-                r = int(expected_block[i])
-                br = int(flash_data_block[i])
-                if r!=br:
-                    errorCounter+=1
-                    if(last_num_block!=numBlock):
-                        print(numBlock)
-                    last_num_block=numBlock
+                r = expected_block[i]
+                br = flash_data_block[i]
+                if r != br:
+                    errorCounter += 1
+                    print("Expected Byte: {:x} \t Actual Byte: {:x} \t at position: {}".format(r, br, i+1))
+        #             if(last_num_block!=numBlock):
+        #                 print(numBlock)
+        #             last_num_block=numBlock
 
-        remaining-=blockSize
-        position+=blockSize
-        numBlock+=1
+        remaining -= blockSize
+        position += blockSize
+        numBlock += 1
+        print(".", end = '')
 
-    print("so many errors :", errorCounter)
+    print("Total errors: {}".format(errorCounter))
     waitForAck()
 
 
@@ -158,12 +162,12 @@ def sendData(config, bitfile):
 
 
 def waitForAck():
-    acknowledged=False
+    acknowledged = False
     while not acknowledged:
-        data= ser.readline()
-        str= data.decode("utf-8").strip()
-        if(str=="ack"):
-            acknowledged=True
+        data = ser.readline()
+        str = data.decode("utf-8").strip()
+        if(str == "ack"):
+            acknowledged = True
            # print("acked")
 
 if __name__ == '__main__':
