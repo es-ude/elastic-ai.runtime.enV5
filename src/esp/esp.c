@@ -4,6 +4,7 @@
 #include "TaskWrapper.h"
 #include "at_commands.h"
 #include "common.h"
+#include "uart_configuration.h"
 #include "uartToESP.h"
 #include <stdbool.h>
 
@@ -12,7 +13,7 @@ volatile ESP_Status_t ESP_Status = {
 
 void esp_Init(void) {
     // initialize uart interface for AT commands
-    uartToEsp_Init();
+    uartToEsp_Init(&uartToEspDevice);
 
     // check if ESP module is available
     while (!esp_CheckIsResponding()) {
@@ -49,24 +50,25 @@ void esp_SoftReset(void) {
 }
 
 bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
-    if (uartToESP_IsBusy()) {
+    if (uartToESP_isBusy()) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
         return false;
     }
 
-    uartToESP_SendCommand(cmd, expectedResponse);
+    uartToESP_sendCommand(cmd, expectedResponse);
 
     bool responseArrived = false;
 
     TaskSleep(REFRESH_RESPOND_IN_MS / 2);
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
-        responseArrived = uartToESP_ResponseArrived();
-        if (responseArrived)
+        responseArrived = uartToESP_correctResponseArrived();
+        if (responseArrived) {
             break;
+        }
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
 
-    uartToESP_FreeCommand();
+    uartToESP_freeCommandBuffer();
 
     return responseArrived;
 }

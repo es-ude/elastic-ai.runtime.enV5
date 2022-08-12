@@ -5,9 +5,9 @@
 #include "Network.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
-#include "configuration.h"
 #include "esp.h"
 #include "hardware/watchdog.h"
+#include "network_configuration.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 

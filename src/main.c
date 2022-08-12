@@ -5,8 +5,8 @@
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
-#include "configuration.h"
 #include "esp.h"
+#include "network_configuration.h"
 // external headers
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"

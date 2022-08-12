@@ -1,4 +1,5 @@
 #include "uart.h"
+#include <stddef.h>
 #include <string.h>
 
 char *uartMessage;
@@ -42,8 +43,9 @@ void uart_set_irq_enables(uart_inst_t *uart, bool rx_has_data, bool tx_needs_dat
 
 void InvokeIrqHandler() {
     interruptHandler();
-    if (!uart_is_readable(NULL))
+    if (!uart_is_readable(NULL)) {
         uartMessage++;
+    }
 }
 
 void uart_puts(uart_inst_t *uart, const char *s) {
