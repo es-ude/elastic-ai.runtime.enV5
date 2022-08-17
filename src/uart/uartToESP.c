@@ -74,7 +74,7 @@ void uartToESP_sendCommand(char *command, char *expectedResponse) {
     expectedResponseFromEsp = expectedResponse;
 
     PRINT_DEBUG("COMMAND: %s", command)
-    
+
     uart_puts((uart_inst_t *)device->uartInstance, command);
     uart_puts((uart_inst_t *)device->uartInstance, "\r\n");
 }

@@ -25,7 +25,7 @@ void _Noreturn mqttTask(void) {
 
     connectToNetwork();
     connectToMQTT();
-    
+
     subscribeForData("integTestTwin", "testSub", (Subscriber){.deliver = deliver});
 
     while (true) {

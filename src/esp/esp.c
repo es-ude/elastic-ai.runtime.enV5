@@ -4,8 +4,8 @@
 #include "TaskWrapper.h"
 #include "at_commands.h"
 #include "common.h"
-#include "uart_configuration.h"
 #include "uartToESP.h"
+#include "uart_configuration.h"
 #include <stdbool.h>
 
 volatile ESP_Status_t ESP_Status = {
