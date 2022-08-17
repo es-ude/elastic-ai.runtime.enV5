@@ -92,8 +92,10 @@ void mqtt_Disconnect(bool force) {
         }
     }
 
-    if (esp_SendCommand(AT_MQTT_DISCONNECT_FROM_BROKER, AT_MQTT_DISCONNECT_FROM_BROKER_RESPONSE,
-                        5000)) {
+    char *disconnect = malloc(AT_MQTT_DISCONNECT_FROM_BROKER_LENGTH);
+    strcpy(disconnect, AT_MQTT_DISCONNECT_FROM_BROKER);
+
+    if (esp_SendCommand(disconnect, AT_MQTT_DISCONNECT_FROM_BROKER_RESPONSE, 5000)) {
         ESP_Status.MQTTStatus = NOT_CONNECTED;
 
         free(MQTT_Broker_brokerID);
@@ -105,6 +107,8 @@ void mqtt_Disconnect(bool force) {
     } else {
         PRINT("Could not disconnect MQTT broker.")
     }
+
+    free(disconnect);
 }
 
 void mqtt_setBrokerDomain(char *ID) {
@@ -159,51 +163,39 @@ void publish(Posting posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't publish data!")
         return;
-        posting.topic = MQTT_Broker_concatDomainAndClientWithTopic(posting.topic);
-        publishRaw(posting);
-        free(posting.topic);
     }
+    posting.topic = concatDomainAndClientWithTopic(posting.topic);
+    publishRaw(posting);
+    free(posting.topic);
 }
 
 void publishRemote(Posting posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't publish data!")
         return;
     }
-    posting.topic = MQTT_Broker_concatDomainWithTopic(posting.topic);
-    publishRemote(posting);
+    posting.topic = concatDomainWithTopic(posting.topic);
+    publishRaw(posting);
     free(posting.topic);
 }
 
 void publishRaw(Posting posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't publish data!")
         return;
     }
 
-    char *cmd1 = "AT+MQTTPUB=0,\"";
-    char *cmd2 = "\",\"";
-    char *cmd3 = "\",0,0"; // Quality of service 0 - 2 see MQTT documentation
-    char *command = malloc(sizeof(char) * (strlen(posting.topic) + strlen(posting.data) + 23));
-    sprintf(command, "%s%s%s%s%s", cmd1, posting.topic, cmd2, posting.data, cmd3);
+    size_t commandLength = AT_MQTT_PUBLISH_LENGTH + strlen(posting.topic) + strlen(posting.data);
+    char *publishData = malloc(commandLength);
+    snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data);
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {
+    if (!esp_SendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
         PRINT("Could not publish to topic: %s.", posting.topic)
     } else {
         PRINT("Published to %s.", posting.topic)
     }
 
-    char *fullAddress = concatDomainAndClientWithTopic(posting.topic);
-    size_t commandLength =
-        sizeof(char) * (AT_MQTT_PUBLISH_LENGTH + strlen(fullAddress) + strlen(posting.data));
-    char *command = malloc(commandLength);
-    snprintf(command, commandLength, AT_MQTT_PUBLISH, fullAddress, posting.data);
-
-    if (!esp_SendCommand(command, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
-        PRINT("Could not publish to fullAddress: %s.", fullAddress)
-    } else {
-        PRINT("Published to %s.", fullAddress)
-    }
-
-    free(command);
+    free(publishData);
 }
 
 void subscribe(char *topic, Subscriber subscriber) {
@@ -211,23 +203,31 @@ void subscribe(char *topic, Subscriber subscriber) {
         PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
         return;
     }
-    subscribeRaw(concatDomainWithTopic(topic), subscriber);
+
+    subscribeRaw(concatDomainAndClientWithTopic(topic), subscriber);
 }
 
 void subscribeRemote(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
         return;
     }
+
     subscribeRaw(concatDomainWithTopic(topic), subscriber);
 }
 
 void subscribeRaw(char *topic, Subscriber subscriber) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
+        return;
+    }
+
     size_t commandLength = AT_MQTT_SUBSCRIBE_TOPIC_LENGTH + strlen(topic);
-    char *command = malloc(commandLength);
-    snprintf(command, commandLength, AT_MQTT_SUBSCRIBE_TOPIC, topic);
+    char *subscribeTopic = malloc(commandLength);
+    snprintf(subscribeTopic, commandLength, AT_MQTT_SUBSCRIBE_TOPIC, topic);
 
     if (MQTT_NumberOfSubscriptions != MAX_SUBSCRIBER) {
-        if (!esp_SendCommand(command, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+        if (!esp_SendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
             PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
         } else {
             MQTT_Subscriptions[MQTT_NumberOfSubscriptions] =
@@ -239,7 +239,7 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
         PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
     }
 
-    free(command);
+    free(subscribeTopic);
 }
 
 void unsubscribe(char *topic, Subscriber subscriber) {
@@ -247,6 +247,7 @@ void unsubscribe(char *topic, Subscriber subscriber) {
         PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
         return;
     }
+
     char *fullTopic = concatDomainAndClientWithTopic(topic);
     unsubscribeRaw(fullTopic, subscriber);
     free(fullTopic);
@@ -254,14 +255,21 @@ void unsubscribe(char *topic, Subscriber subscriber) {
 
 void unsubscribeRemote(char *topic, Subscriber subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
         return;
     }
+
     char *fullTopic = concatDomainWithTopic(topic);
     unsubscribeRaw(fullTopic, subscriber);
     free(fullTopic);
 }
 
 void unsubscribeRaw(char *topic, Subscriber subscriber) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
+        return;
+    }
+
     size_t commandLength = AT_MQTT_UNSUBSCRIBE_TOPIC_LENGTH + strlen(topic);
     char *command = malloc(commandLength);
     snprintf(command, commandLength, AT_MQTT_UNSUBSCRIBE_TOPIC, topic);
