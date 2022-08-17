@@ -8,6 +8,7 @@
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
+#include "communicationEndpoint.h"
 #include "esp.h"
 #include "hardwareTestHelper.h"
 #include "protocol.h"

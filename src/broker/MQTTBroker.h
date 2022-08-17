@@ -17,7 +17,7 @@ typedef struct {
  *
  * \param mqttHost contains ip and port of MQTT host
  * \param brokerDomain domain of broker, added before every message
- * \param clientID getID of this client, used to Identify to the Broker and added
+ * \param clientID getDomain of this client, used to Identify to the Broker and added
  * after the Domain in every message
  */
 void mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain, char *clientID);
