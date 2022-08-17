@@ -5,18 +5,21 @@
 #include "Network.h"
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
-#include "configuration.h"
 #include "esp.h"
 #include "hardware/watchdog.h"
+#include "network_configuration.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    TaskSleep(5000);
+    network_checkConnection();
+    TaskSleep(1000);
 }
 
 void connectToMQTT(void) {
-    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
+    mqtt_ConnectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
@@ -27,7 +30,7 @@ void initHardwareTest(void) {
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    ESP_Init();
+    esp_Init();
     CreateQueue();
     watchdog_enable(2000, 1);
 }

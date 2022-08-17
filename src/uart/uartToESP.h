@@ -1,57 +1,67 @@
-#ifndef UART_TO_ESP_H
-#define UART_TO_ESP_H
+#ifndef UART_TO_ESP_HEADER
+#define UART_TO_ESP_HEADER
 
 #include <stdbool.h>
 
 #define UART_BUFFER_SIZE 1024
 
-typedef struct uartInstance UartInstance;
+typedef struct uartInstance uartToESP_Instance;
+typedef unsigned int uint;
 
-typedef enum { UartParity_NONE, UartParity_EVEN, UartParity_ODD } UartParity;
+typedef enum { NoneParity = 0, OddParity = 1, EvenParity = 2 } uartToESP_parity;
 
 typedef struct {
     char name[15];
-    UartInstance *uartInstance;
-    unsigned int uartId;
-    unsigned int tx_pin;
-    unsigned int rx_pin;
-    unsigned int baudrate_set;
-    unsigned int baudrate_actual;
-    unsigned int data_bits;
-    unsigned int stop_bits;
-    UartParity parity;
-    char receive_buf[UART_BUFFER_SIZE];
-    unsigned int receive_count;
+    uartToESP_Instance *uartInstance;
+    uint uartId;
+    uint tx_pin;
+    uint rx_pin;
+    uint baudrate_set;
+    uint baudrate_actual;
+    uint data_bits;
+    uint stop_bits;
+    uartToESP_parity parity;
+    char receive_buffer[UART_BUFFER_SIZE];
+    uint receivedCharacter_count;
 } UARTDevice;
 
-static UARTDevice device = {
-    // Below depends on the hardware connection
-    // you should modify it according to your hardware
-    .name = "uart_to_esp32",
-    .uartId = 1,
-    .tx_pin = 4,
-    .rx_pin = 5,
+/*! \brief initialize UART to communicate with ESP
+ *
+ * @param device[UARTDevice] struct that contains the UART configuration
+ */
+void uartToEsp_Init(UARTDevice *device);
 
-    // Below depends on the firmware on the esp32 module
-    .baudrate_set = 115200,
-    .baudrate_actual = 0,
-    .data_bits = 8,
-    .stop_bits = 1,
-    .parity = UartParity_NONE,
-};
-
-void uartToEsp_Init(void);
-
-void uartToESP_SendCommand(char *, char *string);
-
-void uartToESP_Println(char *data);
-
+/*! \brief method to set function which handles UART receive interrupt
+ *
+ * @param receive function for interrupt handle
+ */
 void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
 
-bool uartToESP_IsBusy(void);
+/*! \brief send Command to ESP module via UART
+ *
+ * IMPORTANT: call `uartToESP_freeCommandBuffer(void) to unblock UART after transmission
+ *
+ * @param command[char *]          Pointer to char array which holds the ESP command to send
+ * @param expectedResponse[char *] Pointer to char array which holds the successful response
+ */
+void uartToESP_sendCommand(char *command, char *expectedResponse);
 
-bool uartToESP_ResponseArrived(void);
+/*! \brief function to check if the UART is currently used
+ *
+ * @return [bool] true=currently blocked, false=currently free
+ */
+bool uartToESP_isBusy(void);
 
-void uartToESP_FreeCommand(void);
+/*! \brief function to check if the correct response was received from the ESP module
+ *
+ * @return [bool] true=correct response, false=else
+ */
+bool uartToESP_correctResponseArrived(void);
 
-#endif // UART_TO_ESP_H
+/*! \brief free command buffer and unblock UART
+ *
+ *  IMPORTANT: Has to be called after every transaction, when finished
+ */
+void uartToESP_freeCommandBuffer(void);
+
+#endif /* UART_TO_ESP_HEADER */

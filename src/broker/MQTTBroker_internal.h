@@ -4,21 +4,22 @@
 #include "posting.h"
 #include "subscriber.h"
 
-typedef struct Subscription {
+typedef struct {
     char *topic;
     Subscriber subscriber;
 } Subscription;
 
-void MQTT_Broker_getTopic(Posting *posting, const char *start, int lengthOfTopic);
 
-int MQTT_Broker_getDataLength(char *start, const char *end);
+static char *concatDomainAndClientWithTopic(const char *topic);
 
-void MQTT_Broker_getData(Posting *posting, const char *end, int dataLength);
+static char *concatDomainWithTopic(const char *topic);
 
-bool MQTT_Broker_HandleResponse(Posting *posting, char *response);
+static void getTopic(Posting *posting, const char *startOfTopic, int lengthOfTopic);
 
-char *MQTT_Broker_concatDomainAndClientWithTopic(const char *topic);
+static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumber);
 
-char *MQTT_Broker_concatDomainWithTopic(const char *topic);
+static void getData(Posting *posting, const char *startOfData, int dataLength);
+
+static bool handleResponse(Posting *posting, char *response);
 
 #endif // ENV5_MQTTBROKER_INTERNAL_H

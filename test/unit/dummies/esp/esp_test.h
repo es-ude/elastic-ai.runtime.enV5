@@ -1,5 +1,5 @@
-#ifndef ENV5_ESP_H
-#define ENV5_ESP_H
+#ifndef ENV5_ESP_TEST_H
+#define ENV5_ESP_TEST_H
 
 #define ESP_CHIP_OK 1
 #define ESP_CHIP_NOT_OK 0
@@ -17,8 +17,8 @@ typedef struct {
 
 extern ESP_Status_t ESP_Status;
 
-void ESP_ReturnTrue(void);
+void esp_ReturnTrue(void);
 
-void ESP_ReturnFalse(void);
+void esp_ReturnFalse(void);
 
-#endif // ENV5_ESP_H
+#endif /* ENV5_ESP_TEST_H */

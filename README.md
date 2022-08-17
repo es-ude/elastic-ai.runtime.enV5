@@ -24,11 +24,11 @@ If this flag is not passed CMake will use the default build tool on your machine
 
 ## Configuration
 
-In the [configuration.h](src/configuration.h) file the Network and MQTT connection settings can be change. To stop
+In the [configuration.h](src/network_configuration.h) file the Network and MQTT connection settings can be change. To stop
 changes in these to be committed you can do:
 
 ```bash
-git update-index --assume-unchanged src/configuration.h
+git update-index --assume-unchanged src/network_configuration.h
 ```
 
 ## Target local machine

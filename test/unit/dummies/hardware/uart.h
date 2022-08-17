@@ -2,10 +2,10 @@
 #define SENSOR_BOARD_UART_H
 
 #include <stdbool.h>
-#include <string.h>
+#include <stddef.h>
 
-typedef struct uart_inst uart_inst_t;
 typedef unsigned int uint;
+typedef struct uart_inst uart_inst_t;
 typedef enum { UART_PARITY_NONE, UART_PARITY_EVEN, UART_PARITY_ODD } uart_parity_t;
 
 #define uart0 NULL

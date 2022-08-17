@@ -5,16 +5,16 @@
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
 #include "common.h"
-#include "configuration.h"
 #include "esp.h"
+#include "network_configuration.h"
 // external headers
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
 _Noreturn void mainTask(void) {
-    Network_ConnectToNetworkUntilConnected(NetworkCredentials);
-    MQTT_Broker_ConnectToBrokerUntilConnected(MQTTHost, "eip://uni-due.de/es", "enV5");
+    network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    mqtt_ConnectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
         PRINT("Hello, World!")
@@ -47,7 +47,7 @@ void init(void) {
     while ((!stdio_usb_connected()))
         ;
     // Checks connection to ESP and initializes
-    ESP_Init();
+    esp_Init();
     // Create FreeRTOS task queue
     CreateQueue();
     // enables watchdog to check for reboots
