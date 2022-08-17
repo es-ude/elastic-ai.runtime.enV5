@@ -13,6 +13,9 @@
 
 void connectToNetwork(void) {
     network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    TaskSleep(5000);
+    network_checkConnection();
+    TaskSleep(1000);
 }
 
 void connectToMQTT(void) {

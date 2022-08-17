@@ -73,6 +73,8 @@ void uartToESP_sendCommand(char *command, char *expectedResponse) {
     correctResponseReceived = false;
     expectedResponseFromEsp = expectedResponse;
 
+    PRINT_DEBUG("COMMAND: %s", command)
+    
     uart_puts((uart_inst_t *)device->uartInstance, command);
     uart_puts((uart_inst_t *)device->uartInstance, "\r\n");
 }
@@ -105,6 +107,7 @@ void handleNewLine(void) {
             correctResponseReceived = true;
         } else if (strncmp(expectedResponseFromEsp, device->receive_buffer,
                            strlen(expectedResponseFromEsp)) == 0) {
+            PRINT_DEBUG("Expected message received: %s", device->receive_buffer)
             correctResponseReceived = true;
         } else {
             PRINT_DEBUG("Received message was: %s", device->receive_buffer)

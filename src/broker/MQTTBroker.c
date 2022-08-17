@@ -56,7 +56,7 @@ bool mqtt_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clie
         PRINT("MQTT Broker already connected! Disconnect first")
         return true;
     }
-
+    
     mqtt_SetClientId(clientID);
     mqtt_setBrokerDomain(brokerDomain);
 

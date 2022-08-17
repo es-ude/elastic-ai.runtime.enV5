@@ -73,6 +73,19 @@
 #define AT_CONNECT_TO_NETWORK_LENGTH 28
 #define AT_CONNECT_TO_NETWORK_RESPONSE "WIFI CONNECTED"
 
+/* Check status of current network connection
+ *
+ * Command:
+ *   AT+CWJAP?
+ *
+ * Expected Response:
+ *   +CWJAP:SSID,BSSID,CHANNEL,RSSI,PCI_EN,RECONN_INTERVAL,LISTEN_INTERVAL,SCAN_MODE,PMF
+ *   OK
+ */
+#define AT_CHECK_CONNECTION "AT+CWJAP?"
+#define AT_CHECK_CONNECTION_LENGTH 10
+#define AT_CHECK_CONNCETION_RESPONSE "OK"
+
 /* Disconnect from network
  *
  * Command:
@@ -143,8 +156,8 @@
  * Expected Response:
  *   OK
  */
-#define AT_MQTT_USER_CONFIGURATION "AT+MQTTUSERCFG=0,1,\"%s\",,,0,0,"
-#define AT_MQTT_USER_CONFIGURATION_LENGTH 29
+#define AT_MQTT_USER_CONFIGURATION "AT+MQTTUSERCFG=0,1,\"%s\",\"\",\"\",0,0,\"\""
+#define AT_MQTT_USER_CONFIGURATION_LENGTH 35
 #define AT_MQTT_USER_CONFIGURATION_RESPONSE "OK"
 
 /* Subscribe to Topic
@@ -164,7 +177,7 @@
  *   ALREADY SUBSCRIBED
  *
  */
-#define AT_MQTT_SUBSCRIBE_TOPIC "AT+MQTTSUB=0,i\"%s\",0"
+#define AT_MQTT_SUBSCRIBE_TOPIC "AT+MQTTSUB=0,\"%s\",0"
 #define AT_MQTT_SUBSCRIBE_TOPIC_LENGTH 18
 #define AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE "OK"
 

@@ -28,4 +28,6 @@ bool network_ConnectToNetwork(NetworkCredentials_t credentials);
 
 void network_DisconnectFromNetwork(void);
 
+void network_checkConnection(void);
+
 #endif /* NETWORK_H */
