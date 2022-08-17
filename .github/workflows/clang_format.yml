@@ -17,14 +17,14 @@ jobs:
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
         with:
-          version: latest
+          version: 15
           platform: x64
 
       - name: Get files to apply Clang
         run: echo SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern) >> $GITHUB_ENV
 
       - name: Apply Clang
-        run: clang-format -style=file --fallback-style=llvm -i $SRC
+        run: clang-format --style=file --fallback-style=llvm -i $SRC
 
       - name: commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v4

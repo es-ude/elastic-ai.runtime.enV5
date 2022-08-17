@@ -9,7 +9,6 @@ typedef struct {
     Subscriber subscriber;
 } Subscription;
 
-
 static char *concatDomainAndClientWithTopic(const char *topic);
 
 static char *concatDomainWithTopic(const char *topic);
