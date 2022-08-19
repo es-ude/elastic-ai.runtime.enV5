@@ -1,5 +1,5 @@
-#ifndef SENSOR_BOARD_ESP_H
-#define SENSOR_BOARD_ESP_H
+#ifndef ENV5_ESP_HEADER
+#define ENV5_ESP_HEADER
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -53,4 +53,4 @@ esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
  */
 void esp_SetMQTTReceiverFunction(void (*receive)(char *));
 
-#endif // SENSOR_BOARD_ESP_H
+#endif // ENV5_ESP_HEADER

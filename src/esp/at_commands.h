@@ -1,5 +1,5 @@
-#ifndef SENSORBOARD_ESP_AT_COMMANDS
-#define SENSORBOARD_ESP_AT_COMMANDS
+#ifndef ENV5_AT_COMMANDS
+#define ENV5_AT_COMMANDS
 
 #include <stddef.h>
 
@@ -219,4 +219,4 @@
 
 /* endregion */
 
-#endif /* SENSORBOARD_ESP_AT_COMMANDS */
+#endif /* ENV5_AT_COMMANDS */

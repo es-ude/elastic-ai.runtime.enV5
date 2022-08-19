@@ -1,5 +1,5 @@
-#ifndef UART_TO_ESP_HEADER
-#define UART_TO_ESP_HEADER
+#ifndef ENV5_UART_TO_ESP_HEADER
+#define ENV5_UART_TO_ESP_HEADER
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -66,4 +66,4 @@ bool uartToESP_correctResponseArrived(void);
  */
 void uartToESP_freeCommandBuffer(void);
 
-#endif /* UART_TO_ESP_HEADER */
+#endif /* ENV5_UART_TO_ESP_HEADER */
