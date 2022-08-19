@@ -20,9 +20,9 @@ bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return commandSucceed;
 }
 
-void esp_SoftReset(void) {}
+void softReset(void) {}
 
-bool esp_CheckIsResponding(void) {
+bool checkIsResponding(void) {
     return commandSucceed;
 }
 

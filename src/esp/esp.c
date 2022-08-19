@@ -4,35 +4,43 @@
 #include "TaskWrapper.h"
 #include "at_commands.h"
 #include "common.h"
+#include "esp_internal.h"
 #include "uartToESP.h"
 #include "uart_configuration.h"
 #include <stdbool.h>
 
+/* region VARIABLES */
+
 volatile ESP_Status_t ESP_Status = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
+
+/* endregion */
+
+/* region HEADER FUNCTION IMPLEMENTATIONS */
 
 void esp_Init(void) {
     // initialize uart interface for AT commands
     uartToEsp_Init(&uartToEspDevice);
 
     // check if ESP module is available
-    while (!esp_CheckIsResponding()) {
-        PRINT("ESP Check failed, trying again...")
+    while (!checkIsResponding()) {
+        PRINT("ESP NOT responding. Trying again ...")
         TaskSleep(1000);
     }
-    PRINT_DEBUG("ESP is responding")
+    PRINT_DEBUG("ESP responding.")
 
     // reset ESP configuration
-    esp_SoftReset();
+    softReset();
 
     // configure ESP
     while (!esp_SendCommand(AT_DISABLE_ECHO, AT_DISABLE_ECHO_RESPONSE, 100)) {
-        PRINT("Could not disable ESP echoing commands!")
-    };
-    while (!esp_SendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
-        PRINT("Could not set ESP to single connection mode!")
+        PRINT("Could not disable ESP echoing commands! Trying again ...")
     }
-    PRINT_DEBUG("ESP configured successful")
+    PRINT_DEBUG("Disabled ESP echoing commands successful.")
+    while (!esp_SendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
+        PRINT("Could not set ESP to single connection mode! Trying again ...")
+    }
+    PRINT_DEBUG("Set ESP to single connection mode successful.")
 
     // set ESP status
     ESP_Status.ChipStatus = ESP_CHIP_OK;
@@ -40,25 +48,16 @@ void esp_Init(void) {
     ESP_Status.MQTTStatus = NOT_CONNECTED;
 }
 
-bool esp_CheckIsResponding(void) {
-    return esp_SendCommand("AT", "OK", 100);
-}
+esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
+    uartToEsp_errorCode uartToEspErrorCode = uartToESP_sendCommand(cmd, expectedResponse);
 
-void esp_SoftReset(void) {
-    esp_SendCommand(AT_RESTART, AT_RESTART_RESPONSE, 1000);
-    TaskSleep(2000); // wait until the esp is ready
-}
-
-bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
-    if (uartToESP_isBusy()) {
+    if (uartToEspErrorCode == UART_IS_BUSY) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
-        return false;
+        return ESP_UART_IS_BUSY;
     }
 
-    uartToESP_sendCommand(cmd, expectedResponse);
-
+    // check for response
     bool responseArrived = false;
-
     TaskSleep(REFRESH_RESPOND_IN_MS / 2);
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
         responseArrived = uartToESP_correctResponseArrived();
@@ -67,12 +66,36 @@ bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
         }
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
+    PRINT_DEBUG("Correct response received!")
 
+    // free command buffer of UART
     uartToESP_freeCommandBuffer();
 
-    return responseArrived;
+    return responseArrived ? ESP_NO_ERROR : ESP_WRONG_ANSWER_RECEIVED;
 }
 
 void esp_SetMQTTReceiverFunction(void (*receive)(char *)) {
     uartToESP_SetMQTTReceiverFunction(receive);
 }
+
+/* endregion */
+
+/* region STATIC FUNCTION IMPLEMENTATIONS */
+
+bool checkIsResponding(void) {
+    return esp_SendCommand("AT", "OK", 100);
+}
+
+bool softReset(void) {
+    bool response = esp_SendCommand(AT_RESTART, AT_RESTART_RESPONSE, 1000);
+    if (response) {
+        PRINT_DEBUG("ESP reset successful. Sleeping for 2 seconds.")
+        TaskSleep(2000); // wait until the esp is ready
+    } else {
+        PRINT("ESP reset failed!")
+    }
+
+    return response;
+}
+
+/* endregion */
