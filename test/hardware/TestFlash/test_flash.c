@@ -57,28 +57,59 @@ void writeSPI (){
     for (uint16_t i = 0; i < page_length; i++) {
         data[i] = i;
     }
-    int wrote_page = flash_write_page(REG_DEVID, data, page_length);
-    printf("%u", wrote_page);
+    for(uint32_t i=0; i<2000; i++) {
+         flash_write_page(REG_DEVID + i * 256, data, page_length);
+    }
     printf(" bytes written\n");
 
 }
 
 
 void eraseSPISector(){
-    int erased_sector= flash_erase_data( 0);
-    if(erased_sector==0){
-        printf("erased sector\n");
+    for(uint32_t i=0; i<9;i++) {
+        printf("round %u\n", i);
+        int erased_sector = flash_erase_data(65536*i);
+        if (erased_sector == 0) {
+            printf("erased sector == 0\n");
+        }else{
+            printf("erased sector != 0\n");
+        }
+
+//        flash_read_data( 65536*i, data_read, 256);
+//        for(uint32_t j=0; j<256; j++) {
+//            if (data_read[i*65536+j] != 255) {
+////                printf("error, is: %u", data_read[i*65536+j]);
+//            }
+//        }
+        uint8_t data_read[256];
+        for (uint32_t k=0; k<256; k=k+4){
+            data_read[k]=0xD;
+            data_read[k+1]=0xE;
+            data_read[k+2]=0xA;
+            data_read[k+3]=0xD;
+        }
+        flash_read_data( 65535*i, data_read, 256);
+        for(uint32_t j=0; j<256; j++) {
+            printf("%u", data_read[j]);
+        }
+
     }
+
 }
 void readSPI(){
     uint16_t page_length = 256;
-    uint8_t data_read[page_length];
-    int page_read = flash_read_data( REG_DEVID, data_read, page_length);
-    printf("%u", page_read);
-    printf(" bytes read \n");
-    for (uint16_t i = 0; i < page_length; i++) {
-        printf("%u", data_read[i]);
+    uint8_t data_read[(page_length)];
+    uint8_t data_read2[page_length];
+    for(uint32_t i=0; i<2000; i++) {
+        int page_read = flash_read_data( i*page_length, data_read, (page_length));
+        printf("%u", page_read);
+        for (uint16_t j = 0; j < page_length; j++) {
+            if(data_read[j]!=j) {
+                printf("error, should be : %u, is: %u", j, data_read[j]);
+            }
+        }
     }
+    printf(" bytes read \n");
     printf("\n");
 }
 void spiTask(){

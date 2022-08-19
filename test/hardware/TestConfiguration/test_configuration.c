@@ -29,13 +29,14 @@ void initHardwareTest(void) {
     while ((!stdio_usb_connected())) {}
     CreateQueue();
     watchdog_enable(2000, 1);
+
 }
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            reset_usb_boot(0, 0);
-        }
+       // if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
+        //    reset_usb_boot(0, 0);
+       // }
         watchdog_update();
         TaskSleep(1000);
     }
@@ -48,7 +49,7 @@ void init_helper(spi_inst_t *spi, uint32_t baudrate){
 
 void configTask(){
     spi_inst_t *spi = spi0;
-    init_helper(spi, 1000 * 1000);
+    init_helper(spi, 5000 * 1000);
 
     while(1){
         char input= getchar_timeout_us(10000);

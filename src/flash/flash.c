@@ -14,8 +14,10 @@ void init_flash(uint8_t chip_select, spi_inst_t *spiInst){
     cs_pin=chip_select;
     spi=spiInst;
 }
+#include <stdio.h>
 
 void flash_write_enable() {
+   // printf("flash_write_enable()\n");
     uint8_t cmd = 0x06;
     SPI_enable(cs_pin);
     SPI_write_blocking(spi, &cmd, 1);
@@ -73,18 +75,24 @@ void flash_wait_for_done() {
 }
 
 uint8_t flash_erase_data(uint32_t address) {
+ //   printf("flash_erase_data()\n");
     uint8_t cmd[4] = {
             0xD8,
             address >> 16,
             address >> 8,
             address
     };
+
+ //   printf("cmd 0x%02X,0x%02X,0x%02X,0x%02X\n", cmd[0],cmd[1],cmd[2],cmd[3]);
     flash_write_enable();
     SPI_enable(cs_pin);
     SPI_write_blocking(spi, cmd, 4);
     SPI_disable(cs_pin);
+//    printf("flash & spi cmds done\n");
     flash_wait_for_done();
+ //   printf("flash_wait_for_done() finished\n");
     uint8_t status = erase_error_occured();
+ //   printf("erase error status code: %u\n", status);
     return status;
 
 }

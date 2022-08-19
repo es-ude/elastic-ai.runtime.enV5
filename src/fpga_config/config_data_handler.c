@@ -8,12 +8,11 @@
 
 uint16_t readData(uint8_t *block, uint16_t buffer_length) {
     uint16_t buffer_index = 0;
-    while (true) {
-        int c = getchar_timeout_us(15000);
-        if (c != PICO_ERROR_TIMEOUT && buffer_index < buffer_length) {
+    while (buffer_index<buffer_length) {
+
+        int c = getchar_timeout_us(0);
+        if (c != PICO_ERROR_TIMEOUT) {
             block[buffer_index++] = (c);
-        } else {
-            break;
         }
     }
     return buffer_index;
