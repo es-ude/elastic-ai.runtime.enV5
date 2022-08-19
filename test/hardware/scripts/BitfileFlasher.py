@@ -1,7 +1,9 @@
 import serial
 import sys
 from Configuration import Configuration
+
 ser = serial.Serial("/dev/tty.usbmodem14101", 5000000)
+
 
 bitfile = None
 
@@ -23,8 +25,9 @@ def verifyCorrectValueReceived(value, received, name):
         sys.exit(0)
 
 def writeValue(value, name):
-    data= int(value).to_bytes( 4 ,"little", signed=False)
-    print(data)
+
+    data = int(value).to_bytes( 4 ,"little", signed=False)
+
     ser.write(data)
 
 
@@ -90,20 +93,23 @@ def verifyBitfile(config):
     # skip the first bunch of data
     print('skipping', config.skip)
     bitfile.read(config.skip)
-    errorCounter=0
+    errorCounter = 0
     ser.write(b'V')
 
     waitForAck()
     writeValue(config.address, "address")
     writeValue(config.size, "size")
+
     blockSize = 256
-    numBlock=0
-    last_num_block=-1
-    position=config.address
-    remaining=config.size
+    numBlock = 0
+    last_num_block =- 1
+    position = config.address
+    remaining = config.size
+
     while remaining > 0:
         if remaining < blockSize:
             blockSize = remaining
+
         print(ser.readline())
         flash_data_block=ser.readline().strip().split(bytearray("###", 'utf-8'))
         flash_data_block.pop()
@@ -126,10 +132,9 @@ def verifyBitfile(config):
                 length_expected=length_expected+1
             print()
             print("length of flash: ", length_flash, " length expected: ", length_expected)
-        if len(flash_data_block) != len(expected_block):
-            print("different length of blocks block number:",numBlock,". Expected:",
-                  len(expected_block), ",On Device: ", len(flash_data_block))
 
+        if len(flash_data_block) != len(expected_block):
+            print("Different length of blocks at block number {} \t Expected: {}, \t On Device {}".format(numBlock, expected_block, flash_data_block))
         else:
             for i in range(blockSize):
 
@@ -144,7 +149,9 @@ def verifyBitfile(config):
         numBlock+=1
         waitForAck()
 
-    print("so many errors :", errorCounter)
+
+    print("Total errors: {}".format(errorCounter))
+
     waitForAck()
 
 
