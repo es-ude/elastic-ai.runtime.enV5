@@ -1,22 +1,19 @@
+#include "esp.h"
 #include "esp_test.h"
 #include <stdbool.h>
 
-bool commandSucceed = true;
+esp_errorCode commandSucceed = ESP_NO_ERROR;
 
-ESP_Status_t ESP_Status = {
+volatile ESP_Status_t ESP_Status = {
     .ChipStatus = ESP_CHIP_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-void esp_ReturnTrue(void) {
-    commandSucceed = true;
-}
-
-void esp_ReturnFalse(void) {
-    commandSucceed = false;
+void esp_setErrorCode(esp_errorCode espErrorCode) {
+    commandSucceed = espErrorCode;
 }
 
 void esp_Init(void) {}
 
-bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
+esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     return commandSucceed;
 }
 

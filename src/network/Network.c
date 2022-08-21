@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-netowork_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials) {
+network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials) {
     while (ESP_Status.WIFIStatus == NOT_CONNECTED) {
-        netowork_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+        network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
         if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
             PRINT("ESP not reachable. Abort try to connect!")
             return NETWORK_ESP_CHIP_FAILED;
@@ -18,7 +18,7 @@ netowork_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentia
     return NETWORK_NO_ERROR;
 }
 
-netowork_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials) {
+network_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT_DEBUG("Chip not working! Can't connect to network.")
         return NETWORK_ESP_CHIP_FAILED;

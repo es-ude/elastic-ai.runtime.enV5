@@ -15,7 +15,7 @@ enum {
     NETWORK_ESP_CHIP_FAILED = 0x03,
     NETWORK_WIFI_ALREADY_CONNECTED = 0x04
 };
-typedef uint8_t netowork_errorCode;
+typedef uint8_t network_errorCode;
 
 /*! \brief tries to connect to network until successful
  *
@@ -23,7 +23,7 @@ typedef uint8_t netowork_errorCode;
  *
  * \param credentials network credentials (SSID, password)
  */
-netowork_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials);
+network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials);
 
 /*! \brief tries to connect to network
  *
@@ -32,7 +32,7 @@ netowork_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentia
  * \param credentials network credentials (SSID, password)
  * \return true if connection successful or already connected, otherwise false
  */
-netowork_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials);
+network_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials);
 
 void network_DisconnectFromNetwork(void);
 
