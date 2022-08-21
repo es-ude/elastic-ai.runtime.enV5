@@ -12,7 +12,7 @@
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    while (network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials) != NETWORK_NO_ERROR) {}
     TaskSleep(5000);
     network_checkConnection();
     TaskSleep(1000);

@@ -13,7 +13,7 @@
 #include "pico/stdlib.h"
 
 _Noreturn void mainTask(void) {
-    network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
     mqtt_ConnectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
