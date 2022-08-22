@@ -8,13 +8,20 @@
 #include <string.h>
 
 network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials) {
+    if (ESP_Status.WIFIStatus == CONNECTED) {
+        PRINT_DEBUG("Already connected to Network! Disconnect first.")
+        return NETWORK_WIFI_ALREADY_CONNECTED;
+    }
+
     while (ESP_Status.WIFIStatus == NOT_CONNECTED) {
         network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
         if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
             PRINT("ESP not reachable. Abort try to connect!")
             return NETWORK_ESP_CHIP_FAILED;
         }
+        PRINT_DEBUG("Connection failed. Trying again now!")
     }
+
     return NETWORK_NO_ERROR;
 }
 
