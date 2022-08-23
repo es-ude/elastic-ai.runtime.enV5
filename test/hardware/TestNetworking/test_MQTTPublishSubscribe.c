@@ -39,8 +39,6 @@ _Noreturn void mqttTask(void) {
 
     uint64_t i = 0;
     while (true) {
-        connectToNetwork();
-        connectToMQTT();
         publishTestData(i);
         i++;
         TaskSleep(1000);

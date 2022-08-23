@@ -33,13 +33,11 @@ _Noreturn void mqttTask(void) {
     PRINT("=== STARTING TEST ===")
 
     connectToNetwork();
-    connectToMQTT();
 
     Subscriber sub = (Subscriber){.deliver = deliver};
 
     uint64_t i = 0;
     while (true) {
-        connectToNetwork();
         connectToMQTT();
         subscribeForData("enV5", "testPubSub", sub);
         PRINT("Should receive data with id: %llu", i)

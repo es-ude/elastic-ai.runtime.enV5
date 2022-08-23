@@ -9,6 +9,10 @@ typedef struct {
     Subscriber subscriber;
 } Subscription;
 
+static void setBrokerDomain(char *ID);
+
+static mqtt_errorCode setUserConfiguration(char *clientId, char *userId, char *password);
+
 static char *concatDomainAndClientWithTopic(const char *topic);
 
 static char *concatDomainWithTopic(const char *topic);

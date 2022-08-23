@@ -60,8 +60,4 @@ void mqtt_Disconnect(bool force);
  */
 void mqtt_Receive(char *response);
 
-void mqtt_setBrokerDomain(char *ID);
-
-void mqtt_setUserConfiguration(char *clientId, char *userId, char *password);
-
 #endif /* ENV5_MQTT_BROKER_HEADER */

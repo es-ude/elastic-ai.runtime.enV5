@@ -65,8 +65,12 @@ mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, 
     }
 
     // store mqtt client/domain
-    mqtt_setUserConfiguration(clientID, credentials.userID, credentials.password);
-    mqtt_setBrokerDomain(brokerDomain);
+    mqtt_errorCode userConfigError =
+        setUserConfiguration(clientID, credentials.userID, credentials.password);
+    if (userConfigError != MQTT_NO_ERROR) {
+        return userConfigError;
+    }
+    setBrokerDomain(brokerDomain);
 
     // generate connect command with ip and port
     size_t commandLength =
@@ -126,37 +130,6 @@ void mqtt_Disconnect(bool force) {
     } else {
         PRINT("Could not disconnect MQTT broker.")
     }
-}
-
-void mqtt_setBrokerDomain(char *ID) {
-    if (MQTT_Broker_brokerID != NULL) {
-        free(MQTT_Broker_brokerID);
-    }
-    size_t brokerIdLength = strlen(ID);
-    MQTT_Broker_brokerID = malloc(brokerIdLength);
-    memset(MQTT_Broker_brokerID, '\0', brokerIdLength);
-    strcpy(MQTT_Broker_brokerID, ID);
-}
-
-void mqtt_setUserConfiguration(char *clientId, char *userId, char *password) {
-    if (MQTT_Broker_clientID != NULL) {
-        free(MQTT_Broker_clientID);
-    }
-    size_t clientIdLength = strlen(clientId);
-    MQTT_Broker_clientID = malloc(clientIdLength);
-    memset(MQTT_Broker_clientID, '\0', clientIdLength);
-    strcpy(MQTT_Broker_clientID, clientId);
-
-    size_t commandLength =
-        AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId) + strlen(userId) + strlen(password);
-    char *setClientID = malloc(commandLength);
-    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId, userId, password);
-
-    if (!esp_SendCommand(setClientID, AT_MQTT_USER_CONFIGURATION_RESPONSE, 1000)) {
-        PRINT("Could not set client id to %s, aborting...", clientId)
-    }
-
-    free(setClientID);
 }
 
 void mqtt_Receive(char *response) {
@@ -327,6 +300,54 @@ char *getDeviceID() {
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
+
+void setBrokerDomain(char *ID) {
+    // delete previous domain if needed
+    if (MQTT_Broker_brokerID != NULL) {
+        free(MQTT_Broker_brokerID);
+    }
+
+    // store new broker domain
+    size_t brokerIdLength = strlen(ID);
+    MQTT_Broker_brokerID = malloc(brokerIdLength);
+    memset(MQTT_Broker_brokerID, '\0', brokerIdLength);
+    strcpy(MQTT_Broker_brokerID, ID);
+}
+
+mqtt_errorCode setUserConfiguration(char *clientId, char *userId, char *password) {
+    // delete previous ID if needed
+    if (MQTT_Broker_clientID != NULL) {
+        free(MQTT_Broker_clientID);
+        MQTT_Broker_clientID = NULL;
+    }
+
+    // store new client id
+    size_t clientIdLength = strlen(clientId);
+    MQTT_Broker_clientID = malloc(clientIdLength);
+    strcpy(MQTT_Broker_clientID, clientId);
+
+    // generate command to send user configuration to esp module
+    size_t commandLength =
+        AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId) + strlen(userId) + strlen(password);
+    char *setClientID = malloc(commandLength);
+    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId, userId, password);
+
+    // send user configuration to esp module
+    esp_errorCode espErrorCode =
+        esp_SendCommand(setClientID, AT_MQTT_USER_CONFIGURATION_RESPONSE, 1000);
+    free(setClientID);
+
+    if (espErrorCode == ESP_NO_ERROR) {
+        PRINT("Set client id to %s", clientId)
+        return MQTT_NO_ERROR;
+    } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not set client id to %s, aborting...", clientId)
+        return MQTT_ESP_WRONG_ANSWER;
+    } else {
+        PRINT("Could not set client id to %s, aborting...", clientId)
+        return MQTT_ESP_CHIP_FAILED;
+    }
+}
 
 static char *concatDomainAndClientWithTopic(const char *topic) {
     size_t lengthOfResult =
