@@ -14,7 +14,7 @@
 
 _Noreturn void mainTask(void) {
     network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
-    mqtt_ConnectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
+    mqtt_connectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
         PRINT("Hello, World!")

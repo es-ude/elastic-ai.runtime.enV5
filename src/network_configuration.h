@@ -1,5 +1,5 @@
-#ifndef ENV5_NETWORK_CONFIGURATION_H
-#define ENV5_NETWORK_CONFIGURATION_H
+#ifndef ENV5_NETWORK_CONFIGURATION
+#define ENV5_NETWORK_CONFIGURATION
 
 #include "MQTTBroker.h"
 #include "Network.h"
@@ -8,8 +8,8 @@
  * Be aware that special characters ned
  *
  */
-NetworkCredentials_t NetworkCredentials = {.ssid = "ES-Stud", .password = "curjeq343j"};
+NetworkCredentials_t NetworkCredentials = {.ssid = "NetworkSSID", .password = "NetworkPassword"};
 
-MQTTHost_t MQTTHost = {.ip = "192.168.203.99", .port = "1883"};
+MQTTHost_t MQTTHost = {.ip = "127.0.0.1", .port = "1883", .userID = "", .password = ""};
 
-#endif // ENV5_NETWORK_CONFIGURATION_H
+#endif /* ENV5_NETWORK_CONFIGURATION */

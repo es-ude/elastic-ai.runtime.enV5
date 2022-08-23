@@ -27,7 +27,7 @@ bool MQTT_BROKER_ReceiverFunctionSet = false;
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-mqtt_errorCode mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
+mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
                                                    char *clientID) {
     if (ESP_Status.MQTTStatus == CONNECTED) {
         PRINT("MQTT Broker already connected! Disconnect first")
@@ -35,7 +35,7 @@ mqtt_errorCode mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
     }
 
     while (ESP_Status.MQTTStatus == NOT_CONNECTED) {
-        mqtt_errorCode mqttErrorCode = mqtt_ConnectToBroker(mqttHost, brokerDomain, clientID);
+        mqtt_errorCode mqttErrorCode = mqtt_connectToBroker(mqttHost, brokerDomain, clientID);
         if (mqttErrorCode == MQTT_WIFI_FAILED) {
             PRINT("Could not connect to MQTT broker! No Wifi connection.")
             return MQTT_WIFI_FAILED;
@@ -50,7 +50,7 @@ mqtt_errorCode mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
     return MQTT_NO_ERROR;
 }
 
-mqtt_errorCode mqtt_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
+mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker! Chip problem.")
         return MQTT_ESP_CHIP_FAILED;
@@ -65,7 +65,7 @@ mqtt_errorCode mqtt_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, 
     }
 
     // store mqtt client/domain
-    mqtt_SetClientId(clientID);
+    mqtt_setUserConfiguration(clientID, credentials.userID, credentials.password);
     mqtt_setBrokerDomain(brokerDomain);
 
     // generate connect command with ip and port
@@ -138,7 +138,7 @@ void mqtt_setBrokerDomain(char *ID) {
     strcpy(MQTT_Broker_brokerID, ID);
 }
 
-void mqtt_SetClientId(char *clientId) {
+void mqtt_setUserConfiguration(char *clientId, char *userId, char *password) {
     if (MQTT_Broker_clientID != NULL) {
         free(MQTT_Broker_clientID);
     }
@@ -147,9 +147,10 @@ void mqtt_SetClientId(char *clientId) {
     memset(MQTT_Broker_clientID, '\0', clientIdLength);
     strcpy(MQTT_Broker_clientID, clientId);
 
-    size_t commandLength = AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId);
+    size_t commandLength =
+        AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId) + strlen(userId) + strlen(password);
     char *setClientID = malloc(commandLength);
-    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId);
+    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId, userId, password);
 
     if (!esp_SendCommand(setClientID, AT_MQTT_USER_CONFIGURATION_RESPONSE, 1000)) {
         PRINT("Could not set client id to %s, aborting...", clientId)

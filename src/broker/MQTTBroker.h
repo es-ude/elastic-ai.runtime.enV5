@@ -1,5 +1,5 @@
-#ifndef SENSOR_BOARD_MQTT_BROKER_H
-#define SENSOR_BOARD_MQTT_BROKER_H
+#ifndef ENV5_MQTT_BROKER_HEADER
+#define ENV5_MQTT_BROKER_HEADER
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -9,6 +9,8 @@
 typedef struct {
     char *ip;
     char *port;
+    char *userID;
+    char *password;
 } MQTTHost_t;
 
 enum {
@@ -31,7 +33,7 @@ typedef uint8_t mqtt_errorCode;
  * \param clientID getDomain of this client, used to Identify to the Broker and added
  * after the Domain in every message
  */
-mqtt_errorCode mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
+mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
                                                    char *clientID);
 
 /*! \brief tries to connect to Broker
@@ -44,7 +46,7 @@ mqtt_errorCode mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
  * \param clientID getID of this client, used to Identify to the Broker and added after the Domain
  * in every message \return true if connection successful or already connected, otherwise false
  */
-mqtt_errorCode mqtt_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID);
+mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID);
 
 /*! \brief disconnect from MQTT broker
  *
@@ -60,6 +62,6 @@ void mqtt_Receive(char *response);
 
 void mqtt_setBrokerDomain(char *ID);
 
-void mqtt_SetClientId(char *clientId);
+void mqtt_setUserConfiguration(char *clientId, char *userId, char *password);
 
-#endif // SENSOR_BOARD_MQTT_BROKER_H
+#endif /* ENV5_MQTT_BROKER_HEADER */
