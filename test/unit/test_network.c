@@ -40,7 +40,7 @@ void TEST_CONNECT_TO_NETWORK_ESP_CHIP_FAILED(void) {
 }
 void TEST_CONNECT_TO_NETWORK_SEND_FAILED(void) {
     esp_setErrorCode(ESP_WRONG_ANSWER_RECEIVED);
-    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
     network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
     TEST_ASSERT_EQUAL(NETWORK_ESTABLISH_CONNECTION_FAILED, networkErrorCode);
     TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
