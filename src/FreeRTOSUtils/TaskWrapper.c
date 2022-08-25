@@ -18,7 +18,7 @@ static void InvokeTaskCode(void *p_taskCode) {
 
 void RegisterTask(TaskCodeFunc p_taskCode, const char *const p_taskName) {
     TaskHandle_t handle;
-    if (xTaskCreate(InvokeTaskCode, p_taskName, 500, (void *)p_taskCode, 1, &handle) ==
+    if (xTaskCreate(InvokeTaskCode, p_taskName, 10000, (void *)p_taskCode, 1, &handle) ==
         errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
         PRINT("%s: !RegisterTask fail!: Not enough Memory available", p_taskName)
     } else {
