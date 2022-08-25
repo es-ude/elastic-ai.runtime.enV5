@@ -70,7 +70,7 @@ void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
 
 uartToEsp_errorCode uartToESP_sendCommand(char *command, char *expectedResponse) {
     // check if UART is currently occupied
-    if (strcmp(commandToSend, "\0") == 0) {
+    if (strcmp(commandToSend, "\0") != 0) {
         PRINT("UART is busy. Can't send command %s.", command)
         return UART_IS_BUSY;
     }
@@ -106,9 +106,9 @@ void handleNewLine(void) {
             uartToESP_MQTT_Broker_Receive != NULL) {
             // handle Received MQTT message -> pass to correct subscriber
             uartToESP_MQTT_Broker_Receive(device->receive_buffer);
-            correctResponseReceived = true;
-        } else if (strncmp(expectedResponseFromEsp, device->receive_buffer,
-                           strlen(expectedResponseFromEsp)) == 0) {
+        }
+        if (strncmp(expectedResponseFromEsp, device->receive_buffer,
+                    strlen(expectedResponseFromEsp)) == 0) {
             PRINT_DEBUG("Expected message received: %s", device->receive_buffer)
             correctResponseReceived = true;
         } else {

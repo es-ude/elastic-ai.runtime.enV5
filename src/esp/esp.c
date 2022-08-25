@@ -33,11 +33,12 @@ void esp_Init(void) {
     softReset();
 
     // configure ESP
-    while (!esp_SendCommand(AT_DISABLE_ECHO, AT_DISABLE_ECHO_RESPONSE, 100)) {
+    while (ESP_NO_ERROR != esp_SendCommand(AT_DISABLE_ECHO, AT_DISABLE_ECHO_RESPONSE, 100)) {
         PRINT("Could not disable ESP echoing commands! Trying again ...")
     }
     PRINT_DEBUG("Disabled ESP echoing commands successful.")
-    while (!esp_SendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
+    while (ESP_NO_ERROR !=
+           esp_SendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
         PRINT("Could not set ESP to single connection mode! Trying again ...")
     }
     PRINT_DEBUG("Set ESP to single connection mode successful.")
@@ -62,11 +63,11 @@ esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
         responseArrived = uartToESP_correctResponseArrived();
         if (responseArrived) {
+            PRINT_DEBUG("Correct response received!")
             break;
         }
         TaskSleep(REFRESH_RESPOND_IN_MS);
     }
-    PRINT_DEBUG("Correct response received!")
 
     // free command buffer of UART
     uartToESP_freeCommandBuffer();
@@ -83,19 +84,20 @@ void esp_SetMQTTReceiverFunction(void (*receive)(char *)) {
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
 bool checkIsResponding(void) {
-    return esp_SendCommand("AT", "OK", 100);
+    esp_errorCode espErrorCode = esp_SendCommand("AT", "OK", 100);
+    return espErrorCode == ESP_NO_ERROR ? true : false;
 }
 
 bool softReset(void) {
-    bool response = esp_SendCommand(AT_RESTART, AT_RESTART_RESPONSE, 1000);
-    if (response) {
+    esp_errorCode espErrorCode = esp_SendCommand(AT_RESTART, AT_RESTART_RESPONSE, 1000);
+    if (espErrorCode == ESP_NO_ERROR) {
         PRINT_DEBUG("ESP reset successful. Sleeping for 2 seconds.")
         TaskSleep(2000); // wait until the esp is ready
     } else {
         PRINT("ESP reset failed!")
     }
 
-    return response;
+    return espErrorCode;
 }
 
 /* endregion */

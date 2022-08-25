@@ -81,7 +81,7 @@ mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, 
 
     // send connect to broker command
     esp_errorCode espErrorCode =
-        esp_SendCommand(connectToBroker, AT_MQTT_CONNECT_TO_BROKER_RESPONSE, 5000);
+        esp_SendCommand(connectToBroker, AT_MQTT_CONNECT_TO_BROKER_RESPONSE, 60000);
     free(connectToBroker);
 
     if (espErrorCode == ESP_NO_ERROR) {
@@ -92,6 +92,12 @@ mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, 
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
         return MQTT_NO_ERROR;
+    } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
+        return MQTT_ESP_WRONG_ANSWER;
+    } else if (espErrorCode == ESP_UART_IS_BUSY) {
+        PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port)
+        return MQTT_ESP_CHIP_FAILED;
     } else {
         PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
         return MQTT_CONNECTION_FAILED;
@@ -180,7 +186,7 @@ void publishRaw(Posting posting) {
     char *publishData = malloc(commandLength);
     snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data);
 
-    if (!esp_SendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
+    if (ESP_NO_ERROR != esp_SendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
         PRINT("Could not publish to topic: %s.", posting.topic)
     } else {
         PRINT("Published to %s.", posting.topic)
@@ -218,7 +224,8 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     snprintf(subscribeTopic, commandLength, AT_MQTT_SUBSCRIBE_TOPIC, topic);
 
     if (MQTT_NumberOfSubscriptions != MAX_SUBSCRIBER) {
-        if (!esp_SendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+        if (ESP_NO_ERROR !=
+            esp_SendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
             PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
         } else {
             MQTT_Subscriptions[MQTT_NumberOfSubscriptions] =
@@ -265,7 +272,7 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     char *command = malloc(commandLength);
     snprintf(command, commandLength, AT_MQTT_UNSUBSCRIBE_TOPIC, topic);
 
-    if (!esp_SendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+    if (ESP_NO_ERROR != esp_SendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
         PRINT("Could not unsubscribe from topic %s. Have you subscribed beforehand?", topic)
     } else {
         for (int i = 0; i < MQTT_NumberOfSubscriptions; ++i) {
@@ -384,7 +391,7 @@ static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumb
 static void getData(Posting *posting, const char *startOfData, int dataLength) {
     char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
     memset(dataBuffer, '\0', dataLength + 1);
-    strncpy(dataBuffer, startOfData + 1, dataLength);
+    strncpy(dataBuffer, startOfData, dataLength);
     posting->data = dataBuffer;
 }
 
@@ -397,14 +404,14 @@ static bool handleResponse(Posting *posting, char *response) {
     char *startOfTopic = strstr(response, ",\"") + 2;
     char *endOfTopic = strstr(startOfTopic, "\",");
     getTopic(posting, startOfTopic, endOfTopic - startOfTopic);
-    PRINT_DEBUG("Got topic %s from response", posting->topic)
+    PRINT_DEBUG("Got topic: %s", posting->topic)
 
-    char *startOfData = endOfTopic + 2;
-    char *endOfData = strstr(startOfData, ",");
-    int dataLength = getNumberOfDataBytes(startOfData, endOfData);
+    char *startOfDataLength = endOfTopic + 2;
+    char *endOfDataLength = strstr(startOfDataLength, ",");
+    int dataLength = getNumberOfDataBytes(startOfDataLength, endOfDataLength);
     PRINT_DEBUG("Got length of Data: %i", dataLength)
 
-    getData(posting, endOfTopic, dataLength);
+    getData(posting, endOfDataLength + 1, dataLength);
     PRINT_DEBUG("Got data: %s", posting->data)
 
     return true;

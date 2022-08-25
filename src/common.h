@@ -14,7 +14,7 @@
         printf("\n");                                                                              \
     }
 
-#ifdef DEBUG
+#ifdef DEBUG_MODE
 #define PRINT_DEBUG(str, ...)                                                                      \
     {                                                                                              \
         printf("\033[0;33m[%s: %s] ", SOURCE_FILE, __FUNCTION__);                                  \

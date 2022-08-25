@@ -12,10 +12,8 @@
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    while (network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials) != NETWORK_NO_ERROR) {}
+    network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
     TaskSleep(5000);
-    network_checkConnection();
-    TaskSleep(1000);
 }
 
 void connectToMQTT(void) {

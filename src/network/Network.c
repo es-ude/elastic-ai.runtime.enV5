@@ -1,6 +1,7 @@
 #define SOURCE_FILE "NETWORK"
 
 #include "Network.h"
+#include "TaskWrapper.h"
 #include "at_commands.h"
 #include "common.h"
 #include "esp.h"
@@ -15,11 +16,15 @@ network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredential
 
     while (ESP_Status.WIFIStatus == NOT_CONNECTED) {
         network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
-        if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
+        if (networkErrorCode == NETWORK_NO_ERROR) {
+            break;
+        } else if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
             PRINT("ESP not reachable. Abort try to connect!")
             return NETWORK_ESP_CHIP_FAILED;
+        } else {
+            TaskSleep(1000);
+            PRINT_DEBUG("Connection failed. Trying again now!")
         }
-        PRINT_DEBUG("Connection failed. Trying again now!")
     }
 
     return NETWORK_NO_ERROR;
