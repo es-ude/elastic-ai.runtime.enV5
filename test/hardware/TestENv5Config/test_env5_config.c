@@ -1,5 +1,5 @@
 //
-// Created by Natalie Maman on 08.06.22.
+// Created by Natalie Maman on 26.08.22.
 //
 
 #include <stdio.h>
@@ -13,6 +13,7 @@
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
 #include "fpga_config/configuration.h"
+#include "env5_hw.h"
 
 
 static const uint8_t sck_pin=2;
@@ -34,9 +35,9 @@ void initHardwareTest(void) {
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
-       // if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
+        // if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
         //    reset_usb_boot(0, 0);
-       // }
+        // }
         watchdog_update();
         TaskSleep(1000);
     }
@@ -48,10 +49,17 @@ void init_helper(spi_inst_t *spi, uint32_t baudrate){
 }
 
 void configTask(){
+    fpga_flash_spi_deinit();
+    fpga_reset_init();
+    leds_init();
+    fpga_powers_init();
+    fpga_reset(0);
+
     spi_inst_t *spi = spi0;
     init_helper(spi, 5000 * 1000);
 
     while(1){
+
         char input= getchar_timeout_us(10000);
 
         switch (input) {
@@ -63,12 +71,58 @@ void configTask(){
                 printf("ack\n");
                 verifyConfigurationFlash();
                 break;
+            case 'L':
+                leds_all_on();
+                break;
+            case 'l':
+                leds_all_off();
+                break;
+            case 'P':
+                fpga_powers_on();
+                break;
+            case 'f':
+                fpga_powers_off();
+                break;
+            case 'r':
+                fpga_reset(1);
+                sleep_ms(10);
+                fpga_reset(0);
+                break;
             default:
                 break;
         }
     }
 
 
+}
+
+while (1)
+{
+char c = getchar_timeout_us(10000);
+if (c == 'L')
+{
+
+}
+else if (c == 'l')
+{
+leds_all_off();
+}
+else if (c == 'F')
+{
+fpga_powers_on();
+}
+else if (c == 'f')
+{
+fpga_powers_off();
+}
+else if (c=='r')
+{
+fpga_reset(1);
+sleep_ms(10);
+fpga_reset(0);
+
+}
+}
 }
 int main() {
     initHardwareTest();
