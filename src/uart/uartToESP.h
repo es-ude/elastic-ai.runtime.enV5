@@ -1,7 +1,8 @@
-#ifndef UART_TO_ESP_HEADER
-#define UART_TO_ESP_HEADER
+#ifndef ENV5_UART_TO_ESP_HEADER
+#define ENV5_UART_TO_ESP_HEADER
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define UART_BUFFER_SIZE 1024
 
@@ -25,13 +26,19 @@ typedef struct {
     uint receivedCharacter_count;
 } UARTDevice;
 
+enum {
+    UART_NO_ERROR = 0x00,
+    UART_IS_BUSY = 0x01,
+};
+typedef uint8_t uartToEsp_errorCode;
+
 /*! \brief initialize UART to communicate with ESP
  *
  * @param device[UARTDevice] struct that contains the UART configuration
  */
 void uartToEsp_Init(UARTDevice *device);
 
-/*! \brief method to set function which handles UART receive interrupt
+/*! \brief method to set function which handles UART receive interrupt for MQTT
  *
  * @param receive function for interrupt handle
  */
@@ -43,14 +50,9 @@ void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
  *
  * @param command[char *]          Pointer to char array which holds the ESP command to send
  * @param expectedResponse[char *] Pointer to char array which holds the successful response
+ * @return                         0x00 if no error
  */
-void uartToESP_sendCommand(char *command, char *expectedResponse);
-
-/*! \brief function to check if the UART is currently used
- *
- * @return [bool] true=currently blocked, false=currently free
- */
-bool uartToESP_isBusy(void);
+uartToEsp_errorCode uartToESP_sendCommand(char *command, char *expectedResponse);
 
 /*! \brief function to check if the correct response was received from the ESP module
  *
@@ -64,4 +66,4 @@ bool uartToESP_correctResponseArrived(void);
  */
 void uartToESP_freeCommandBuffer(void);
 
-#endif /* UART_TO_ESP_HEADER */
+#endif /* ENV5_UART_TO_ESP_HEADER */

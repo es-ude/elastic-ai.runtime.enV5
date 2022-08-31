@@ -1,5 +1,5 @@
-#ifndef ENV5_MQTTBROKER_INTERNAL_H
-#define ENV5_MQTTBROKER_INTERNAL_H
+#ifndef ENV5_MQTTBROKER_INTERNAL_HEADER
+#define ENV5_MQTTBROKER_INTERNAL_HEADER
 
 #include "posting.h"
 #include "subscriber.h"
@@ -8,6 +8,10 @@ typedef struct {
     char *topic;
     Subscriber subscriber;
 } Subscription;
+
+static void setBrokerDomain(char *ID);
+
+static mqtt_errorCode setUserConfiguration(char *clientId, char *userId, char *password);
 
 static char *concatDomainAndClientWithTopic(const char *topic);
 
@@ -21,4 +25,4 @@ static void getData(Posting *posting, const char *startOfData, int dataLength);
 
 static bool handleResponse(Posting *posting, char *response);
 
-#endif // ENV5_MQTTBROKER_INTERNAL_H
+#endif /* ENV5_MQTTBROKER_INTERNAL_HEADER */

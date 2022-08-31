@@ -69,3 +69,28 @@ target_include_directories(unit-test_network PUBLIC
 target_link_libraries(unit-test_network unity)
 add_test(unit-test_network unit-test_network)
 ## endregion
+##############################################
+## region UNIT-TEST: unit-test_mqtt
+add_executable(unit-test_mqtt
+        ${CMAKE_CURRENT_LIST_DIR}/test_mqtt.c
+        ${CMAKE_SOURCE_DIR}/src/broker/MQTTBroker.c
+        ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/protocol.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/topicMatcher.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/gpio/gpio.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c)
+target_include_directories(unit-test_mqtt PUBLIC
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
+        ${CMAKE_SOURCE_DIR}/src/gpio
+        ${CMAKE_SOURCE_DIR}/src/at_commands
+        ${CMAKE_SOURCE_DIR}/src/esp
+        ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
+        ${CMAKE_SOURCE_DIR}/src/broker
+        ${CMAKE_SOURCE_DIR}/src/uart
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src
+        ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(unit-test_mqtt unity)
+add_test(unit-test_mqtt unit-test_mqtt)
+## endregion

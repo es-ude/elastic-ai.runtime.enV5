@@ -39,8 +39,6 @@ _Noreturn void mqttTask(void) {
 
     uint64_t i = 0;
     while (true) {
-        connectToNetwork();
-        connectToMQTT();
         subscribeForData("enV5", "testPubSub", sub);
         PRINT("Should receive data with id: %llu", i)
         publishTestData(i);

@@ -1,7 +1,8 @@
-#ifndef SENSOR_BOARD_ESP_H
-#define SENSOR_BOARD_ESP_H
+#ifndef ENV5_ESP_HEADER
+#define ENV5_ESP_HEADER
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define REFRESH_RESPOND_IN_MS 250 /*!< Speed at which the uart response buffer is checked in MS */
 
@@ -18,6 +19,13 @@ typedef struct {
 
 extern volatile ESP_Status_t ESP_Status;
 
+enum {
+    ESP_NO_ERROR = 0x00,
+    ESP_WRONG_ANSWER_RECEIVED = 0x01,
+    ESP_UART_IS_BUSY = 0x02,
+};
+typedef uint8_t esp_errorCode;
+
 /*! \brief initializes the ESP connection
  *
  * Initializes UART connection, resets the ESP and checks if the connections is
@@ -25,12 +33,6 @@ extern volatile ESP_Status_t ESP_Status;
  * ESP is set to single connection mode. The ChipStatus is set to ESP_CHIP_OK.
  */
 void esp_Init(void);
-
-/*! \brief check if ESP responds to commands */
-bool esp_CheckIsResponding(void);
-
-/*! \brief sends reset command to ESP */
-void esp_SoftReset(void);
 
 /*! \brief send a command to the ESP
  *
@@ -40,9 +42,9 @@ void esp_SoftReset(void);
  * \param cmd command to be send
  * \param expectedResponse response that is expected to arrive if the command succeeded
  * \param timeoutMs number of milliseconds to wait for the expected response
- * \return true if the expected response arrived in time
+ * \return errorCode, 0 if no error occurred
  */
-bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
+esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
 /*! \brief only for the MQTT broker library
  *
@@ -51,4 +53,4 @@ bool esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
  */
 void esp_SetMQTTReceiverFunction(void (*receive)(char *));
 
-#endif // SENSOR_BOARD_ESP_H
+#endif // ENV5_ESP_HEADER

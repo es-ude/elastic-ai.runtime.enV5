@@ -12,14 +12,12 @@
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    network_ConnectToNetworkUntilConnected(NetworkCredentials);
+    network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
     TaskSleep(5000);
-    network_checkConnection();
-    TaskSleep(1000);
 }
 
 void connectToMQTT(void) {
-    mqtt_ConnectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
+    mqtt_connectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {

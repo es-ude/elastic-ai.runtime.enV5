@@ -1,5 +1,5 @@
-#ifndef SENSORBOARD_ESP_AT_COMMANDS
-#define SENSORBOARD_ESP_AT_COMMANDS
+#ifndef ENV5_AT_COMMANDS
+#define ENV5_AT_COMMANDS
 
 #include <stddef.h>
 
@@ -156,7 +156,7 @@
  * Expected Response:
  *   OK
  */
-#define AT_MQTT_USER_CONFIGURATION "AT+MQTTUSERCFG=0,1,\"%s\",\"\",\"\",0,0,\"\""
+#define AT_MQTT_USER_CONFIGURATION "AT+MQTTUSERCFG=0,1,\"%s\",\"%s\",\"%s\",0,0,\"\""
 #define AT_MQTT_USER_CONFIGURATION_LENGTH 35
 #define AT_MQTT_USER_CONFIGURATION_RESPONSE "OK"
 
@@ -219,4 +219,4 @@
 
 /* endregion */
 
-#endif /* SENSORBOARD_ESP_AT_COMMANDS */
+#endif /* ENV5_AT_COMMANDS */

@@ -5,7 +5,6 @@
 
 #include "MQTTBroker.h"
 #include "MQTTBroker_internal.h"
-#include "Network.h"
 #include "at_commands.h"
 #include "common.h"
 #include "esp.h"
@@ -28,61 +27,85 @@ bool MQTT_BROKER_ReceiverFunctionSet = false;
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void mqtt_ConnectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain, char *clientID) {
-    if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT("Could not connect to MQTT broker! Chip problem.")
-        return;
-    }
-    if (ESP_Status.WIFIStatus == NOT_CONNECTED) {
-        PRINT("Could not connect to MQTT broker! No Wifi connection.")
-        return;
+mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
+                                                   char *clientID) {
+    if (ESP_Status.MQTTStatus == CONNECTED) {
+        PRINT("MQTT Broker already connected! Disconnect first")
+        return MQTT_ALREADY_CONNECTED;
     }
 
-    while (!mqtt_ConnectToBroker(mqttHost, brokerDomain, clientID)) {
-        PRINT_DEBUG("Connection failed. Trying again now!")
+    while (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        mqtt_errorCode mqttErrorCode = mqtt_connectToBroker(mqttHost, brokerDomain, clientID);
+        if (mqttErrorCode == MQTT_WIFI_FAILED) {
+            PRINT("Could not connect to MQTT broker! No Wifi connection.")
+            return MQTT_WIFI_FAILED;
+        } else if (mqttErrorCode == MQTT_ESP_CHIP_FAILED) {
+            PRINT("Could not connect to MQTT broker! Chip problem.")
+            return MQTT_ESP_CHIP_FAILED;
+        } else if (mqttErrorCode != MQTT_NO_ERROR) {
+            PRINT_DEBUG("Connection failed. Trying again now!")
+        }
     }
+
+    return MQTT_NO_ERROR;
 }
 
-bool mqtt_ConnectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
+mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID) {
     if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker! Chip problem.")
-        return false;
+        return MQTT_ESP_CHIP_FAILED;
     }
     if (ESP_Status.WIFIStatus == NOT_CONNECTED) {
         PRINT("Could not connect to MQTT broker! No Wifi connection.")
-        return false;
+        return MQTT_WIFI_FAILED;
     }
     if (ESP_Status.MQTTStatus == CONNECTED) {
         PRINT("MQTT Broker already connected! Disconnect first")
-        return true;
+        return MQTT_ALREADY_CONNECTED;
     }
 
-    mqtt_SetClientId(clientID);
-    mqtt_setBrokerDomain(brokerDomain);
+    // store mqtt client/domain
+    mqtt_errorCode userConfigError =
+        setUserConfiguration(clientID, credentials.userID, credentials.password);
+    if (userConfigError != MQTT_NO_ERROR) {
+        return userConfigError;
+    }
+    setBrokerDomain(brokerDomain);
 
+    // generate connect command with ip and port
     size_t commandLength =
         AT_MQTT_CONNECT_TO_BROKER_LENGTH + strlen(credentials.ip) + strlen(credentials.port);
     char *connectToBroker = malloc(commandLength);
     snprintf(connectToBroker, commandLength, AT_MQTT_CONNECT_TO_BROKER, credentials.ip,
              credentials.port);
 
-    if (esp_SendCommand(connectToBroker, AT_MQTT_CONNECT_TO_BROKER_RESPONSE, 5000)) {
+    // send connect to broker command
+    esp_errorCode espErrorCode =
+        esp_SendCommand(connectToBroker, AT_MQTT_CONNECT_TO_BROKER_RESPONSE, 60000);
+    free(connectToBroker);
+
+    if (espErrorCode == ESP_NO_ERROR) {
+        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
         ESP_Status.MQTTStatus = CONNECTED;
         if (!MQTT_BROKER_ReceiverFunctionSet) {
             esp_SetMQTTReceiverFunction(mqtt_Receive);
             MQTT_BROKER_ReceiverFunctionSet = true;
         }
-        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
-        free(connectToBroker);
-        return true;
+        return MQTT_NO_ERROR;
+    } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
+        return MQTT_ESP_WRONG_ANSWER;
+    } else if (espErrorCode == ESP_UART_IS_BUSY) {
+        PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port)
+        return MQTT_ESP_CHIP_FAILED;
     } else {
         PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
-        free(connectToBroker);
-        return false;
+        return MQTT_CONNECTION_FAILED;
     }
 }
 
 void mqtt_Disconnect(bool force) {
+    // check if force disconnect is requested!
     if (!force) {
         if (ESP_Status.ChipStatus == CONNECTED && ESP_Status.WIFIStatus == CONNECTED) {
             if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
@@ -92,10 +115,16 @@ void mqtt_Disconnect(bool force) {
         }
     }
 
+    // generate disconnect string
     char *disconnect = malloc(AT_MQTT_DISCONNECT_FROM_BROKER_LENGTH);
     strcpy(disconnect, AT_MQTT_DISCONNECT_FROM_BROKER);
 
-    if (esp_SendCommand(disconnect, AT_MQTT_DISCONNECT_FROM_BROKER_RESPONSE, 5000)) {
+    // send disconnect command
+    esp_errorCode espErrorCode =
+        esp_SendCommand(disconnect, AT_MQTT_DISCONNECT_FROM_BROKER_RESPONSE, 5000);
+    free(disconnect);
+
+    if (espErrorCode == ESP_NO_ERROR) {
         ESP_Status.MQTTStatus = NOT_CONNECTED;
 
         free(MQTT_Broker_brokerID);
@@ -107,38 +136,6 @@ void mqtt_Disconnect(bool force) {
     } else {
         PRINT("Could not disconnect MQTT broker.")
     }
-
-    free(disconnect);
-}
-
-void mqtt_setBrokerDomain(char *ID) {
-    if (MQTT_Broker_brokerID != NULL) {
-        free(MQTT_Broker_brokerID);
-    }
-    size_t brokerIdLength = strlen(ID);
-    MQTT_Broker_brokerID = malloc(brokerIdLength);
-    memset(MQTT_Broker_brokerID, '\0', brokerIdLength);
-    strcpy(MQTT_Broker_brokerID, ID);
-}
-
-void mqtt_SetClientId(char *clientId) {
-    if (MQTT_Broker_clientID != NULL) {
-        free(MQTT_Broker_clientID);
-    }
-    size_t clientIdLength = strlen(clientId);
-    MQTT_Broker_clientID = malloc(clientIdLength);
-    memset(MQTT_Broker_clientID, '\0', clientIdLength);
-    strcpy(MQTT_Broker_clientID, clientId);
-
-    size_t commandLength = AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId);
-    char *setClientID = malloc(commandLength);
-    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId);
-
-    if (!esp_SendCommand(setClientID, AT_MQTT_USER_CONFIGURATION_RESPONSE, 1000)) {
-        PRINT("Could not set client id to %s, aborting...", clientId)
-    }
-
-    free(setClientID);
 }
 
 void mqtt_Receive(char *response) {
@@ -189,7 +186,7 @@ void publishRaw(Posting posting) {
     char *publishData = malloc(commandLength);
     snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data);
 
-    if (!esp_SendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
+    if (ESP_NO_ERROR != esp_SendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
         PRINT("Could not publish to topic: %s.", posting.topic)
     } else {
         PRINT("Published to %s.", posting.topic)
@@ -227,7 +224,8 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     snprintf(subscribeTopic, commandLength, AT_MQTT_SUBSCRIBE_TOPIC, topic);
 
     if (MQTT_NumberOfSubscriptions != MAX_SUBSCRIBER) {
-        if (!esp_SendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+        if (ESP_NO_ERROR !=
+            esp_SendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
             PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
         } else {
             MQTT_Subscriptions[MQTT_NumberOfSubscriptions] =
@@ -274,7 +272,7 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     char *command = malloc(commandLength);
     snprintf(command, commandLength, AT_MQTT_UNSUBSCRIBE_TOPIC, topic);
 
-    if (!esp_SendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+    if (ESP_NO_ERROR != esp_SendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
         PRINT("Could not unsubscribe from topic %s. Have you subscribed beforehand?", topic)
     } else {
         for (int i = 0; i < MQTT_NumberOfSubscriptions; ++i) {
@@ -309,6 +307,54 @@ char *getDeviceID() {
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
+
+void setBrokerDomain(char *ID) {
+    // delete previous domain if needed
+    if (MQTT_Broker_brokerID != NULL) {
+        free(MQTT_Broker_brokerID);
+    }
+
+    // store new broker domain
+    size_t brokerIdLength = strlen(ID);
+    MQTT_Broker_brokerID = malloc(brokerIdLength);
+    memset(MQTT_Broker_brokerID, '\0', brokerIdLength);
+    strcpy(MQTT_Broker_brokerID, ID);
+}
+
+mqtt_errorCode setUserConfiguration(char *clientId, char *userId, char *password) {
+    // delete previous ID if needed
+    if (MQTT_Broker_clientID != NULL) {
+        free(MQTT_Broker_clientID);
+        MQTT_Broker_clientID = NULL;
+    }
+
+    // store new client id
+    size_t clientIdLength = strlen(clientId);
+    MQTT_Broker_clientID = malloc(clientIdLength);
+    strcpy(MQTT_Broker_clientID, clientId);
+
+    // generate command to send user configuration to esp module
+    size_t commandLength =
+        AT_MQTT_USER_CONFIGURATION_LENGTH + strlen(clientId) + strlen(userId) + strlen(password);
+    char *setClientID = malloc(commandLength);
+    snprintf(setClientID, commandLength, AT_MQTT_USER_CONFIGURATION, clientId, userId, password);
+
+    // send user configuration to esp module
+    esp_errorCode espErrorCode =
+        esp_SendCommand(setClientID, AT_MQTT_USER_CONFIGURATION_RESPONSE, 1000);
+    free(setClientID);
+
+    if (espErrorCode == ESP_NO_ERROR) {
+        PRINT("Set client id to %s", clientId)
+        return MQTT_NO_ERROR;
+    } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not set client id to %s, aborting...", clientId)
+        return MQTT_ESP_WRONG_ANSWER;
+    } else {
+        PRINT("Could not set client id to %s, aborting...", clientId)
+        return MQTT_ESP_CHIP_FAILED;
+    }
+}
 
 static char *concatDomainAndClientWithTopic(const char *topic) {
     size_t lengthOfResult =
@@ -345,7 +391,7 @@ static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumb
 static void getData(Posting *posting, const char *startOfData, int dataLength) {
     char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
     memset(dataBuffer, '\0', dataLength + 1);
-    strncpy(dataBuffer, startOfData + 1, dataLength);
+    strncpy(dataBuffer, startOfData, dataLength);
     posting->data = dataBuffer;
 }
 
@@ -358,14 +404,14 @@ static bool handleResponse(Posting *posting, char *response) {
     char *startOfTopic = strstr(response, ",\"") + 2;
     char *endOfTopic = strstr(startOfTopic, "\",");
     getTopic(posting, startOfTopic, endOfTopic - startOfTopic);
-    PRINT_DEBUG("Got topic %s from response", posting->topic)
+    PRINT_DEBUG("Got topic: %s", posting->topic)
 
-    char *startOfData = endOfTopic + 2;
-    char *endOfData = strstr(startOfData, ",");
-    int dataLength = getNumberOfDataBytes(startOfData, endOfData);
+    char *startOfDataLength = endOfTopic + 2;
+    char *endOfDataLength = strstr(startOfDataLength, ",");
+    int dataLength = getNumberOfDataBytes(startOfDataLength, endOfDataLength);
     PRINT_DEBUG("Got length of Data: %i", dataLength)
 
-    getData(posting, endOfTopic, dataLength);
+    getData(posting, endOfDataLength + 1, dataLength);
     PRINT_DEBUG("Got data: %s", posting->data)
 
     return true;

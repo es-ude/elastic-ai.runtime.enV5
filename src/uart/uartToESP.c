@@ -33,8 +33,7 @@ void uartToEsp_Init(UARTDevice *uartDevice) {
         device->uartInstance = (uartToESP_Instance *)uart1;
     }
 
-    // Set the TX and RX pins by using the function select on the GPIO
-    // Set datasheet for more information on function select
+    // Set the TX and RX pins to UART by using the function select on the GPIO
     GPIO_setPinFunction(device->tx_pin, GPIO_FUNCTION_UART);
     GPIO_setPinFunction(device->rx_pin, GPIO_FUNCTION_UART);
 
@@ -60,6 +59,7 @@ void uartToEsp_Init(UARTDevice *uartDevice) {
     // Now enable the UART to send interrupts - RX only
     uart_set_irq_enables((uart_inst_t *)device->uartInstance, true, false);
 
+    // Clear internal buffer space
     device->receivedCharacter_count = 0;
     device->receive_buffer[0] = '\0';
 }
@@ -68,22 +68,24 @@ void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
     uartToESP_MQTT_Broker_Receive = receive;
 }
 
-void uartToESP_sendCommand(char *command, char *expectedResponse) {
+uartToEsp_errorCode uartToESP_sendCommand(char *command, char *expectedResponse) {
+    // check if UART is currently occupied
+    if (strcmp(commandToSend, "\0") != 0) {
+        PRINT("UART is busy. Can't send command %s.", command)
+        return UART_IS_BUSY;
+    }
+
+    // reset internal buffer
     commandToSend = command;
     correctResponseReceived = false;
     expectedResponseFromEsp = expectedResponse;
 
+    // send command over uart
     PRINT_DEBUG("COMMAND: %s", command)
-
     uart_puts((uart_inst_t *)device->uartInstance, command);
     uart_puts((uart_inst_t *)device->uartInstance, "\r\n");
-}
 
-bool uartToESP_isBusy(void) {
-    if (strcmp(commandToSend, "\0") == 0) {
-        return false;
-    }
-    return true;
+    return UART_NO_ERROR;
 }
 
 bool uartToESP_correctResponseArrived(void) {
@@ -104,9 +106,9 @@ void handleNewLine(void) {
             uartToESP_MQTT_Broker_Receive != NULL) {
             // handle Received MQTT message -> pass to correct subscriber
             uartToESP_MQTT_Broker_Receive(device->receive_buffer);
-            correctResponseReceived = true;
-        } else if (strncmp(expectedResponseFromEsp, device->receive_buffer,
-                           strlen(expectedResponseFromEsp)) == 0) {
+        }
+        if (strncmp(expectedResponseFromEsp, device->receive_buffer,
+                    strlen(expectedResponseFromEsp)) == 0) {
             PRINT_DEBUG("Expected message received: %s", device->receive_buffer)
             correctResponseReceived = true;
         } else {

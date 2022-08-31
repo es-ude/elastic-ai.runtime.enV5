@@ -29,11 +29,11 @@ void publishTestData(uint16_t i) {
 void _Noreturn mqttTask(void) {
     PRINT("=== STARTING TEST ===")
 
+    connectToNetwork();
+    connectToMQTT();
+
     uint64_t i = 0;
     while (true) {
-        connectToNetwork();
-        connectToMQTT();
-
         publishTestData(i);
         i++;
         TaskSleep(1000);
