@@ -2,7 +2,9 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Local" ENABLED="true" GENERATION_DIR="cmake-build-debug/unit_test" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-GNinja -DUNIT_TEST:BOOL=ON -DDEBUG_OUTPUT:BOOL=ON" BUILD_OPTIONS="-j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="cmake-build-debug" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -D DEBUG_OUTPUT:BOOL=ON" BUILD_OPTIONS="-j 4" />
+      <configuration PROFILE_NAME="UnitTests" ENABLED="true" GENERATION_DIR="cmake-build-test" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja -D UNIT_TEST:BOOL=ON -D DEBUG_OUTPUT:BOOL=ON" BUILD_OPTIONS="-j4" />
+      <configuration PROFILE_NAME="Release" ENABLED="true" GENERATION_DIR="cmake-build-release" CONFIG_NAME="Release" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G Ninja" BUILD_OPTIONS="-j 4" />
     </configurations>
   </component>
 </project>
