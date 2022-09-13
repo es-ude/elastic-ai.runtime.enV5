@@ -1,13 +1,14 @@
 
 add_executable(hardware-test_fpga_config test_env5_config.c)
+add_library(env5 env5_hw.c)
 target_link_libraries(hardware-test_fpga_config
         pico_stdlib
         FreeRTOSUtils
         hardware_spi
         spi_lib
         flash_lib
-        fpga_config_lib)
-add_library(env5 env5_hw.c)
+        fpga_config_lib
+        env5)
 target_link_libraries(env5
         pico_stdlib)
 # enable usb output, disable uart output

@@ -104,16 +104,21 @@ void leds_all_off()
 }
 
 
-int main() {
+int fpga_init() {
 
-    fpga_flash_spi_deinit();
-    fpga_reset_init();
-    leds_init();
-    fpga_powers_init();
-    fpga_reset(0);
+fpga_flash_spi_deinit();
 
-    // Enable UART so we can print status output
-    stdio_init_all();
+fpga_reset_init();
+
+leds_init();
+
+fpga_powers_init();
+
+fpga_reset(0);
+
+// Enable UART so we can print status output
+//  stdio_init_all();
+}
 
 
 

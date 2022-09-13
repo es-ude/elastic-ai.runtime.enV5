@@ -25,5 +25,9 @@ void fpga_reset(unsigned int reset_en);
 void fpga_reset_init();
 void fpga_powers_off();
 void fpga_powers_on();
+void fpga_flash_spi_deinit();
+void fpga_reset_init();
+void leds_init();
+void fpga_powers_init();
 
 #endif //ENV5_ENV5_HW_H

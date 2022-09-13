@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 include(helpers.cmake)
 
-OPTION(DEVELOP "For best use developing with an IDE" OFF)
+#OPTION(DEVELOP "For best use developing with an IDE" OFF)
+OPTION(DEVELOP "For best use developing with an IDE" ON)
 OPTION(UNIT_TEST "Builds Unit tests" OFF)
 OPTION(HARDWARE_TEST "Builds hardware tests" OFF)
 

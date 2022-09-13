@@ -24,7 +24,6 @@ void printBuffer(uint8_t* buffer, uint16_t length){
 }
 void debugPrintFlashAfterErase(uint8_t eraseStatus, uint16_t blockCounter, uint32_t blockAddress){
     uint8_t *eraseTest= (uint8_t *) malloc(BUFFER_SIZE);
-
     printf("error occured: %u , block: %u , address: %x\n",eraseStatus, blockCounter, blockAddress);
     flash_read_data(blockAddress, eraseTest, BUFFER_SIZE);
     printBuffer(eraseTest, BUFFER_SIZE);

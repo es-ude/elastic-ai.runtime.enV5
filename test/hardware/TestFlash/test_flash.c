@@ -9,13 +9,88 @@
 #include "QueueWrapper.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
+#define LED0_PIN 22
+#define LED1_PIN 24
+#define LED2_PIN 25
+
+#define FPGA_VOL_REGULATOR_EN_PIN 23 // 1 -> on, 0 -> off
+#define FPGA_MOS_EN_PIN 21 // 1 -> off, 0 -> on
+#define FPGA_RESET_CTRL_PIN 12
+
+
+// release them when you configure the FPGA
+// what configure means? configure means FPGA wants to
+// read the bit file from flash.
+#define SPI_FPGA_FLASH_CS 1
+#define SPI_FPGA_FLASH_MISO 0
+#define SPI_FPGA_FLASH_MOSI 3
+#define SPI_FPGA_FLASH_SCK 2
 
 static const uint8_t REG_DEVID = 0x00;
 static const uint8_t sck_pin=2;
 static const uint8_t  miso_pin=0;
 static const uint8_t  mosi_pin=3;
  static const uint8_t cs_pin=1;
+void fpga_powers_init()
+{
+    // voltage regulator off
+    gpio_init(FPGA_VOL_REGULATOR_EN_PIN);
+    gpio_set_dir(FPGA_VOL_REGULATOR_EN_PIN, GPIO_OUT);
+    gpio_put(FPGA_VOL_REGULATOR_EN_PIN, 0);
 
+    // MOS FETS off
+    gpio_init(FPGA_MOS_EN_PIN);
+    gpio_set_dir(FPGA_MOS_EN_PIN, GPIO_OUT);
+    gpio_put(FPGA_MOS_EN_PIN, 1);
+}
+void fpga_reset_init(void)
+{
+    gpio_init(FPGA_RESET_CTRL_PIN);
+    gpio_set_dir(FPGA_RESET_CTRL_PIN, GPIO_OUT);
+    gpio_put(FPGA_RESET_CTRL_PIN, 1);
+}
+void fpga_powers_on()
+{
+    // voltage regulator on
+    gpio_put(FPGA_VOL_REGULATOR_EN_PIN, 1);
+
+    sleep_ms(10);
+
+    // MOS FETS on
+    gpio_put(FPGA_MOS_EN_PIN, 0);
+}
+
+void fpga_reset(unsigned int reset_en)
+{
+    if(reset_en)
+    {
+        gpio_put(FPGA_RESET_CTRL_PIN, 0);
+    }
+    else
+    {
+        gpio_put(FPGA_RESET_CTRL_PIN, 1);
+    }
+
+}
+void fpga_powers_off()
+{
+    // voltage regulator on
+    gpio_put(FPGA_VOL_REGULATOR_EN_PIN, 0);
+
+    // MOS FETS on
+    gpio_put(FPGA_MOS_EN_PIN, 1);
+}
+void fpga_flash_spi_deinit()
+{
+    gpio_init(SPI_FPGA_FLASH_CS);
+    gpio_set_dir(SPI_FPGA_FLASH_CS, GPIO_IN);
+    gpio_init(SPI_FPGA_FLASH_MISO);
+    gpio_set_dir(SPI_FPGA_FLASH_MISO, GPIO_IN);
+    gpio_init(SPI_FPGA_FLASH_MOSI);
+    gpio_set_dir(SPI_FPGA_FLASH_MOSI, GPIO_IN);
+    gpio_init(SPI_FPGA_FLASH_SCK);
+    gpio_set_dir(SPI_FPGA_FLASH_SCK, GPIO_IN);
+}
 void initHardwareTest(void) {
     // Did we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
@@ -38,8 +113,9 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
 }
 
 void init_helper(spi_inst_t *spi, uint32_t baudrate){
-    SPI_init(spi, baudrate,cs_pin, sck_pin, mosi_pin, miso_pin);
-    init_flash(cs_pin, spi);
+
+    SPI_init(spi, baudrate,SPI_FPGA_FLASH_CS, SPI_FPGA_FLASH_SCK, SPI_FPGA_FLASH_MOSI, SPI_FPGA_FLASH_MISO);
+    init_flash(SPI_FPGA_FLASH_CS, spi);
 }
 
 //256Mb flash, 4kb + 64 kb sector
@@ -114,13 +190,22 @@ void readSPI(){
 }
 void spiTask(){
     spi_inst_t *spi = spi0;
+
+    //fpga_flash_spi_deinit();
+    fpga_powers_init();
+    fpga_reset_init();
+    fpga_reset(0);
+    fpga_powers_on();
     init_helper(spi, 1000 * 1000);
+
+
 
     while(1){
         char input= getchar_timeout_us(10000);
 
         switch (input) {
             case 'i':
+
                 readDeviceID();
                 break;
             case 'e':
