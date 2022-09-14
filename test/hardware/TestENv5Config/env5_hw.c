@@ -104,9 +104,9 @@ void leds_all_off()
 }
 
 
-int fpga_init() {
+void env5_init() {
 
-fpga_flash_spi_deinit();
+//fpga_flash_spi_deinit();
 
 fpga_reset_init();
 

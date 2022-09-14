@@ -20,6 +20,7 @@ static const uint8_t sck_pin=2;
 static const uint8_t  miso_pin=0;
 static const uint8_t  mosi_pin=3;
 static const uint8_t cs_pin=1;
+static const uint32_t baudrate=5000*1000;
 
 void initHardwareTest(void) {
     // Did we crash last time -> reboot into boot rom mode
@@ -35,9 +36,6 @@ void initHardwareTest(void) {
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
-        // if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-        //    reset_usb_boot(0, 0);
-        // }
         watchdog_update();
         TaskSleep(1000);
     }
@@ -56,11 +54,8 @@ void init_helper(spi_inst_t *spi, uint32_t baudrate){
 }
 
 void configTask(){
-
-
-    leds_init();
     spi_inst_t *spi = spi0;
-    init_helper(spi, 5000 * 1000);
+    env5_init();
 
 
     while(1){
@@ -69,16 +64,18 @@ void configTask(){
 
         switch (input) {
             case 'i':
+                init_helper(spi, baudrate);
                 readDeviceID();
+                spi_deinit(spi);
                 break;
             case 'F':
-                init_helper(spi, 5000 * 1000);
+                init_helper(spi, baudrate);
                 printf("ack\n");
                 configurationFlash();
                 spi_deinit(spi);
                 break;
             case 'V':
-                init_helper(spi, 5000 * 1000);
+                init_helper(spi, baudrate);
                 printf("ack\n");
                 verifyConfigurationFlash();
                 spi_deinit(spi);
@@ -90,16 +87,9 @@ void configTask(){
                 leds_all_off();
                 break;
             case 'P':
-
-                fpga_reset_init();
-                fpga_powers_init();
-                fpga_reset(0);
                 fpga_powers_on();
                 break;
-            case 'f':
-                fpga_reset_init();
-                fpga_powers_init();
-                fpga_reset(0);
+            case 'p':
                 fpga_powers_off();
                 break;
             case 'r':
@@ -115,35 +105,6 @@ void configTask(){
 
 
 }
-//
-//while (1)
-//{
-//char c = getchar_timeout_us(10000);
-//if (c == 'L')
-//{
-//
-//}
-//else if (c == 'l')
-//{
-//leds_all_off();
-//}
-//else if (c == 'F')
-//{
-//fpga_powers_on();
-//}
-//else if (c == 'f')
-//{
-//fpga_powers_off();
-//}
-//else if (c=='r')
-//{
-//fpga_reset(1);
-//sleep_ms(10);
-//fpga_reset(0);
-//
-//}
-//}
-//}
 int main() {
     initHardwareTest();
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");

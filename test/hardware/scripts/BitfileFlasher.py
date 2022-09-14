@@ -1,3 +1,5 @@
+import time
+
 import serial
 import sys
 from Configuration import Configuration
@@ -158,7 +160,8 @@ def verifyBitfile(config):
 def sendConfig(config):
 
         config.loadFile()
-       # ser.write(b'P')
+        ser.write(b'P')
+        time.sleep(0.5)
         ser.write(b'F')
         waitForAck()
         bitfile = open(config.filename, "rb")
@@ -266,8 +269,8 @@ def sendData(config, bitfile):
 
 
 if __name__ == '__main__':
-       # config = Configuration("bitstream_led_blink/led_test.bit", 0x0000,0x0000)
-        config = Configuration("led_run_10_times_faster/led_test.bit", 0x0000,0x0000)
+        config = Configuration("bitstream_led_blink/led_test.bit", 0x0000,0x0000)
+       # config = Configuration("led_run_10_times_faster/led_test.bit", 0x0000,0x0000)
 
         sendConfig(config)
       #  testBitfileOut(config)

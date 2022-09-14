@@ -77,12 +77,6 @@ void eraseSPISector(){
             printf("erased sector != 0\n");
         }
 
-//        flash_read_data( 65536*i, data_read, 256);
-//        for(uint32_t j=0; j<256; j++) {
-//            if (data_read[i*65536+j] != 255) {
-////                printf("error, is: %u", data_read[i*65536+j]);
-//            }
-//        }
         uint8_t data_read[256];
         for (uint32_t k=0; k<256; k=k+4){
             data_read[k]=0xD;
