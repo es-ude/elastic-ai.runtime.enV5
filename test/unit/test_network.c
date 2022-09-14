@@ -1,131 +1,88 @@
-#define TEST_BUILD
-
 #include "Network.h"
-#include "tcp.h"
-#include "hardware/uart.h"
+#include "esp.h"
+#include "esp/esp_test.h"
 #include "unity.h"
-#include "stdlib.h"
+
+NetworkCredentials_t credentials = {.ssid = "SSID", .password = "password"};
 
 void setUp(void) {
-    Network_DisconnectFromNetwork();
+    ESP_Status.ChipStatus = ESP_CHIP_OK;
+    ESP_Status.WIFIStatus = NOT_CONNECTED;
+    ESP_Status.MQTTStatus = NOT_CONNECTED;
+
+    esp_setErrorCode(ESP_NO_ERROR);
 }
 
 void tearDown(void) {}
 
-void GetGoodTCPConnection() {
-    uartMessage = "OK\0OK\0OK\0OK";
-    Network_init(false);
-    NetworkCredentials credentials = {"123", "abc"};
-    uartMessage = "WIFI GOT IP";
-    Network_ConnectToNetwork(credentials);
-    uartMessage = "CONNECT";
-    TCP_Open("123", 80);
+/* region Test Functions */
+
+void TEST_CONNECT_TO_NETWORK_SUCCESSFUL(void) {
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(NETWORK_NO_ERROR, networkErrorCode);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+}
+void TEST_CONNECT_TO_NETWORK_ALREADY_CONNECTED(void) {
+    ESP_Status.WIFIStatus = CONNECTED;
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+    network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(NETWORK_WIFI_ALREADY_CONNECTED, networkErrorCode);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+}
+void TEST_CONNECT_TO_NETWORK_ESP_CHIP_FAILED(void) {
+    ESP_Status.ChipStatus = ESP_CHIP_NOT_OK;
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(ESP_CHIP_NOT_OK, ESP_Status.ChipStatus);
+    network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(NETWORK_ESP_CHIP_FAILED, networkErrorCode);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+}
+void TEST_CONNECT_TO_NETWORK_SEND_FAILED(void) {
+    esp_setErrorCode(ESP_WRONG_ANSWER_RECEIVED);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+    TEST_ASSERT_EQUAL(NETWORK_ESTABLISH_CONNECTION_FAILED, networkErrorCode);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
 }
 
-void InvokeIrqHandler();
-
-void TEST_ORDERING_ALL_SUCCESSFUL(void) {
-    NetworkStatus_t flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "WIFI GOT IP";
-    NetworkCredentials credentials = {"123", "abc"};
-    TEST_ASSERT_TRUE(Network_ConnectToNetwork(credentials));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(!flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "CONNECT";
-    TEST_ASSERT_TRUE(TCP_Open("123", 80));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(!flags.WIFIStatus || !flags.TCPStatus || TCP_IsResponseAvailable());
+void TEST_DISCONNECT_FROM_NETWORK(void) {
+    ESP_Status.WIFIStatus = CONNECTED;
+    ESP_Status.MQTTStatus = CONNECTED;
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.MQTTStatus);
+    network_DisconnectFromNetwork();
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.MQTTStatus);
+}
+void TEST_DISCONNECT_FROM_NETWORK_TWICE(void) {
+    ESP_Status.WIFIStatus = CONNECTED;
+    ESP_Status.MQTTStatus = CONNECTED;
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(CONNECTED, ESP_Status.MQTTStatus);
+    network_DisconnectFromNetwork();
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.MQTTStatus);
+    network_DisconnectFromNetwork();
+    TEST_ASSERT_EQUAL(ESP_CHIP_OK, ESP_Status.ChipStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.WIFIStatus);
+    TEST_ASSERT_EQUAL(NOT_CONNECTED, ESP_Status.MQTTStatus);
 }
 
-void TEST_ORDERING_CONNECT_TO_NETWORK_FAIL(void) {
-    NetworkStatus_t flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "Error";
-    NetworkCredentials credentials = {"123", "abc"};
-    TEST_ASSERT_FALSE(Network_ConnectToNetwork(credentials));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "Error";
-    TEST_ASSERT_FALSE(TCP_Open("123", 80));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-}
-
-void TEST_ORDERING_CONNECT_TO_TCP_FAIL(void) {
-    NetworkStatus_t flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "OK\0OK\0OK\0OK";
-    TEST_ASSERT_TRUE(Network_init(false));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "WIFI GOT IP";
-    NetworkCredentials credentials = {"123", "abc"};
-    TEST_ASSERT_TRUE(Network_ConnectToNetwork(credentials));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(!flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-
-    uartMessage = "Error";
-    TEST_ASSERT_FALSE(TCP_Open("123", 80));
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(!flags.WIFIStatus || flags.TCPStatus || TCP_IsResponseAvailable());
-}
-
-void TEST_Stay_OPEN_ON_GOOD_RESPONSE(void) {
-    GetGoodTCPConnection();
-    uartMessage = "+IPD,5:Hallo";
-    InvokeIrqHandler();
-    char *buf;
-
-    TEST_ASSERT_TRUE(TCP_IsResponseAvailable());
-    buf = TCP_GetResponse();
-    TEST_ASSERT_EQUAL_STRING("Hallo", buf);
-    free(buf);
-}
-
-void TEST_CLOSE_ON_CLOSE_RESPONSE(void) {
-    GetGoodTCPConnection();
-    uartMessage = "+IPD,5:Hallo\r\nCLOSED";
-    InvokeIrqHandler();
-    char *buf;
-
-    TEST_ASSERT_TRUE(TCP_IsResponseAvailable());
-    NetworkStatus_t flags = NetworkStatus;
-    TEST_ASSERT_FALSE(!TCP_IsResponseAvailable() || !flags.TCPStatus);
-    buf = TCP_GetResponse();
-    TEST_ASSERT_EQUAL_STRING("Hallo", buf);
-    free(buf);
-
-    TEST_ASSERT_FALSE(TCP_IsResponseAvailable());
-    flags = NetworkStatus;
-    TEST_ASSERT_FALSE(flags.TCPStatus);
-}
+/* endregion */
 
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(TEST_ORDERING_ALL_SUCCESSFUL);
-    RUN_TEST(TEST_ORDERING_CONNECT_TO_NETWORK_FAIL);
-    RUN_TEST(TEST_ORDERING_CONNECT_TO_TCP_FAIL);
+    RUN_TEST(TEST_CONNECT_TO_NETWORK_SUCCESSFUL);
+    RUN_TEST(TEST_CONNECT_TO_NETWORK_ALREADY_CONNECTED);
+    RUN_TEST(TEST_CONNECT_TO_NETWORK_ESP_CHIP_FAILED);
+    RUN_TEST(TEST_CONNECT_TO_NETWORK_SEND_FAILED);
 
-    RUN_TEST(TEST_Stay_OPEN_ON_GOOD_RESPONSE);
-    RUN_TEST(TEST_CLOSE_ON_CLOSE_RESPONSE);
+    RUN_TEST(TEST_DISCONNECT_FROM_NETWORK);
+    RUN_TEST(TEST_DISCONNECT_FROM_NETWORK_TWICE);
 
     return UNITY_END();
 }

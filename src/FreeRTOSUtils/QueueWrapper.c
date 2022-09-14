@@ -1,8 +1,8 @@
 #define SOURCE_FILE "QUEUE-WRAPPER"
 
-#include "common.h"
 #include "QueueWrapper.h"
 #include "FreeRTOS.h"
+#include "common.h"
 #include "queue.h"
 
 #define QUEUE_ITEM_SIZE sizeof(QueueMessage)
@@ -11,7 +11,8 @@ static QueueHandle_t queue;
 void CreateQueue() {
     queue = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
     if (queue == NULL) {
-        PRINT("Failed to create Message Queue! Communication between tasks not possible")
+        PRINT("Failed to create Message Queue! Communication between tasks not "
+              "possible")
     }
 }
 

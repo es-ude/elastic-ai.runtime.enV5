@@ -1,41 +1,34 @@
 #define SOURCE_FILE "MQTT-SUBSCRIBE-TEST"
 
+#include "MQTTBroker.h"
+#include "TaskWrapper.h"
+#include "common.h"
+#include "hardwareTestHelper.h"
+#include "protocol.h"
 #include <stdio.h>
 
-#include "TaskWrapper.h"
-#include "QueueWrapper.h"
+/*!
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). Subscribes to topic
+ * "eip://uni-due.de/es/test" and prints out the received Data. The Java Integration Test
+ * IntegrationTestWhereENv5Subscribes can be used to publish the data.
+ */
 
-#include "communicationEndpoint.h"
-#include "MQTTBroker.h"
-
-#include "common.h"
-
-#include "hardwareTestHelper.h"
-
-/***
-    Connects to Wi-Fi and MQTT Broker (Change in NetworkSettings.h).
-    Subscribes to topic "eip://uni-due.de/es/test" and prints out the received Data.
-    The Java Integration Test IntegrationTestWhereENv5Subscribes can be used to publish the data.
-***/
+uint64_t arrivedMessages = 0;
 
 void deliver(Posting posting) {
-    PRINT("Received Data: %s", posting.data)
+    arrivedMessages++;
+    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages)
 }
 
 void _Noreturn mqttTask(void) {
-    MQTT_Broker_setBrokerDomain("eip://uni-due.de/es");
-    MQTT_Broker_SetClientId("ENV5");
+    PRINT("=== STARTING TEST ===")
 
     connectToNetwork();
     connectToMQTT();
 
-    subscribe("testENv5Sub", (Subscriber) {.deliver=deliver});
+    subscribeForData("integTestTwin", "testSub", (Subscriber){.deliver = deliver});
 
-    while (true) {
-        connectToNetwork();
-        connectToMQTT();
-        TaskSleep(1000);
-    }
+    while (true) {}
 }
 
 int main() {

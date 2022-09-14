@@ -7,6 +7,6 @@ void connectToMQTT(void);
 
 void initHardwareTest(void);
 
-void _Noreturn enterBootModeTaskHardwareTest(void);
+_Noreturn void enterBootModeTaskHardwareTest(void);
 
-#endif //SENSOR_BOARD_HARDWARE_TEST_HELPER_H
+#endif // SENSOR_BOARD_HARDWARE_TEST_HELPER_H

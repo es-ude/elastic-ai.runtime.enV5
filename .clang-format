@@ -1,0 +1,9 @@
+---
+BasedOnStyle: llvm
+ColumnLimit: 100
+---
+Language: Cpp
+IndentWidth: 4
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Empty
+#InsertBraces: true # available since llvm 15 (too new)

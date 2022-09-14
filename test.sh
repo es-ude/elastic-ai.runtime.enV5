@@ -1,22 +1,7 @@
 #! /bin/bash
 
-if ! [[ -d "build_test" ]]; then
-    mkdir "build_test"
-fi
+cmake -B cmake-build-debug/unit_test -D UNIT_TEST:BOOL=ON -D DEBUG_OUTPUT:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -G Ninja .
 
-(
-  cd build_test || exit
+cmake --build cmake-build-debug/unit_test -j 4
 
-  cmake -DUNIT_TEST:BOOL=ON -DCMAKE_BUILD_TYPE=DEBUG -GNinja ..
-
-  ninja -j4
-
-  printf "\n##################################################\n\n"
-  for file in ./test/unit/unit-*
-  do
-    "./${file}"
-    printf "\n##################################################\n\n"
-  done
-
-  ninja clean
-)
+ctest --test-dir cmake-build-debug/unit_test/test/unit --output-on-failure

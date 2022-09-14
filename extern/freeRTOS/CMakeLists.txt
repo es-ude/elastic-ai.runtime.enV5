@@ -8,11 +8,11 @@ add_library(freertos
     ${PICO_SDK_FREERTOS_SOURCE}/tasks.c
     ${PICO_SDK_FREERTOS_SOURCE}/timers.c
     ${PICO_SDK_FREERTOS_SOURCE}/portable/MemMang/heap_3.c
-   ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0/port.c
+    ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0/port.c
 )
 
 target_include_directories(freertos PUBLIC
-    .
+    ${CMAKE_CURRENT_LIST_DIR}
     ${PICO_SDK_FREERTOS_SOURCE}/include
     ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0
 )

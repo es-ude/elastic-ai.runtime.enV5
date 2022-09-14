@@ -1,16 +1,12 @@
 #ifndef SENSOR_BOARD_UART_H
 #define SENSOR_BOARD_UART_H
 
-#include "string.h"
-#include "stdbool.h"
+#include <stdbool.h>
+#include <stddef.h>
 
-typedef struct uart_inst uart_inst_t;
 typedef unsigned int uint;
-typedef enum {
-    UART_PARITY_NONE,
-    UART_PARITY_EVEN,
-    UART_PARITY_ODD
-} uart_parity_t;
+typedef struct uart_inst uart_inst_t;
+typedef enum { UART_PARITY_NONE, UART_PARITY_EVEN, UART_PARITY_ODD } uart_parity_t;
 
 #define uart0 NULL
 #define uart1 NULL
@@ -40,4 +36,4 @@ void uart_set_irq_enables(uart_inst_t *uart, bool rx_has_data, bool tx_needs_dat
 
 void uart_puts(uart_inst_t *uart, const char *s);
 
-#endif //SENSOR_BOARD_UART_H
+#endif // SENSOR_BOARD_UART_H
