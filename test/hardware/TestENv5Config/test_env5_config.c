@@ -13,7 +13,7 @@
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
 #include "fpga_config/configuration.h"
-#include "env5_hw.h"
+#include "env5/env5_hw.h"
 
 
 static const uint8_t sck_pin=2;

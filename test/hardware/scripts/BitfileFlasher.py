@@ -269,8 +269,8 @@ def sendData(config, bitfile):
 
 
 if __name__ == '__main__':
-        config = Configuration("bitstream_led_blink/led_test.bit", 0x0000,0x0000)
-       # config = Configuration("led_run_10_times_faster/led_test.bit", 0x0000,0x0000)
+       # config = Configuration("bitstream_led_blink/led_test.bit", 0x0000,0x0000)
+        config = Configuration("led_run_10_times_faster/led_test.bit", 0x0000,0x0000)
 
         sendConfig(config)
       #  testBitfileOut(config)
