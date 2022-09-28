@@ -44,6 +44,12 @@ void uartToEsp_Init(UARTDevice *device);
  */
 void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *));
 
+/*! \brief method to set function which handles HTTP messages received via UART
+ *
+ * @param receive function for interrupt handle
+ */
+void uartToESP_SetHTTPReceiverFunction(void (*receive)(char *));
+
 /*! \brief send Command to ESP module via UART
  *
  * IMPORTANT: call `uartToESP_freeCommandBuffer(void) to unblock UART after transmission

@@ -217,6 +217,11 @@
 #define AT_MQTT_PUBLISH_LENGTH 23
 #define AT_MQTT_PUBLISH_RESPONSE "OK"
 
+// TODO
+#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,%s"
+#define AT_HTTP_GET_LENGTH 25
+#define AT_HTTP_GET_RESPONSE "OK"
+
 /* endregion */
 
 #endif /* ENV5_AT_COMMANDS */

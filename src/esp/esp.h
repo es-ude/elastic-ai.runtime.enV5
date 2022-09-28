@@ -48,9 +48,14 @@ esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
 /*! \brief only for the MQTT broker library
  *
- * Used by the MQTT broker to set its function to receive MQTT messages from
- * UART.
+ * Used by the MQTT broker to set its function to receive MQTT messages from UART.
  */
 void esp_SetMQTTReceiverFunction(void (*receive)(char *));
+
+/*! \brief only for the HTTP library
+ *
+ * Used by HTTP to set its function to receive HTTP messages from UART.
+ */
+void esp_SetHTTPReceiverFunction(void (*receive)(char *));
 
 #endif // ENV5_ESP_HEADER
