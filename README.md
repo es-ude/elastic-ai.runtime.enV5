@@ -222,3 +222,7 @@ Following submodules are being used
 [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
 
 [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
+
+### Troubleshooting
+
+In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
