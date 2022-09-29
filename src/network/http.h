@@ -6,6 +6,8 @@ typedef enum HTTPStatus {
     HTTP_CONNECTION_FAILED
 } HTTPStatus;
 
+HTTPStatus HTTP_get(const char *url, char **data);
 
+void HTTP_init(void);
 
 #endif // ENV5_HTTP_H

@@ -111,14 +111,12 @@ void handleNewLine(void) {
             uartToESP_MQTT_Broker_Receive != NULL) {
             // handle Received MQTT message -> pass to correct subscriber
             uartToESP_MQTT_Broker_Receive(device->receive_buffer);
-        }
-        if (strncmp("+HTTPCLIENT", device->receive_buffer, 11) == 0 &&
-            uartToESP_HTPP_Receive != NULL) {
+        } else if ((strncmp("++HTTPCLIENT", device->receive_buffer, 12) == 0 || strncmp("+HTTPCLIENT", device->receive_buffer, 11) == 0) &&
+                   uartToESP_HTPP_Receive != NULL) {
             // handle HTTP message
             uartToESP_HTPP_Receive(device->receive_buffer);
-        }
-        if (strncmp(expectedResponseFromEsp, device->receive_buffer,
-                    strlen(expectedResponseFromEsp)) == 0) {
+        } else if (strncmp(expectedResponseFromEsp, device->receive_buffer,
+                           strlen(expectedResponseFromEsp)) == 0) {
             PRINT_DEBUG("Expected message received: %s", device->receive_buffer)
             correctResponseReceived = true;
         } else {
