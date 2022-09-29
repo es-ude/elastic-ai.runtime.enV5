@@ -10,10 +10,10 @@
 #include "esp.h"
 
 // header from elastic-ai.runtime.c
-#include "communicationEndpoint.h"
-#include "posting.h"
-#include "subscriber.h"
-#include "topicMatcher.h"
+#include "CommunicationEndpoint.h"
+#include "Posting.h"
+#include "Subscriber.h"
+#include "TopicMatcher.h"
 
 /* region VARIABLES */
 
@@ -139,10 +139,10 @@ void mqtt_Disconnect(bool force) {
 }
 
 void mqtt_Receive(char *response) {
-    Posting posting = {};
+    posting_t posting = {};
     if (handleResponse(&posting, response)) {
         for (int i = 0; i < MQTT_NumberOfSubscriptions; ++i) {
-            if (checkIfTopicMatches(MQTT_Subscriptions[i].topic, posting.topic)) {
+            if (topicMatcherCheckIfTopicMatches(MQTT_Subscriptions[i].topic, posting.topic)) {
                 MQTT_Subscriptions[i].subscriber.deliver(posting);
                 break;
             }
@@ -156,27 +156,27 @@ void mqtt_Receive(char *response) {
 
 /* region communicationEndpoint.h */
 
-void publish(Posting posting) {
+void communicationEndpointPublish(posting_t posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't publish data!")
         return;
     }
     posting.topic = concatDomainAndClientWithTopic(posting.topic);
-    publishRaw(posting);
+    communicationEndpointPublishRaw(posting);
     free(posting.topic);
 }
 
-void publishRemote(Posting posting) {
+void communicationEndpointPublishRemote(posting_t posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't publish data!")
         return;
     }
     posting.topic = concatDomainWithTopic(posting.topic);
-    publishRaw(posting);
+    communicationEndpointPublishRaw(posting);
     free(posting.topic);
 }
 
-void publishRaw(Posting posting) {
+void communicationEndpointPublishRaw(posting_t posting) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't publish data!")
         return;
@@ -195,25 +195,25 @@ void publishRaw(Posting posting) {
     free(publishData);
 }
 
-void subscribe(char *topic, Subscriber subscriber) {
+void communicationEndpointSubscribe(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
         return;
     }
 
-    subscribeRaw(concatDomainAndClientWithTopic(topic), subscriber);
+    communicationEndpointSubscribeRaw(concatDomainAndClientWithTopic(topic), subscriber);
 }
 
-void subscribeRemote(char *topic, Subscriber subscriber) {
+void communicationEndpointSubscribeRemote(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
         return;
     }
 
-    subscribeRaw(concatDomainWithTopic(topic), subscriber);
+    communicationEndpointSubscribeRaw(concatDomainWithTopic(topic), subscriber);
 }
 
-void subscribeRaw(char *topic, Subscriber subscriber) {
+void communicationEndpointSubscribeRaw(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
         return;
@@ -240,29 +240,29 @@ void subscribeRaw(char *topic, Subscriber subscriber) {
     free(subscribeTopic);
 }
 
-void unsubscribe(char *topic, Subscriber subscriber) {
+void communicationEndpointUnsubscribe(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
         return;
     }
 
     char *fullTopic = concatDomainAndClientWithTopic(topic);
-    unsubscribeRaw(fullTopic, subscriber);
+    communicationEndpointUnsubscribeRaw(fullTopic, subscriber);
     free(fullTopic);
 }
 
-void unsubscribeRemote(char *topic, Subscriber subscriber) {
+void communicationEndpointUnsubscribeRemote(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
         return;
     }
 
     char *fullTopic = concatDomainWithTopic(topic);
-    unsubscribeRaw(fullTopic, subscriber);
+    communicationEndpointUnsubscribeRaw(fullTopic, subscriber);
     free(fullTopic);
 }
 
-void unsubscribeRaw(char *topic, Subscriber subscriber) {
+void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
     if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
         return;
@@ -296,11 +296,11 @@ void unsubscribeRaw(char *topic, Subscriber subscriber) {
     free(command);
 }
 
-char *getDomain() {
+char *communicationEndpointGetBrokerDomain() {
     return MQTT_Broker_brokerID;
 }
 
-char *getDeviceID() {
+char *communicationEndpointGetClientId() {
     return MQTT_Broker_clientID;
 }
 
@@ -371,7 +371,7 @@ static char *concatDomainWithTopic(const char *topic) {
     return result;
 }
 
-static void getTopic(Posting *posting, const char *startOfTopic, int lengthOfTopic) {
+static void getTopic(posting_t *posting, const char *startOfTopic, int lengthOfTopic) {
     char *topicBuffer = malloc(sizeof(char) * (lengthOfTopic + 1));
     memset(topicBuffer, '\0', lengthOfTopic + 1);
     strncpy(topicBuffer, startOfTopic, lengthOfTopic);
@@ -388,14 +388,14 @@ static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumb
     return dataLength;
 }
 
-static void getData(Posting *posting, const char *startOfData, int dataLength) {
+static void getData(posting_t *posting, const char *startOfData, int dataLength) {
     char *dataBuffer = malloc(sizeof(char) * (dataLength + 1));
     memset(dataBuffer, '\0', dataLength + 1);
     strncpy(dataBuffer, startOfData, dataLength);
     posting->data = dataBuffer;
 }
 
-static bool handleResponse(Posting *posting, char *response) {
+static bool handleResponse(posting_t *posting, char *response) {
     if (strlen(response) == 0) {
         PRINT_DEBUG("Empty Response.")
         return false;

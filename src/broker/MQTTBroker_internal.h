@@ -1,12 +1,12 @@
 #ifndef ENV5_MQTTBROKER_INTERNAL_HEADER
 #define ENV5_MQTTBROKER_INTERNAL_HEADER
 
-#include "posting.h"
-#include "subscriber.h"
+#include "Posting.h"
+#include "Subscriber.h"
 
 typedef struct {
     char *topic;
-    Subscriber subscriber;
+    subscriber_t subscriber;
 } Subscription;
 
 static void setBrokerDomain(char *ID);
@@ -17,12 +17,12 @@ static char *concatDomainAndClientWithTopic(const char *topic);
 
 static char *concatDomainWithTopic(const char *topic);
 
-static void getTopic(Posting *posting, const char *startOfTopic, int lengthOfTopic);
+static void getTopic(posting_t *posting, const char *startOfTopic, int lengthOfTopic);
 
 static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumber);
 
-static void getData(Posting *posting, const char *startOfData, int dataLength);
+static void getData(posting_t *posting, const char *startOfData, int dataLength);
 
-static bool handleResponse(Posting *posting, char *response);
+static bool handleResponse(posting_t *posting, char *response);
 
 #endif /* ENV5_MQTTBROKER_INTERNAL_HEADER */

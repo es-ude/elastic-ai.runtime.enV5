@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "protocol.h"
+#include "Protocol.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +20,7 @@ void publishTestData(uint64_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer) + 1);
     strcpy(data, "stress: ");
     strcat(data, buffer);
-    publishData("stresstestPub", data);
+    protocolPublishData("stresstestPub", data);
     free(data);
 }
 

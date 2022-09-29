@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "protocol.h"
+#include "Protocol.h"
 #include <stdio.h>
 
 /*!
@@ -15,7 +15,7 @@
 
 uint64_t arrivedMessages = 0;
 
-void deliver(Posting posting) {
+void deliver(posting_t posting) {
     arrivedMessages++;
     PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages)
 }
@@ -26,7 +26,7 @@ void _Noreturn mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("integTestTwin", "testSub", (Subscriber){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t ){.deliver = deliver});
 
     while (true) {}
 }

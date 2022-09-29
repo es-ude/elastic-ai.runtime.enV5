@@ -75,8 +75,8 @@ add_executable(unit-test_mqtt
         ${CMAKE_CURRENT_LIST_DIR}/test_mqtt.c
         ${CMAKE_SOURCE_DIR}/src/broker/MQTTBroker.c
         ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c
-        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/protocol.c
-        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/topicMatcher.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/Protocol.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/TopicMatcher.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/gpio/gpio.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/esp.c)

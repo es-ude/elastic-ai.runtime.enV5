@@ -5,7 +5,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "protocol.h"
+#include "Protocol.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,11 +21,11 @@ void publishTestData(uint64_t i) {
     char *data = malloc(strlen("testData") + strlen(buffer) + 1);
     strcpy(data, "testData");
     strcat(data, buffer);
-    publishData("stresstestPubSub", data);
+    protocolPublishData("stresstestPubSub", data);
     free(data);
 }
 
-void deliver(Posting posting) {
+void deliver(posting_t posting) {
     PRINT("Received Data: %s", posting.data)
 }
 
@@ -35,7 +35,7 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("enV5", "stresstestPubSub", (Subscriber){.deliver = deliver});
+    protocolSubscribeForData("enV5", "stresstestPubSub", (subscriber_t ){.deliver = deliver});
 
     uint64_t i = 0;
     while (true) {

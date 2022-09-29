@@ -4,7 +4,7 @@
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "protocol.h"
+#include "Protocol.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -14,7 +14,7 @@
  * eip://uni-due.de/es/stresstest.
  */
 
-void deliver(Posting posting) {
+void deliver(posting_t posting) {
     PRINT("Received Data: \"%s\", String length: \"%d\"", posting.data, strlen(posting.data))
 }
 
@@ -24,7 +24,7 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscribeForData("integTestTwin", "stresstestSub", (Subscriber){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "stresstestSub", (subscriber_t ){.deliver = deliver});
 
     while (true) {}
 }
