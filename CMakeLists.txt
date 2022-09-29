@@ -40,7 +40,11 @@ else ()
                 pico_stdlib
                 FreeRTOSUtils
                 network_lib
-                espBroker_lib)
+                espBroker_lib
+                fpga_config_lib
+                flash_lib
+                hardware_spi
+                spi_lib)
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")

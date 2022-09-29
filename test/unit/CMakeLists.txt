@@ -94,3 +94,20 @@ target_include_directories(unit-test_mqtt PUBLIC
 target_link_libraries(unit-test_mqtt unity)
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
+
+##############################################
+## region UNIT-TEST: unit-test_configuration
+add_executable(unit-test_configuration
+        ${CMAKE_CURRENT_LIST_DIR}/test_configuration.c
+        ${CMAKE_SOURCE_DIR}/src/fpga_config/configuration.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/flash.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/config_data_handler.c)
+target_include_directories(unit-test_configuration PUBLIC
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
+        ${CMAKE_SOURCE_DIR}/src/flash
+        ${CMAKE_SOURCE_DIR}/dummies/flash
+        ${CMAKE_SOURCE_DIR}/src/fpga_config
+        ${CMAKE_SOURCE_DIR}/extern)
+target_link_libraries(unit-test_configuration unity m)
+add_test(unit-test_configuration unit-test_configuration)
+## endregion
