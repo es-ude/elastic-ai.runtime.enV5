@@ -108,6 +108,6 @@ target_include_directories(unit-test_configuration PUBLIC
         ${CMAKE_SOURCE_DIR}/dummies/flash
         ${CMAKE_SOURCE_DIR}/src/fpga_config
         ${CMAKE_SOURCE_DIR}/extern)
-target_link_libraries(unit-test_configuration unity)
+target_link_libraries(unit-test_configuration unity m)
 add_test(unit-test_configuration unit-test_configuration)
 ## endregion
