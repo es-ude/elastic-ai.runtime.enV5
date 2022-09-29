@@ -1,7 +1,3 @@
-//
-// Created by Natalie Maman on 05.05.22.
-//
-
 #include <stdint.h>
 #include "spi/spi_handler.h"
 #include "flash.h"
@@ -14,10 +10,8 @@ void init_flash(uint8_t chip_select, spi_inst_t *spiInst){
     cs_pin=chip_select;
     spi=spiInst;
 }
-#include <stdio.h>
 
 void flash_write_enable() {
-   // printf("flash_write_enable()\n");
     uint8_t cmd = 0x06;
     SPI_enable(cs_pin);
     SPI_write_blocking(spi, &cmd, 1);

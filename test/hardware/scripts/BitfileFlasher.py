@@ -4,7 +4,7 @@ import serial
 import sys
 from Configuration import Configuration
 
-ser = serial.Serial("/dev/tty.usbmodem14101", 5000000)
+ser = serial.Serial("/dev/tty.usbmodem14201", 5000000)
 
 
 bitfile = None
@@ -182,11 +182,6 @@ def sendConfig(config):
             print(ser.readline())
             print(ser.readline())
             print(ser.readline())
-
-        # print('[chao_debug] wainting for flash erase finished\r\n')
-        # give device time for some debug
-              #  self.waitSerialReady(quiet=False)
-
 
         waitForAck()
         print('sending data')

@@ -1,6 +1,3 @@
-//
-// Created by Natalie Maman on 26.08.22.
-//
 
 #include <stdio.h>
 #include <pico/stdio.h>

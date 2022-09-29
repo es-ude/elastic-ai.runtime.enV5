@@ -1,6 +1,3 @@
-//
-// Created by Natalie Maman on 08.06.22.
-//
 
 #include <stdio.h>
 #include <pico/stdio.h>
@@ -34,9 +31,6 @@ void initHardwareTest(void) {
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
-       // if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-        //    reset_usb_boot(0, 0);
-       // }
         watchdog_update();
         TaskSleep(1000);
     }

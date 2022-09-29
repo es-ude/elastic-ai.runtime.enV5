@@ -2,8 +2,7 @@
 #include "pico/stdlib.h"
 
 
-void fpga_flash_spi_deinit()
-{
+void fpga_flash_spi_deinit() {
     gpio_init(SPI_FPGA_FLASH_CS);
     gpio_set_dir(SPI_FPGA_FLASH_CS, GPIO_IN);
     gpio_init(SPI_FPGA_FLASH_MISO);
@@ -15,8 +14,7 @@ void fpga_flash_spi_deinit()
 }
 
 // PAC1934 is using pio6 and pio7 which is connected to I2C1
-void fpga_powers_init()
-{
+void fpga_powers_init() {
     // voltage regulator off
     gpio_init(FPGA_VOL_REGULATOR_EN_PIN);
     gpio_set_dir(FPGA_VOL_REGULATOR_EN_PIN, GPIO_OUT);
@@ -29,8 +27,7 @@ void fpga_powers_init()
 }
 
 
-void fpga_powers_on()
-{
+void fpga_powers_on() {
     // voltage regulator on
     gpio_put(FPGA_VOL_REGULATOR_EN_PIN, 1);
 
@@ -40,8 +37,7 @@ void fpga_powers_on()
     gpio_put(FPGA_MOS_EN_PIN, 0);
 }
 
-void fpga_powers_off()
-{
+void fpga_powers_off() {
     // voltage regulator on
     gpio_put(FPGA_VOL_REGULATOR_EN_PIN, 0);
 
@@ -49,32 +45,23 @@ void fpga_powers_off()
     gpio_put(FPGA_MOS_EN_PIN, 1);
 }
 
-void fpga_reset_init(void)
-{
+void fpga_reset_init(void) {
     gpio_init(FPGA_RESET_CTRL_PIN);
     gpio_set_dir(FPGA_RESET_CTRL_PIN, GPIO_OUT);
     gpio_put(FPGA_RESET_CTRL_PIN, 1);
 }
 
-void fpga_reset(unsigned int reset_en)
-{
-    if(reset_en)
-    {
+void fpga_reset(unsigned int reset_en) {
+    if (reset_en) {
         gpio_put(FPGA_RESET_CTRL_PIN, 0);
-    }
-    else
-    {
+    } else {
         gpio_put(FPGA_RESET_CTRL_PIN, 1);
     }
 
 }
 
 
-
-
-
-void leds_init(void)
-{
+void leds_init(void) {
     gpio_init(LED0_PIN);
     gpio_set_dir(LED0_PIN, GPIO_OUT);
     gpio_put(LED0_PIN, 0);
@@ -89,15 +76,13 @@ void leds_init(void)
 }
 
 
-void leds_all_on()
-{
+void leds_all_on() {
     gpio_put(LED0_PIN, 1);
     gpio_put(LED1_PIN, 1);
     gpio_put(LED2_PIN, 1);
 }
 
-void leds_all_off()
-{
+void leds_all_off() {
     gpio_put(LED0_PIN, 0);
     gpio_put(LED1_PIN, 0);
     gpio_put(LED2_PIN, 0);
@@ -105,19 +90,10 @@ void leds_all_off()
 
 
 void env5_init() {
-
-//fpga_flash_spi_deinit();
-
-fpga_reset_init();
-
-leds_init();
-
-fpga_powers_init();
-
-fpga_reset(0);
-
-// Enable UART so we can print status output
-//  stdio_init_all();
+    fpga_reset_init();
+    leds_init();
+    fpga_powers_init();
+    fpga_reset(0);
 }
 
 

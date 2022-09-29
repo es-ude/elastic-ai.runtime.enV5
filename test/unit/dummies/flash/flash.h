@@ -1,7 +1,3 @@
-//
-// Created by Natalie Maman on 01.06.22.
-//
-
 #ifndef ENV5_FLASH_H
 #define ENV5_FLASH_H
 
@@ -13,7 +9,9 @@ uint8_t dataComplete[256*4];
 
 void setDataLength(uint32_t numBlocks, uint32_t blockSize);
 uint8_t flash_erase_data(uint32_t address);
-
+int flash_read_data(uint32_t address,
+                    uint8_t *data_buffer,
+                    uint16_t length);
 int flash_write_page(uint32_t address,
                      uint8_t *data,
                      uint16_t page_size);

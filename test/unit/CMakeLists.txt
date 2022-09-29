@@ -104,9 +104,10 @@ add_executable(unit-test_configuration
         ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/config_data_handler.c)
 target_include_directories(unit-test_configuration PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/flash
+        ${CMAKE_SOURCE_DIR}/dummies/flash
         ${CMAKE_SOURCE_DIR}/src/fpga_config
         ${CMAKE_SOURCE_DIR}/extern)
 target_link_libraries(unit-test_configuration unity)
+add_test(unit-test_configuration unit-test_configuration)
 ## endregion

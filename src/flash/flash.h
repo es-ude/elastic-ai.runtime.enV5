@@ -1,7 +1,3 @@
-//
-// Created by Natalie Maman on 11.05.22.
-//
-
 #ifndef ENV5_FLASH_H
 #define ENV5_FLASH_H
 

@@ -9,6 +9,7 @@
 #include "QueueWrapper.h"
 #include "pico/stdlib.h"
 #include "hardware/watchdog.h"
+#include "env5/env5_hw.h"
 
 
 static const uint8_t REG_DEVID = 0x00;
@@ -109,6 +110,7 @@ void readSPI(){
     printf("\n");
 }
 void spiTask(){
+
     spi_inst_t *spi = spi0;
     init_helper(spi, 1000 * 1000);
 
@@ -138,9 +140,11 @@ void spiTask(){
 
 }
 int main() {
-    initHardwareTest();
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(spiTask, "spiTask");
-    StartScheduler();
+    stdio_init_all();
+   // initHardwareTest();
+   // RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+   // RegisterTask(spiTask, "spiTask");
+   // StartScheduler();
+    spiTask();
 
 }

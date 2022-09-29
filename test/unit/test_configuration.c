@@ -1,14 +1,10 @@
-//
-// Created by Natalie Maman on 01.06.22.
-//
 #define TEST_BUILD
 
 
 #include "unity.h"
 #include "dummies/flash/config_data_handler.h"
 #include "dummies/flash/flash.h"
-#include "stdlib.h"
-#include "fpga_config/configuration.h"
+#include "configuration.h"
 
 #include<stdbool.h>
 uint8_t expectedData[256*4];

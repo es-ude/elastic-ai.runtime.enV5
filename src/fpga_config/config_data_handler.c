@@ -1,6 +1,3 @@
-//
-// Created by Natalie Maman on 01.06.22.
-//
 #include <stdint.h>
 #include <pico/stdio.h>
 #include "config_data_handler.h"

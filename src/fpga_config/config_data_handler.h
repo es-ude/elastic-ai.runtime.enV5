@@ -1,7 +1,3 @@
-//
-// Created by Natalie Maman on 01.06.22.
-//
-
 #ifndef ENV5_CONFIG_DATA_HANDLER_H
 #define ENV5_CONFIG_DATA_HANDLER_H
 #include <stdint.h>

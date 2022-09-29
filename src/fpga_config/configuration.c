@@ -1,13 +1,10 @@
-//
-// Created by Natalie Maman on 25.05.22.
-//
+
 #include <math.h>
 #include <stdint.h>
-#include <malloc.h>
-#include "flash/flash.h"
+#include <stdlib.h>
+#include "flash.h"
 #include"config_data_handler.h"
 #include "configuration.h"
-#include "TaskWrapper.h"
 #include <stdio.h>
 
 #define BUFFER_SIZE 256
@@ -143,7 +140,7 @@ void verifyConfigurationFlash() {
         currentAddress += blockSize;
         configRemaining -= blockSize;
 
-        TaskSleep(100);
+        //TaskSleep(100);
         for (uint32_t i=0; i<blockSize; i++){
            printf("%u###",verifyBuffer[i]);
 

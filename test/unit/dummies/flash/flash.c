@@ -1,8 +1,4 @@
-//
-// Created by Natalie Maman on 01.06.22.
-//
 #include "flash/flash.h"
-
 #include <stdint.h>
 
 
@@ -16,6 +12,11 @@ uint8_t flash_erase_data(uint32_t address){
     return 0;
 }
 
+int flash_read_data(uint32_t address,
+                    uint8_t *data_buffer,
+                    uint16_t length){
+return 2;
+}
 int flash_write_page(uint32_t address,
                      uint8_t *data,
                      uint16_t page_size){
