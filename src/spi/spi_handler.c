@@ -1,10 +1,10 @@
 //
 // Created by Natalie Maman on 13.04.22.
 //
-#include "hardware/spi.h"
 #include "spi_handler.h"
-#include <stdint.h>
 #include "hardware/gpio.h"
+#include "hardware/spi.h"
+#include <stdint.h>
 
 void SPI_init_chipselect(const uint8_t cs_pin) {
     gpio_init(cs_pin);
@@ -12,8 +12,7 @@ void SPI_init_chipselect(const uint8_t cs_pin) {
     gpio_put(cs_pin, 1);
 }
 
-void SPI_init(spi_inst_t *spi, uint32_t baudrate,
-              const uint8_t cs_pin, const uint8_t sck_pin,
+void SPI_init(spi_inst_t *spi, uint32_t baudrate, const uint8_t cs_pin, const uint8_t sck_pin,
               const uint8_t mosi_pin, const uint8_t miso_pin) {
 
     SPI_init_chipselect(cs_pin);

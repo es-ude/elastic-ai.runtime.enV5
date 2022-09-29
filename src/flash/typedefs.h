@@ -2,4 +2,4 @@
 #define ENV5_TYPEDEFS_H
 typedef struct spi_inst spi_inst_t;
 
-#endif //ENV5_TYPEDEFS_H
+#endif // ENV5_TYPEDEFS_H

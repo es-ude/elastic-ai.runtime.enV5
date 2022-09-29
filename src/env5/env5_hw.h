@@ -4,9 +4,8 @@
 #define LED2_PIN 25
 
 #define FPGA_VOL_REGULATOR_EN_PIN 23 // 1 -> on, 0 -> off
-#define FPGA_MOS_EN_PIN 21 // 1 -> off, 0 -> on
+#define FPGA_MOS_EN_PIN 21           // 1 -> off, 0 -> on
 #define FPGA_RESET_CTRL_PIN 12
-
 
 // release them when you configure the FPGA
 // what configure means? configure means FPGA wants to
@@ -31,4 +30,4 @@ void leds_init();
 void fpga_powers_init();
 void env5_init();
 
-#endif //ENV5_ENV5_HW_H
+#endif // ENV5_ENV5_HW_H

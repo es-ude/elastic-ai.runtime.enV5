@@ -12,4 +12,4 @@ void setAddress(uint32_t addr);
 void setConfigSize(uint32_t conf_size);
 uint16_t readData(uint8_t *block, uint16_t buffer_length);
 void readValue(uint32_t *destination);
-#endif //ENV5_CONFIG_DATA_HANDLER_H
+#endif // ENV5_CONFIG_DATA_HANDLER_H

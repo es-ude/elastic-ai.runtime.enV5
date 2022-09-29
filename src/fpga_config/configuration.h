@@ -2,4 +2,4 @@
 #define ENV5_CONFIGURATION_H
 void configurationFlash();
 void verifyConfigurationFlash();
-#endif //ENV5_CONFIGURATION_H
+#endif // ENV5_CONFIGURATION_H

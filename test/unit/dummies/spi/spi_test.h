@@ -6,5 +6,4 @@
 #define ENV5_SPI_TEST_H
 #include "flash/flash.h"
 
-
-#endif //ENV5_SPI_TEST_H
+#endif // ENV5_SPI_TEST_H
