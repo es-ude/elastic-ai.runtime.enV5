@@ -35,11 +35,17 @@ git update-index --assume-unchanged src/network_configuration.h
 
 ### Unit Tests
 
-To build and run the unit tests the [test.sh](test.sh) script can be used.
+To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used.
 
-The tests can then be found under `cmake-build-debug/unit-test/test/unit` as executables.
+The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
 
 ## Target Pico
+
+### Build all Targets
+
+To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used.
+
+The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
 
 ### Build Main
 
@@ -49,7 +55,7 @@ The main executable ([main.c](src/main.c)) can be build with:
 cmake --build cmake-build-debug --target main
 ```
 
-The resulting uf2 file to flash the pico can be found in the `out` folder.
+The resulting `main.uf2` file to flash the pico can be found in the [out](./out) folder.
 
 ### Hardware Tests
 
@@ -61,16 +67,16 @@ cmake --build cmake-build-debug --target <test_name>
 
 replacing `<test_name>` with the name of the test.
 
-The resulting u2f files to flash the pico can be found in the `out` folder.
+The resulting `<test_name>.u2f` files to flash the pico can be found in the [out](./out) folder.
 
 ### CMD line output
 
 If the pico is connected to the local machine the `print()` inside the code will be redirected to the USB and is
 available as serial port output.
 This output can be read via a serial port reader like screen,
-minicom, [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
-The following shows minicom as an example:
+The following example shows how to use minicom on a Unix based system:
 
 ```bash
 minicom -b 115200 -o -D /dev/ttyACM0
@@ -80,7 +86,7 @@ minicom -b 115200 -o -D /dev/ttyACM0
 * `-D /dev/ttyACM0` -> serial port (maybe different on your machine)
 * `-o` -> disable modem initialisation
 
-## Debug Output
+### Debug Output
 
 To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or
 add it in the CLion CMake options).
@@ -225,4 +231,5 @@ Following submodules are being used
 
 ### Troubleshooting
 
-In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
+* In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
+* To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
