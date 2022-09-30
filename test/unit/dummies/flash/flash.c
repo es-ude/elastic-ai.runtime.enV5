@@ -1,6 +1,10 @@
 #include "flash/flash.h"
 #include <stdint.h>
 
+uint32_t addressBlockErase;
+uint32_t addressWrite[4];
+uint8_t dataComplete[256 * 4];
+
 uint32_t numBlockErase = 0;
 uint32_t numWriteBlocks = 0;
 
