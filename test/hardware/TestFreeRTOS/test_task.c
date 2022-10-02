@@ -4,9 +4,42 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void blink_red(void);
+uint8_t led1Pin = 22;
+uint8_t led2Pin = 24;
 
-void blink_green(void);
+void blink_led1() {
+    // initialize LED
+    gpio_init(led1Pin);
+    gpio_set_dir(led1Pin, GPIO_OUT);
+
+    while (true) {
+        // turn LED on
+        gpio_put(led1Pin, 1);
+        // sleep
+        TaskSleep(1000);
+        // turn LED off
+        gpio_put(led1Pin, 0);
+        // sleep
+        TaskSleep(1000);
+    }
+}
+
+void blink_led2() {
+    // initialize LED
+    gpio_init(led2Pin);
+    gpio_set_dir(led2Pin, GPIO_OUT);
+
+    while (true) {
+        // sleep
+        TaskSleep(2500);
+        // turn LED on
+        gpio_put(led2Pin, 1);
+        // sleep
+        TaskSleep(2500);
+        // turn LED off
+        gpio_put(led2Pin, 0);
+    }
+}
 
 int main(void) {
     // setup usb for debug output
@@ -14,47 +47,11 @@ int main(void) {
     sleep_ms(1000);
 
     printf("Creating Task 01:\n");
-    RegisterTask(blink_red, "blink_red");
+    RegisterTask(blink_led1, "blink_led1");
 
     printf("Creating Task 02:\n");
-    RegisterTask(blink_green, "blink_green");
+    RegisterTask(blink_led2, "blink_led2");
 
     // start Tasks
     StartScheduler();
-}
-
-void blink_red() {
-    // initialize LED
-    uint8_t ledPin = 18;
-    gpio_init(ledPin);
-    gpio_set_dir(ledPin, GPIO_OUT);
-
-    while (true) {
-        // turn LED on
-        gpio_put(ledPin, 1);
-        // sleep
-        TaskSleep(1000);
-        // turn LED off
-        gpio_put(ledPin, 0);
-        // sleep
-        TaskSleep(1000);
-    }
-}
-
-void blink_green() {
-    // initialize LED
-    uint8_t ledPin = 19;
-    gpio_init(ledPin);
-    gpio_set_dir(ledPin, GPIO_OUT);
-
-    while (true) {
-        // sleep
-        TaskSleep(1000);
-        // turn LED on
-        gpio_put(ledPin, 1);
-        // sleep
-        TaskSleep(1000);
-        // turn LED off
-        gpio_put(ledPin, 0);
-    }
 }
