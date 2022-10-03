@@ -2,11 +2,13 @@
 // Created by David P. Federl
 //
 
+#define SOURCE_FILE "SHT3X-Test"
+
+#include "common.h"
 #include "sht3x_public.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
-#include <pico/stdio.h>
-#include <pico/time.h>
+#include <pico/stdio_usb.h>
 #include <stdio.h>
 
 static void getTemperatureAndHumidity() {
@@ -14,9 +16,9 @@ static void getTemperatureAndHumidity() {
 
     sht3x_errorCode sht_errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        printf("Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature, humidity);
+        PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature, humidity)
     } else {
-        printf("ErrorCode: %i\n", sht_errorCode);
+        PRINT("ErrorCode: %i\n", sht_errorCode)
     }
 }
 
@@ -25,9 +27,9 @@ static void getTemperature() {
 
     sht3x_errorCode sht_errorCode = sht3x_getTemperature(&temperature);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        printf("Temperature: %4.2f°C\n", temperature);
+        PRINT("Temperature: %4.2f°C\n", temperature)
     } else {
-        printf("ErrorCode: %i\n", sht_errorCode);
+        PRINT("ErrorCode: %i\n", sht_errorCode)
     }
 }
 
@@ -36,9 +38,9 @@ static void getHumidity() {
 
     sht3x_errorCode sht_errorCode = sht3x_getHumidity(&humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        printf("Humidity: %4.2f%%RH\n", humidity);
+        PRINT("Humidity: %4.2f%%RH\n", humidity)
     } else {
-        printf("ErrorCode: %i\n", sht_errorCode);
+        PRINT("ErrorCode: %i\n", sht_errorCode)
     }
 }
 
@@ -47,9 +49,9 @@ static void getSerialNumber() {
 
     sht3x_errorCode sht_errorCode = sht3x_readSerialNumber(&serialNumber);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        printf("Serial number: %li\n", serialNumber);
+        PRINT("Serial number: %li\n", serialNumber)
     } else {
-        printf("ErrorCode: %i\r\n", sht_errorCode);
+        PRINT("ErrorCode: %i\r\n", sht_errorCode)
     }
 }
 
@@ -60,24 +62,26 @@ static void enterBootMode() {
 int main(void) {
     /* enable print to console output */
     stdio_init_all();
-    /* wait to initialize screen session by user */
-    sleep_ms(5000);
+    // wait for user console to connect
+    while ((!stdio_usb_connected())) {}
+    sleep_ms(500);
 
     /* initialize SHT3X sensor */
+    PRINT("START INIT")
     sht3x_errorCode sht_errorCode;
     while (1) {
         sht_errorCode = sht3x_init(i2c0);
         if (sht_errorCode == SHT3X_NO_ERROR) {
-            printf("Initialise SHT3X\n");
+            PRINT("Initialise SHT3X\n")
             break;
         }
-        printf("Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode);
+        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode)
         sleep_ms(500);
     }
 
     /* test functions of sht3x */
-    printf("Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b "
-           "(Boot mode) to perform an action\n");
+    PRINT("Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b "
+          "(Boot mode) to perform an action\n")
     while (1) {
         char input = getchar_timeout_us(10000000);
 
@@ -98,8 +102,8 @@ int main(void) {
             enterBootMode();
             break;
         default:
-            printf("Please enter a (Temp&Humi), t (Temp), h (Humi), s "
-                   "(serialNo), b (Boot mode) to perform an action\n");
+            PRINT("Please enter a (Temp&Humi), t (Temp), h (Humi), s "
+                  "(serialNo), b (Boot mode) to perform an action\n")
             break;
         }
     }
