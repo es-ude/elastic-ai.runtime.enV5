@@ -4,6 +4,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/*! \b INFORMATION
+ * \n
+ * special characters like `,`, `"`,`\` needs to be escaped with an `\`.
+ * Don't forget to escape the `\` in C Strings!
+ * \n
+ * if the password is "ajk"jkl,23" the string needs to be "ajk\\\"jkl\\\,23"
+ */
 typedef struct {
     char *ssid;
     char *password;

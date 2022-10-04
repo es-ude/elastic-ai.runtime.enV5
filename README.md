@@ -5,13 +5,14 @@ Elastic AI implementation for the Elastic Node version 5.
 ## Setup
 
 For compiling the project the tools are:
+
 * required:
     * gcc
     * arm-non-eabi-gcc
     * CMake
     * Ninja
 * recommended:
-  * pre-commit
+    * pre-commit
 
 First you need to load CMake once (CLion does that for you):
 
@@ -24,7 +25,8 @@ If this flag is not passed CMake will use the default build tool on your machine
 
 ## Configuration
 
-In the [configuration.h](src/network_configuration.h) file the Network and MQTT connection settings can be change. To stop
+In the [network_configuration.h](src/network_configuration.h) file the Network and MQTT connection settings can be
+change. To stop
 changes in these to be committed you can do:
 
 ```bash
@@ -43,7 +45,9 @@ The tests can then be found under [cmake-build-test/test/unit](./cmake-build-tes
 
 ### Build all Targets
 
-To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used.
+To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug
+output enabled.
+If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
 
 The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
 
@@ -103,9 +107,9 @@ When MQTT messages are sent to fast to the device, some message will be dropped.
 - Type: **PAC193X**
 - [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
 - Usage:
-  - Measure Power consumption of sensor array
-  - Measure Power consumption of WiFi module
-- Provided Functionality can be found in `src/pac193x/pac193x_public.h` 
+    - Measure Power consumption of sensor array
+    - Measure Power consumption of WiFi module
+- Provided Functionality can be found in `src/pac193x/pac193x_public.h`
 
 #### Basic Usage Example
 
@@ -144,8 +148,8 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 - Type: **SHT3X**
 - [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
 - Usage:
-  - Measure the current temperature
-  - Measure the current humidity
+    - Measure the current temperature
+    - Measure the current humidity
 - Provided functionality can be found in `src/sht3x/sht3x_public.h`
 
 #### Basic Usage Example
@@ -184,7 +188,7 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 - Type: **ADXL345B**
 - [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
 - Usage:
-  - Measure the acceleration in x,y,z direction
+    - Measure the acceleration in x,y,z direction
 - Provided functionality can be found in `src/adxl345b/adxl345b_public.h`
 
 #### Basic Usage Example
@@ -231,5 +235,7 @@ Following submodules are being used
 
 ### Troubleshooting
 
-* In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
-* To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
+* In case the command which fetches the submodules fails, try
+  executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
+* To generate a clean CMake Build without deleting and reinitializing the build directory
+  run `cmake --build <build_dir> --target clean`.
