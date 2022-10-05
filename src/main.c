@@ -8,9 +8,9 @@
 #include "esp.h"
 #include "network_configuration.h"
 // external headers
-#include "hardware/watchdog.h"
-#include "pico/bootrom.h"
-#include "pico/stdlib.h"
+#include <hardware/watchdog.h>
+#include <pico/bootrom.h>
+#include <pico/stdlib.h>
 
 _Noreturn void mainTask(void) {
     network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
@@ -22,7 +22,7 @@ _Noreturn void mainTask(void) {
     }
 }
 
-// Goes into bootloader mod load when 'r' is pressed
+// Goes into bootloader mode when 'r' is pressed
 _Noreturn void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
