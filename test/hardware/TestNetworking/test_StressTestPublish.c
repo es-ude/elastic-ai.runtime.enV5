@@ -1,10 +1,10 @@
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
 #include "MQTTBroker.h"
+#include "Protocol.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "Protocol.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,16 +32,17 @@ void _Noreturn mqttTask(void) {
 
     PRINT("Start sending...")
 
-    uint64_t i = 0;
+    uint64_t messageCounter = 0;
     while (true) {
-        PRINT("stress: %llu", i)
-        i++;
-        publishTestData(i);
+        PRINT("stress: %llu", messageCounter)
+        messageCounter++;
+        publishTestData(messageCounter);
     }
 }
 
 int main() {
     initHardwareTest();
+
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();

@@ -1,10 +1,10 @@
 #define SOURCE_FILE "MQTT-SUBSCRIBE-TEST"
 
 #include "MQTTBroker.h"
+#include "Protocol.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "Protocol.h"
 #include <stdio.h>
 
 /*!
@@ -26,14 +26,14 @@ void _Noreturn mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t ){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
 
-    while (true) {}
+    while (1) {}
 }
 
 int main() {
     initHardwareTest();
-
+    
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();

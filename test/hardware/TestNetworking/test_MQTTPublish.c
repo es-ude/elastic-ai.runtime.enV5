@@ -1,11 +1,10 @@
 #define SOURCE_FILE "MQTT-PUBLISH-TEST"
 
 #include "MQTTBroker.h"
-#include "Network.h"
+#include "Protocol.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "Protocol.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,16 +31,17 @@ void _Noreturn mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    uint64_t i = 0;
-    while (true) {
-        publishTestData(i);
-        i++;
+    uint64_t messageCounter = 0;
+    while (1) {
+        publishTestData(messageCounter);
+        messageCounter++;
         TaskSleep(1000);
     }
 }
 
 int main() {
     initHardwareTest();
+
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();

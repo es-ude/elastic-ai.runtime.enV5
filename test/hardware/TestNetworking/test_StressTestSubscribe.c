@@ -1,10 +1,9 @@
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
-#include "MQTTBroker.h"
+#include "Protocol.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "Protocol.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -24,13 +23,14 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t ){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
 
     while (true) {}
 }
 
 int main() {
     initHardwareTest();
+
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(mqttTask, "mqttTask");
     StartScheduler();

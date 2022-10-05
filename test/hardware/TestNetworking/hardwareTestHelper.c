@@ -34,7 +34,7 @@ void initHardwareTest(void) {
 }
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
-    while (true) {
+    while (1) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }

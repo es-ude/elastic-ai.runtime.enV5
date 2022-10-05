@@ -1,11 +1,10 @@
 #define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
 
 #include "MQTTBroker.h"
-#include "Network.h"
+#include "Protocol.h"
 #include "TaskWrapper.h"
 #include "common.h"
 #include "hardwareTestHelper.h"
-#include "Protocol.h"
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,20 +34,20 @@ _Noreturn void mqttTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    subscriber_t sub = (subscriber_t ){.deliver = deliver};
+    subscriber_t sub = (subscriber_t){.deliver = deliver};
 
-    uint64_t i = 0;
-    while (true) {
+    uint64_t messageCounter = 0;
+    while (1) {
         protocolSubscribeForData("enV5", "testPubSub", sub);
-        PRINT("Should receive data with id: %llu", i)
-        publishTestData(i);
-        i++;
+        PRINT("Should receive data with id: %llu", messageCounter)
+        publishTestData(messageCounter);
+        messageCounter++;
         TaskSleep(2500);
 
         protocolUnsubscribeFromData("enV5", "testPubSub", sub);
-        PRINT("Should NOT receive data with id: %llu", i)
-        publishTestData(i);
-        i++;
+        PRINT("Should NOT receive data with id: %llu", messageCounter)
+        publishTestData(messageCounter);
+        messageCounter++;
         TaskSleep(2500);
     }
 }

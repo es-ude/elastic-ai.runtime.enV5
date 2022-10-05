@@ -3,7 +3,6 @@
 #include "Network.h"
 #include "TaskWrapper.h"
 #include "common.h"
-#include "esp.h"
 #include "hardwareTestHelper.h"
 
 /*!
@@ -16,7 +15,7 @@ extern NetworkCredentials_t credentials;
 _Noreturn void networkTask() {
     PRINT("=== STARTING TEST ===")
 
-    while (true) {
+    while (1) {
         connectToNetwork();
         TaskSleep(2000);
         network_DisconnectFromNetwork();
@@ -26,6 +25,7 @@ _Noreturn void networkTask() {
 
 int main() {
     initHardwareTest();
+    
     RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     RegisterTask(networkTask, "networkTask");
     StartScheduler();
