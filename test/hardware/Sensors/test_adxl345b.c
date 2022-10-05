@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #define SOURCE_FILE "ADXL345-Test"
 
 #include "adxl345b_public.h"
@@ -30,20 +26,20 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 static void getSerialNumber() {
     uint8_t serialNumber = 0;
 
-    PRINT("Requesting serial number.\n")
+    PRINT("Requesting serial number.")
     adxl345b_errorCode errorCode = adxl345b_readSerialNumber(&serialNumber);
     if (errorCode == ADXL345B_NO_ERROR) {
-        PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m; " : "  \033[0;31mFAILED\033[0m; ")
-        PRINT("Expected: 0xE5, Actual: 0x%02X\n", serialNumber)
+        PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m;" : "  \033[0;31mFAILED\033[0m;")
+        PRINT("  Expected: 0xE5, Actual: 0x%02X", serialNumber)
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
 }
 
 static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
-    PRINT("Requesting g values.\n")
+    PRINT("Requesting g values.")
     adxl345b_errorCode errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);
     if (errorCode == ADXL345B_NO_ERROR) {
         /* 0.2G equals a deviation of about 1% from the ideal value
@@ -51,36 +47,36 @@ static void getGValue() {
          * for each axis therefore should epsilon be 0.6G
          */
         float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
-        PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m; "
-                                                              : "  \033[0;31mFAILED\033[0m; ")
-        PRINT("Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
-              "|%2.4fG| = X + Y + Z\n",
+        PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m;"
+                                                              : "  \033[0;31mFAILED\033[0m;")
+        PRINT("  Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
+              "|%2.4fG| = X + Y + Z",
               sumOfAxis, xAxis, yAxis, zAxis)
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X\n", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
 }
 
 static void makeSelfTest() {
-    PRINT("Start self test:\n")
+    PRINT("Start self test:")
     int delta_x, delta_y, delta_z;
     adxl345b_errorCode errorCode = adxl345b_performSelfTest(&delta_x, &delta_y, &delta_z);
     if (errorCode == ADXL345B_NO_ERROR) {
-        PRINT("  \033[0;32mPASSED\033[0m\n")
+        PRINT("  \033[0;32mPASSED\033[0m")
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02x\n", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
 
-    PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB\n", delta_x, delta_y, delta_z)
+    PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB", delta_x, delta_y, delta_z)
 }
 
 static void runCalibration() {
-    PRINT("Start Calibration:\n")
+    PRINT("Start Calibration:")
     adxl345b_errorCode errorCode = adxl345b_runSelfCalibration();
     if (errorCode == ADXL345B_NO_ERROR) {
-        PRINT("  \033[0;32mSUCCESSFUL\033[0m\n")
+        PRINT("  \033[0;32mSUCCESSFUL\033[0m")
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02x\n", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
 }
 
@@ -104,13 +100,13 @@ int main(void) {
             PRINT("Initialised ADXL345B.")
             break;
         }
-        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02x", errorCode)
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
         sleep_ms(500);
     }
 
     /* test function of ADXL345B */
     PRINT("Please enter to request g (G value), s (serialNo), t (self test), "
-          "c (calibration) or b (Boot mode)\n")
+          "c (calibration) or b (Boot mode)")
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds wait */
 
@@ -132,7 +128,7 @@ int main(void) {
             break;
         default:
             PRINT("Please enter to request g (G value), s (serialNo), t (self test), c "
-                  "(calibration) or b (Boot mode)\n")
+                  "(calibration) or b (Boot mode)")
             break;
         }
     }

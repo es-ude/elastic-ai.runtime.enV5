@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #define SOURCE_FILE "SHT3X-Test"
 
 #include "common.h"
@@ -16,9 +12,9 @@ static void getTemperatureAndHumidity() {
 
     sht3x_errorCode sht_errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH\n", temperature, humidity)
+        PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH", temperature, humidity)
     } else {
-        PRINT("ErrorCode: %i\n", sht_errorCode)
+        PRINT("ErrorCode: %02X", sht_errorCode)
     }
 }
 
@@ -27,9 +23,9 @@ static void getTemperature() {
 
     sht3x_errorCode sht_errorCode = sht3x_getTemperature(&temperature);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        PRINT("Temperature: %4.2f°C\n", temperature)
+        PRINT("Temperature: %4.2f°C", temperature)
     } else {
-        PRINT("ErrorCode: %i\n", sht_errorCode)
+        PRINT("ErrorCode: %02X", sht_errorCode)
     }
 }
 
@@ -38,9 +34,9 @@ static void getHumidity() {
 
     sht3x_errorCode sht_errorCode = sht3x_getHumidity(&humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        PRINT("Humidity: %4.2f%%RH\n", humidity)
+        PRINT("Humidity: %4.2f%%RH", humidity)
     } else {
-        PRINT("ErrorCode: %i\n", sht_errorCode)
+        PRINT("ErrorCode: %02X", sht_errorCode)
     }
 }
 
@@ -49,9 +45,9 @@ static void getSerialNumber() {
 
     sht3x_errorCode sht_errorCode = sht3x_readSerialNumber(&serialNumber);
     if (sht_errorCode == SHT3X_NO_ERROR) {
-        PRINT("Serial number: %li\n", serialNumber)
+        PRINT("Serial number: %li", serialNumber)
     } else {
-        PRINT("ErrorCode: %i\r\n", sht_errorCode)
+        PRINT("ErrorCode: %02X", sht_errorCode)
     }
 }
 
@@ -72,16 +68,16 @@ int main(void) {
     while (1) {
         sht_errorCode = sht3x_init(i2c0);
         if (sht_errorCode == SHT3X_NO_ERROR) {
-            PRINT("Initialise SHT3X\n")
+            PRINT("Initialise SHT3X")
             break;
         }
-        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02x\n", sht_errorCode)
+        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02X", sht_errorCode)
         sleep_ms(500);
     }
 
     /* test functions of sht3x */
     PRINT("Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b "
-          "(Boot mode) to perform an action\n")
+          "(Boot mode) to perform an action")
     while (1) {
         char input = getchar_timeout_us(10000000);
 
@@ -103,7 +99,7 @@ int main(void) {
             break;
         default:
             PRINT("Please enter a (Temp&Humi), t (Temp), h (Humi), s "
-                  "(serialNo), b (Boot mode) to perform an action\n")
+                  "(serialNo), b (Boot mode) to perform an action")
             break;
         }
     }
