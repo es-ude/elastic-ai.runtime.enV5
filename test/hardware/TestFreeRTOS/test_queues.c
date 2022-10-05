@@ -1,72 +1,100 @@
+#define SOURCE_FILE "FreeRTOS-QUEUE-TEST"
+
 #include "QueueWrapper.h"
 #include "TaskWrapper.h"
+#include "common.h"
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
-#include <pico/stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-void SenderTask(void);
-
-void MainTask(void);
-
-int main(void) {
-    // Did we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot()) {
-        reset_usb_boot(0, 0);
-    }
-    // init usb and watchdog
-    stdio_init_all();
-    TaskSleep(1000);
-    while ((!stdio_usb_connected())) {}
-    watchdog_enable(2000, 1);
-    CreateQueue();
-
-    // test dynamic vs static
-    printf("test test dynamic vs. static:\n");
-    char str[10];
-    strcpy(str, "hallo");
-    QueueMessage msg;
-    msg.Data = str;
-    QueueSend(msg);
-    msg.Data[0] = 'a';
-    QueueReceive(&msg);
-    printf("Received :%s\n", msg.Data);
-
-    // test async
-    printf("test async:\n");
-
-    RegisterTask(SenderTask, "sensor");
-    RegisterTask(MainTask, "main");
-    StartScheduler();
-}
+#include <pico/stdio_usb.h>
+#include <pico/time.h>
+#include <stdlib.h>
 
 _Noreturn void SenderTask() {
-    QueueMessage msg;
-    msg.Data = 0;
-    while (true) {
-        if (QueueSend(msg)) {
-            printf("Send into Queue\n");
+    QueueMessage message;
+    int messageCounter = 0;
+    char *data = malloc(10);
+    message.Data = data;
+
+    while (1) {
+        sprintf(data, "%i", messageCounter);
+        messageCounter++;
+
+        if (QueueSend(message)) {
+            PRINT("Send message `%s` into Queue", data)
         } else {
-            printf("Failed to Send to queue\n");
+            PRINT("Failed to send message into queue")
         }
-        msg.Data++;
-        TaskSleep(200);
+
+        TaskSleep(250);
     }
 }
 
-void MainTask() {
-    QueueMessage msg;
-    while (true) {
-        if (!QueueReceive(&msg)) {
-            printf("Something went Wrong!\n");
+_Noreturn void ReceiverTask() {
+    QueueMessage message;
+
+    while (1) {
+        if (!QueueReceive(&message)) {
+            PRINT("Something went Wrong!\n")
         } else {
-            printf("Received: %d\n", msg.Data);
+            PRINT("Received: `%s`", message.Data)
         }
+
+        // enter boot mode if selected
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }
+
+        // reset watchdog timer
         watchdog_update();
-        TaskSleep(200);
+
+        TaskSleep(250);
     }
+}
+
+void initHardware() {
+    // init usb and wait for user connection
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {}
+    TaskSleep(1000);
+
+    // start watchdog timer
+    watchdog_enable(2000, 1);
+
+    // create queue
+    CreateQueue();
+}
+
+void testDynamicMessageChanges() {
+    // create message
+    char data[10];
+    snprintf(data, 6, "hallo");
+    QueueMessage message;
+    message.Data = data;
+
+    // send message into queue
+    QueueSend(message);
+
+    // modify message data after send
+    message.Data[0] = 'a';
+
+    // receive modified message
+    QueueReceive(&message);
+    PRINT("Expected: `aallo`; Received: `%s`", message.Data)
+}
+
+int main(void) {
+    // Did we crash last time? -> reboot into boot mode
+    if (watchdog_enable_caused_reboot()) {
+        reset_usb_boot(0, 0);
+    }
+    initHardware();
+
+    PRINT("===== START TEST: dynamic vs. static messages =====")
+    testDynamicMessageChanges();
+
+    // test async
+    PRINT("===== START TEST: asynchronous messages =====")
+    RegisterTask(SenderTask, "sendMessage");
+    RegisterTask(ReceiverTask, "receiveTask");
+    StartScheduler();
 }
