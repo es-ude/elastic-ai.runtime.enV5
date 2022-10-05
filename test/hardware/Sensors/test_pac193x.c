@@ -40,14 +40,14 @@ static void getValuesOfChannelWifi() {
         return;
     }
 
-    PRINT("  Measurements:\n    VSource=%4.6fV\n    VSense=%4.6fmV\n    ISense=%4.6fmA",
+    PRINT("  Measurements:\tVSource=%4.6fV\tVSense=%4.6fmV\tISense=%4.6fmA",
           measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000)
 
     PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", resistanceValues[1],
           measurements.voltageSense / (measurements.iSense))
     if (compareFloatsWithinRange(resistanceValues[0],
                                  measurements.voltageSense / measurements.iSense, 0.1f)) {
-        PRINT("    \033[0;32mPASSED\033[0m;")
+        PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!")
     }
@@ -57,7 +57,7 @@ static void getValuesOfChannelWifi() {
         measurements.powerActual, measurements.iSense * measurements.voltageSource)
     if (compareFloatsWithinRange(measurements.powerActual,
                                  measurements.iSense * measurements.voltageSource, 0.001f)) {
-        PRINT("    \033[0;32mPASSED\033[0m;")
+        PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!")
     }
@@ -76,14 +76,14 @@ static void getValuesOfChannelSensors() {
         return;
     }
 
-    PRINT("  Measurements:\n    VSource=%4.6fV\n    VSense=%4.6fmV\n    ISense=%4.6fmA",
+    PRINT("  Measurements:\tVSource=%4.6fV;\tVSense=%4.6fmV;\tISense=%4.6fmA",
           measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000)
 
     PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", resistanceValues[1],
           measurements.voltageSense / (measurements.iSense))
     if (compareFloatsWithinRange(resistanceValues[0],
                                  measurements.voltageSense / measurements.iSense, 0.1f)) {
-        PRINT("    \033[0;32mPASSED\033[0m;")
+        PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!")
     }
@@ -93,7 +93,7 @@ static void getValuesOfChannelSensors() {
         measurements.powerActual, measurements.iSense * measurements.voltageSource)
     if (compareFloatsWithinRange(measurements.powerActual,
                                  measurements.iSense * measurements.voltageSource, 0.001f)) {
-        PRINT("    \033[0;32mPASSED\033[0m;")
+        PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!")
     }
@@ -107,16 +107,15 @@ static void getSerialNumber() {
     PRINT("Requesting serial number.")
     pac193x_errorCode errorCode = pac193x_getSensorInfo(&sensorID);
     if (errorCode == PAC193X_NO_ERROR) {
-        PRINT("  Expected:\n    Product ID: 0x%2X to 0x%2X; Manufacture getDomain: 0x%2X; Revision "
-              "getDomain: 0x%02X",
-              0x58, 0x5B, 0x5D, 0x03)
-        PRINT("  Actual:\n    Product ID: 0x%2X; Manufacture getDomain: 0x%2X; "
-              "Revision getDomain: 0x%2X",
+        PRINT(
+            "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
+            0x58, 0x5B, 0x5D, 0x03)
+        PRINT("    Actual: Product ID: 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
               sensorID.product_id, sensorID.manufacturer_id, sensorID.revision_id)
 
         bool valid_product_id = (sensorID.product_id >= 0x58) && (sensorID.product_id <= 0x5B);
         if (valid_product_id && 0x5D == sensorID.manufacturer_id && 0x03 == sensorID.revision_id) {
-            PRINT("    \33[0;32mPASSED\033[0m;")
+            PRINT("    \33[0;32mPASSED\033[0m")
         } else {
             PRINT("    \033[0;31mFAILED\033[0m; IDs do not match!")
         }
@@ -150,8 +149,8 @@ int main(void) {
     }
 
     PRINT("===== START TEST =====")
-    PRINT("Please enter to request i (product getDomain), w (channel wifi), s "
-          "(channel sensor) or b (Boot mode)\n")
+    PRINT("Please enter to request i (product ID), w (channel wifi), s "
+          "(channel sensor) or b (Boot mode)")
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds wait */
 
@@ -169,8 +168,8 @@ int main(void) {
             enterBootMode();
             break;
         default:
-            PRINT("Please enter to request i (product getDomain), w (channel wifi), "
-                  "s (channel sensor) or b (Boot mode)\n")
+            PRINT("Please enter to request i (product ID), w (channel wifi), "
+                  "s (channel sensor) or b (Boot mode)")
             break;
         }
     }

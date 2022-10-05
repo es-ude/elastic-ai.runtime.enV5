@@ -29,10 +29,10 @@ static void getSerialNumber() {
     PRINT("Requesting serial number.")
     adxl345b_errorCode errorCode = adxl345b_readSerialNumber(&serialNumber);
     if (errorCode == ADXL345B_NO_ERROR) {
-        PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m;" : "  \033[0;31mFAILED\033[0m;")
         PRINT("  Expected: 0xE5, Actual: 0x%02X", serialNumber)
+        PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m" : "  \033[0;31mFAILED\033[0m;")
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode)
     }
 }
 
@@ -47,11 +47,12 @@ static void getGValue() {
          * for each axis therefore should epsilon be 0.6G
          */
         float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
-        PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m;"
-                                                              : "  \033[0;31mFAILED\033[0m;")
+
         PRINT("  Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
               "|%2.4fG| = X + Y + Z",
               sumOfAxis, xAxis, yAxis, zAxis)
+        PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m"
+                                                              : "  \033[0;31mFAILED\033[0m")
     } else {
         PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
@@ -61,13 +62,12 @@ static void makeSelfTest() {
     PRINT("Start self test:")
     int delta_x, delta_y, delta_z;
     adxl345b_errorCode errorCode = adxl345b_performSelfTest(&delta_x, &delta_y, &delta_z);
+    PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB", delta_x, delta_y, delta_z)
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  \033[0;32mPASSED\033[0m")
     } else {
         PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode)
     }
-
-    PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB", delta_x, delta_y, delta_z)
 }
 
 static void runCalibration() {
