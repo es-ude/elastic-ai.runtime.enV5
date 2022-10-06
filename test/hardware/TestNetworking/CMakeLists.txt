@@ -84,3 +84,12 @@ target_link_libraries(hardware-test_StressTestSubscribe
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_StressTestSubscribe)
+
+################## test_MqttKeepAlive ##################
+add_executable(hardware-test_MQTTKeepalive HardwaretestMqttKeepAlive.c)
+target_link_libraries(hardware-test_MQTTKeepalive
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_MQTTKeepalive PRIVATE DEBUG)
+make_to_output_file(hardware-test_MQTTKeepalive)

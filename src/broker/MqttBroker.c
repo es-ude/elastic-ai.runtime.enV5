@@ -74,6 +74,12 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
     }
     mqttBrokerInternalSetBrokerDomain(brokerDomain);
 
+    // store connection configuration
+    mqttBrokerErrorCode_t connectionConfigError = mqttBrokerInternalSetConnectionConfiguration();
+    if (connectionConfigError != MQTT_NO_ERROR) {
+        return connectionConfigError;
+    }
+
     // generate connect command with ip and port
     size_t commandLength =
         AT_MQTT_CONNECT_TO_BROKER_LENGTH + strlen(credentials.ip) + strlen(credentials.port);
@@ -93,6 +99,7 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
+        publishAliveStatusMessage();
         return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
@@ -186,7 +193,11 @@ void communicationEndpointPublishRaw(posting_t posting) {
 
     size_t commandLength = AT_MQTT_PUBLISH_LENGTH + strlen(posting.topic) + strlen(posting.data);
     char *publishData = malloc(commandLength);
-    snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data);
+    if (posting.retain) {
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data, "1");
+    } else {
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data, "0");
+    }
 
     if (ESP_NO_ERROR != espSendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
         PRINT("Could not publish to topic: %s.", posting.topic)
@@ -311,7 +322,7 @@ char *communicationEndpointGetClientId() {
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-void mqttBrokerInternalSetBrokerDomain(char *ID) {
+static void mqttBrokerInternalSetBrokerDomain(char *ID) {
     // delete previous domain if needed
     if (mqttBrokerBrokerId != NULL) {
         free(mqttBrokerBrokerId);
@@ -324,8 +335,8 @@ void mqttBrokerInternalSetBrokerDomain(char *ID) {
     strcpy(mqttBrokerBrokerId, ID);
 }
 
-mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
-                                                             char *password) {
+static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
+                                                                    char *password) {
     // delete previous ID if needed
     if (mqttBrokerClientId != NULL) {
         free(mqttBrokerClientId);
@@ -358,6 +369,54 @@ mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, cha
         PRINT("Could not set client id to %s, aborting...", clientId)
         return MQTT_ESP_CHIP_FAILED;
     }
+}
+
+static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) {
+    // generate LWT topic
+    char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic("status");
+    size_t lwt_topic_length = strlen(lwt_topic);
+
+    // generate LWT message
+    size_t lwt_message_length = strlen(mqttBrokerClientId) + 3;
+    char *lwt_message = malloc(lwt_message_length);
+    snprintf(lwt_message, lwt_message_length, "%s;0", mqttBrokerClientId);
+
+    // generate command to send connection configuration to esp module
+    size_t commandLength =
+        AT_MQTT_CONNECTION_CONFIGURATION_LENGTH + lwt_topic_length + lwt_message_length;
+    char *setConnectionConfiguration = malloc(commandLength);
+    snprintf(setConnectionConfiguration, commandLength, AT_MQTT_CONNECTION_CONFIGURATION, lwt_topic,
+             lwt_message);
+
+    // send connection configuration to esp module
+    espErrorCode_t espErrorCode =
+        espSendCommand(setConnectionConfiguration, AT_MQTT_CONNECTION_CONFIGURATION_RESPONSE, 5000);
+    free(setConnectionConfiguration);
+
+    if (espErrorCode == ESP_NO_ERROR) {
+        PRINT("Set connection configuration successful.")
+        return MQTT_NO_ERROR;
+    } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Failed to store Connection settings! Wrong answer!")
+        return MQTT_ESP_WRONG_ANSWER;
+    } else if (espErrorCode == ESP_UART_IS_BUSY) {
+        PRINT("Failed to store Connection settings! UART busy!")
+        return MQTT_ESP_CHIP_FAILED;
+    } else {
+        PRINT("Failed to store Connection settings!")
+        return MQTT_CONNECTION_FAILED;
+    }
+}
+
+static void publishAliveStatusMessage() {
+    // create alive message
+    size_t messageLength = strlen(mqttBrokerClientId) + 3;
+    char *message = malloc(messageLength);
+    snprintf(message, messageLength, "%s;1", mqttBrokerClientId);
+    posting_t aliveMessage = {.topic = "status", .data = message, .retain = 1};
+
+    // publish message
+    communicationEndpointPublish(aliveMessage);
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {
