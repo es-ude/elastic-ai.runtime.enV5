@@ -1,22 +1,23 @@
-#ifndef SENSOR_BOARD_QUEUE_WRAPPER_H
-#define SENSOR_BOARD_QUEUE_WRAPPER_H
+#ifndef ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
+#define ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
 
 #include <stdbool.h>
 
-#define QUEUE_LENGTH 10
-#define QUEUE_WAIT_IF_BLOCKED_MS_AMOUNT 10
-#define QUEUE_WAIT_FOR_RECEIVE_MS_AMOUNT 1000
+#define FREERTOS_QUEUE_WRAPPER_QUEUE_LENGTH 10
+#define FREERTOS_QUEUE_WRAPPER_WAIT_IF_BLOCKED_MS_AMOUNT 10
+#define FREERTOS_QUEUE_WRAPPER_WAIT_FOR_RECEIVE_MS_AMOUNT 1000
 
-typedef struct {
+struct freeRtosQueueWrapperMessage {
     // be aware that only the pointer is copied and not the content of the
     // message! see the queue hardware test for usage
     char *Data;
-} QueueMessage;
+};
+typedef struct freeRtosQueueWrapperMessage freeRtosQueueWrapperMessage_t;
 
-void CreateQueue();
+void freeRtosQueueWrapperCreate(void);
 
-bool QueueSend(QueueMessage message);
+bool freeRtosQueueWrapperSend(freeRtosQueueWrapperMessage_t message);
 
-bool QueueReceive(QueueMessage *message);
+bool freeRtosQueueWrapperReceive(freeRtosQueueWrapperMessage_t *message);
 
-#endif // SENSOR_BOARD_QUEUE_WRAPPER_H
+#endif /* ENV5_FREERTOS_QUEUE_WRAPPER_HEADER */

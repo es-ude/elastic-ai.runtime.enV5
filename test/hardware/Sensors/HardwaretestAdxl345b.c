@@ -27,7 +27,7 @@ static void getSerialNumber() {
     uint8_t serialNumber = 0;
 
     PRINT("Requesting serial number.")
-    adxl345b_errorCode errorCode = adxl345b_readSerialNumber(&serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&serialNumber);
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  Expected: 0xE5, Actual: 0x%02X", serialNumber)
         PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m" : "  \033[0;31mFAILED\033[0m;")
@@ -40,7 +40,7 @@ static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     PRINT("Requesting g values.")
-    adxl345b_errorCode errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
     if (errorCode == ADXL345B_NO_ERROR) {
         /* 0.2G equals a deviation of about 1% from the ideal value
          * this deviation is given by the datasheet as the accepted tolerance
@@ -61,7 +61,7 @@ static void getGValue() {
 static void makeSelfTest() {
     PRINT("Start self test:")
     int delta_x, delta_y, delta_z;
-    adxl345b_errorCode errorCode = adxl345b_performSelfTest(&delta_x, &delta_y, &delta_z);
+    adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(&delta_x, &delta_y, &delta_z);
     PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB", delta_x, delta_y, delta_z)
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  \033[0;32mPASSED\033[0m")
@@ -72,7 +72,7 @@ static void makeSelfTest() {
 
 static void runCalibration() {
     PRINT("Start Calibration:")
-    adxl345b_errorCode errorCode = adxl345b_runSelfCalibration();
+    adxl345bErrorCode_t errorCode = adxl345bRunSelfCalibration();
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  \033[0;32mSUCCESSFUL\033[0m")
     } else {
@@ -93,9 +93,9 @@ int main(void) {
 
     /* initialize ADXL345B sensor */
     PRINT("START INIT")
-    adxl345b_errorCode errorCode;
+    adxl345bErrorCode_t errorCode;
     while (1) {
-        errorCode = adxl345b_init(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
+        errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
         if (errorCode == ADXL345B_NO_ERROR) {
             PRINT("Initialised ADXL345B.")
             break;

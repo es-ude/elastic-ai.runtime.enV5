@@ -1,4 +1,5 @@
 #define SOURCE_FILE "MAIN"
+
 // src headers
 #include "Common.h"
 #include "Esp.h"
@@ -7,18 +8,19 @@
 #include "MqttBroker.h"
 #include "Network.h"
 #include "NetworkConfiguration.h"
+
 // external headers
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
 
 _Noreturn void mainTask(void) {
-    network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
-    mqtt_connectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 
     while (true) {
         PRINT("Hello, World!")
-        TaskSleep(5000);
+        freeRtosTaskWrapperTaskSleep(5000);
     }
 }
 
@@ -31,7 +33,7 @@ _Noreturn void enterBootModeTask(void) {
         // Watchdog update needs to be performed frequent, otherwise the device
         // will crash
         watchdog_update();
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
@@ -47,17 +49,17 @@ void init(void) {
     while ((!stdio_usb_connected()))
         ;
     // Checks connection to ESP and initializes
-    esp_Init();
+    espInit();
     // Create FreeRTOS task queue
-    CreateQueue();
+    freeRtosQueueWrapperCreate();
     // enables watchdog to check for reboots
     watchdog_enable(2000, 1);
 }
 
 int main() {
     init();
-    RegisterTask(enterBootModeTask, "enterBootModeTask");
-    RegisterTask(mainTask, "mainTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask");
     // Starts FreeRTOS tasks
-    StartScheduler();
+    freeRtosTaskWrapperStartScheduler();
 }

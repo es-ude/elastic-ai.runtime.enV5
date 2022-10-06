@@ -4,25 +4,29 @@
 #include "Posting.h"
 #include "Subscriber.h"
 
-typedef struct {
+struct mqttBrokerSubscription {
     char *topic;
     subscriber_t subscriber;
-} Subscription;
+};
+typedef struct mqttBrokerSubscription mqttBrokerSubscription_t;
 
-static void setBrokerDomain(char *ID);
+static void mqttBrokerInternalSetBrokerDomain(char *ID);
 
-static mqtt_errorCode setUserConfiguration(char *clientId, char *userId, char *password);
+static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
+                                                             char *password);
 
-static char *concatDomainAndClientWithTopic(const char *topic);
+static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic);
 
-static char *concatDomainWithTopic(const char *topic);
+static char *mqttBrokerInternalConcatDomainWithTopic(const char *topic);
 
-static void getTopic(posting_t *posting, const char *startOfTopic, int lengthOfTopic);
+static void mqttBrokerInternalGetTopic(posting_t *posting, const char *startOfTopic,
+                                       int lengthOfTopic);
 
-static int getNumberOfDataBytes(const char *startOfNumber, const char *endOfNumber);
+static int mqttBrokerInternalGetNumberOfDataBytes(const char *startOfNumber,
+                                                  const char *endOfNumber);
 
-static void getData(posting_t *posting, const char *startOfData, int dataLength);
+static void mqttBrokerInternalGetData(posting_t *posting, const char *startOfData, int dataLength);
 
-static bool handleResponse(posting_t *posting, char *response);
+static bool mqttBrokerInternalHandleResponse(posting_t *posting, char *response);
 
 #endif /* ENV5_MQTTBROKER_INTERNAL_HEADER */

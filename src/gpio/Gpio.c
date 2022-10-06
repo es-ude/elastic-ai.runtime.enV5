@@ -1,8 +1,9 @@
+#define SOURCE_FILE "GPIO-LIB"
+
 #include "Gpio.h"
+#include <hardware/gpio.h>
 
-#include "hardware/gpio.h"
-
-GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode) {
+gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode) {
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_OUT);
     gpio_put(pin, powerMode);
@@ -10,7 +11,7 @@ GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode) {
     return GPIO_NO_ERROR;
 }
 
-GPIO_ErrorCode GPIO_setPinFunction(GPIO_PIN pin, GPIO_PIN_FUNCTION function) {
+gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function) {
     gpio_set_function(pin, function);
 
     return GPIO_NO_ERROR;

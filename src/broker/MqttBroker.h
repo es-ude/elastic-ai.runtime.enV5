@@ -6,12 +6,13 @@
 
 #define MAX_SUBSCRIBER 100
 
-typedef struct {
+struct mqttHost {
     char *ip;
     char *port;
     char *userID;
     char *password;
-} MQTTHost_t;
+};
+typedef struct mqttHost mqttBrokerHost_t;
 
 enum {
     MQTT_NO_ERROR = 0x00,
@@ -21,7 +22,7 @@ enum {
     MQTT_ESP_WRONG_ANSWER = 0x04,
     MQTT_ALREADY_CONNECTED = 0x05
 };
-typedef uint8_t mqtt_errorCode;
+typedef uint8_t mqttBrokerErrorCode_t;
 
 /*! \brief tries to connect to Broker until successful
  *
@@ -33,8 +34,8 @@ typedef uint8_t mqtt_errorCode;
  * \param clientID getDomain of this client, used to Identify to the Broker and added
  * after the Domain in every message
  */
-mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *brokerDomain,
-                                                   char *clientID);
+mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost,
+                                                               char *brokerDomain, char *clientID);
 
 /*! \brief tries to connect to Broker
  *
@@ -46,18 +47,19 @@ mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
  * \param clientID getID of this client, used to Identify to the Broker and added after the Domain
  * in every message \return true if connection successful or already connected, otherwise false
  */
-mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, char *clientID);
+mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
+                                                char *clientID);
 
 /*! \brief disconnect from MQTT broker
  *
  * @param force[bool] if set disconnect comment will force disconnect
  */
-void mqtt_Disconnect(bool force);
+void mqttBrokerDisconnect(bool force);
 
 /*! \brief called by uart when MQTT message is received
  *
  * \param response the MQTT message received
  */
-void mqtt_Receive(char *response);
+void mqttBrokerReceive(char *response);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

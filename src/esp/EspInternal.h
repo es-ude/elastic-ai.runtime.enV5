@@ -4,9 +4,9 @@
 #include <stdbool.h>
 
 /*! \brief check if ESP responds to commands */
-bool checkIsResponding(void);
+bool espInternalCheckIsResponding(void);
 
 /*! \brief sends reset command to ESP */
-bool softReset(void);
+bool espInternalSoftReset(void);
 
 #endif /* ENV5_ESP_INTERNAL_HEADER */

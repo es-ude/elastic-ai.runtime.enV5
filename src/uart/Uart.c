@@ -10,140 +10,141 @@
 
 /* region VARIABLES */
 
-static UARTDevice *device;
+static uartDevice_t *uartDevice;
 
-volatile static bool lastReceivedCharacterWasReturn = false;
-volatile static bool correctResponseReceived = false;
+volatile static bool uartLastReceivedCharacterWasReturn = false;
+volatile static bool uartCorrectResponseReceived = false;
 
-static char *commandToSend = "\0";
-static char *expectedResponseFromEsp = "\0";
+static char *uartCommandToSend = "\0";
+static char *uartExpectedResponseFromEsp = "\0";
 
-void (*uartToESP_MQTT_Broker_Receive)(char *) = NULL;
+void (*uartMqttBrokerReceive)(char *) = NULL;
 
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartToEsp_Init(UARTDevice *uartDevice) {
-    device = uartDevice;
+void uartInit(uartDevice_t *device) {
+    uartDevice = device;
 
-    if (device->uartId == 0) {
-        device->uartInstance = (uartToESP_Instance *)uart0;
+    if (uartDevice->uartId == 0) {
+        uartDevice->uartInstance = (uartInstance_t *)uart0;
     } else {
-        device->uartInstance = (uartToESP_Instance *)uart1;
+        uartDevice->uartInstance = (uartInstance_t *)uart1;
     }
 
     // Set the TX and RX pins to UART by using the function select on the GPIO
-    GPIO_setPinFunction(device->tx_pin, GPIO_FUNCTION_UART);
-    GPIO_setPinFunction(device->rx_pin, GPIO_FUNCTION_UART);
+    gpioSetPinFunction(uartDevice->txPin, GPIO_FUNCTION_UART);
+    gpioSetPinFunction(uartDevice->rxPin, GPIO_FUNCTION_UART);
 
     // Set up our UART with requested baud rate.
     // The call will return the actual baud rate selected, which will be as close as possible
     // to that requested
-    device->baudrate_actual = uart_init((uart_inst_t *)device->uartInstance, device->baudrate_set);
+    uartDevice->baudrateActual =
+        uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrateSet);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
-    uart_set_hw_flow((uart_inst_t *)device->uartInstance, false, false);
+    uart_set_hw_flow((uart_inst_t *)uartDevice->uartInstance, false, false);
 
     // Set our data format
-    uart_set_format((uart_inst_t *)device->uartInstance, device->data_bits, device->stop_bits,
-                    (uart_parity_t)device->parity);
+    uart_set_format((uart_inst_t *)uartDevice->uartInstance, uartDevice->dataBits,
+                    uartDevice->stopBits, (uart_parity_t)uartDevice->parity);
 
     // Turn off FIFO's - we want to do this character by character
-    uart_set_fifo_enabled((uart_inst_t *)device->uartInstance, false);
+    uart_set_fifo_enabled((uart_inst_t *)uartDevice->uartInstance, false);
 
     // And set up and enable the interrupt handlers
-    irq_set_exclusive_handler(UART1_IRQ, callback_uart_rx_interrupt);
+    irq_set_exclusive_handler(UART1_IRQ, uartInternalCallbackUartRxInterrupt);
     irq_set_enabled(UART1_IRQ, true);
 
     // Now enable the UART to send interrupts - RX only
-    uart_set_irq_enables((uart_inst_t *)device->uartInstance, true, false);
+    uart_set_irq_enables((uart_inst_t *)uartDevice->uartInstance, true, false);
 
     // Clear internal buffer space
-    device->receivedCharacter_count = 0;
-    device->receive_buffer[0] = '\0';
+    uartDevice->receivedCharacter_count = 0;
+    uartDevice->receiveBuffer[0] = '\0';
 }
 
-void uartToESP_SetMQTTReceiverFunction(void (*receive)(char *)) {
-    uartToESP_MQTT_Broker_Receive = receive;
+void uartSetMqttReceiverFunction(void (*receive)(char *)) {
+    uartMqttBrokerReceive = receive;
 }
 
-uartToEsp_errorCode uartToESP_sendCommand(char *command, char *expectedResponse) {
+uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
     // check if UART is currently occupied
-    if (strcmp(commandToSend, "\0") != 0) {
+    if (strcmp(uartCommandToSend, "\0") != 0) {
         PRINT("UART is busy. Can't send command %s.", command)
         return UART_IS_BUSY;
     }
 
     // reset internal buffer
-    commandToSend = command;
-    correctResponseReceived = false;
-    expectedResponseFromEsp = expectedResponse;
+    uartCommandToSend = command;
+    uartCorrectResponseReceived = false;
+    uartExpectedResponseFromEsp = expectedResponse;
 
     // send command over uart
     PRINT_DEBUG("COMMAND: %s", command)
-    uart_puts((uart_inst_t *)device->uartInstance, command);
-    uart_puts((uart_inst_t *)device->uartInstance, "\r\n");
+    uart_puts((uart_inst_t *)uartDevice->uartInstance, command);
+    uart_puts((uart_inst_t *)uartDevice->uartInstance, "\r\n");
 
     return UART_NO_ERROR;
 }
 
-bool uartToESP_correctResponseArrived(void) {
-    return correctResponseReceived;
+bool uartCorrectResponseArrived(void) {
+    return uartCorrectResponseReceived;
 }
 
-void uartToESP_freeCommandBuffer(void) {
-    commandToSend = "\0";
+void uartFreeCommandBuffer(void) {
+    uartCommandToSend = "\0";
 }
 
 /* endregion */
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
 
-void handleNewLine(void) {
-    if (strlen(device->receive_buffer) != 0) {
-        if (strncmp("+MQTTSUBRECV", device->receive_buffer, 12) == 0 &&
-            uartToESP_MQTT_Broker_Receive != NULL) {
+void uartInternalHandleNewLine(void) {
+    if (strlen(uartDevice->receiveBuffer) != 0) {
+        if (strncmp("+MQTTSUBRECV", uartDevice->receiveBuffer, 12) == 0 &&
+            uartMqttBrokerReceive != NULL) {
             // handle Received MQTT message -> pass to correct subscriber
-            uartToESP_MQTT_Broker_Receive(device->receive_buffer);
+            uartMqttBrokerReceive(uartDevice->receiveBuffer);
         }
-        if (strncmp(expectedResponseFromEsp, device->receive_buffer,
-                    strlen(expectedResponseFromEsp)) == 0) {
-            PRINT_DEBUG("Expected message received: %s", device->receive_buffer)
-            correctResponseReceived = true;
+        if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
+                    strlen(uartExpectedResponseFromEsp)) == 0) {
+            PRINT_DEBUG("Expected message received: %s", uartDevice->receiveBuffer)
+            uartCorrectResponseReceived = true;
         } else {
-            PRINT_DEBUG("Received message was: %s", device->receive_buffer)
+            PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
         }
     }
 }
 
-void callback_uart_rx_interrupt() {
-    while (uart_is_readable((uart_inst_t *)device->uartInstance)) {
-        char receivedCharacter = uart_getc((uart_inst_t *)device->uartInstance);
+void uartInternalCallbackUartRxInterrupt() {
+    while (uart_is_readable((uart_inst_t *)uartDevice->uartInstance)) {
+        char receivedCharacter = uart_getc((uart_inst_t *)uartDevice->uartInstance);
 
         if (receivedCharacter == '\n' || receivedCharacter == '\r' || receivedCharacter == '\0') {
-            if (lastReceivedCharacterWasReturn && receivedCharacter == '\n') {
+            if (uartLastReceivedCharacterWasReturn && receivedCharacter == '\n') {
                 // Line End reached
-                handleNewLine();
-                device->receivedCharacter_count = 0;
+                uartInternalHandleNewLine();
+                uartDevice->receivedCharacter_count = 0;
             } else if (receivedCharacter == '\r') {
                 // store for next call
-                lastReceivedCharacterWasReturn = true;
+                uartLastReceivedCharacterWasReturn = true;
             }
-        } else if (receivedCharacter == '>' && device->receivedCharacter_count == 1) {
-            handleNewLine();
-            device->receivedCharacter_count = 0;
+        } else if (receivedCharacter == '>' && uartDevice->receivedCharacter_count == 1) {
+            uartInternalHandleNewLine();
+            uartDevice->receivedCharacter_count = 0;
         } else {
             // Store new character in buffer
-            device->receive_buffer[device->receivedCharacter_count] = receivedCharacter;
-            device->receivedCharacter_count++;
+            uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = receivedCharacter;
+            uartDevice->receivedCharacter_count++;
 
             // store for next call
-            lastReceivedCharacterWasReturn = false;
+            uartLastReceivedCharacterWasReturn = false;
         }
 
         // Neutralize buffer for next character
-        device->receive_buffer[device->receivedCharacter_count] = '\0';
+        uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
     }
 }
 

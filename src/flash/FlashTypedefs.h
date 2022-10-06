@@ -1,5 +1,6 @@
-#ifndef ENV5_FLASHTYPEDEFS_H
-#define ENV5_FLASHTYPEDEFS_H
+#ifndef ENV5_FLASH_TYPEDEFS
+#define ENV5_FLASH_TYPEDEFS
+
 typedef struct spi_inst spi_inst_t;
 
-#endif // ENV5_FLASHTYPEDEFS_H
+#endif /* ENV5_FLASH_TYPEDEFS */

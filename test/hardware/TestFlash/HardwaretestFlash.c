@@ -24,7 +24,7 @@ void initHardwareTest(void) {
     }
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    CreateQueue();
+    freeRtosQueueWrapperCreate();
     watchdog_enable(2000, 1);
 }
 
@@ -34,20 +34,20 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
             reset_usb_boot(0, 0);
         }
         watchdog_update();
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
 void init_helper(spi_inst_t *spi, uint32_t baudrate) {
 
-    SPI_init(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
-    init_flash(cs_pin, spi);
+    spiInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
+    flashInit(cs_pin, spi);
 }
 
 // 256Mb flash, 4kb + 64 kb sector
 void readDeviceID() {
     uint8_t *id = (uint8_t *)malloc(6);
-    flash_read_id(id, 6);
+    flashReadId(id, 6);
     printf("Device ID is: ");
     printf("%02X%02X%02X%02X%02X", id[0], id[1], id[2], id[3], id[4]);
     printf("\n");
@@ -59,7 +59,7 @@ void writeSPI() {
         data[i] = i;
     }
     for (uint32_t i = 0; i < 2000; i++) {
-        flash_write_page(REG_DEVID + i * 256, data, page_length);
+        flashWritePage(REG_DEVID + i * 256, data, page_length);
     }
     printf(" bytes written\n");
 }
@@ -67,7 +67,7 @@ void writeSPI() {
 void eraseSPISector() {
     for (uint32_t i = 0; i < 9; i++) {
         printf("round %u\n", i);
-        int erased_sector = flash_erase_data(65536 * i);
+        int erased_sector = flashEraseData(65536 * i);
         if (erased_sector == 0) {
             printf("erased sector == 0\n");
         } else {
@@ -81,7 +81,7 @@ void eraseSPISector() {
             data_read[k + 2] = 0xA;
             data_read[k + 3] = 0xD;
         }
-        flash_read_data(65535 * i, data_read, 256);
+        flashReadData(65535 * i, data_read, 256);
         for (uint32_t j = 0; j < 256; j++) {
             printf("%u", data_read[j]);
         }
@@ -92,7 +92,7 @@ void readSPI() {
     uint8_t data_read[(page_length)];
     uint8_t data_read2[page_length];
     for (uint32_t i = 0; i < 2000; i++) {
-        int page_read = flash_read_data(i * page_length, data_read, (page_length));
+        int page_read = flashReadData(i * page_length, data_read, (page_length));
         printf("%u", page_read);
         for (uint16_t j = 0; j < page_length; j++) {
             if (data_read[j] != j) {
@@ -132,8 +132,8 @@ void spiTask() {
 int main() {
     stdio_init_all();
     // initHardwareTest();
-    // RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    // RegisterTask(spiTask, "spiTask");
-    // StartScheduler();
+    // freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    // freeRtosTaskWrapperRegisterTask(spiTask, "spiTask");
+    // freeRtosTaskWrapperStartScheduler();
     spiTask();
 }

@@ -4,12 +4,12 @@
 
 #include "Gpio.h"
 
-GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode) {
+gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }
 
-GPIO_ErrorCode GPIO_setPinFunction(GPIO_PIN pin, GPIO_PIN_FUNCTION function) {
+gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }

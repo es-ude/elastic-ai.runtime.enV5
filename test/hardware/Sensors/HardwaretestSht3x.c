@@ -10,7 +10,7 @@
 static void getTemperatureAndHumidity() {
     float temperature, humidity;
 
-    sht3x_errorCode sht_errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t sht_errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH", temperature, humidity)
     } else {
@@ -21,7 +21,7 @@ static void getTemperatureAndHumidity() {
 static void getTemperature() {
     float temperature;
 
-    sht3x_errorCode sht_errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t sht_errorCode = sht3xGetTemperature(&temperature);
     if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Temperature: %4.2f°C", temperature)
     } else {
@@ -32,7 +32,7 @@ static void getTemperature() {
 static void getHumidity() {
     float humidity;
 
-    sht3x_errorCode sht_errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t sht_errorCode = sht3xGetHumidity(&humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Humidity: %4.2f%%RH", humidity)
     } else {
@@ -43,7 +43,7 @@ static void getHumidity() {
 static void getSerialNumber() {
     uint32_t serialNumber;
 
-    sht3x_errorCode sht_errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t sht_errorCode = sht3xReadSerialNumber(&serialNumber);
     if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Serial number: %li", serialNumber)
     } else {
@@ -64,9 +64,9 @@ int main(void) {
 
     /* initialize SHT3X sensor */
     PRINT("START INIT")
-    sht3x_errorCode sht_errorCode;
+    sht3xErrorCode_t sht_errorCode;
     while (1) {
-        sht_errorCode = sht3x_init(i2c0);
+        sht_errorCode = sht3xInit(i2c0);
         if (sht_errorCode == SHT3X_NO_ERROR) {
             PRINT("Initialise SHT3X")
             break;

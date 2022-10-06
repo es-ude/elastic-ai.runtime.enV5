@@ -1,16 +1,17 @@
-#ifndef ENV5_FLASH_H
-#define ENV5_FLASH_H
+#ifndef ENV5_FLASH_HEADER
+#define ENV5_FLASH_HEADER
 
 #include "FlashTypedefs.h"
 #include <stdint.h>
 
-void init_flash(uint8_t chip_select, spi_inst_t *spiInst);
-int flash_read_id(uint8_t *data_buffer, uint16_t length);
+void flashInit(uint8_t chip_select, spi_inst_t *spiInst);
 
-int flash_read_data(uint32_t address, uint8_t *data_buffer, uint16_t length);
+int flashReadId(uint8_t *data_buffer, uint16_t length);
 
-uint8_t flash_erase_data(uint32_t address);
+int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length);
 
-int flash_write_page(uint32_t address, uint8_t *data, uint16_t page_size);
+uint8_t flashEraseData(uint32_t address);
 
-#endif // ENV5_FLASH_H
+int flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size);
+
+#endif /* ENV5_FLASH_HEADER */

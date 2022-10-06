@@ -11,10 +11,11 @@
  * \n
  * if the password is "ajk"jkl,23" the string needs to be "ajk\\\"jkl\\\,23"
  */
-typedef struct {
+struct networkCredentials {
     char *ssid;
     char *password;
-} NetworkCredentials_t;
+};
+typedef struct networkCredentials networkCredentials_t;
 
 enum {
     NETWORK_NO_ERROR = 0x01,
@@ -22,7 +23,7 @@ enum {
     NETWORK_ESP_CHIP_FAILED = 0x03,
     NETWORK_WIFI_ALREADY_CONNECTED = 0x04
 };
-typedef uint8_t network_errorCode;
+typedef uint8_t networkErrorCode_t;
 
 /*! \brief tries to connect to network until successful
  *
@@ -30,7 +31,7 @@ typedef uint8_t network_errorCode;
  *
  * \param credentials network credentials (SSID, password)
  */
-network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials);
+networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredentials_t credentials);
 
 /*! \brief tries to connect to network
  *
@@ -39,10 +40,10 @@ network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredential
  * \param credentials network credentials (SSID, password)
  * \return true if connection successful or already connected, otherwise false
  */
-network_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials);
+networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials);
 
-void network_DisconnectFromNetwork(void);
+void networkDisconnectFromNetwork(void);
 
-void network_checkConnection(void);
+void networkcheckConnection(void);
 
 #endif /* ENV5_NETWORK_HEADER */

@@ -1,310 +1,307 @@
-#define TEST_BUILD
-
-//#include "i2c/i2c.h"
 #include "Sht3x.h"
 #include "i2c/I2cUnitTest.h"
 #include "unity.h"
 
 void setUp(void) {
     /* Default: Point to Pass */
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Pass_for_SHT3X;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Pass_for_SHT3X;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassForSht3x;
 }
 
 void tearDown(void) {}
 
 /* region SHT3X_ReadStatusRegister */
 
-void SHT3X_ReadStatusRegister_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
-    sht3x_statusRegister statusRegister;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+void sht3xReadStatusRegisterGetSendCommandFailErrorIfHardwareFails(void) {
+    sht3xStatusRegister_t statusRegister;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
-    sht3x_statusRegister statusRegister;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+void sht3xReadStatusRegisterGetSendCommandFailErrorIfAckMissing(void) {
+    sht3xStatusRegister_t statusRegister;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
-    sht3x_statusRegister statusRegister;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+void sht3xReadStatusRegisterGetReceiveDataFailErrorIfHardwareFails(void) {
+    sht3xStatusRegister_t statusRegister;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
-    sht3x_statusRegister statusRegister;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+void sht3xReadStatusRegisterGetReceiveDataFailErrorIfAckMissing(void) {
+    sht3xStatusRegister_t statusRegister;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_get_CHECKSUM_FAIL_error(void) {
-    sht3x_statusRegister statusRegister;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+void sht3xReadStatusRegisterGetChecksumFailError(void) {
+    sht3xStatusRegister_t statusRegister;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_read_successful(void) {
-    sht3x_statusRegister statusRegister;
+void sht3xReadStatusRegisterReadSuccessful(void) {
+    sht3xStatusRegister_t statusRegister;
 
-    sht3x_errorCode errorCode = sht3x_readStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
-void SHT3X_ReadStatusRegister_read_correct_value(void) {
-    sht3x_statusRegister expected_statusRegister, actual_statusRegister;
+void sht3xReadStatusRegisterReadCorrectValue(void) {
+    sht3xStatusRegister_t expected_statusRegister, actual_statusRegister;
 
     /* fill expected with random generated */
     expected_statusRegister.config = (byteZero << 8) | (byteOne & 0xFF);
 
-    sht3x_readStatusRegister(&actual_statusRegister);
+    sht3xReadStatusRegister(&actual_statusRegister);
     TEST_ASSERT_EQUAL_UINT16(expected_statusRegister.config, actual_statusRegister.config);
 }
 
 /* endregion*/
 /* region SHT3X_ReadSerialNumber */
 
-void SHT3X_ReadSerialNumber_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
+void sht3xReadSerialNumberGetSendCommandFailErrorIfHardwareFails(void) {
     uint32_t serialNumber;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
+void sht3xReadSerialNumberGetSendCommandFailErrorIfAckMissing(void) {
     uint32_t serialNumber;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
+void sht3xReadSerialNumberGetReceiveDataFailErrorIfHardwareFails(void) {
     uint32_t serialNumber;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
+void sht3xReadSerialNumberGetReceiveDataFailErrorIfAckMissing(void) {
     uint32_t serialNumber;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_get_CHECKSUM_FAIL_error(void) {
+void sht3xReadSerialNumberGetChecksumFailError(void) {
     uint32_t serialNumber;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_read_successful(void) {
+void sht3xReadSerialNumberReadSuccessful(void) {
     uint32_t serialNumber;
 
-    sht3x_errorCode errorCode = sht3x_readSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
-void SHT3X_ReadSerialNumber_read_correct_value(void) {
+void sht3xReadSerialNumberReadCorrectValue(void) {
     uint32_t expected_serialNumber, actual_serialNumber;
 
     /* fill expected with random generated */
     expected_serialNumber = (byteZero << 24) | (byteOne << 16) | (byteZero << 8) | byteOne;
 
-    sht3x_readSerialNumber(&actual_serialNumber);
+    sht3xReadSerialNumber(&actual_serialNumber);
     TEST_ASSERT_EQUAL_UINT32(expected_serialNumber, actual_serialNumber);
 }
 
 /* endregion */
 /* region SHT3X_GetTemperature */
 
-void SHT3X_GetTemperature_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
+void sht3xGetTemperatureGetSendCommandFailErrorIfHardwareFails(void) {
     float temperature;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
+void sht3xGetTemperatureGetSendCommandFailErrorIfAckMissing(void) {
     float temperature;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
+void sht3xGetTemperatureGetReceiveDataFailErrorIfHardwareFails(void) {
     float temperature;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_get_CHECKSUM_FAIL_error(void) {
+void sht3xGetTemperatureGetChecksumFailError(void) {
     float temperature;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
+void sht3xGetTemperatureGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_read_successful(void) {
+void sht3xGetTemperatureReadSuccessful(void) {
     float temperature;
 
-    sht3x_errorCode errorCode = sht3x_getTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperature_read_correct_value(void) {
+void sht3xGetTemperatureReadCorrectValue(void) {
     float expected_temperature, actual_temperature;
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3x_getTemperature(&actual_temperature);
+    sht3xGetTemperature(&actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
 }
 
 /* endregion */
 /* region SHT3X_GetHumidity */
 
-void SHT3X_GetHumidity_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
+void sht3xGetHumidityGetSendCommandFailErrorIfHardwareFails(void) {
     float humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetHumidity_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
+void sht3xGetHumidityGetSendCommandFailErrorIfAckMissing(void) {
     float humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetHumidity_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
+void sht3xGetHumidityGetReceiveDataFailErrorIfHardwareFails(void) {
     float humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
+void sht3xGetHumidityGetReceiveDataFailErrorIfAckMissing(void) {
     float humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetHumidity_get_CHECKSUM_FAIL_error(void) {
+void sht3xGetHumidityGetChecksumFailError(void) {
     float humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_getHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_GetHumidity_read_successful(void) {
+void sht3xGetHumidityReadSuccessful(void) {
     float humidity;
 
-    uint8_t err = sht3x_getHumidity(&humidity);
+    uint8_t err = sht3xGetHumidity(&humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, err);
 }
 
-void SHT3X_GetHumidity_read_correct_value(void) {
+void sht3xGetHumidityReadCorrectValue(void) {
     float expected_humidity, actual_humidity;
 
     /* fill expected with random generated */
     uint16_t expected_rawValue_humidity = (byteZero << 8) | byteOne;
     expected_humidity = 100.0f * ((float)expected_rawValue_humidity / (65536.0f - 1));
 
-    sht3x_getHumidity(&actual_humidity);
+    sht3xGetHumidity(&actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
 
 /* endregion */
 /* region SHT3X_GetTemperatureAndHumidity  */
 
-void SHT3X_GetTemperatureAndHumidity_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
+void sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfHardwareFails(void) {
     float temperature, humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperatureAndHumidity_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
+void sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfAckMissing(void) {
     float temperature, humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperatureAndHumidity_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
+void sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfHardwareFails(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperatureAndHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
+void sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperatureAndHumidity_get_CHECKSUM_FAIL_error(void) {
+void sht3xGetTemperatureAndHumidityGetChecksumFailError(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_GetTemperatureAndHumidity_read_successful(void) {
+void sht3xGetTemperatureAndHumidityReadSuccessful(void) {
     float temperature, humidity;
 
-    uint8_t err = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    uint8_t err = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, err);
 }
 
-void SHT3X_GetTemperatureAndHumidity_read_correct_value(void) {
+void sht3xGetTemperatureAndHumidityReadCorrectValue(void) {
     float expected_temperature, actual_temperature, expected_humidity, actual_humidity;
 
     /* fill expected with random generated */
@@ -314,7 +311,7 @@ void SHT3X_GetTemperatureAndHumidity_read_correct_value(void) {
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3x_getTemperatureAndHumidity(&actual_temperature, &actual_humidity);
+    sht3xGetTemperatureAndHumidity(&actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
@@ -322,54 +319,54 @@ void SHT3X_GetTemperatureAndHumidity_read_correct_value(void) {
 /* endregion */
 /* region SHT3X_ReadMeasurementBuffer  */
 
-void SHT3X_ReadMeasurementBuffer_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
+void sht3xReadMeasurementBufferGetSendCommandFailErrorIfHardwareFails(void) {
     float temperature, humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
+void sht3xReadMeasurementBufferGetSendCommandFailErrorIfAckMissing(void) {
     float temperature, humidity;
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_get_RECEIVE_DATA_FAIL_error_if_hardware_fails(void) {
+void sht3xReadMeasurementBufferGetReceiveDataFailErrorIfHardwareFails(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_Hardware_defect;
+    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_get_RECEIVE_DATA_FAIL_error_if_ACK_missing(void) {
+void sht3xReadMeasurementBufferGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_ACK_missing;
+    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_get_CHECKSUM_FAIL_error(void) {
+void sht3xReadMeasurementBufferGetChecksumFailError(void) {
     float temperature, humidity;
-    I2C_ReadCommand_ptr = I2C_ReadCommand_provoke_checksum_fail_for_SHT3X;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_read_successful(void) {
+void sht3xReadMeasurementBufferReadSuccessful(void) {
     float temperature, humidity;
 
-    sht3x_errorCode errorCode = sht3x_readMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
-void SHT3X_ReadMeasurementBuffer_read_correct_value(void) {
+void sht3xReadMeasurementBufferReadCorrectValue(void) {
     float expected_temperature, actual_temperature, expected_humidity, actual_humidity;
 
     /* fill expected with random generated */
@@ -379,7 +376,7 @@ void SHT3X_ReadMeasurementBuffer_read_correct_value(void) {
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3x_readMeasurementBuffer(&actual_temperature, &actual_humidity);
+    sht3xReadMeasurementBuffer(&actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
@@ -387,51 +384,51 @@ void SHT3X_ReadMeasurementBuffer_read_correct_value(void) {
 /* endregion */
 /* region SHT3X_EnableHeater  */
 
-void SHT3X_EnableHeater_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+void sht3xEnableHeaterGetSendCommandFailErrorIfHardwareFails(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_enableHeater();
+    sht3xErrorCode_t errorCode = sht3xEnableHeater();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_EnableHeater_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+void sht3xEnableHeaterGetSendCommandFailErrorIfAckMissing(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_enableHeater();
+    sht3xErrorCode_t errorCode = sht3xEnableHeater();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
 /* endregion */
 /* region SHT3X_DisableHeater  */
 
-void SHT3X_DisableHeater_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+void sht3xDisableHeaterGetSendCommandFailErrorIfHardwareFails(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_disableHeater();
+    sht3xErrorCode_t errorCode = sht3xDisableHeater();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_DisableHeater_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+void sht3xDisableHeaterGetSendCommandFailErrorIfAckMissing(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_disableHeater();
+    sht3xErrorCode_t errorCode = sht3xDisableHeater();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
 /* endregion */
 /* region SHT3X_SoftReset  */
 
-void SHT3X_SoftReset_get_SEND_COMMAND_FAIL_error_if_hardware_fails(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_Hardware_defect;
+void sht3xSoftResetGetSendCommandFailErrorIfHardwareFails(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3x_errorCode errorCode = sht3x_softReset();
+    sht3xErrorCode_t errorCode = sht3xSoftReset();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
-void SHT3X_SoftReset_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
-    I2C_WriteCommand_ptr = I2C_WriteCommand_ACK_missing;
+void sht3xSoftResetGetSendCommandFailErrorIfAckMissing(void) {
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3x_errorCode errorCode = sht3x_softReset();
+    sht3xErrorCode_t errorCode = sht3xSoftReset();
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -440,62 +437,62 @@ void SHT3X_SoftReset_get_SEND_COMMAND_FAIL_error_if_ACK_missing(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(SHT3X_ReadStatusRegister_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadStatusRegister_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadStatusRegister_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadStatusRegister_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadStatusRegister_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_ReadStatusRegister_read_successful);
-    RUN_TEST(SHT3X_ReadStatusRegister_read_correct_value);
+    RUN_TEST(sht3xReadStatusRegisterGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadStatusRegisterGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadStatusRegisterGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadStatusRegisterGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadStatusRegisterGetChecksumFailError);
+    RUN_TEST(sht3xReadStatusRegisterReadSuccessful);
+    RUN_TEST(sht3xReadStatusRegisterReadCorrectValue);
 
-    RUN_TEST(SHT3X_ReadSerialNumber_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadSerialNumber_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadSerialNumber_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadSerialNumber_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadSerialNumber_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_ReadSerialNumber_read_successful);
-    RUN_TEST(SHT3X_ReadSerialNumber_read_correct_value);
+    RUN_TEST(sht3xReadSerialNumberGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadSerialNumberGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadSerialNumberGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadSerialNumberGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadSerialNumberGetChecksumFailError);
+    RUN_TEST(sht3xReadSerialNumberReadSuccessful);
+    RUN_TEST(sht3xReadSerialNumberReadCorrectValue);
 
-    RUN_TEST(SHT3X_GetTemperature_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetTemperature_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetTemperature_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetTemperature_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetTemperature_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_GetTemperature_read_successful);
-    RUN_TEST(SHT3X_GetTemperature_read_correct_value);
+    RUN_TEST(sht3xGetTemperatureGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetTemperatureGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetTemperatureGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetTemperatureGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetTemperatureGetChecksumFailError);
+    RUN_TEST(sht3xGetTemperatureReadSuccessful);
+    RUN_TEST(sht3xGetTemperatureReadCorrectValue);
 
-    RUN_TEST(SHT3X_GetHumidity_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetHumidity_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetHumidity_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetHumidity_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_GetHumidity_read_successful);
-    RUN_TEST(SHT3X_GetHumidity_read_correct_value);
+    RUN_TEST(sht3xGetHumidityGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetHumidityGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetHumidityGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetHumidityGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetHumidityGetChecksumFailError);
+    RUN_TEST(sht3xGetHumidityReadSuccessful);
+    RUN_TEST(sht3xGetHumidityReadCorrectValue);
 
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_read_successful);
-    RUN_TEST(SHT3X_GetTemperatureAndHumidity_read_correct_value);
+    RUN_TEST(sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xGetTemperatureAndHumidityGetChecksumFailError);
+    RUN_TEST(sht3xGetTemperatureAndHumidityReadSuccessful);
+    RUN_TEST(sht3xGetTemperatureAndHumidityReadCorrectValue);
 
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_get_RECEIVE_DATA_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_get_RECEIVE_DATA_FAIL_error_if_ACK_missing);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_get_CHECKSUM_FAIL_error);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_read_successful);
-    RUN_TEST(SHT3X_ReadMeasurementBuffer_read_correct_value);
+    RUN_TEST(sht3xReadMeasurementBufferGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadMeasurementBufferGetSendCommandFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadMeasurementBufferGetReceiveDataFailErrorIfHardwareFails);
+    RUN_TEST(sht3xReadMeasurementBufferGetReceiveDataFailErrorIfAckMissing);
+    RUN_TEST(sht3xReadMeasurementBufferGetChecksumFailError);
+    RUN_TEST(sht3xReadMeasurementBufferReadSuccessful);
+    RUN_TEST(sht3xReadMeasurementBufferReadCorrectValue);
 
-    RUN_TEST(SHT3X_EnableHeater_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_EnableHeater_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
+    RUN_TEST(sht3xEnableHeaterGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xEnableHeaterGetSendCommandFailErrorIfAckMissing);
 
-    RUN_TEST(SHT3X_DisableHeater_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_DisableHeater_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
+    RUN_TEST(sht3xDisableHeaterGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xDisableHeaterGetSendCommandFailErrorIfAckMissing);
 
-    RUN_TEST(SHT3X_SoftReset_get_SEND_COMMAND_FAIL_error_if_hardware_fails);
-    RUN_TEST(SHT3X_SoftReset_get_SEND_COMMAND_FAIL_error_if_ACK_missing);
+    RUN_TEST(sht3xSoftResetGetSendCommandFailErrorIfHardwareFails);
+    RUN_TEST(sht3xSoftResetGetSendCommandFailErrorIfAckMissing);
 
     return UNITY_END();
 }

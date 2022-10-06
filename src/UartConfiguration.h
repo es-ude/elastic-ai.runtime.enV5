@@ -1,22 +1,22 @@
-#ifndef ENV5_UARTCONFIGURATION_H
-#define ENV5_UARTCONFIGURATION_H
+#ifndef ENV5_UART_CONFIGURATION_HEADER
+#define ENV5_UART_CONFIGURATION_HEADER
 
 #include "Uart.h"
 
-static UARTDevice uartToEspDevice = {
+static uartDevice_t uartDevice = {
     // Below depends on the hardware connection
     // you should modify it according to your hardware
     .name = "uart_to_esp32",
     .uartId = 1,
-    .tx_pin = 4,
-    .rx_pin = 5,
+    .txPin = 4,
+    .rxPin = 5,
 
     // Below depends on the firmware on the esp32 module
-    .baudrate_set = 115200,
-    .baudrate_actual = 0,
-    .data_bits = 8,
-    .stop_bits = 1,
+    .baudrateSet = 115200,
+    .baudrateActual = 0,
+    .dataBits = 8,
+    .stopBits = 1,
     .parity = NoneParity,
 };
 
-#endif /* ENV5_UARTCONFIGURATION_H */
+#endif /* ENV5_UART_CONFIGURATION_HEADER */

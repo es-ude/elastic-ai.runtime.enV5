@@ -33,8 +33,8 @@ void _Noreturn mqttTask(void) {
 
 int main() {
     initHardwareTest();
-    
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(mqttTask, "mqttTask");
-    StartScheduler();
+
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask");
+    freeRtosTaskWrapperStartScheduler();
 }

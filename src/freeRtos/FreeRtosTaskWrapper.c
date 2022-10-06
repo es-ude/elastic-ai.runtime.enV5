@@ -2,11 +2,12 @@
 
 #include "FreeRtosTaskWrapper.h"
 #include "Common.h"
+#include "FreeRtosTaskWrapperInternal.h"
 #include <FreeRTOS.h>
 #include <pico/time.h>
 #include <task.h>
 
-static void InvokeTaskCode(void *p_taskCode) {
+static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;
     if (taskCode)
         taskCode();
@@ -16,17 +17,17 @@ static void InvokeTaskCode(void *p_taskCode) {
     vTaskDelete(NULL);
 }
 
-void RegisterTask(TaskCodeFunc p_taskCode, const char *const p_taskName) {
+void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName) {
     TaskHandle_t handle;
-    if (xTaskCreate(InvokeTaskCode, p_taskName, 10000, (void *)p_taskCode, 1, &handle) ==
-        errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
-        PRINT("%s: !RegisterTask fail!: Not enough Memory available", p_taskName)
+    if (xTaskCreate(freeRtosTaskWrapperInternalInvokeTaskCode, taskName, 10000, (void *)taskCode, 1,
+                    &handle) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
+        PRINT("%s: !freeRtosTaskWrapperRegisterTask fail!: Not enough Memory available", taskName)
     } else {
-        PRINT("%s registered successfully.", p_taskName)
+        PRINT("%s registered successfully.", taskName)
     }
 }
 
-void TaskSleep(int timeInMs) {
+void freeRtosTaskWrapperTaskSleep(int timeInMs) {
     if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED)
         sleep_ms(timeInMs);
     else {
@@ -39,7 +40,7 @@ void TaskSleep(int timeInMs) {
     }
 }
 
-void StartScheduler() {
+void freeRtosTaskWrapperStartScheduler() {
     PRINT("Starting scheduler")
     vTaskStartScheduler();
     PRINT("Creating FreeRTOS-Idle task failed because of low Memory.\nIf you "

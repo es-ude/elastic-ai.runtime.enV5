@@ -5,10 +5,11 @@
 
 typedef struct i2c_inst i2c_inst_t;
 
-typedef struct {
+struct sht3xI2cSensorConfiguration {
     uint8_t i2c_slave_address;
     i2c_inst_t *i2c_host;
-} sht3x_i2c_sensorConfiguration;
+};
+typedef struct sht3xI2cSensorConfiguration sht3xI2cSensorConfiguration_t;
 
 enum {
     SHT3X_CMD_READ_SERIALNUMBER = 0x3780, /*!< read serial number */
@@ -67,7 +68,7 @@ enum {
     SHT3X_CMD_WRITE_ALERT_LIMITS_LOW_SET = 0x6100,    /*!< write alert limits, low set */
     SHT3X_CMD_NO_SLEEP = 0x303E,                      /*!< disable sleep mode */
 };
-typedef uint16_t sht3x_command;
+typedef uint16_t sht3xCommand_t;
 
 enum {
     SHT3X_NO_ERROR = 0x00,
@@ -78,7 +79,7 @@ enum {
     SHT3X_PARM_ERROR = 0x11,
     SHT3X_UNDEFINED_ERROR = 0x20,
 };
-typedef uint8_t sht3x_errorCode;
+typedef uint8_t sht3xErrorCode_t;
 
 /*! \union SHT3X_StatusRegister
  *  \struct bits
@@ -86,7 +87,7 @@ typedef uint8_t sht3x_errorCode;
  * Defines the structure of the status register for a LITTLE_ENDIAN based
  * machine
  */
-typedef union {
+union sht3xStatusRegister {
     uint16_t config; /*!< register as one 16 bit field */
     struct {
         uint16_t crcStatus : 1;     /*!< write data checksum status */
@@ -101,6 +102,7 @@ typedef union {
         uint16_t reserve3 : 1;      /*!< reserved */
         uint16_t alertPending : 1;  /*!< alert pending status */
     } bits;
-} sht3x_statusRegister;
+};
+typedef union sht3xStatusRegister sht3xStatusRegister_t;
 
 #endif /* ENV5_SHT3X_TYPEDEFS */

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 _Noreturn void SenderTask() {
-    QueueMessage message;
+    freeRtosQueueWrapperMessage_t message;
     int messageCounter = 0;
     char *data = malloc(10);
     message.Data = data;
@@ -19,21 +19,21 @@ _Noreturn void SenderTask() {
         sprintf(data, "%i", messageCounter);
         messageCounter++;
 
-        if (QueueSend(message)) {
+        if (freeRtosQueueWrapperSend(message)) {
             PRINT("Send message `%s` into Queue", data)
         } else {
             PRINT("Failed to send message into queue")
         }
 
-        TaskSleep(250);
+        freeRtosTaskWrapperTaskSleep(250);
     }
 }
 
 _Noreturn void ReceiverTask() {
-    QueueMessage message;
+    freeRtosQueueWrapperMessage_t message;
 
     while (1) {
-        if (!QueueReceive(&message)) {
+        if (!freeRtosQueueWrapperReceive(&message)) {
             PRINT("Something went Wrong!\n")
         } else {
             PRINT("Received: `%s`", message.Data)
@@ -47,7 +47,7 @@ _Noreturn void ReceiverTask() {
         // reset watchdog timer
         watchdog_update();
 
-        TaskSleep(250);
+        freeRtosTaskWrapperTaskSleep(250);
     }
 }
 
@@ -55,30 +55,30 @@ void initHardware() {
     // init usb and wait for user connection
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    TaskSleep(1000);
+    freeRtosTaskWrapperTaskSleep(1000);
 
     // start watchdog timer
     watchdog_enable(2000, 1);
 
     // create queue
-    CreateQueue();
+    freeRtosQueueWrapperCreate();
 }
 
 void testDynamicMessageChanges() {
     // create message
     char data[10];
     snprintf(data, 6, "hallo");
-    QueueMessage message;
+    freeRtosQueueWrapperMessage_t message;
     message.Data = data;
 
     // send message into queue
-    QueueSend(message);
+    freeRtosQueueWrapperSend(message);
 
     // modify message data after send
     message.Data[0] = 'a';
 
     // receive modified message
-    QueueReceive(&message);
+    freeRtosQueueWrapperReceive(&message);
     PRINT("Expected: `aallo`; Received: `%s`", message.Data)
 }
 
@@ -94,7 +94,7 @@ int main(void) {
 
     // test async
     PRINT("===== START TEST: asynchronous messages =====")
-    RegisterTask(SenderTask, "sendMessage");
-    RegisterTask(ReceiverTask, "receiveTask");
-    StartScheduler();
+    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage");
+    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask");
+    freeRtosTaskWrapperStartScheduler();
 }

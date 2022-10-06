@@ -11,20 +11,21 @@
 #define CONNECTED 1
 #define NOT_CONNECTED 0
 
-typedef struct {
+struct espStatus {
     volatile int ChipStatus; /*!< Can the two chips communicate? */
     volatile int WIFIStatus; /*!< Is the esp connected to a Wi-Fi */
     volatile int MQTTStatus; /*!< is the board connected to an MQTT Broker */
-} ESP_Status_t;
+};
+typedef struct espStatus espStatus_t;
 
-extern volatile ESP_Status_t ESP_Status;
+extern volatile espStatus_t espStatus;
 
 enum {
     ESP_NO_ERROR = 0x00,
     ESP_WRONG_ANSWER_RECEIVED = 0x01,
     ESP_UART_IS_BUSY = 0x02,
 };
-typedef uint8_t esp_errorCode;
+typedef uint8_t espErrorCode_t;
 
 /*! \brief initializes the ESP connection
  *
@@ -32,7 +33,7 @@ typedef uint8_t esp_errorCode;
  * working until there is a response. Then the command echo is  disabled and the
  * ESP is set to single connection mode. The ChipStatus is set to ESP_CHIP_OK.
  */
-void esp_Init(void);
+void espInit(void);
 
 /*! \brief send a command to the ESP
  *
@@ -44,13 +45,13 @@ void esp_Init(void);
  * \param timeoutMs number of milliseconds to wait for the expected response
  * \return errorCode, 0 if no error occurred
  */
-esp_errorCode esp_SendCommand(char *cmd, char *expectedResponse, int timeoutMs);
+espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs);
 
 /*! \brief only for the MQTT broker library
  *
  * Used by the MQTT broker to set its function to receive MQTT messages from
  * UART.
  */
-void esp_SetMQTTReceiverFunction(void (*receive)(char *));
+void espSetMqttReceiverFunction(void (*receive)(char *));
 
 #endif // ENV5_ESP_HEADER

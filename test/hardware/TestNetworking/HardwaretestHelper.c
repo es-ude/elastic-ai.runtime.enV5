@@ -12,12 +12,12 @@
 #include "pico/stdlib.h"
 
 void connectToNetwork(void) {
-    network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials);
-    TaskSleep(5000);
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    freeRtosTaskWrapperTaskSleep(5000);
 }
 
 void connectToMQTT(void) {
-    mqtt_connectToBrokerUntilSuccessful(MQTTHost, "eip://uni-due.de/es", "enV5");
+    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {
@@ -28,8 +28,8 @@ void initHardwareTest(void) {
     // init usb, queue and watchdog
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    esp_Init();
-    CreateQueue();
+    espInit();
+    freeRtosQueueWrapperCreate();
     watchdog_enable(2000, 1);
 }
 
@@ -39,6 +39,6 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
             reset_usb_boot(0, 0);
         }
         watchdog_update();
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }

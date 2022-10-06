@@ -1,5 +1,5 @@
-#ifndef I2C_INTERFACE_TYPEDEFS
-#define I2C_INTERFACE_TYPEDEFS
+#ifndef ENV5_I2C_TYPEDEFS
+#define ENV5_I2C_TYPEDEFS
 
 #include <stdint.h>
 
@@ -11,6 +11,6 @@ enum {
     I2C_ACK_ERROR = 0x13,
     I2C_TIMEOUT_ERROR = 0x14,
 };
-typedef uint8_t I2C_ErrorCode;
+typedef uint8_t i2cErrorCode_t;
 
-#endif // I2C_INTERFACE_TYPEDEFS
+#endif /* ENV5_I2C_TYPEDEFS */

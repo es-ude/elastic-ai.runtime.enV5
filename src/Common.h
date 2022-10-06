@@ -1,5 +1,5 @@
-#ifndef SENSOR_BOARD_COMMON_H
-#define SENSOR_BOARD_COMMON_H
+#ifndef ENV5_COMMON_H
+#define ENV5_COMMON_H
 
 #include <stdio.h>
 
@@ -30,4 +30,4 @@
     if (!(test))                                                                                   \
         return 0;
 
-#endif // SENSOR_BOARD_COMMON_H
+#endif /* ENV5_COMMON_H */

@@ -27,14 +27,14 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
 
 float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193x_usedChannels usedChannels = {.uint_channelsInUse = 0b00000011};
+pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
 
 static void getValuesOfChannelWifi() {
-    pac193x_measurements measurements;
+    pac193xMeasurements_t measurements;
 
     PRINT("Requesting measurements for wifi board.")
-    pac193x_errorCode errorCode =
-        pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_WIFI, &measurements);
+    pac193xErrorCode_t errorCode =
+        pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_WIFI, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;
@@ -66,11 +66,11 @@ static void getValuesOfChannelWifi() {
 }
 
 static void getValuesOfChannelSensors() {
-    pac193x_measurements measurements;
+    pac193xMeasurements_t measurements;
 
     PRINT("Requesting measurements for sensors.")
-    pac193x_errorCode errorCode =
-        pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    pac193xErrorCode_t errorCode =
+        pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;
@@ -102,10 +102,10 @@ static void getValuesOfChannelSensors() {
 }
 
 static void getSerialNumber() {
-    pac193x_info sensorID;
+    pac193xSensorId_t sensorID;
 
     PRINT("Requesting serial number.")
-    pac193x_errorCode errorCode = pac193x_getSensorInfo(&sensorID);
+    pac193xErrorCode_t errorCode = pac193xGetSensorInfo(&sensorID);
     if (errorCode == PAC193X_NO_ERROR) {
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
@@ -137,9 +137,9 @@ int main(void) {
 
     /* initialize PAC193X sensor */
     PRINT("===== START INIT =====")
-    pac193x_errorCode errorCode;
+    pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193x_init(i2c1, resistanceValues, usedChannels);
+        errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
         if (errorCode == PAC193X_NO_ERROR) {
             PRINT("Initialised PAC193X.\n")
             break;

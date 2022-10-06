@@ -23,20 +23,20 @@ void initHardwareTest(void) {
     }
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    CreateQueue();
+    freeRtosQueueWrapperCreate();
     watchdog_enable(2000, 1);
 }
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     while (true) {
         watchdog_update();
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
 void init_helper(spi_inst_t *spi, uint32_t baudrate) {
-    SPI_init(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
-    init_flash(cs_pin, spi);
+    spiInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
+    flashInit(cs_pin, spi);
 }
 
 void configTask() {
@@ -49,11 +49,11 @@ void configTask() {
         switch (input) {
         case 'F':
             printf("ack\n");
-            configurationFlash();
+            fpgaConfigurationFlashConfiguration();
             break;
         case 'V':
             printf("ack\n");
-            verifyConfigurationFlash();
+            fpgaConfigurationVerifyConfiguration();
             break;
         default:
             break;
@@ -62,7 +62,7 @@ void configTask() {
 }
 int main() {
     initHardwareTest();
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(configTask, "configTask");
-    StartScheduler();
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(configTask, "configTask");
+    freeRtosTaskWrapperStartScheduler();
 }

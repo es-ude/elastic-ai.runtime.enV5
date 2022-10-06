@@ -5,19 +5,22 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
-#define QUEUE_ITEM_SIZE sizeof(QueueMessage)
-static QueueHandle_t queue;
+#define FREERTOS_QUEUE_WRAPPER_ITEM_SIZE sizeof(freeRtosQueueWrapperMessage_t)
 
-void CreateQueue() {
-    queue = xQueueCreate(QUEUE_LENGTH, QUEUE_ITEM_SIZE);
-    if (queue == NULL) {
+static QueueHandle_t freeRtosQueueWrapperQueue;
+
+void freeRtosQueueWrapperCreate() {
+    freeRtosQueueWrapperQueue =
+        xQueueCreate(FREERTOS_QUEUE_WRAPPER_QUEUE_LENGTH, FREERTOS_QUEUE_WRAPPER_ITEM_SIZE);
+    if (freeRtosQueueWrapperQueue == NULL) {
         PRINT("Failed to create Message Queue! Communication between tasks not "
               "possible")
     }
 }
 
-bool QueueSend(QueueMessage message) {
-    if (xQueueGenericSend(queue, &message, pdMS_TO_TICKS(QUEUE_WAIT_IF_BLOCKED_MS_AMOUNT),
+bool freeRtosQueueWrapperSend(freeRtosQueueWrapperMessage_t message) {
+    if (xQueueGenericSend(freeRtosQueueWrapperQueue, &message,
+                          pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_IF_BLOCKED_MS_AMOUNT),
                           queueSEND_TO_BACK) != pdPASS) {
         PRINT("Queue full!")
         return false;
@@ -25,6 +28,8 @@ bool QueueSend(QueueMessage message) {
     return true;
 }
 
-bool QueueReceive(QueueMessage *message) {
-    return xQueueReceive(queue, message, pdMS_TO_TICKS(QUEUE_WAIT_FOR_RECEIVE_MS_AMOUNT)) == pdPASS;
+bool freeRtosQueueWrapperReceive(freeRtosQueueWrapperMessage_t *message) {
+    return xQueueReceive(freeRtosQueueWrapperQueue, message,
+                         pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_FOR_RECEIVE_MS_AMOUNT)) ==
+           pdPASS;
 }

@@ -118,11 +118,11 @@ When MQTT messages are sent to fast to the device, some message will be dropped.
 #include "hardware/i2c.h"
 
 float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193x_usedChannels usedChannels = {.uint_channelsInUse = 0b00000011};
+pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
 
 int main(void) {
     // Initialize Sensor (ALWAYS REQUIRED)
-    pac193x_errorCode errorCode = pac193x_init(i2c1, resistanceValues, usedChannels);
+    pac193xErrorCode_t errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
@@ -130,8 +130,8 @@ int main(void) {
     // DO STUFF
     
     // Example: Read Values from Channel
-    pac193x_measurements measurements;
-    errorCode = pac193x_getAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    pac193xMeasurements_t measurements;
+    errorCode = pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
@@ -160,7 +160,7 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 
 int main(void) {
     // Initialize Sensor (ALWAYS REQUIRED)
-    sht3x_errorCode errorCode = sht3x_init(i2c0);
+    sht3xErrorCode_t errorCode = sht3xInit(i2c0);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -169,7 +169,7 @@ int main(void) {
     
     // Example: Read Temperature and Humidity
     float temperature, humidity;
-    errorCode = sht3x_getTemperatureAndHumidity(&temperature, &humidity);
+    errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -199,7 +199,7 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 
 int main(void) {
     // Initialize Sensor (ALWAYS REQUIRED)
-    adxl345b_errorCode errorCode = adxl345b_init(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    adxl345bErrorCode_t errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -208,7 +208,7 @@ int main(void) {
     
     // Example: Read G value in x, y and z direction
     float xAxis, yAxis, zAxis;
-    errorCode = adxl345b_readMeasurements(&xAxis, &yAxis, &zAxis);;
+    errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);;
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }

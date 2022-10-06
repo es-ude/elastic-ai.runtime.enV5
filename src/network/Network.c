@@ -8,21 +8,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredentials_t credentials) {
-    if (ESP_Status.WIFIStatus == CONNECTED) {
+networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredentials_t credentials) {
+    if (espStatus.WIFIStatus == CONNECTED) {
         PRINT_DEBUG("Already connected to Network! Disconnect first.")
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
 
-    while (ESP_Status.WIFIStatus == NOT_CONNECTED) {
-        network_errorCode networkErrorCode = network_ConnectToNetwork(credentials);
+    while (espStatus.WIFIStatus == NOT_CONNECTED) {
+        networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
         if (networkErrorCode == NETWORK_NO_ERROR) {
             break;
         } else if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
             PRINT("ESP not reachable. Abort try to connect!")
             return NETWORK_ESP_CHIP_FAILED;
         } else {
-            TaskSleep(1000);
+            freeRtosTaskWrapperTaskSleep(1000);
             PRINT_DEBUG("Connection failed. Trying again now!")
         }
     }
@@ -30,12 +30,12 @@ network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredential
     return NETWORK_NO_ERROR;
 }
 
-network_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials) {
-    if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
+networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
+    if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT_DEBUG("Chip not working! Can't connect to network.")
         return NETWORK_ESP_CHIP_FAILED;
     }
-    if (ESP_Status.WIFIStatus == CONNECTED) {
+    if (espStatus.WIFIStatus == CONNECTED) {
         PRINT_DEBUG("Already connected to Network! Disconnect first.")
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
@@ -48,57 +48,57 @@ network_errorCode network_ConnectToNetwork(NetworkCredentials_t credentials) {
              credentials.password);
 
     // send connect to network command
-    esp_errorCode espErrorCode =
-        esp_SendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 120000);
+    espErrorCode_t espErrorCode =
+        espSendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 120000);
     free(connectToNetwork);
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Connected to Network: %s", credentials.ssid)
-        ESP_Status.WIFIStatus = CONNECTED;
+        espStatus.WIFIStatus = CONNECTED;
         return NETWORK_NO_ERROR;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)
-        ESP_Status.WIFIStatus = NOT_CONNECTED;
+        espStatus.WIFIStatus = NOT_CONNECTED;
         return NETWORK_ESTABLISH_CONNECTION_FAILED;
     }
 }
 
-void network_DisconnectFromNetwork(void) {
-    if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
+void networkDisconnectFromNetwork(void) {
+    if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT_DEBUG("Chip not working!")
         return;
     }
-    if (ESP_Status.WIFIStatus == NOT_CONNECTED) {
+    if (espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("No connection to disconnect from!")
         return;
     }
 
     char *disconnect = malloc(AT_DISCONNECT_LENGTH);
     strcpy(disconnect, AT_DISCONNECT);
-    esp_errorCode espErrorCode = esp_SendCommand(disconnect, AT_DISCONNECT_RESPONSE, 5000);
+    espErrorCode_t espErrorCode = espSendCommand(disconnect, AT_DISCONNECT_RESPONSE, 5000);
     free(disconnect);
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT_DEBUG("Disconnected from Network")
-        ESP_Status.WIFIStatus = NOT_CONNECTED;
-        ESP_Status.MQTTStatus = NOT_CONNECTED;
+        espStatus.WIFIStatus = NOT_CONNECTED;
+        espStatus.MQTTStatus = NOT_CONNECTED;
     } else {
         PRINT("Failed to disconnect from Network")
     }
 }
 
-void network_checkConnection(void) {
-    if (ESP_Status.ChipStatus == ESP_CHIP_NOT_OK) {
+void networkcheckConnection(void) {
+    if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Chip not working!")
         return;
     }
-    if (ESP_Status.WIFIStatus == NOT_CONNECTED) {
+    if (espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT("No connection to disconnect from!")
         return;
     }
 
     char *checkConnection = malloc(AT_CHECK_CONNECTION_LENGTH);
     strcpy(checkConnection, AT_CHECK_CONNECTION);
-    esp_SendCommand(checkConnection, AT_CHECK_CONNCETION_RESPONSE, 5000);
+    espSendCommand(checkConnection, AT_CHECK_CONNCETION_RESPONSE, 5000);
     free(checkConnection);
 }

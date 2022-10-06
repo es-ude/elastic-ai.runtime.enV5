@@ -16,11 +16,11 @@ _Noreturn void blinkLed1Task() {
         // turn LED on
         gpio_put(led1Pin, 1);
         // sleep
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
         // turn LED off
         gpio_put(led1Pin, 0);
         // sleep
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
@@ -33,11 +33,11 @@ _Noreturn void blinkLed2Task() {
         // turn LED on
         gpio_put(led2Pin, 1);
         // sleep
-        TaskSleep(1500);
+        freeRtosTaskWrapperTaskSleep(1500);
         // turn LED off
         gpio_put(led2Pin, 0);
         // sleep
-        TaskSleep(1500);
+        freeRtosTaskWrapperTaskSleep(1500);
     }
 }
 
@@ -54,7 +54,7 @@ void initHardware() {
     // init usb and wait for user connection
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
-    TaskSleep(1000);
+    freeRtosTaskWrapperTaskSleep(1000);
 }
 
 int main(void) {
@@ -62,11 +62,11 @@ int main(void) {
 
     PRINT("===== START TEST =====")
     // create Task1
-    RegisterTask(blinkLed1Task, "blinkLed1Task");
+    freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task");
     // createTask2
-    RegisterTask(blinkLed2Task, "blinkLed2Task");
+    freeRtosTaskWrapperRegisterTask(blinkLed2Task, "blinkLed2Task");
     // create boot mode task
-    RegisterTask(enterBootModeTask, "enterBootMode");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootMode");
     // start tasks
-    StartScheduler();
+    freeRtosTaskWrapperStartScheduler();
 }

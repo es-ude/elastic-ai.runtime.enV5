@@ -1,6 +1,6 @@
-#ifndef ENV5_ESPUNITTEST_H
-#define ENV5_ESPUNITTEST_H
+#ifndef ENV5_ESP_UNITTEST_HEADER
+#define ENV5_ESP_UNITTEST_HEADER
 
-void esp_setErrorCode(esp_errorCode espErrorCode);
+void espUnitTestSetErrorCode(espErrorCode_t espErrorCode);
 
-#endif /* ENV5_ESPUNITTEST_H */
+#endif /* ENV5_ESP_UNITTEST_HEADER */

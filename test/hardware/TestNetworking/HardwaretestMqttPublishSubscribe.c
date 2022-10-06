@@ -40,14 +40,14 @@ _Noreturn void mqttTask(void) {
     while (1) {
         publishTestData(messageCounter);
         messageCounter++;
-        TaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
 int main() {
     initHardwareTest();
 
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(mqttTask, "mqttTask");
-    StartScheduler();
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask");
+    freeRtosTaskWrapperStartScheduler();
 }

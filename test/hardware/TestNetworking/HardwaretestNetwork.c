@@ -10,23 +10,23 @@
  * connection is closed and the process repeats.
  */
 
-extern NetworkCredentials_t credentials;
+extern networkCredentials_t credentials;
 
 _Noreturn void networkTask() {
     PRINT("=== STARTING TEST ===")
 
     while (1) {
         connectToNetwork();
-        TaskSleep(2000);
-        network_DisconnectFromNetwork();
-        TaskSleep(2000);
+        freeRtosTaskWrapperTaskSleep(2000);
+        networkDisconnectFromNetwork();
+        freeRtosTaskWrapperTaskSleep(2000);
     }
 }
 
 int main() {
     initHardwareTest();
-    
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(networkTask, "networkTask");
-    StartScheduler();
+
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(networkTask, "networkTask");
+    freeRtosTaskWrapperStartScheduler();
 }

@@ -1,9 +1,5 @@
-//
-// Created by federl_david on 20.04.22.
-//
-
-#ifndef ENV5_I2C_TEST_HEADER
-#define ENV5_I2C_TEST_HEADER
+#ifndef ENV5_I2C_UNITTEST_HEADER
+#define ENV5_I2C_UNITTEST_HEADER
 
 #include "I2c.h"
 
@@ -14,56 +10,56 @@ static const uint8_t byteOne = 0xEF;
 static const uint8_t correctByteChecksum = 0x92;
 static const uint8_t wrongByteChecksum = 0x00;
 
-extern I2C_ErrorCode (*I2C_WriteCommand_ptr)(const uint8_t *commandBuffer,
-                                             uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
-                                             i2c_inst_t *i2cHost);
-extern I2C_ErrorCode (*I2C_ReadCommand_ptr)(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                            uint8_t slaveAddress, i2c_inst_t *i2cHos);
+extern i2cErrorCode_t (*i2cUnittestWriteCommand)(const uint8_t *commandBuffer,
+                                                 uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
+                                                 i2c_inst_t *i2cHost);
+extern i2cErrorCode_t (*i2cUnittestReadCommand)(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                uint8_t slaveAddress, i2c_inst_t *i2cHos);
 
 /* endregion */
 
 /* region FUNCTIONS */
 
-I2C_ErrorCode I2C_WriteCommand_Hardware_defect(const uint8_t *commandBuffer,
-                                               uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
-                                               i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestWriteCommandHardwareDefect(const uint8_t *commandBuffer,
+                                                     uint16_t sizeOfCommandBuffer,
+                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_WriteCommand_ACK_missing(const uint8_t *commandBuffer,
-                                           uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
-                                           i2c_inst_t *i2cHost);
-
-I2C_ErrorCode I2C_WriteCommand_Pass_for_SHT3X(const uint8_t *commandBuffer,
-                                              uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
-                                              i2c_inst_t *i2cHost);
-
-I2C_ErrorCode I2C_WriteCommand_Pass_for_ADXL345B(const uint8_t *commandBuffer,
+i2cErrorCode_t i2cUnittestWriteCommandAckMissing(const uint8_t *commandBuffer,
                                                  uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
                                                  i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_WriteCommand_Pass_for_PAC193X(const uint8_t *commandBuffer,
-                                                uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
-                                                i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestWriteCommandPassForSht3x(const uint8_t *commandBuffer,
+                                                   uint16_t sizeOfCommandBuffer,
+                                                   uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_ReadCommand_Hardware_defect(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                              uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestWriteCommandPassForAdxl345b(const uint8_t *commandBuffer,
+                                                      uint16_t sizeOfCommandBuffer,
+                                                      uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_ReadCommand_ACK_missing(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                          uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestWriteCommandPassForPac193x(const uint8_t *commandBuffer,
+                                                     uint16_t sizeOfCommandBuffer,
+                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_ReadCommand_Pass_for_SHT3X(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                             uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandHardwareDefect(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                    uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_ReadCommand_provoke_checksum_fail_for_SHT3X(uint8_t *readBuffer,
-                                                              uint8_t sizeOfReadBuffer,
-                                                              uint8_t slaveAddress,
-                                                              i2c_inst_t *i2cHost);
-
-I2C_ErrorCode I2C_ReadCommand_Pass_for_ADXL345B(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+i2cErrorCode_t i2cUnittestReadCommandAckMissing(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
                                                 uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-I2C_ErrorCode I2C_ReadCommand_Pass_for_PAC193X(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                               uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandPassForSht3x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                  uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFailForSht3x(uint8_t *readBuffer,
+                                                                 uint8_t sizeOfReadBuffer,
+                                                                 uint8_t slaveAddress,
+                                                                 i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345b(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                    uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
 /* endregion */
 
-#endif /* ENV5_I2C_TEST_HEADER */
+#endif /* ENV5_I2C_UNITTEST_HEADER */

@@ -1,5 +1,7 @@
-#ifndef ENV5_FPGACONFIGURATION_H
-#define ENV5_FPGACONFIGURATION_H
-void configurationFlash();
-void verifyConfigurationFlash();
-#endif // ENV5_FPGACONFIGURATION_H
+#ifndef ENV5_FPGA_CONFIGURATION_HEADER
+#define ENV5_FPGA_CONFIGURATION_HEADER
+
+void fpgaConfigurationFlashConfiguration();
+void fpgaConfigurationVerifyConfiguration();
+
+#endif /* ENV5_FPGA_CONFIGURATION_HEADER */

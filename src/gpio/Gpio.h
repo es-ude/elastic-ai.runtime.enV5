@@ -1,5 +1,5 @@
-#ifndef GPIO_LIBRARY_H
-#define GPIO_LIBRARY_H
+#ifndef ENV5_GPIO_HEADER
+#define ENV5_GPIO_HEADER
 
 #include <stdint.h>
 
@@ -8,17 +8,17 @@ enum {
     GPIO_GENERAL_ERROR = 0x01,
     GPIO_INIT_ERROR = 0x10,
 };
-typedef uint16_t GPIO_ErrorCode;
+typedef uint16_t gpioErrorCode_t;
 
-typedef uint8_t GPIO_PIN;
+typedef uint8_t gpioPin_t;
 
 enum {
     GPIO_POWER_UP = 1,
     GPIO_POWER_DOWN = 0,
 };
-typedef uint8_t GPIO_POWER_MODE;
+typedef uint8_t gpioPowerMode_t;
 
-GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode);
+gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode);
 
 enum {
     GPIO_FUNCTION_XIP = 0,
@@ -33,8 +33,8 @@ enum {
     GPIO_FUNCTION_USB = 9,
     GPIO_FUNCTION_NULL = 0x1f,
 };
-typedef uint8_t GPIO_PIN_FUNCTION;
+typedef uint8_t gpioPinFunction_t;
 
-GPIO_ErrorCode GPIO_setPinFunction(GPIO_PIN pin, GPIO_PIN_FUNCTION function);
+gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function);
 
-#endif // GPIO_LIBRARY_H
+#endif /* ENV5_GPIO_HEADER */

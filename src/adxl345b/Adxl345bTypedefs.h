@@ -16,12 +16,13 @@ enum {
     ADXL345B_I2C_ADDRESS = 0x1D,
     ADXL345B_I2C_ALTERNATE_ADDRESS = 0x53,
 };
-typedef uint8_t adxl345b_i2c_slave_address;
+typedef uint8_t adxl345bI2cSlaveAddress_t;
 
-typedef struct i2cConfiguration {
-    adxl345b_i2c_slave_address i2c_slave_address;
+struct adxl345bI2cConfiguration {
+    adxl345bI2cSlaveAddress_t i2c_slave_address;
     i2c_inst_t *i2c_host;
-} adxl345b_i2cSensorConfiguration;
+};
+typedef struct adxl345bI2cConfiguration adxl345bI2cSensorConfiguration_t;
 
 /* All Register + address of the ADXL345B */
 enum {
@@ -53,18 +54,19 @@ enum {
     ADXL345B_FIFO_CONTROL = 0x38,
     ADXL345B_FIFO_STATUS = 0x39
 };
-typedef uint8_t adxl345b_register;
-typedef uint8_t adxl345b_configuration;
+typedef uint8_t adxl345bRegister_t;
+typedef uint8_t adxl345bConfiguration_t;
 
-typedef uint8_t adxl345b_msbMask;
-typedef float adxl345b_scaleFactor;
-typedef uint8_t adxl345b_rangeSettings;
-typedef struct range {
+typedef uint8_t adxl345bMsbMask_t;
+typedef float adxl345bScaleFactor_t;
+typedef uint8_t adxl345bRangeSettings_t;
+struct adxl345bRange {
     uint8_t maxRange;
-    adxl345b_rangeSettings settingForRange;
-    adxl345b_msbMask msbMask;
-    adxl345b_scaleFactor scaleFactor;
-} adxl345b_range;
+    adxl345bRangeSettings_t settingForRange;
+    adxl345bMsbMask_t msbMask;
+    adxl345bScaleFactor_t scaleFactor;
+};
+typedef struct adxl345bRange adxl345bRange_t;
 
 enum {
     ADXL345B_NO_ERROR = 0x00,
@@ -79,6 +81,6 @@ enum {
     ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,
     ADXL345B_SELF_TEST_FAILED_FOR_Z = 0x33,
 };
-typedef uint8_t adxl345b_errorCode;
+typedef uint8_t adxl345bErrorCode_t;
 
 #endif /* ENV5_ADXL345B_TYPEDEFS */

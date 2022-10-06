@@ -42,20 +42,20 @@ _Noreturn void mqttTask(void) {
         PRINT("Should receive data with id: %llu", messageCounter)
         publishTestData(messageCounter);
         messageCounter++;
-        TaskSleep(2500);
+        freeRtosTaskWrapperTaskSleep(2500);
 
         protocolUnsubscribeFromData("enV5", "testPubSub", sub);
         PRINT("Should NOT receive data with id: %llu", messageCounter)
         publishTestData(messageCounter);
         messageCounter++;
-        TaskSleep(2500);
+        freeRtosTaskWrapperTaskSleep(2500);
     }
 }
 
 int main() {
     initHardwareTest();
 
-    RegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    RegisterTask(mqttTask, "mqttTask");
-    StartScheduler();
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask");
+    freeRtosTaskWrapperStartScheduler();
 }
