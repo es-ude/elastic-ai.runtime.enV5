@@ -33,12 +33,11 @@ else ()
     if (TARGET tinyusb_device)
         add_subdirectory(test/hardware)
 
-        add_executable(main src/main.c) # creates executable
+        add_executable(main src/Main.c) # creates executable
         target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
-
         target_link_libraries(main
                 pico_stdlib
-                FreeRTOSUtils
+                freeRtosUtils
                 network_lib
                 espBroker_lib
                 fpga_config_lib

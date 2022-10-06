@@ -1,8 +1,8 @@
 
-add_executable(hardware-test_flash test_flash.c)
+add_executable(hardware-test_flash HardwaretestFlash.c)
 target_link_libraries(hardware-test_flash
         pico_stdlib
-        FreeRTOSUtils
+        freeRtosUtils
         hardware_spi
         spi_lib
         flash_lib)
