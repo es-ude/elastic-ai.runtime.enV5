@@ -13,7 +13,7 @@ typedef struct mqttBrokerSubscription mqttBrokerSubscription_t;
 static void mqttBrokerInternalSetBrokerDomain(char *ID);
 
 static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
-                                                             char *password);
+                                                                    char *password);
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic);
 
