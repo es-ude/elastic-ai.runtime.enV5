@@ -15,6 +15,10 @@ static void mqttBrokerInternalSetBrokerDomain(char *ID);
 static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
                                                                     char *password);
 
+static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void);
+
+static void publishAliveStatusMessage();
+
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic);
 
 static char *mqttBrokerInternalConcatDomainWithTopic(const char *topic);

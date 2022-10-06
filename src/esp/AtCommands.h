@@ -136,6 +136,29 @@
 #define AT_MQTT_DISCONNECT_FROM_BROKER_LENGTH 15
 #define AT_MQTT_DISCONNECT_FROM_BROKER_RESPONSE "OK"
 
+/* Set Connection Configuration
+ *
+ * Command:
+ *   AT+MQTTCONNCFG=LINK_ID,KEEPALIVE,DISABLE_CLEAN_SESSION,"LWT_TOPIC","LWT_MSG",LWT_QOS,LWT_RETAIN
+ *
+ * Fields are:
+ * - LINK_ID -> always 0
+ * - KEEPALIVE -> timeout for MQTT ping, seconds between 0 and 7200, default is 0
+ * - DISABLE_CLEAN_SESSION -> 0=Resume old session on reconnect, 1=start new session on reconnect
+ * - LWT_TOPIC -> Disconnect topic
+ * - LWT_MSG -> Disconnect message
+ * - LWT_QOS -> Disconnect message Quality of service,
+ *              0=try delivery (default), 1=message delivered, 2=message delivered exactly one time
+ * - LWT_RETAIN -> Keep LWT message as last good message
+ *                 1=keep message, 0=disable keep message
+ *
+ * Expected Response:
+ *   OK
+ */
+#define AT_MQTT_CONNECTION_CONFIGURATION "AT+MQTTCONNCFG=0,60,0,\"%s\",\"%s\",1,1"
+#define AT_MQTT_CONNECTION_CONFIGURATION_LENGTH 32
+#define AT_MQTT_CONNECTION_CONFIGURATION_RESPONSE "OK"
+
 /* Set User configuration
  *
  * Command:
@@ -213,7 +236,7 @@
  * Expected Response:
  *   OK
  */
-#define AT_MQTT_PUBLISH "AT+MQTTPUB=0,\"%s\",\"%s\",0,0"
+#define AT_MQTT_PUBLISH "AT+MQTTPUB=0,\"%s\",\"%s\",0,%s"
 #define AT_MQTT_PUBLISH_LENGTH 23
 #define AT_MQTT_PUBLISH_RESPONSE "OK"
 
