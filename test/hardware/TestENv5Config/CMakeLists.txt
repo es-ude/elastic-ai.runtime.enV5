@@ -1,8 +1,8 @@
 
-add_executable(hardware-test_fpga_config test_env5_config.c)
+add_executable(hardware-test_fpga_config HardwaretestEnv5Config.c)
 target_link_libraries(hardware-test_fpga_config
         pico_stdlib
-        FreeRTOSUtils
+        freeRtosUtils
         hardware_spi
         spi_lib
         flash_lib

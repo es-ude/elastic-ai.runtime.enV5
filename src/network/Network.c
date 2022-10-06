@@ -1,10 +1,10 @@
 #define SOURCE_FILE "NETWORK"
 
 #include "Network.h"
-#include "TaskWrapper.h"
-#include "at_commands.h"
-#include "common.h"
-#include "esp.h"
+#include "AtCommands.h"
+#include "Common.h"
+#include "Esp.h"
+#include "FreeRtosTaskWrapper.h"
 #include <stdlib.h>
 #include <string.h>
 

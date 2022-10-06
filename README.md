@@ -25,7 +25,7 @@ If this flag is not passed CMake will use the default build tool on your machine
 
 ## Configuration
 
-In the [network_configuration.h](src/network_configuration.h) file the Network and MQTT connection settings can be
+In the [network_configuration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings can be
 change. To stop
 changes in these to be committed you can do:
 
@@ -53,7 +53,7 @@ The `*.uf2` files to flash the pico can than be found in the [out](./out) folder
 
 ### Build Main
 
-The main executable ([main.c](src/main.c)) can be build with:
+The main executable ([main.c](src/Main.c)) can be build with:
 
 ```bash
 cmake --build cmake-build-debug --target main

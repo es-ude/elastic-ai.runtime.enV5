@@ -1,8 +1,8 @@
 
-add_executable(hardware-test_config test_configuration.c)
+add_executable(hardware-test_config HardwaretestConfiguration.c)
 target_link_libraries(hardware-test_config
         pico_stdlib
-        FreeRTOSUtils
+        freeRtosUtils
         hardware_spi
         spi_lib
         flash_lib
