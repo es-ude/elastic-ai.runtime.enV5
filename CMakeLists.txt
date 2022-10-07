@@ -18,7 +18,7 @@ if (UNIT_TEST)
     add_subdirectory(test/unit)
 else ()
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-    #fetch_git_submodules()
+    fetch_git_submodules()
 
     include(extern/pico-sdk/pico_sdk_init.cmake)
 
