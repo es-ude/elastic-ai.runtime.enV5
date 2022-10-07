@@ -3,7 +3,7 @@ include(helpers.cmake)
 
 if (DEBUG_OUTPUT)
     add_definitions(-DDEBUG_MODE)
-endif()
+endif ()
 
 if (UNIT_TEST)
     message(NOTICE "INFO: Building Unit tests")
