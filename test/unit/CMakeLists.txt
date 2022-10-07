@@ -59,6 +59,7 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/gpio
+        ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/freeRtos
         ${CMAKE_SOURCE_DIR}/src/network
@@ -83,7 +84,7 @@ target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/gpio
-        ${CMAKE_SOURCE_DIR}/src/at_commands
+        ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
         ${CMAKE_SOURCE_DIR}/src/broker
