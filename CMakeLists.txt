@@ -40,6 +40,7 @@ else ()
                 pico_stdlib
                 FreeRTOSUtils
                 network_lib
+                modelStore_lib
                 espBroker_lib)
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)

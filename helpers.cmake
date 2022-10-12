@@ -35,6 +35,7 @@ function(include_src)
     add_subdirectory(src/sht3x)
     add_subdirectory(src/adxl345b)
     add_subdirectory(src/pac193x)
+    add_subdirectory(src/modelStore)
 endfunction()
 
 function(make_to_output_file target)
