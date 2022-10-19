@@ -84,3 +84,13 @@ target_link_libraries(hardware-test_StressTestSubscribe
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestSubscribe PRIVATE DEBUG)
 make_to_output_file(hardware-test_StressTestSubscribe)
+
+################## test_StressTestSubscribe ##################
+add_executable(hardware-test_ModelStore test_ModelStore.c)
+target_link_libraries(hardware-test_ModelStore
+        pico_stdlib
+        FreeRTOSUtils
+        hardware-testHelper
+        modelStore_lib)
+target_compile_definitions(hardware-test_ModelStore PRIVATE DEBUG)
+make_to_output_file(hardware-test_ModelStore)

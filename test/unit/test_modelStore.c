@@ -3,6 +3,7 @@
 #include "MQTTBroker.h"
 #include "modelStore.h"
 
+#include "network_configuration.h"
 #include "unity.h"
 
 void setUp(void) {}
@@ -39,8 +40,7 @@ void test_ModelStore_searchModel() {
         "\"http://platzhalter.de/service_namespace#Size\": 2500"
         "}";
 
-    mqtt_connectToBroker(
-        (MQTTHost_t){.ip = "127.0.0.1", .port = "1883", .userID = "", .password = ""}, "", "");
+    mqtt_connectToBroker(MQTTHost, "", "");
     ModelStore_connect("5");
 
     char *modelUri;
@@ -66,8 +66,7 @@ void test_ModelStore_searchModel_modelUriNotFound() {
                                 "\"http://platzhalter.de/service_namespace#Size\": 1"
                                 "}";
 
-    mqtt_connectToBroker(
-        (MQTTHost_t){.ip = "127.0.0.1", .port = "1883", .userID = "", .password = ""}, "", "");
+    mqtt_connectToBroker(MQTTHost, "", "");
     ModelStore_connect("5");
 
     char *modelUri;
@@ -78,8 +77,7 @@ void test_ModelStore_searchModel_modelUriNotFound() {
 }
 
 void test_ModelStore_getModel_invalidModelHash() {
-    mqtt_connectToBroker(
-        (MQTTHost_t){.ip = "127.0.0.1", .port = "1883", .userID = "", .password = ""}, "", "");
+    mqtt_connectToBroker(MQTTHost, "", "");
     ModelStore_connect("5");
 
     char *model;
