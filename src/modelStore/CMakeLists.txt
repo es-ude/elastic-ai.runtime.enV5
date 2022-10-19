@@ -3,4 +3,5 @@ target_sources(modelStore_lib INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/modelStore.c)
 target_include_directories(network_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(modelStore_lib INTERFACE
+        esp_lib
         network_lib)

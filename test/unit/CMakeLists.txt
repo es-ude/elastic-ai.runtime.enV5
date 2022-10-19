@@ -94,3 +94,31 @@ target_include_directories(unit-test_mqtt PUBLIC
 target_link_libraries(unit-test_mqtt unity)
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
+##############################################
+## ADD EXECUTABLE: unit-test_model_store
+add_executable(unit-test_modelStore
+        ${CMAKE_CURRENT_LIST_DIR}/test_modelStore.c
+        ${CMAKE_SOURCE_DIR}/src/modelStore/modelStore.c
+        ${CMAKE_SOURCE_DIR}/src/esp/esp.c
+        ${CMAKE_SOURCE_DIR}/src/network/http.c
+        ${CMAKE_SOURCE_DIR}/src/broker/MQTTBroker.c
+        ${CMAKE_SOURCE_DIR}/src/uart/uartToESP.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/FreeRTOSUtils/SemaphoreWrapper.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/FreeRTOSUtils/TaskWrapper.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/hardware/uart.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/topicMatcher.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/gpio.c)
+target_include_directories(unit-test_modelStore PUBLIC
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/gpio
+        ${CMAKE_SOURCE_DIR}/src/broker
+        ${CMAKE_SOURCE_DIR}/src/esp
+        ${CMAKE_SOURCE_DIR}/src/network
+        ${CMAKE_SOURCE_DIR}/src/uart
+        ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
+        ${CMAKE_SOURCE_DIR}/src/modelStore
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/hardware
+        ${CMAKE_CURRENT_LIST_DIR}/dummies)
+target_link_libraries(unit-test_modelStore unity)
+## endregion

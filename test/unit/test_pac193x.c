@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #include "i2c/i2c_test.h"
 #include "pac193x_internal.h"
 #include "pac193x_public.h"

@@ -1,8 +1,8 @@
 #ifndef MODEL_STORE_H
 #define MODEL_STORE_H
 
-#include <stdbool.h>
 #include "posting.h"
+#include <stdbool.h>
 
 typedef enum ModelStoreStatus {
     MS_OTHER = 1,

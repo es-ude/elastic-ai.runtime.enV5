@@ -7,6 +7,7 @@
 #include "common.h"
 #include "communicationEndpoint.h"
 #include "esp.h"
+#include "http.h"
 
 char *ModelStore_clientId;
 Subscriber ModelStore_subscriber = {.deliver = responseCallback};
@@ -51,5 +52,30 @@ ModelStoreStatus ModelStore_searchModel(const char *problem_graph, char **modelU
     }
 
     *modelUri = ModelStore_responseData;
+    return MS_SUCCESS;
+}
+
+ModelStoreStatus ModelStore_getModel(const char *modelUri, char **model) {
+    char request[strlen(ModelStore_clientId) + 1 + strlen(modelUri) + 1];
+    sprintf(request, "%s$%s", ModelStore_clientId, modelUri);
+
+    publish((Posting){.topic = "service/getModel", .data = request});
+
+    if (!SemaphoreTake(ModelStore_responseReady, 1000)) {
+        PRINT("Timeout in getModel(%s)", modelUri)
+        return MS_TIMEOUT;
+    }
+
+    if (ModelStore_responseData[0] == '!') {
+        return (ModelStoreStatus)atoi(ModelStore_responseData + 1);
+    }
+
+    char *modelDataUrl = ModelStore_responseData;
+    char *modelData;
+    HTTPStatus status = HTTP_get(modelDataUrl, &modelData);
+    if (status != HTTP_SUCCESS)
+        return MS_DOWNLOAD_ERROR;
+
+    *model = modelData;
     return MS_SUCCESS;
 }

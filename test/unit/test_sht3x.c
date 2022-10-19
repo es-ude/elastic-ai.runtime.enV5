@@ -1,6 +1,5 @@
 #define TEST_BUILD
 
-//#include "i2c/i2c.h"
 #include "i2c/i2c_test.h"
 #include "sht3x_public.h"
 #include "unity.h"

@@ -11,10 +11,10 @@
 
 // header from elastic-ai.runtime.c
 #include "communicationEndpoint.h"
+#include "math.h"
 #include "posting.h"
 #include "subscriber.h"
 #include "topicMatcher.h"
-#include "math.h"
 
 /* region VARIABLES */
 
@@ -167,38 +167,30 @@ void publish(Posting posting) {
     free(posting.topic);
 }
 
-void publishLong(Posting posting){
-    if (ESP_Status.MQTTStatus == NOT_CONNECTED)
+void publishLong(Posting posting) {
+    if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't publish data!")
         return;
+    }
 
-    char *topic = MQTT_Broker_concatIDWithTopic(posting.topic);
-    int length_dataLengthStr = (strlen(posting.data) == 0 ? 1 : (int)(log10(strlen(posting.data))+1));
+    char *topic = concatDomainAndClientWithTopic(posting.topic);
+    int dataLength = (strlen(posting.data) == 0 ? 1 : (int)(log10(strlen(posting.data)) + 1));
 
-    char *cmd1 = "AT+MQTTPUBRAW=0,\"";
-    char *cmd2 = "\",";
-    // Quality of service 0 - 2 see MQTT documentation
-    char *cmd3 = ",0,0";
-    char *command = malloc(sizeof(char) * (
-                                              strlen(cmd1) +
-                                              strlen(cmd2) +
-                                              strlen(cmd3) +
-                                              strlen(topic) +
-                                              length_dataLengthStr + 1));
-    sprintf(command, "%s%s%s%lu%s", cmd1, topic, cmd2, strlen(posting.data), cmd3);
-    PRINT(command)
-    PRINT(posting.data)
+    size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataLength;
+    char *publishData = malloc(commandLength);
+    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, topic, strlen(posting.data));
 
-    if (!ESP_SendCommand(command, "OK", 1000)) {            //why not OK\n>?
+    if (!esp_SendCommand(publishData, "OK", 1000)) { // why not OK\n>?
         PRINT("(1)Could not publish to topic : %s.", topic)
     } else {
-        if (!ESP_SendCommand(posting.data, "+MQTTPUB:OK", 1000)) {
+        if (!esp_SendCommand(posting.data, "+MQTTPUB:OK", 1000)) {
             PRINT("(2)Could not publish to topic : %s.", topic)
         } else {
             PRINT("Published to %s.", topic)
         }
     }
 
-    free(command);
+    free(publishData);
     free(topic);
 }
 

@@ -1,7 +1,3 @@
-//
-// Created by David P. Federl
-//
-
 #include "gpio.h"
 
 GPIO_ErrorCode GPIO_setPower(GPIO_PIN pin, GPIO_POWER_MODE powerMode) {
