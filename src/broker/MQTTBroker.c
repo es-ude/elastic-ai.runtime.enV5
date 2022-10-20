@@ -10,6 +10,7 @@
 #include "esp.h"
 
 // header from elastic-ai.runtime.c
+#include "TaskWrapper.h"
 #include "communicationEndpoint.h"
 #include "math.h"
 #include "posting.h"
@@ -35,8 +36,9 @@ mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
         return MQTT_ALREADY_CONNECTED;
     }
 
-    while (ESP_Status.MQTTStatus == NOT_CONNECTED) {
-        mqtt_errorCode mqttErrorCode = mqtt_connectToBroker(mqttHost, brokerDomain, clientID);
+    mqtt_errorCode mqttErrorCode = MQTT_CONNECTION_FAILED;
+    while (mqttErrorCode != MQTT_NO_ERROR) {
+        mqttErrorCode = mqtt_connectToBroker(mqttHost, brokerDomain, clientID);
         if (mqttErrorCode == MQTT_WIFI_FAILED) {
             PRINT("Could not connect to MQTT broker! No Wifi connection.")
             return MQTT_WIFI_FAILED;
@@ -44,7 +46,7 @@ mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
             PRINT("Could not connect to MQTT broker! Chip problem.")
             return MQTT_ESP_CHIP_FAILED;
         } else if (mqttErrorCode != MQTT_NO_ERROR) {
-            PRINT_DEBUG("Connection failed. Trying again now!")
+            PRINT_DEBUG("Could not send MQTT connection command. Trying again...")
         }
     }
 
@@ -64,6 +66,8 @@ mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, 
         PRINT("MQTT Broker already connected! Disconnect first")
         return MQTT_ALREADY_CONNECTED;
     }
+
+    mqtt_Disconnect(true);
 
     // store mqtt client/domain
     mqtt_errorCode userConfigError =
@@ -110,7 +114,7 @@ void mqtt_Disconnect(bool force) {
     if (!force) {
         if (ESP_Status.ChipStatus == CONNECTED && ESP_Status.WIFIStatus == CONNECTED) {
             if (ESP_Status.MQTTStatus == NOT_CONNECTED) {
-                PRINT("No connection to close!")
+                PRINT_DEBUG("No connection to close!")
                 return;
             }
         }
@@ -135,7 +139,7 @@ void mqtt_Disconnect(bool force) {
 
         PRINT_DEBUG("MQTT Broker disconnected!")
     } else {
-        PRINT("Could not disconnect MQTT broker.")
+        PRINT_DEBUG("Could not disconnect MQTT broker.")
     }
 }
 
