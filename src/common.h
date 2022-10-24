@@ -14,10 +14,17 @@
         printf("\n");                                                                              \
     }
 
+#define PRINT_ERROR(str, ...)                                                                            \
+    {                                                                                              \
+        printf("\033[033m[ERROR][%s: %s] ", SOURCE_FILE, __FUNCTION__);                                            \
+        printf(str, ##__VA_ARGS__);                                                                \
+        printf("\033[0m\n");                                                                            \
+    }
+
 #ifdef DEBUG_MODE
 #define PRINT_DEBUG(str, ...)                                                                      \
     {                                                                                              \
-        printf("\033[0;33m[%s: %s] ", SOURCE_FILE, __FUNCTION__);                                  \
+        printf("\033[033m[DEBUG][%s: %s] ", SOURCE_FILE, __FUNCTION__);                                  \
         printf(str, ##__VA_ARGS__);                                                                \
         printf("\033[0m\n");                                                                       \
     }

@@ -97,7 +97,7 @@ bool softReset(void) {
         PRINT_DEBUG("ESP reset successful. Sleeping for 2 seconds.")
         TaskSleep(2000); // wait until the esp is ready
     } else {
-        PRINT("ESP reset failed!")
+        PRINT_ERROR("ESP reset failed!")
     }
 
     return espErrorCode;

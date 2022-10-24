@@ -47,6 +47,7 @@ mqtt_errorCode mqtt_connectToBrokerUntilSuccessful(MQTTHost_t mqttHost, char *br
             return MQTT_ESP_CHIP_FAILED;
         } else if (mqttErrorCode != MQTT_NO_ERROR) {
             PRINT_DEBUG("Could not send MQTT connection command. Trying again...")
+            mqtt_Disconnect(true);
         }
     }
 
@@ -66,8 +67,6 @@ mqtt_errorCode mqtt_connectToBroker(MQTTHost_t credentials, char *brokerDomain, 
         PRINT("MQTT Broker already connected! Disconnect first")
         return MQTT_ALREADY_CONNECTED;
     }
-
-    mqtt_Disconnect(true);
 
     // store mqtt client/domain
     mqtt_errorCode userConfigError =
@@ -177,25 +176,25 @@ void publishLong(Posting posting) {
         return;
     }
 
-    char *topic = concatDomainAndClientWithTopic(posting.topic);
-    int dataLength = (strlen(posting.data) == 0 ? 1 : (int)(log10(strlen(posting.data)) + 1));
+    posting.topic = concatDomainAndClientWithTopic(posting.topic);
+    int dataStringLength = floor(log10((strlen(posting.data)))) + 1;
 
-    size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataLength;
+    size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataStringLength;
     char *publishData = malloc(commandLength);
-    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, topic, strlen(posting.data));
+    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic, strlen(posting.data));
 
-    if (!esp_SendCommand(publishData, "OK", 1000)) { // why not OK\n>?
-        PRINT("(1)Could not publish to topic : %s.", topic)
+    if (esp_SendCommand(publishData, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) == ESP_WRONG_ANSWER_RECEIVED) { // why not OK\n>?
+        PRINT_ERROR("Could not publish to topic: %s.", posting.topic)
     } else {
-        if (!esp_SendCommand(posting.data, "+MQTTPUB:OK", 1000)) {
-            PRINT("(2)Could not publish to topic : %s.", topic)
+        if (esp_SendCommand(posting.data, "+MQTTPUB:OK", 1000) == ESP_WRONG_ANSWER_RECEIVED) {
+            PRINT_ERROR("Could not publish to topic: %s.", posting.topic)
         } else {
-            PRINT("Published to %s.", topic)
+            PRINT("Published to %s.", posting.topic)
         }
     }
 
     free(publishData);
-    free(topic);
+    free(posting.topic);
 }
 
 void publishRemote(Posting posting) {

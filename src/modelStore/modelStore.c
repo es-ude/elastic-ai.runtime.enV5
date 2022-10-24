@@ -1,8 +1,11 @@
+#define SOURCE_FILE "MODEL-STORE"
+
 #include "modelStore.h"
 
 #include <stdlib.h>
 #include <string.h>
 
+#include "MQTTBroker.h"
 #include "SemaphoreWrapper.h"
 #include "common.h"
 #include "communicationEndpoint.h"
@@ -40,7 +43,7 @@ ModelStoreStatus ModelStore_searchModel(const char *problem_graph, char **modelU
     char request[strlen(ModelStore_clientId) + 1 + strlen(problem_graph) + 1];
     sprintf(request, "%s$%s", ModelStore_clientId, problem_graph);
 
-    publish((Posting){.topic = "service/searchModel", .data = request});
+    publishLong((Posting){.topic = "service/searchModel", .data = request});
 
     if (!SemaphoreTake(ModelStore_responseReady, 3000)) {
         PRINT("Timeout in searchModel");
@@ -48,7 +51,7 @@ ModelStoreStatus ModelStore_searchModel(const char *problem_graph, char **modelU
     }
 
     if (ModelStore_responseData[0] == '!') {
-        return (ModelStoreStatus)atoi(ModelStore_responseData + 1);
+        return (ModelStoreStatus)strtol(ModelStore_responseData + 1, NULL, 10);
     }
 
     *modelUri = ModelStore_responseData;
@@ -67,7 +70,7 @@ ModelStoreStatus ModelStore_getModel(const char *modelUri, char **model) {
     }
 
     if (ModelStore_responseData[0] == '!') {
-        return (ModelStoreStatus)atoi(ModelStore_responseData + 1);
+        return (ModelStoreStatus)strtol(ModelStore_responseData + 1, NULL, 10);
     }
 
     char *modelDataUrl = ModelStore_responseData;

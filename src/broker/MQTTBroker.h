@@ -1,6 +1,7 @@
 #ifndef ENV5_MQTT_BROKER_HEADER
 #define ENV5_MQTT_BROKER_HEADER
 
+#include "posting.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -59,5 +60,8 @@ void mqtt_Disconnect(bool force);
  * \param response the MQTT message received
  */
 void mqtt_Receive(char *response);
+
+// TODO
+void publishLong(Posting posting);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */
