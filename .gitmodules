@@ -10,3 +10,7 @@
 	path = extern/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
 	branch = master
+[submodule "extern/unity"]
+	path = extern/unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
+    branch = master
