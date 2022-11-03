@@ -45,6 +45,6 @@ HTTPStatus HTTP_get(const char *url, char **data) {
     return HTTP_SUCCESS;
 }
 
-void HTTP_init(void) {
+void HTTP_SetReceiverFunction(void) {
     esp_SetHTTPReceiverFunction(HTTP_receive);
 }

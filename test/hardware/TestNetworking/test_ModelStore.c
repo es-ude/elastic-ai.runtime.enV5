@@ -11,7 +11,8 @@
 #include <string.h>
 
 /*!
-
+ * Connects to the model store and Searches for suitable model example model, if sucessfull
+ * tires to get it over http
  */
 
 extern MQTTHost_t MQTTHost;
@@ -51,21 +52,21 @@ void _Noreturn modelTask(void) {
         ModelStoreStatus status = ModelStore_searchModel(problem_graph, &modelUri);
         TaskSleep(3000);
 
-                if (status == MS_SUCCESS) {
-                    PRINT("%s", modelUri)
+        if (status == MS_SUCCESS) {
+            PRINT("%s", modelUri)
 
-                    TaskSleep(3000);
+            TaskSleep(3000);
 
-                    char *modelData;
-                    status = ModelStore_getModel(modelUri, &modelData);
-                    if (status == MS_SUCCESS) {
-                        PRINT("Received model data")
-                    } else {
-                        PRINT("Error in the model store: %d", status)
-                    }
-                } else {
-                    PRINT("Error in the model store: %d", status)
-                }
+            char *modelData;
+            status = ModelStore_getModel(modelUri, &modelData);
+            if (status == MS_SUCCESS) {
+                PRINT("Received model data")
+            } else {
+                PRINT("Error in the model store: %d", status)
+            }
+        } else {
+            PRINT("Error in the model store: %d", status)
+        }
 
         TaskSleep(3000);
         ModelStore_disconnect();

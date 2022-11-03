@@ -5,6 +5,7 @@
 #include "at_commands.h"
 #include "common.h"
 #include "esp.h"
+#include "http.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,6 +27,8 @@ network_errorCode network_TryToConnectToNetworkUntilSuccessful(NetworkCredential
             PRINT_DEBUG("Connection failed. Trying again now!")
         }
     }
+
+    HTTP_SetReceiverFunction();
 
     return NETWORK_NO_ERROR;
 }
