@@ -124,7 +124,10 @@ instead to test Bitfile Flashing instead.
 ###Known Problems
 If the script fails repeatedly it's possible that the bitfile currently in flash is wrong and the FPGA repeatedly tries
 to reconfigure without success. It then blocks the flash until it is put into jtag mode by shorting the 1x2 pinheader on the board.
+<br/>
 ![](/pics/jtag_header.jpg)
+<br/>
+
 
 
 
