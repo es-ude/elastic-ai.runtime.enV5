@@ -6,4 +6,5 @@ target_link_libraries(esp_lib INTERFACE
         at_commands
         freeRtosUtils
         pico_stdlib
-        uart_lib)
+        uart_lib
+        network_lib)

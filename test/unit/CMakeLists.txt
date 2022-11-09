@@ -52,6 +52,7 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/src/uart/Uart.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
+        ${CMAKE_SOURCE_DIR}/src/network/HTTP.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/Esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/freeRtos/FreeRtosTaskWrapper.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/gpio/Gpio.c)
@@ -98,20 +99,29 @@ add_test(unit-test_mqtt unit-test_mqtt)
 ## region UNIT-TEST: unit-test_modelStore
 add_executable(unit-test_modelStore
         ${CMAKE_CURRENT_LIST_DIR}/UnittestModelStore.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/Gpio.c
         ${CMAKE_SOURCE_DIR}/src/uart/Uart.c
+        ${CMAKE_SOURCE_DIR}/src/broker/MqttBroker.c
+        ${CMAKE_SOURCE_DIR}/src/network/HTTP.c
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src/TopicMatcher.c
+        ${CMAKE_SOURCE_DIR}/src/modelStore/ModelStore.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/Esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/freeRtos/FreeRtosSemaphoreWrapper.c)
-target_include_directories(unit-test_mqtt PUBLIC
+target_include_directories(unit-test_modelStore PUBLIC
         ${CMAKE_SOURCE_DIR}/src/modelStore
         ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
+        ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/network
-        ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
+        ${CMAKE_SOURCE_DIR}/src/freeRtos
         ${CMAKE_SOURCE_DIR}/src/uart
-        ${CMAKE_SOURCE_DIR}/src)
+        ${CMAKE_SOURCE_DIR}/src/broker
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
+        ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src)
 target_link_libraries(unit-test_modelStore unity)
-add_test(unit-test_mqtt unit-test_modelStore)
+add_test(unit-test_modelStore unit-test_modelStore)
 ## endregion
 ##############################################
 ## region UNIT-TEST: unit-test_configuration

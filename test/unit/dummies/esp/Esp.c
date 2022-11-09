@@ -24,3 +24,5 @@ bool espInternalCheckIsResponding(void) {
 }
 
 void espSetMqttReceiverFunction(void (*receive)(char *)) {}
+
+void espSetHTTPReceiverFunction(void (*receive)(char *)) {}
