@@ -114,10 +114,11 @@ void uartInternalHandleNewLine(void) {
             uartMqttBrokerReceive(uartDevice->receiveBuffer);
         }
         if ((strncmp("++HTTPCLIENT", uartDevice->receiveBuffer, 12) == 0 ||
-             strncmp("+HTTPCLIENT", uartDevice->receiveBuffer, 11) == 0) && uartHTPPReceive != NULL) {
+             strncmp("+HTTPCLIENT", uartDevice->receiveBuffer, 11) == 0) &&
+            uartHTPPReceive != NULL) {
             // handle HTTP message
             uartHTPPReceive(uartDevice->receiveBuffer);
-          }
+        }
         if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
                     strlen(uartExpectedResponseFromEsp)) == 0) {
             PRINT_DEBUG("Expected message received: %s", uartDevice->receiveBuffer)

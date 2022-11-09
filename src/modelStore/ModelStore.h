@@ -13,7 +13,7 @@ typedef enum ModelStoreStatus {
     MS_SUCCESS = 256,
     MS_TIMEOUT,
     MS_DOWNLOAD_ERROR
-  } ModelStoreStatus;
+} ModelStoreStatus;
 
 void responseCallback(posting_t posting);
 

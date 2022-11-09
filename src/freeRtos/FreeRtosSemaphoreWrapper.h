@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-typedef void* Semaphore;
+typedef void *Semaphore;
 
 Semaphore SemaphoreCreateBinary(void);
 
