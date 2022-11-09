@@ -8,7 +8,7 @@ typedef enum HTTPStatus { HTTP_SUCCESS, HTTP_CONNECTION_FAILED } HTTPStatus;
  * \param url url to curl
  * \param data Pointer data is stored to
  */
-HTTPStatus HTTPGet ( const char *url, char **data );
+HTTPStatus HTTPGet(const char *url, char **data);
 
 /*! \brief only for the Network library
  *
