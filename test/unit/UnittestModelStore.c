@@ -1,26 +1,36 @@
 #define TEST_BUILD
 
-#include "MQTTBroker.h"
 
-#include "Network.h"
 #include "unity.h"
+
 #include "ModelStore.h"
+#include "MqttBroker.h"
+#include "NetworkConfiguration.h"
+#include "Esp.h"
 
 
-void setUp(void) {}
+/**
+ * This is does not work. These are not unit tests, as they do not test a single unit. This comes with the problem, that certain global variables are not set,
+ * because are are set after esp/network/etc. connection. There is no simple solution to it. So either, the ModelStore Unit tests are not existing, only the
+ * integration test. Or the entire modelStore library gets refactored in order to provide unit tests up to a certain point.
+ */
+
+void setUp(void) {
+    espStatus.ChipStatus = ESP_CHIP_OK;
+    espStatus.WIFIStatus = CONNECTED;
+    espStatus.MQTTStatus = CONNECTED;
+}
+
 void tearDown(void) {}
 
 void test_ModelStore_getModel() {
-    
-    mqtt_connectToBroker(
-            (MQTTHost_t){.ip = "127.0.0.1", .port = "1883", .userID = "", .password = ""}, "", "");
     ModelStore_connect("5");
     
     char *model;
     ModelStoreStatus status = ModelStore_getModel(
             "model:c67f1c6e5b93d5ee9d9948146357f68c0b28f39f572215f81c191dabda429e10", &model);
     TEST_ASSERT_EQUAL(MS_SUCCESS, status);
-    
+
     ModelStore_disconnect();
   }
 
@@ -40,8 +50,7 @@ void test_ModelStore_searchModel() {
                        "},"
                        "\"http://platzhalter.de/service_namespace#Size\": 2500"
                        "}";
-    
-    mqtt_connectToBroker(MQTTHost, "", "");
+
     ModelStore_connect("5");
     
     char *modelUri;
@@ -66,8 +75,7 @@ void test_ModelStore_searchModel_modelUriNotFound() {
                                 "},"
                                 "\"http://platzhalter.de/service_namespace#Size\": 1"
                                 "}";
-    
-    mqtt_connectToBroker(MQTTHost, "", "");
+
     ModelStore_connect("5");
     
     char *modelUri;
@@ -78,7 +86,6 @@ void test_ModelStore_searchModel_modelUriNotFound() {
   }
 
 void test_ModelStore_getModel_invalidModelHash() {
-    mqtt_connectToBroker(MQTTHost, "", "");
     ModelStore_connect("5");
     
     char *model;
@@ -88,7 +95,7 @@ void test_ModelStore_getModel_invalidModelHash() {
     TEST_ASSERT_EQUAL(MS_MODEL_DATA_NOT_FOUND, status);
     
     ModelStore_disconnect();
-  }
+}
 
 int main(void) {
     UNITY_BEGIN();
@@ -97,6 +104,6 @@ int main(void) {
     RUN_TEST(test_ModelStore_getModel_invalidModelHash);
     RUN_TEST(test_ModelStore_searchModel);
     RUN_TEST(test_ModelStore_searchModel_modelUriNotFound);
-    
+
     return UNITY_END();
   }

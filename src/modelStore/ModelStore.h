@@ -1,7 +1,7 @@
 #ifndef MODEL_STORE_H
 #define MODEL_STORE_H
 
-#include "posting.h"
+#include "Posting.h"
 #include <stdbool.h>
 
 typedef enum ModelStoreStatus {
