@@ -100,6 +100,37 @@ This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 When MQTT messages are sent to fast to the device, some message will be dropped.
 
+##FPGA Configuration
+The FPGA on the env5 can be configured by writing a Bit- or Binfile to the flash.
+To write a file to the flash, flash the env5 with the hardware test hardware-test_fpga_config in
+[test/hardware/TestEnv5Config](test/hardware/TestENv5Config/).
+The Test only works on the env5.
+Put the bit or binfile you want to send to the device in [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles)
+and execute the python script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py)
+The python script expects a number of arguments:
+* serial port of device -p -port
+* baudrate of serial connection -b, is optional 
+* 1st positional argument path to bitfile
+* 2nd positional argument start flash address bitfile should be written at
+
+The python script will send the bitfile via serial to the env5 and afterwards verify that it's been written correctly.
+To configure the FPGA with the new bitfile, reset the fpga after writing the bitfile to the flash. 
+(currently the FPGA will always reconfigure with the config that starts at address 0x0).
+With test hardware-test_fpga_config this can be done by sending an 'r' character to the device. 
+
+If your board does not contain a FPGA flash hardware-test_config in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/)
+instead to test Bitfile Flashing instead.
+
+###Known Problems
+If the script fails repeatedly it's possible that the bitfile currently in flash is wrong and the FPGA repeatedly tries
+to reconfigure without success. It then blocks the flash until it is put into jtag mode by shorting the 1x2 pinheader on the board.
+![](/pics/jtag_header.jpg)
+
+
+
+
+
+
 ## Sensors
 
 ### Power Sensor
