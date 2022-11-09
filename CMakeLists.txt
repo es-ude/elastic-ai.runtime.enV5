@@ -33,7 +33,7 @@ else ()
     if (TARGET tinyusb_device)
         add_subdirectory(test/hardware)
 
-        add_executable(main src/Main.c) # creates executable
+        add_executable(main src/Main.c src/modelStore/ModelStore.h src/network/HTTP.c src/network/HTTP.h) # creates executable
         target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_link_libraries(main
                 pico_stdlib
@@ -43,7 +43,8 @@ else ()
                 fpga_config_lib
                 flash_lib
                 hardware_spi
-                spi_lib)
+                spi_lib
+                modelStore_lib)
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")

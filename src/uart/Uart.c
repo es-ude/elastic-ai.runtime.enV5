@@ -19,6 +19,7 @@ static char *uartCommandToSend = "\0";
 static char *uartExpectedResponseFromEsp = "\0";
 
 void (*uartMqttBrokerReceive)(char *) = NULL;
+void (*uartHTPPReceive)(char *) = NULL;
 
 /* endregion */
 
@@ -69,6 +70,10 @@ void uartSetMqttReceiverFunction(void (*receive)(char *)) {
     uartMqttBrokerReceive = receive;
 }
 
+void uartSetHTTPReceiverFunction(void (*receive)(char *)) {
+    uartHTPPReceive = receive;
+}
+
 uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
     // check if UART is currently occupied
     if (strcmp(uartCommandToSend, "\0") != 0) {
@@ -108,6 +113,11 @@ void uartInternalHandleNewLine(void) {
             // handle Received MQTT message -> pass to correct subscriber
             uartMqttBrokerReceive(uartDevice->receiveBuffer);
         }
+        if ((strncmp("++HTTPCLIENT", uartDevice->receiveBuffer, 12) == 0 ||
+             strncmp("+HTTPCLIENT", uartDevice->receiveBuffer, 11) == 0) && uartHTPPReceive != NULL) {
+            // handle HTTP message
+            uartHTPPReceive(uartDevice->receiveBuffer);
+          }
         if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
                     strlen(uartExpectedResponseFromEsp)) == 0) {
             PRINT_DEBUG("Expected message received: %s", uartDevice->receiveBuffer)

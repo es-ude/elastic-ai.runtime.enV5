@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "AtCommands.h"
 #include "Common.h"
@@ -208,6 +209,34 @@ void communicationEndpointPublishRaw(posting_t posting) {
     free(publishData);
 }
 
+void publishLong(posting_t posting) {
+    if (espStatus.MQTTStatus == NOT_CONNECTED) {
+        PRINT("MQTT broker not connected. Can't publish data!")
+        return;
+      }
+    
+    posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
+    int dataStringLength = floor(log10((strlen(posting.data)))) + 1;
+    
+    size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataStringLength;
+    char *publishData = malloc(commandLength);
+    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic, strlen(posting.data));
+    
+    if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) == ESP_WRONG_ANSWER_RECEIVED) { // why not OK\n>?
+        PRINT("Could not publish to topic: %s.", posting.topic)
+      } else {
+        if (espSendCommand(posting.data, "+MQTTPUB:OK", 1000) == ESP_WRONG_ANSWER_RECEIVED) {
+            PRINT("Could not publish to topic: %s.", posting.topic)
+          } else {
+            PRINT("Published to %s.", posting.topic)
+          }
+      }
+    
+    free(publishData);
+    free(posting.topic);
+  }
+  
+  
 void communicationEndpointSubscribe(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)

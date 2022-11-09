@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "Esp.h"
 #include "FreeRtosTaskWrapper.h"
+#include "HTTP.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -55,6 +56,7 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Connected to Network: %s", credentials.ssid)
         espStatus.WIFIStatus = CONNECTED;
+        HTTPSetReceiverFunction();
         return NETWORK_NO_ERROR;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "Posting.h"
 
 #define MAX_SUBSCRIBER 100
 
@@ -49,6 +50,8 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t 
  */
 mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
                                                 char *clientID);
+
+void publishLong(posting_t posting);
 
 /*! \brief disconnect from MQTT broker
  *

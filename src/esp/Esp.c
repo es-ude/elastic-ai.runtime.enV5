@@ -79,6 +79,9 @@ void espSetMqttReceiverFunction(void (*receive)(char *)) {
     uartSetMqttReceiverFunction(receive);
 }
 
+void espSetHTTPReceiverFunction(void (*receive)(char *)) {
+    uartSetHTTPReceiverFunction(receive);
+}
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
