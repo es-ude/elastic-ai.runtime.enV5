@@ -43,8 +43,7 @@ else ()
                 fpga_config_lib
                 flash_lib
                 hardware_spi
-                spi_lib
-                modelStore_lib)
+                spi_lib)
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
