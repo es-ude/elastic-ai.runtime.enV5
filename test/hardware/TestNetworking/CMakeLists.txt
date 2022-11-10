@@ -93,13 +93,3 @@ target_link_libraries(hardware-test_MQTTKeepalive
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTKeepalive PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTKeepalive)
-
-################## test_MqttKeepAlive ##################
-add_executable(hardware-test_ModelStore HardwaretestModelStore.c)
-target_link_libraries(hardware-test_ModelStore
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper
-        modelStore_lib)
-target_compile_definitions(hardware-test_ModelStore PRIVATE DEBUG)
-make_to_output_file(hardware-test_ModelStore)
