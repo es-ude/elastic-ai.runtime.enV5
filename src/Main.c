@@ -72,8 +72,8 @@ static float getValuesOfChannelSensor(){
   }
 
 _Noreturn void mainTask(void) {
-//    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-//    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 
     PRINT("Initializing PAC193X...");
     
