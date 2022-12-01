@@ -34,11 +34,11 @@ pac193xErrorCode_t pac193xPowerDownSensor(void) {
     return PAC193X_NO_ERROR;
 }
 
-pac193xErrorCode_t pac193xInit(i2c_inst_t *i2cHost, float resistanceValues[4],
-                               pac193xUsedChannels_t usedChannels) {
+pac193xErrorCode_t pac193xInit(i2c_inst_t *i2cHost, pac193xI2cAddress slaveAddress,
+                               float resistanceValues[4], pac193xUsedChannels_t usedChannels) {
     /* save i2c access for later usage */
     pac193xSensorConfiguration.i2c_host = i2cHost;
-    pac193xSensorConfiguration.i2c_slave_address = 0x11;
+    pac193xSensorConfiguration.i2c_slave_address = slaveAddress;
 
     /* power up sensor */
     pac193xErrorCode_t errorCode = pac193xPowerUpSensor();

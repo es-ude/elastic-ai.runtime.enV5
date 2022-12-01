@@ -17,8 +17,27 @@ union pac193xUsedChannels {
 };
 typedef union pac193xUsedChannels pac193xUsedChannels_t;
 
+enum {
+    PAC193X_I2C_ADDRESS_GND = 0x10,
+    PAC193X_I2C_ADDRESS_499R = 0x11,
+    PAC193X_I2C_ADDRESS_1270R = 0x13,
+    PAC193X_I2C_ADDRESS_2050R = 0x14,
+    PAC193X_I2C_ADDRESS_3240R = 0x15,
+    PAC193X_I2C_ADDRESS_5230R = 0x16,
+    PAC193X_I2C_ADDRESS_8450R = 0x17,
+    PAC193X_I2C_ADDRESS_13300R = 0x18,
+    PAC193X_I2C_ADDRESS_21500R = 0x19,
+    PAC193X_I2C_ADDRESS_34000R = 0x1A,
+    PAC193X_I2C_ADDRESS_54900R = 0x1B,
+    PAC193X_I2C_ADDRESS_88700R = 0x1C,
+    PAC193X_I2C_ADDRESS_140000R = 0x1D,
+    PAC193X_I2C_ADDRESS_226000R = 0x1E,
+    PAC193X_I2C_ADDRESS_VDD = 0x1F,
+};
+typedef uint8_t pac193xI2cAddress;
+
 struct pac193xSensorConfiguration {
-    uint8_t i2c_slave_address;
+    pac193xI2cAddress i2c_slave_address;
     i2c_inst_t *i2c_host;
     float rSense[4];
     pac193xUsedChannels_t usedChannels; /*!< Channels to be used. \Note Some channels might be

@@ -139,7 +139,7 @@ int main(void) {
     PRINT("===== START INIT =====")
     pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
+        errorCode = pac193xInit(i2c1, PAC193X_I2C_ADDRESS_499R, resistanceValues, usedChannels);
         if (errorCode == PAC193X_NO_ERROR) {
             PRINT("Initialised PAC193X.\n")
             break;

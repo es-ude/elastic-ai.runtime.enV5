@@ -22,6 +22,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(void);
  *             needs max 1.5ms for idle state after power up
  *
  * @param i2cHost[in]               i2c line to be used with the sensor
+ * @param slaveAddress[in]          7 bit i2c address to be used with the sensor
  * @param resistanceValues[in]      array that holds the primary resistor values
  * for each used channel
  * @param numberOfChannelsInUse[in] number between 1 and 4 which specifies the
@@ -29,8 +30,8 @@ pac193xErrorCode_t pac193xPowerDownSensor(void);
  * @return                          return the error code (0 if everything
  * passed)
  */
-pac193xErrorCode_t pac193xInit(i2c_inst_t *i2cHost, float resistanceValues[4],
-                               pac193xUsedChannels_t usedChannels);
+pac193xErrorCode_t pac193xInit(i2c_inst_t *i2cHost, pac193xI2cAddress slaveAddress,
+                               float resistanceValues[4], pac193xUsedChannels_t usedChannels);
 
 /*! updates the primary resistor values for each channel
  *  \Important values for \b all used channels must be specified!
