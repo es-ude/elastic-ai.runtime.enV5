@@ -18,10 +18,20 @@
 #include <pico/stdlib.h>
 
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_MCU PAC193X_CHANNEL03
+#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
-float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
+float resistanceValuesSensorU8[4] = {0.82f, 0.82f, 0.82f, 0.82f};
+pac193xUsedChannels_t usedChannelsSensorU8 = {.uint_channelsInUse = 0b00001111};
+
+#define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
+#define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_FPGA_1V PAC193X_CHANNEL03
+#define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
+
+float resistanceValuesSensorU9[4] = {0.82f, 0.82f, 0.82f, 0.82f};
+pac193xUsedChannels_t usedChannelsSensorU9 = {.uint_channelsInUse = 0b00001111};
 
 static float getValuesOfChannelWifi();
 
@@ -48,7 +58,7 @@ static float getValuesOfChannel(int channel) {
         return -1;
     }
       
-    if (!compareFloatsWithinRange(resistanceValues[0],
+    if (!compareFloatsWithinRange(resistanceValuesSensorU8[0],
                                  measurements.voltageSense / measurements.iSense, 0.1f)) {
         PRINT("\033[0;31mFAILED\033[0m; Resistance values do not match!")
         return -1;
@@ -79,7 +89,7 @@ _Noreturn void mainTask(void) {
     
     pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
+        errorCode = pac193xInit(i2c1, resistanceValuesSensorU8, usedChannelsSensorU8); // same for second sensor, but with u9
         if (errorCode == PAC193X_NO_ERROR) {
             PRINT("Initialised PAC193X.")
             break;
