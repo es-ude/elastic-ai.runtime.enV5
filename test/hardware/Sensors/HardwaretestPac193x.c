@@ -27,7 +27,7 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
 
 static pac193xSensorConfiguration_t sensor1 = {
-    .i2c_host = i2c1,
+      .i2c_host = i2c1,
     .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
     .powerPin = -1,
     .usedChannels = {.uint_channelsInUse = 0b00000011},
