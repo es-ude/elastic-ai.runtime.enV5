@@ -15,10 +15,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
+        uses: KyleMayes/install-llvm-action@v1
         with:
-          version: 15
-          platform: x64
+          version: "15"
+#        uses: egor-tensin/setup-clang@v1
+#        with:
+#          version: 15
+#          platform: x64
 
       - name: Get files to apply Clang
         run: echo SRC=$(git ls-tree --full-tree -r HEAD | cut -f 2 | grep -e "\.\(c\|h\)\$" | grep -v ^extern) >> $GITHUB_ENV
