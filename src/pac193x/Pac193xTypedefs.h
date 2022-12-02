@@ -37,8 +37,9 @@ enum {
 typedef uint8_t pac193xI2cAddress;
 
 struct pac193xSensorConfiguration {
-    pac193xI2cAddress i2c_slave_address;
     i2c_inst_t *i2c_host;
+    pac193xI2cAddress i2c_slave_address;
+    uint8_t powerPin;
     float rSense[4];
     pac193xUsedChannels_t usedChannels; /*!< Channels to be used. \Note Some channels might be
                                           disabled by the ctrl-register. */
@@ -71,7 +72,7 @@ typedef struct pac193xMeasurements pac193xMeasurements_t;
 
 struct pac193xMeasurementProperties {
     uint8_t startReadAddress;
-    float (*calculationFunction)(uint64_t value, uint8_t channel);
+    float (*calculationFunction)(uint64_t value, float resistor);
     uint8_t sizeOfResponseBuffer;
 };
 typedef struct pac193xMeasurementProperties pac193xMeasurementProperties_t;

@@ -117,13 +117,18 @@ When MQTT messages are sent to fast to the device, some message will be dropped.
 #include "pac193x/Pac193x.h"
 #include "hardware/i2c.h"
 
-float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
+pac193xSensorConfiguration_t sensor = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00000011},
+    .rSense = {0.82f, 0.82f, 0, 0},
+};
+
 
 int main(void) {
     // Initialize Sensor (ALWAYS REQUIRED)
-    pac193xErrorCode_t errorCode = pac193xInit(i2c1, PAC193X_I2C_ADDRESS_499R,
-                                               resistanceValues, usedChannels);
+    pac193xErrorCode_t errorCode = pac193xInit(sensor);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
@@ -132,7 +137,7 @@ int main(void) {
     
     // Example: Read Values from Channel
     pac193xMeasurements_t measurements;
-    errorCode = pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
