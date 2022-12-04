@@ -2,6 +2,8 @@
 #include "EspUnitTest.h"
 #include <stdbool.h>
 
+espErrorCode_t ESPDUMMY_RETURN_CODE;
+
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
