@@ -1,6 +1,6 @@
 #ifndef ENV5_ESP_UNITTEST_HEADER
 #define ENV5_ESP_UNITTEST_HEADER
 
-void espUnitTestSetErrorCode(espErrorCode_t espErrorCode);
+espErrorCode_t ESPDUMMY_RETURN_CODE;
 
 #endif /* ENV5_ESP_UNITTEST_HEADER */
