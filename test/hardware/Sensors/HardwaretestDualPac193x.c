@@ -9,29 +9,16 @@
 
 /* region HELPER */
 
-static float floatToAbs(float input) {
-    if (input < 0) {
-        return (-1) * input;
-    } else {
-        return input;
-    }
-}
-
-static _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
-    return floatToAbs(expected - actual) <= epsilon;
-}
-
 static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
 
-    PRINT("Requesting measurements for sensor.")
     pac193xErrorCode_t errorCode =
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;
     }
-    PRINT("VSource=%4.6fV\n", measurement)
+    PRINT("VSource=%4.6fV", measurement)
 }
 
 /* endregion HELPER */
@@ -66,25 +53,25 @@ static pac193xSensorConfiguration_t sensor2 = {
 
 static void getValuesFromSensor1() {
     PRINT("Requesting measurements for sensor 1.")
-    PRINT("  Measure channel SENSOR:\t")
+    PRINT("  Measure channel SENSOR:")
     measureValue(sensor1, PAC193X_CHANNEL_SENSORS);
-    PRINT("  Measure channel RAW:\t")
+    PRINT("  Measure channel RAW:")
     measureValue(sensor1, PAC193X_CHANNEL_RAW);
-    PRINT("  Measure channel MCU:\t")
+    PRINT("  Measure channel MCU:")
     measureValue(sensor1, PAC193X_CHANNEL_MCU);
-    PRINT("  Measure channel WIFI:\t")
+    PRINT("  Measure channel WIFI:")
     measureValue(sensor1, PAC193X_CHANNEL_WIFI);
 }
 
 static void getValuesFromSensor2() {
     PRINT("Requesting measurements for sensor 2.")
-    PRINT("  Measure channel :\t")
+    PRINT("  Measure channel FPGA IO:")
     measureValue(sensor1, PAC193X_CHANNEL_FPGA_IO);
-    PRINT("  Measure channel RAW:\t")
+    PRINT("  Measure channel FPGA 1V8:")
     measureValue(sensor1, PAC193X_CHANNEL_FPGA_1V8);
-    PRINT("  Measure channel MCU:\t")
+    PRINT("  Measure channel FPGA 1V:")
     measureValue(sensor1, PAC193X_CHANNEL_FPGA_1V);
-    PRINT("  Measure channel WIFI:\t")
+    PRINT("  Measure channel FPGA SRAM:")
     measureValue(sensor1, PAC193X_CHANNEL_FPGA_SRAM);
 }
 
