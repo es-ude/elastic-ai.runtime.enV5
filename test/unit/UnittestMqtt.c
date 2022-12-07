@@ -11,7 +11,7 @@ void setUp(void) {
     espStatus.WIFIStatus = CONNECTED;
     espStatus.MQTTStatus = NOT_CONNECTED;
 
-    espUnitTestSetErrorCode(ESP_NO_ERROR);
+    ESPDUMMY_RETURN_CODE = ESP_NO_ERROR;
 }
 
 void tearDown(void) {}
@@ -50,7 +50,7 @@ void testConnectToMqttBrokerAlreadyConnected(void) {
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
 }
 void testConnectToMqttBrokerSendCommandFailed(void) {
-    espUnitTestSetErrorCode(ESP_WRONG_ANSWER_RECEIVED);
+    ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
     mqttBrokerErrorCode_t mqttErrorCode =
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
     TEST_ASSERT_EQUAL(MQTT_ESP_WRONG_ANSWER, mqttErrorCode);

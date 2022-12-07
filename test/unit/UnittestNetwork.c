@@ -10,7 +10,7 @@ void setUp(void) {
     espStatus.WIFIStatus = NOT_CONNECTED;
     espStatus.MQTTStatus = NOT_CONNECTED;
 
-    espUnitTestSetErrorCode(ESP_NO_ERROR);
+    ESPDUMMY_RETURN_CODE = ESP_NO_ERROR;
 }
 
 void tearDown(void) {}
@@ -39,7 +39,7 @@ void testConnectToNetworkEspChipFailed(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
 }
 void testConnectToNetworkSendFailed(void) {
-    espUnitTestSetErrorCode(ESP_WRONG_ANSWER_RECEIVED);
+    ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
     networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
     TEST_ASSERT_EQUAL(NETWORK_ESTABLISH_CONNECTION_FAILED, networkErrorCode);
