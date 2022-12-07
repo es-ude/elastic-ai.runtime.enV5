@@ -17,91 +17,50 @@
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
 
+static pac193xSensorConfiguration_t sensor1 = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00001111},
+    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+};
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
 #define PAC193X_CHANNEL_MCU PAC193X_CHANNEL03
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
-float resistanceValuesSensorU8[4] = {0.82f, 0.82f, 0.82f, 0.82f};
-pac193xUsedChannels_t usedChannelsSensorU8 = {.uint_channelsInUse = 0b00001111};
+float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
+    float measurement;
 
-#define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
-#define PAC193X_CHANNEL_FPGA_1V PAC193X_CHANNEL03
-#define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
-
-float resistanceValuesSensorU9[4] = {0.82f, 0.82f, 0.82f, 0.82f};
-pac193xUsedChannels_t usedChannelsSensorU9 = {.uint_channelsInUse = 0b00001111};
-
-static float getValuesOfChannelWifi();
-
-float floatToAbs(float input) {
-    if (input < 0) {
-        return (-1) * input;
-    } else {
-        return input;
-    }
-}
-
-_Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
-    return floatToAbs(expected - actual) <= epsilon;
-}
-
-static float getValuesOfChannel(int channel) {
-    pac193xMeasurements_t measurements;
-    
-    
     pac193xErrorCode_t errorCode =
-                               pac193xGetAllMeasurementsForChannel(channel, &measurements);
+        pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("\033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return -1;
     }
-      
-    if (!compareFloatsWithinRange(resistanceValuesSensorU8[0],
-                                 measurements.voltageSense / measurements.iSense, 0.1f)) {
-        PRINT("\033[0;31mFAILED\033[0m; Resistance values do not match!")
-        return -1;
-    }
-
-    if (!compareFloatsWithinRange(measurements.powerActual,
-                                 measurements.iSense * measurements.voltageSource, 0.001f)) {
-        PRINT("\033[0;31mFAILED\033[0m; Values do not match!")
-                return -1;
-    }
-    PRINT("Power Consumption: %fW", measurements.powerActual)
-    return measurements.powerActual;
-  }
-
-static float getValuesOfChannelWifi(){
-    return getValuesOfChannel(PAC193X_CHANNEL_WIFI);
-  }
-
-static float getValuesOfChannelSensor(){
-    return getValuesOfChannel(PAC193X_CHANNEL_SENSORS);
-  }
+    return measurement;
+}
 
 _Noreturn void mainTask(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
     mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 
-    PRINT("Initializing PAC193X...");
-    
+    PRINT("===== INIT SENSOR 1 =====")
     pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(i2c1, resistanceValuesSensorU8, usedChannelsSensorU8); // same for second sensor, but with u9
+        errorCode = pac193xInit(sensor1);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X.")
+            PRINT("Initialised PAC193X sensor 1.\n")
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     while (true) {
-        float channelWifiValue = getValuesOfChannelWifi();
+        float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
         sleep_ms(1000);
-        float channelSensorValue = getValuesOfChannelSensor();
+        float channelSensorValue = measureValue(sensor1, PAC193X_CHANNEL_SENSORS);
         sleep_ms(1000);
     }
 }
