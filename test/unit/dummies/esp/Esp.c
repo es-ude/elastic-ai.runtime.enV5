@@ -7,7 +7,6 @@ espErrorCode_t ESPDUMMY_RETURN_CODE;
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-
 void espInit(void) {}
 
 espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) {

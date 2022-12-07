@@ -9,7 +9,7 @@ void setUp(void) {
     espStatus.ChipStatus = ESP_CHIP_OK;
     espStatus.WIFIStatus = NOT_CONNECTED;
     espStatus.MQTTStatus = NOT_CONNECTED;
-    
+
     ESPDUMMY_RETURN_CODE = ESP_NO_ERROR;
 }
 
