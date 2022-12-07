@@ -26,15 +26,20 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
 
-float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
+static pac193xSensorConfiguration_t sensor1 = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00000011},
+    .rSense = {0.82f, 0.82f, 0, 0},
+};
 
 static void getValuesOfChannelWifi() {
     pac193xMeasurements_t measurements;
 
     PRINT("Requesting measurements for wifi board.")
     pac193xErrorCode_t errorCode =
-        pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_WIFI, &measurements);
+        pac193xGetAllMeasurementsForChannel(sensor1, PAC193X_CHANNEL_WIFI, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;
@@ -43,10 +48,10 @@ static void getValuesOfChannelWifi() {
     PRINT("  Measurements:\tVSource=%4.6fV\tVSense=%4.6fmV\tISense=%4.6fmA",
           measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000)
 
-    PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", resistanceValues[1],
+    PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", sensor1.rSense[1],
           measurements.voltageSense / (measurements.iSense))
-    if (compareFloatsWithinRange(resistanceValues[0],
-                                 measurements.voltageSense / measurements.iSense, 0.1f)) {
+    if (compareFloatsWithinRange(sensor1.rSense[0], measurements.voltageSense / measurements.iSense,
+                                 0.1f)) {
         PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!")
@@ -70,7 +75,7 @@ static void getValuesOfChannelSensors() {
 
     PRINT("Requesting measurements for sensors.")
     pac193xErrorCode_t errorCode =
-        pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+        pac193xGetAllMeasurementsForChannel(sensor1, PAC193X_CHANNEL_SENSORS, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;
@@ -79,10 +84,10 @@ static void getValuesOfChannelSensors() {
     PRINT("  Measurements:\tVSource=%4.6fV;\tVSense=%4.6fmV;\tISense=%4.6fmA",
           measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000)
 
-    PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", resistanceValues[1],
+    PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", sensor1.rSense[1],
           measurements.voltageSense / (measurements.iSense))
-    if (compareFloatsWithinRange(resistanceValues[0],
-                                 measurements.voltageSense / measurements.iSense, 0.1f)) {
+    if (compareFloatsWithinRange(sensor1.rSense[0], measurements.voltageSense / measurements.iSense,
+                                 0.1f)) {
         PRINT("    \033[0;32mPASSED\033[0m")
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!")
@@ -105,7 +110,7 @@ static void getSerialNumber() {
     pac193xSensorId_t sensorID;
 
     PRINT("Requesting serial number.")
-    pac193xErrorCode_t errorCode = pac193xGetSensorInfo(&sensorID);
+    pac193xErrorCode_t errorCode = pac193xGetSensorInfo(sensor1, &sensorID);
     if (errorCode == PAC193X_NO_ERROR) {
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
@@ -139,7 +144,7 @@ int main(void) {
     PRINT("===== START INIT =====")
     pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
+        errorCode = pac193xInit(sensor1);
         if (errorCode == PAC193X_NO_ERROR) {
             PRINT("Initialised PAC193X.\n")
             break;
