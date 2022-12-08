@@ -19,7 +19,7 @@
 #include <pico/stdlib.h>
 
 bool wifiValueIsRequested = false;
-bool sensorValueIsRequested = false;
+bool sRAMValueIsRequested = false;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -32,6 +32,18 @@ static pac193xSensorConfiguration_t sensor1 = {
 #define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
 #define PAC193X_CHANNEL_MCU PAC193X_CHANNEL03
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
+
+static pac193xSensorConfiguration_t sensor2 = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_806R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00001111},
+    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+};
+#define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
+#define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_FPGA_1V PAC193X_CHANNEL03
+#define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
 
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
@@ -53,12 +65,12 @@ void receiveWifiDataStopRequest(posting_t posting) {
     wifiValueIsRequested = false;
 }
 
-void receiveSensorDataStartRequest(posting_t posting) {
-    sensorValueIsRequested = true;
+void receiveSRAMDataStartRequest(posting_t posting) {
+    sRAMValueIsRequested = true;
 }
 
-void receiveSensorDataStopRequest(posting_t posting) {
-    sensorValueIsRequested = false;
+void receiveSRAMDataStopRequest(posting_t posting) {
+    sRAMValueIsRequested = false;
 }
 
 
@@ -77,6 +89,17 @@ _Noreturn void mainTask(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
+    
+    PRINT("===== INIT SENSOR 2 =====")
+    while (1) {
+        errorCode = pac193xInit(sensor2);
+        if (errorCode == PAC193X_NO_ERROR) {
+            PRINT("Initialised PAC193X sensor 1.\n")
+            break;
+        }
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        sleep_ms(500);
+    }
 
     protocolSubscribeForDataStartRequest("wifiValue", (subscriber_t){.deliver =
                                                                          receiveWifiDataStartRequest});
@@ -84,11 +107,11 @@ _Noreturn void mainTask(void) {
     protocolSubscribeForDataStopRequest("wifiValue", (subscriber_t){.deliver =
                                                                          receiveWifiDataStopRequest});
     
-    protocolSubscribeForDataStartRequest("sensorValue",
-                                         (subscriber_t){.deliver = receiveSensorDataStartRequest});
+    protocolSubscribeForDataStartRequest("sramValue",
+                                         (subscriber_t){.deliver = receiveSRAMDataStartRequest});
     
-    protocolSubscribeForDataStopRequest("sensorValue",
-                                        (subscriber_t){.deliver = receiveSensorDataStopRequest});
+    protocolSubscribeForDataStopRequest("sramValue",
+                                        (subscriber_t){.deliver = receiveSRAMDataStopRequest});
     
     char buffer[64];
     
@@ -99,10 +122,10 @@ _Noreturn void mainTask(void) {
             protocolPublishData("wifiValue", buffer);
         }
         sleep_ms(100);
-        if (sensorValueIsRequested) {
-            float channelSensorValue = measureValue(sensor1, PAC193X_CHANNEL_SENSORS);
+        if (sRAMValueIsRequested) {
+            float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
             snprintf(buffer, sizeof buffer, "%f", channelSensorValue);
-            protocolPublishData("sensorValue", buffer);
+            protocolPublishData("sramValue", buffer);
         }
         sleep_ms(900);
     }
