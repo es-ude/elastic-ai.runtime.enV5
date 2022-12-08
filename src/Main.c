@@ -10,12 +10,16 @@
 #include "Network.h"
 #include "NetworkConfiguration.h"
 #include "Pac193x.h"
+#include "Protocol.h"
 #include "hardware/i2c.h"
 
 // external headers
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
+
+bool wifiValueIsRequested = false;
+bool sensorValueIsRequested = false;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -41,6 +45,23 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     return measurement;
 }
 
+void receiveWifiDataStartRequest(posting_t posting) {
+    wifiValueIsRequested = true;
+}
+
+void receiveWifiDataStopRequest(posting_t posting) {
+    wifiValueIsRequested = false;
+}
+
+void receiveSensorDataStartRequest(posting_t posting) {
+    sensorValueIsRequested = true;
+}
+
+void receiveSensorDataStopRequest(posting_t posting) {
+    sensorValueIsRequested = false;
+}
+
+
 _Noreturn void mainTask(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
     mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
@@ -57,11 +78,33 @@ _Noreturn void mainTask(void) {
         sleep_ms(500);
     }
 
+    protocolSubscribeForDataStartRequest("wifiValue", (subscriber_t){.deliver =
+                                                                         receiveWifiDataStartRequest});
+    
+    protocolSubscribeForDataStopRequest("wifiValue", (subscriber_t){.deliver =
+                                                                         receiveWifiDataStopRequest});
+    
+    protocolSubscribeForDataStartRequest("sensorValue",
+                                         (subscriber_t){.deliver = receiveSensorDataStartRequest});
+    
+    protocolSubscribeForDataStopRequest("sensorValue",
+                                        (subscriber_t){.deliver = receiveSensorDataStopRequest});
+    
+    char buffer[64];
+    
     while (true) {
-        float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
-        sleep_ms(1000);
-        float channelSensorValue = measureValue(sensor1, PAC193X_CHANNEL_SENSORS);
-        sleep_ms(1000);
+        if (wifiValueIsRequested) {
+            float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
+            snprintf(buffer, sizeof buffer, "%f", channelWifiValue);
+            protocolPublishData("wifiValue", buffer);
+        }
+        sleep_ms(100);
+        if (sensorValueIsRequested) {
+            float channelSensorValue = measureValue(sensor1, PAC193X_CHANNEL_SENSORS);
+            snprintf(buffer, sizeof buffer, "%f", channelSensorValue);
+            protocolPublishData("sensorValue", buffer);
+        }
+        sleep_ms(900);
     }
 }
 
