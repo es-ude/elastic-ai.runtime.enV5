@@ -125,7 +125,7 @@ _Noreturn void mainTask(void) {
         if (sRAMValueIsRequested) {
             float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
             snprintf(buffer, sizeof buffer, "%f", channelSensorValue);
-            protocolPublishData("sramValue", buffer);
+            protocolPublishData("sRamValue", buffer);
         }
         sleep_ms(900);
     }
