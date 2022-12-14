@@ -1,7 +1,3 @@
-//
-// Created by Natalie Maman on 02.06.22.
-//
-
 #include <stdint.h>
 
 #include "FpgaConfigDatahandler.h"

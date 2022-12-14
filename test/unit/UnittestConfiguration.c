@@ -4,17 +4,28 @@
 #include <stdbool.h>
 #include <unity.h>
 
-uint8_t expectedData[256 * 4];
+const uint16_t blocksize=256;
+const uint16_t configSize= blocksize * 4;
+uint8_t expectedData[configSize];
 
 void setUp() {
     for (uint16_t i = 0; i < 4; i++) {
         for (uint16_t j = 0; j < 256; j++) {
-            expectedData[(j + i * 256)] = j;
+            expectedData[(j + i * blocksize)] = j;
+            dataComplete[(j+i*blocksize)]=0;
         }
     }
 }
 
-void tearDown() {}
+void tearDown() {
+    for (uint16_t i = 0; i < 4; i++) {
+        for (uint16_t j = 0; j < 256; j++) {
+            dataComplete[(j + i * blocksize)] = 0;
+        }
+    }
+    addressSectorErase=0;
+    numSectorErase = 0;
+}
 
 uint16_t readData2(uint8_t *block, uint16_t bufferLength) {
     uint16_t bufferIndex = 0;
@@ -41,20 +52,41 @@ void testWriteDataToFlashAtAddress0() {
         expectedAddresses[i] = (256 * i);
     }
     fpgaConfigHandlerSetAddress(0);
-    fpgaConfigHandlerSetConfigSize(256 * 4);
+    fpgaConfigHandlerSetConfigSize(configSize);
     fpgaConfigurationFlashConfiguration();
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, addressBlockErase, "Number of Blocks erased");
-    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expectedData, dataComplete, (256 * 4),
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, numSectorErase, "Number of Sectors erased");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, addressSectorErase, "Address of last Block erased");
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expectedData, dataComplete, configSize,
                                           "Content of written data");
     TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
                                            "Addresses of flash pages");
 }
 
+void testWriteDataToFlashAddress0x10000(){
+    uint32_t expectedAddresses[4];
+    for (uint16_t i = 0; i < 4; i++) {
+        expectedAddresses[i] = ((uint32_t)0x10000)+(256 * i);
+    }
+    fpgaConfigHandlerSetAddress(((uint32_t)0x10000));
+    fpgaConfigHandlerSetConfigSize(configSize);
+    fpgaConfigurationFlashConfiguration();
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, numSectorErase, "Number of Sectors erased");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE((uint32_t )0x10000, addressSectorErase, "Address of last Block erased");
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expectedData, dataComplete, configSize,
+                                          "Content of written data");
+    TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
+                                           "Addresses of flash pages");
+
+}
+void testVerifyDataAtAddress0(){
+
+}
 int main(void) {
     UNITY_BEGIN();
 
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testReadValue);
+    RUN_TEST(testWriteDataToFlashAddress0x10000);
 
     return UNITY_END();
 }

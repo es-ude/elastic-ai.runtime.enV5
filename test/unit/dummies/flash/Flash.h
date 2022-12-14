@@ -4,7 +4,8 @@
 #include <memory.h>
 #include <stdint.h>
 
-extern uint32_t addressBlockErase;
+extern uint32_t addressSectorErase;
+extern uint32_t numSectorErase;
 extern uint32_t addressWrite[4];
 extern uint8_t dataComplete[256 * 4];
 
