@@ -14,7 +14,4 @@
 	path = extern/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
 	branch = master
-[submodule "extern/cmock"]
-	path = extern/cmock
-	url = https://github.com/ThrowTheSwitch/CMock.git
-	branch = v2.5.3
+
