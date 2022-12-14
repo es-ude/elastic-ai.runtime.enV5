@@ -10,7 +10,7 @@ For compiling the project the tools are:
     * gcc
     * arm-non-eabi-gcc
     * CMake
-    * Ninja
+    * ninja (or ninja-build)
 * recommended:
     * pre-commit
 
@@ -26,8 +26,7 @@ If this flag is not passed CMake will use the default build tool on your machine
 ## Configuration
 
 In the [network_configuration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings can be
-change. To stop
-changes in these to be committed you can do:
+change. To stop changes in these to be committed you can do:
 
 ```bash
 git update-index --assume-unchanged src/network_configuration.h
@@ -37,17 +36,13 @@ git update-index --assume-unchanged src/network_configuration.h
 
 ### Unit Tests
 
-To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used.
-
-The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
+To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used. The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
 
 ## Target Pico
 
 ### Build all Targets
 
-To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug
-output enabled.
-If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
+To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug output enabled. If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
 
 The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
 
@@ -77,62 +72,51 @@ The resulting `<test_name>.u2f` files to flash the pico can be found in the [out
 
 If the pico is connected to the local machine the `print()` inside the code will be redirected to the USB and is
 available as serial port output.
-This output can be read via a serial port reader like screen,
-minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+This output can be read via a serial port reader like screen, minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
-The following example shows how to use minicom on a Unix based system:
+The following example shows how to use minicom on a unix based system:
 
 ```bash
 minicom -b 115200 -o -D /dev/ttyACM0
 ```
 
 * `-b 115200` -> baud rate for connection
-* `-D /dev/ttyACM0` -> serial port (maybe different on your machine)
+* `-D /dev/ttyACM0` -> serial port
+  * differs depending on the host machine
+  * can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux /  macOS)
 * `-o` -> disable modem initialisation
 
 ### Debug Output
 
-To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or
-add it in the CLion CMake options).
-This enables the `PRINT_DEBUG(...)` from common.h in all targets.
+To enable enhanced debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or add it in the CLion CMake options). This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 ## MQTT Stress behavior
 
 When MQTT messages are sent to fast to the device, some message will be dropped.
 
-##FPGA Configuration
-The FPGA on the env5 can be configured by writing a Bit- or Binfile to the flash.
-To write a file to the flash, flash the env5 with the hardware test hardware-test_fpga_config in
+## FPGA Configuration
+
+The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
+To write a file to the flash, the ENv5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
 [test/hardware/TestEnv5Config](test/hardware/TestENv5Config/).
-The Test only works on the env5.
-Put the bit or binfile you want to send to the device in [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles)
-and execute the python script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py)
-The python script expects a number of arguments:
-* serial port of device -p -port
-* baudrate of serial connection -b, is optional 
+The Test only works on the ENv5, not the SensorBoard.
+Put the Bit- or Binfile you want to send to the Device in the directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with a number of arguments
+
+* required: serial port of device `-p` or `--port`
+* optionally: baudrate of serial connection `-b` or `--baudrate` 
 * 1st positional argument path to bitfile
 * 2nd positional argument start flash address bitfile should be written at
 
-The python script will send the bitfile via serial to the env5 and afterwards verify that it's been written correctly.
-To configure the FPGA with the new bitfile, reset the fpga after writing the bitfile to the flash. 
-(currently the FPGA will always reconfigure with the config that starts at address 0x0).
-With test hardware-test_fpga_config this can be done by sending an 'r' character to the device. 
+The python script will send the Bitfile via serial to the ENv5 and afterwards verify that it's been written correctly. To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with the config that starts at address 0x0).
+The hardware test `hardware-test_fpga_config` can be used for this by sending the character 'r' via serial to the device. 
 
-If your board does not contain a FPGA flash hardware-test_config in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/)
-instead to test Bitfile Flashing instead.
+If your board does not contain a FPGA, use the hardware test `hardware-test_config` in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/) instead to test if the Bitfile Flashing worked.
 
-###Known Problems
-If the script fails repeatedly it's possible that the bitfile currently in flash is wrong and the FPGA repeatedly tries
-to reconfigure without success. It then blocks the flash until it is put into jtag mode by shorting the 1x2 pinheader on the board.
-<br/>
+### Known Problems
+
+If the script fails repeatedly it's possible that the Bitfile currently in flash memory is wrong and the FPGA repeatedly tries to reconfigure without success. It then blocks the flash until it is put into JTAG mode by shorting the 1x2 pinheader on the board, seen in the picture below.
+
 ![](/pics/jtag_header.jpg)
-<br/>
-
-
-
-
-
-
 
 ## Sensors
 
