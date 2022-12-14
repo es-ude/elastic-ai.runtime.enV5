@@ -4,26 +4,42 @@
 #include <stdbool.h>
 #include <unity.h>
 
-const uint16_t blocksize=256;
-const uint16_t configSize= blocksize * 4;
-uint8_t expectedData[configSize];
+const uint16_t blocksize = 256;
+const uint16_t configSize = blocksize * 4;
 
 void setUp() {
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint16_t j = 0; j < 256; j++) {
-            expectedData[(j + i * blocksize)] = j;
-            dataComplete[(j+i*blocksize)]=0;
-        }
-    }
 }
 
 void tearDown() {
     for (uint16_t i = 0; i < 4; i++) {
-        for (uint16_t j = 0; j < 256; j++) {
+        for (uint32_t j = 0; j < 65536; j++) {
             dataComplete[(j + i * blocksize)] = 0;
         }
     }
-    addressSectorErase=0;
+    addressSectorErase = 0;
+    numSectorErase = 0;
+}
+
+uint8_t* setUpExpectedAtAddress(uint32_t startAddress){
+    uint8_t expectedData[configSize];
+    for (uint16_t i = 0; i < 4; i++) {
+        for (uint32_t j = startAddress; j < startAddress + 256; j++) {
+            expectedData[(j + i * blocksize)] = j;
+            dataComplete[(j + i * blocksize)] = 0;
+        }
+    }
+    return expectedData;
+}
+
+void tearDownExpectedAtAddress(uint32_t startAddress) {
+    uint8_t expectedData[configSize];
+    for (uint16_t i = 0; i < 4; i++) {
+        for (uint32_t j = startAddress; j < startAddress + 256; j++) {
+            dataComplete[(j + i * blocksize)] = 0;
+            expectedData[(j + i * blocksize)] = 0;
+        }
+    }
+    addressSectorErase = 0;
     numSectorErase = 0;
 }
 
@@ -47,6 +63,15 @@ void testReadValue() {
     TEST_ASSERT_EQUAL((uint32_t)0xFFFFFFFF, result);
 }
 void testWriteDataToFlashAtAddress0() {
+    uint8_t expectedData[65536 * 4];
+
+    for (uint16_t i = 0; i < 4; i++) {
+        for (uint32_t j = 0; j < 256; j++) {
+            expectedData[(j + i)] = j;
+            dataComplete[(j + i * blocksize)] = 0;
+        }
+    }
+
     uint32_t expectedAddresses[4];
     for (uint16_t i = 0; i < 4; i++) {
         expectedAddresses[i] = (256 * i);
@@ -63,6 +88,15 @@ void testWriteDataToFlashAtAddress0() {
 }
 
 void testWriteDataToFlashAddress0x10000(){
+    uint8_t expectedData[65536 * 4];
+
+    for (uint16_t i = 0; i < 4; i++) {
+        for (uint32_t j = 0; j < 256; j++) {
+            expectedData[(j + i + 65536)] = j;
+            dataComplete[(j + i * blocksize)] = 0;
+        }
+    }
+
     uint32_t expectedAddresses[4];
     for (uint16_t i = 0; i < 4; i++) {
         expectedAddresses[i] = ((uint32_t)0x10000)+(256 * i);
@@ -76,11 +110,12 @@ void testWriteDataToFlashAddress0x10000(){
                                           "Content of written data");
     TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
                                            "Addresses of flash pages");
-
 }
+
 void testVerifyDataAtAddress0(){
 
 }
+
 int main(void) {
     UNITY_BEGIN();
 
