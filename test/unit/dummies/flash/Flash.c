@@ -1,16 +1,18 @@
 #include "flash/Flash.h"
 #include <stdint.h>
+#include <printf.h>
 
-uint32_t addressBlockErase;
+uint32_t addressSectorErase=0;
 uint32_t addressWrite[4];
+uint32_t numSectorErase = 0;
 uint8_t dataComplete[256 * 4];
 
-uint32_t numBlockErase = 0;
+
 uint32_t numWriteBlocks = 0;
 
 uint8_t flashEraseData(uint32_t address) {
-    numBlockErase++;
-    addressBlockErase = address;
+    numSectorErase++;
+    addressSectorErase = address;
     return 0;
 }
 

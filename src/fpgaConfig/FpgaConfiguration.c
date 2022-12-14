@@ -15,17 +15,16 @@
 uint32_t fpgaConfigurationConfigAddress, fpgaConfigurationConfigSize;
 uint8_t *fpgaConfigurationBuffer, *fpgaConfigurationVerifyBuffer;
 
-
 void fpgaConfigurationFlashConfiguration() {
     // getting address
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf("%lu\n", fpgaConfigurationConfigAddress);
+    printf("%u\n", fpgaConfigurationConfigAddress);
 
     uint32_t configRemaining;
 
     // getting size of file
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("%lu\n", fpgaConfigurationConfigSize);
+    printf("%u\n", fpgaConfigurationConfigSize);
     fpgaConfigurationBuffer = (uint8_t *)malloc(BUFFER_SIZE);
 
     uint16_t blockSize = BUFFER_SIZE;
@@ -44,7 +43,7 @@ void fpgaConfigurationFlashConfiguration() {
     while (configRemaining > 0) {
         if (configRemaining < BUFFER_SIZE) {
             blockSize = configRemaining;
-            printf("last block address: %lx, blockSize: %u\n", currentAddress, blockSize);
+            printf("last block address: %x, blockSize: %u\n", currentAddress, blockSize);
         }
         fpgaConfigHandlerReadData(fpgaConfigurationBuffer, blockSize);
         for (uint32_t index = 0; index < blockSize; index++) {
@@ -72,9 +71,9 @@ void fpgaConfigurationVerifyConfiguration() {
     uint16_t blockSize = BUFFER_SIZE;
 
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf("%lu\n", fpgaConfigurationConfigAddress);
+    printf("%u\n", fpgaConfigurationConfigAddress);
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("%lu\n", fpgaConfigurationConfigSize);
+    printf("%u\n", fpgaConfigurationConfigSize);
 
     uint32_t currentAddress = fpgaConfigurationConfigAddress;
 
@@ -84,7 +83,7 @@ void fpgaConfigurationVerifyConfiguration() {
         if (configRemaining < BUFFER_SIZE) {
             blockSize = configRemaining;
         }
-        printf("address %lx ; blockSize: %u\n", currentAddress, blockSize);
+        printf("address %x ; blockSize: %u\n", currentAddress, blockSize);
         flashReadData(currentAddress, fpgaConfigurationVerifyBuffer, blockSize);
         currentAddress += blockSize;
         configRemaining -= blockSize;
@@ -112,7 +111,7 @@ void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
 void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uint16_t blockCounter,
                                                         uint32_t blockAddress) {
     uint8_t *eraseTest = (uint8_t *)malloc(BUFFER_SIZE);
-    printf("error occurred: %u , block: %u , address: %lx\n", eraseStatus, blockCounter,
+    printf("error occurred: %u , block: %u , address: %x\n", eraseStatus, blockCounter,
            blockAddress);
     flashReadData(blockAddress, eraseTest, BUFFER_SIZE);
     fpgaConfigurationInternalPrintBuffer(eraseTest, BUFFER_SIZE);
