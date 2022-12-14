@@ -18,18 +18,18 @@ uint8_t *fpgaConfigurationBuffer, *fpgaConfigurationVerifyBuffer;
 void fpgaConfigurationFlashConfiguration() {
     // getting address
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf("%u\n", fpgaConfigurationConfigAddress);
+    printf("FPGA Configuration Address:\t %u\n", fpgaConfigurationConfigAddress);
 
     uint32_t configRemaining;
 
     // getting size of file
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("%u\n", fpgaConfigurationConfigSize);
+    printf("FPGA Configuration Config Size:\t %u\n", fpgaConfigurationConfigSize);
     fpgaConfigurationBuffer = (uint8_t *)malloc(BUFFER_SIZE);
 
     uint16_t blockSize = BUFFER_SIZE;
     fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, blockSize);
-    uint8_t erase_error=  fpgaConfigurationInternalEraseSectors();
+    uint8_t erase_error = fpgaConfigurationInternalEraseSectors();
     if(erase_error){
         printf("Erase failed\n");
     }else{
@@ -124,7 +124,7 @@ void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uin
 uint8_t fpgaConfigurationInternalEraseSectors() {
     uint16_t numSectors = ceilf((float)(fpgaConfigurationConfigSize) / SECTOR_SIZE);
     uint8_t status=2;
-    printf("%u\n", numSectors);
+    printf("Number of Sectors:\t\t %u\n", numSectors);
     uint32_t blockAddress;
     for (uint16_t blockCounter = 0; blockCounter < numSectors; blockCounter++) {
         blockAddress = fpgaConfigurationConfigAddress + ((uint32_t)blockCounter) * SECTOR_SIZE;
@@ -132,7 +132,6 @@ uint8_t fpgaConfigurationInternalEraseSectors() {
         if(status==1){
             return 1;
         }
-
       // fpgaConfigurationInternalDebugPrintFlashAfterErase(status, blockCounter, blockAddress);
     }
     return status;
