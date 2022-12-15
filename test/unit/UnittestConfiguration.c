@@ -67,7 +67,7 @@ void testWriteDataToFlashAtAddress0() {
 
     for (uint16_t i = 0; i < 4; i++) {
         for (uint32_t j = 0; j < 256; j++) {
-            expectedData[(j + i)] = j;
+            expectedData[(j + i * blocksize)] = j;
             dataComplete[(j + i * blocksize)] = 0;
         }
     }
