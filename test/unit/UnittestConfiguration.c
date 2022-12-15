@@ -8,6 +8,7 @@ const uint16_t blocksize = 256;
 const uint16_t configSize = blocksize * 4;
 
 void setUp() {
+    numWriteBlocks = 0;
 }
 
 void tearDown() {
@@ -69,7 +70,7 @@ void testWriteDataToFlashAddress0x10000(){
 
     for (uint16_t i = 0; i < 4; i++) {
         for (uint32_t j = 0; j < 256; j++) {
-            expectedData[(j + i + 65536)] = j;
+            expectedData[(j + i * blocksize) + 65536] = j;
             dataComplete[(j + i * blocksize)] = 0;
         }
     }
@@ -83,7 +84,7 @@ void testWriteDataToFlashAddress0x10000(){
     fpgaConfigurationFlashConfiguration();
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, numSectorErase, "Number of Sectors erased");
     TEST_ASSERT_EQUAL_UINT32_MESSAGE((uint32_t )0x10000, addressSectorErase, "Address of last Block erased");
-    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expectedData, dataComplete, configSize,
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE((&expectedData[0] + 65536), (&dataComplete[0] + 65536), configSize,
                                           "Content of written data");
     TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
                                            "Addresses of flash pages");

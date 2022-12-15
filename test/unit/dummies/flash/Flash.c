@@ -6,9 +6,8 @@ uint32_t addressSectorErase=0;
 uint32_t addressWrite[4];
 uint32_t numSectorErase = 0;
 uint8_t dataComplete[65536 * 4];
+uint32_t numWriteBlocks;
 
-
-uint32_t numWriteBlocks = 0;
 
 uint8_t flashEraseData(uint32_t address) {
     numSectorErase++;

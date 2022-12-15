@@ -8,6 +8,7 @@ extern uint32_t addressSectorErase;
 extern uint32_t numSectorErase;
 extern uint32_t addressWrite[4];
 extern uint8_t dataComplete[65536 * 4];
+extern uint32_t numWriteBlocks;
 
 void flashSetDataLength(uint32_t numBlocks, uint32_t blockSize);
 uint8_t flashEraseData(uint32_t address);
