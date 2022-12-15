@@ -20,29 +20,6 @@ void tearDown() {
     numSectorErase = 0;
 }
 
-uint8_t* setUpExpectedAtAddress(uint32_t startAddress){
-    uint8_t expectedData[configSize];
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint32_t j = startAddress; j < startAddress + 256; j++) {
-            expectedData[(j + i * blocksize)] = j;
-            dataComplete[(j + i * blocksize)] = 0;
-        }
-    }
-    return expectedData;
-}
-
-void tearDownExpectedAtAddress(uint32_t startAddress) {
-    uint8_t expectedData[configSize];
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint32_t j = startAddress; j < startAddress + 256; j++) {
-            dataComplete[(j + i * blocksize)] = 0;
-            expectedData[(j + i * blocksize)] = 0;
-        }
-    }
-    addressSectorErase = 0;
-    numSectorErase = 0;
-}
-
 uint16_t readData2(uint8_t *block, uint16_t bufferLength) {
     uint16_t bufferIndex = 0;
     while (true) {
@@ -120,8 +97,8 @@ int main(void) {
     UNITY_BEGIN();
 
     RUN_TEST(testWriteDataToFlashAtAddress0);
-    RUN_TEST(testReadValue);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
+    RUN_TEST(testReadValue);
 
     return UNITY_END();
 }
