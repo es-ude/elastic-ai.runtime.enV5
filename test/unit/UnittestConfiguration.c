@@ -6,6 +6,7 @@
 
 const uint16_t blocksize = 256;
 const uint16_t configSize = blocksize * 4;
+uint8_t expectedData[65536 * 4];
 
 void setUp() {
     numWriteBlocks = 0;
@@ -40,17 +41,19 @@ void testReadValue() {
     readValue2(&result);
     TEST_ASSERT_EQUAL((uint32_t)0xFFFFFFFF, result);
 }
-void testWriteDataToFlashAtAddress0() {
-    uint8_t expectedData[65536 * 4];
 
+void writeExpectedData(uint32_t offset) {
     for (uint16_t i = 0; i < 4; i++) {
         for (uint32_t j = 0; j < 256; j++) {
-            expectedData[(j + i * blocksize)] = j;
-            dataComplete[(j + i * blocksize)] = 0;
+            expectedData[(j + i * blocksize) + offset] = j;
         }
     }
+}
 
+void testWriteDataToFlashAtAddress0() {
     uint32_t expectedAddresses[4];
+    writeExpectedData(0);
+
     for (uint16_t i = 0; i < 4; i++) {
         expectedAddresses[i] = (256 * i);
     }
@@ -61,21 +64,14 @@ void testWriteDataToFlashAtAddress0() {
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, addressSectorErase, "Address of last Block erased");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expectedData, dataComplete, configSize,
                                           "Content of written data");
-    TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
+    TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(expectedAddresses, addressWrite, 4,
                                            "Addresses of flash pages");
 }
 
 void testWriteDataToFlashAddress0x10000(){
-    uint8_t expectedData[65536 * 4];
-
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint32_t j = 0; j < 256; j++) {
-            expectedData[(j + i * blocksize) + 65536] = j;
-            dataComplete[(j + i * blocksize)] = 0;
-        }
-    }
-
     uint32_t expectedAddresses[4];
+    writeExpectedData((uint32_t) 0x10000);
+
     for (uint16_t i = 0; i < 4; i++) {
         expectedAddresses[i] = ((uint32_t)0x10000)+(256 * i);
     }
@@ -86,7 +82,7 @@ void testWriteDataToFlashAddress0x10000(){
     TEST_ASSERT_EQUAL_UINT32_MESSAGE((uint32_t )0x10000, addressSectorErase, "Address of last Block erased");
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE((&expectedData[0] + 65536), (&dataComplete[0] + 65536), configSize,
                                           "Content of written data");
-    TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(addressWrite, expectedAddresses, 4,
+    TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(expectedAddresses, addressWrite, 4,
                                            "Addresses of flash pages");
 }
 
