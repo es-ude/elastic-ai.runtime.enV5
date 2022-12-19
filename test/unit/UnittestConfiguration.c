@@ -5,21 +5,26 @@
 #include <unity.h>
 
 const uint16_t blocksize = 256;
-const uint16_t configSize = blocksize * 4;
-uint8_t expectedData[65536 * 4];
+const uint8_t numberOfPages=4;
+const uint16_t configSize = blocksize * numberOfPages;
+const uint32_t sectorsize=65536;
+const uint8_t numberOfSectors=2;
+uint8_t expectedData[sectorsize * numberOfSectors];
 
 void setUp() {
     numWriteBlocks = 0;
-}
-
-void tearDown() {
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint32_t j = 0; j < 65536; j++) {
+    for (uint16_t i = 0; i < numberOfSectors; i++) {
+        for (uint32_t j = 0; j < sectorsize; j++) {
             dataComplete[(j + i * blocksize)] = 0;
         }
     }
     addressSectorErase = 0;
     numSectorErase = 0;
+
+}
+
+void tearDown() {
+
 }
 
 uint16_t readData2(uint8_t *block, uint16_t bufferLength) {
@@ -43,20 +48,22 @@ void testReadValue() {
 }
 
 void writeExpectedData(uint32_t offset) {
-    for (uint16_t i = 0; i < 4; i++) {
-        for (uint32_t j = 0; j < 256; j++) {
+    for (uint16_t i = 0; i < numberOfPages; i++) {
+        for (uint32_t j = 0; j < blocksize; j++) {
             expectedData[(j + i * blocksize) + offset] = j;
         }
     }
 }
+void writeExpectedAddresses(uint32_t *expectedAddresses, uint32_t startingAddress){
+    for (uint16_t i = 0; i < numberOfPages; i++) {
+        expectedAddresses[i] = startingAddress+(blocksize * i);
+    }
 
+}
 void testWriteDataToFlashAtAddress0() {
     uint32_t expectedAddresses[4];
     writeExpectedData(0);
-
-    for (uint16_t i = 0; i < 4; i++) {
-        expectedAddresses[i] = (256 * i);
-    }
+    writeExpectedAddresses(expectedAddresses, 0);
     fpgaConfigHandlerSetAddress(0);
     fpgaConfigHandlerSetConfigSize(configSize);
     fpgaConfigurationFlashConfiguration();
@@ -69,12 +76,9 @@ void testWriteDataToFlashAtAddress0() {
 }
 
 void testWriteDataToFlashAddress0x10000(){
-    uint32_t expectedAddresses[4];
+    uint32_t expectedAddresses[numberOfPages];
     writeExpectedData((uint32_t) 0x10000);
-
-    for (uint16_t i = 0; i < 4; i++) {
-        expectedAddresses[i] = ((uint32_t)0x10000)+(256 * i);
-    }
+    writeExpectedAddresses(expectedAddresses,(uint32_t) 0x10000 );
     fpgaConfigHandlerSetAddress(((uint32_t)0x10000));
     fpgaConfigHandlerSetConfigSize(configSize);
     fpgaConfigurationFlashConfiguration();
@@ -87,6 +91,7 @@ void testWriteDataToFlashAddress0x10000(){
 }
 
 void testVerifyDataAtAddress0(){
+   // TEST_FAIL();
 
 }
 
@@ -96,6 +101,6 @@ int main(void) {
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
     RUN_TEST(testReadValue);
-
+  //  RUN_TEST(testVerifyDataAtAddress0);
     return UNITY_END();
 }
