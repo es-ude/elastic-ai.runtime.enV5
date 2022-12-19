@@ -11,7 +11,7 @@ const uint32_t sectorsize=65536;
 const uint8_t numberOfSectors=2;
 uint8_t expectedData[sectorsize * numberOfSectors];
 
-void setUp() {
+void setUp(void) {
     numWriteBlocks = 0;
     for (uint16_t i = 0; i < numberOfSectors; i++) {
         for (uint32_t j = 0; j < sectorsize; j++) {
@@ -23,7 +23,7 @@ void setUp() {
 
 }
 
-void tearDown() {
+void tearDown(void) {
 
 }
 
@@ -90,10 +90,10 @@ void testWriteDataToFlashAddress0x10000(){
                                            "Addresses of flash pages");
 }
 
-void testVerifyDataAtAddress0(){
+//void testVerifyDataAtAddress0(){
    // TEST_FAIL();
 
-}
+//}
 
 int main(void) {
     UNITY_BEGIN();
