@@ -143,13 +143,16 @@ def receive_and_prepare_flash_data():
     flash_data_block.pop()
     return [int(i) for i in flash_data_block]
 
-
-if __name__ == '__main__':
+def buildParser():
     parser = argparse.ArgumentParser(description='Flash Bitfile')
     parser.add_argument("--port", "-p", dest="port", required=True, help="Elastic Node v5 Serial Port")
     parser.add_argument("--baudrate", "-b", dest="baudrate", type=int, default=5000000, help="Baudrate")
     parser.add_argument("source_file", help="Path of Bitfile")
     parser.add_argument("destination_address", help="location in flash")
+    return parser
+
+if __name__ == '__main__':
+    parser=buildParser()
     arguments = parser.parse_args()
     ser = serial.Serial(arguments.port, arguments.baudrate)
     config = Configuration("bitfile_scripts/bitfiles/" + arguments.source_file, int(arguments.destination_address, 16))
