@@ -18,13 +18,13 @@ uint8_t *fpgaConfigurationBuffer, *fpgaConfigurationVerifyBuffer;
 void fpgaConfigurationFlashConfiguration() {
     // getting address
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf("FPGA Configuration Address:\t %u\n", fpgaConfigurationConfigAddress);
+    printf( "%u\n", fpgaConfigurationConfigAddress);
 
     uint32_t configRemaining;
 
     // getting size of file
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("FPGA Configuration Config Size:\t %u\n", fpgaConfigurationConfigSize);
+    printf("%u\n", fpgaConfigurationConfigSize);
     fpgaConfigurationBuffer = (uint8_t *)malloc(BUFFER_SIZE);
 
     uint16_t blockSize = BUFFER_SIZE;
