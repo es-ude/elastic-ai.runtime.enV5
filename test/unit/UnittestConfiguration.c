@@ -90,16 +90,16 @@ void testWriteDataToFlashAddress0x10000(){
                                            "Addresses of flash pages");
 }
 
-//void testVerifyDataAtAddress0(){
-//    uint32_t address=0;
-//    uint8_t flashData[sectorsize*numberOfSectors];
-//    for(uint8_t i=0; i<256; i++){
-//
-//    }
-//    flashSetData()
-//    TEST_FAIL();
-//
-//}
+/*void testVerifyDataAtAddress0(){
+    uint32_t address=0;
+    uint8_t flashData[sectorsize*numberOfSectors];
+    for(uint8_t i=0; i<256; i++){
+
+    }
+    flashSetData()
+    TEST_FAIL();
+
+}*/
 
 int main(void) {
     UNITY_BEGIN();
@@ -107,6 +107,6 @@ int main(void) {
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
     RUN_TEST(testReadValue);
-    RUN_TEST(testVerifyDataAtAddress0);
+//    RUN_TEST(testVerifyDataAtAddress0);
     return UNITY_END();
 }

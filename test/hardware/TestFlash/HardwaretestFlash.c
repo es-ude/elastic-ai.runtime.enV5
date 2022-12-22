@@ -90,15 +90,9 @@ void eraseSPISector() {
 void readSPI() {
     uint16_t page_length = 256;
     uint8_t data_read[(page_length)];
-    uint8_t data_read2[page_length];
     for (uint32_t i = 0; i < 2000; i++) {
         int page_read = flashReadData(i * page_length, data_read, (page_length));
         printf("%u", page_read);
-        for (uint16_t j = 0; j < page_length; j++) {
-            if (data_read[j] != j) {
-                printf("error, should be : %u, is: %u", j, data_read[j]);
-            }
-        }
     }
     printf(" bytes read \n");
     printf("\n");
