@@ -13,7 +13,6 @@
 
 void connectToNetwork(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    freeRtosTaskWrapperTaskSleep(5000);
 }
 
 void connectToMQTT(void) {

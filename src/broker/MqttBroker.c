@@ -23,6 +23,7 @@ char *mqttBrokerClientId = NULL;
 uint8_t mqttBrokerNumberOfSubscriptions = 0;
 mqttBrokerSubscription_t mqttBrokerSubscriptions[MAX_SUBSCRIBER];
 bool mqttBrokerReceiverFunctionSet = false;
+bool mqttUserConfigSet = false;
 
 /* endregion */
 
@@ -67,12 +68,16 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
         return MQTT_ALREADY_CONNECTED;
     }
 
-    // store mqtt client/domain
-    mqttBrokerErrorCode_t userConfigError =
-        mqttBrokerInternalSetUserConfiguration(clientID, credentials.userID, credentials.password);
-    if (userConfigError != MQTT_NO_ERROR) {
-        return userConfigError;
+    if (!mqttUserConfigSet) {
+        // store mqtt client/domain
+        mqttBrokerErrorCode_t userConfigError = mqttBrokerInternalSetUserConfiguration(
+            clientID, credentials.userID, credentials.password);
+        if (userConfigError != MQTT_NO_ERROR)
+            return userConfigError;
+        else
+            mqttUserConfigSet = true;
     }
+
     mqttBrokerInternalSetBrokerDomain(brokerDomain);
 
     // store connection configuration
@@ -100,7 +105,6 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
-        publishAliveStatusMessage();
         return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
@@ -112,6 +116,10 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
         PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
         return MQTT_CONNECTION_FAILED;
     }
+}
+
+void mqttReady(void) {
+    publishAliveStatusMessage();
 }
 
 void mqttBrokerDisconnect(bool force) {
@@ -442,8 +450,7 @@ static void publishAliveStatusMessage() {
     size_t messageLength = strlen(mqttBrokerClientId) + 3;
     char *message = malloc(messageLength);
     snprintf(message, messageLength, "%s;1", mqttBrokerClientId);
-    posting_t aliveMessage = {.topic = "status", .data = message, .retain = 1};
-
+    posting_t aliveMessage = {.topic = "STATUS", .data = message, .retain = 1};
     // publish message
     communicationEndpointPublish(aliveMessage);
 }
