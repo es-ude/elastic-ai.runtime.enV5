@@ -1,5 +1,6 @@
 #define SOURCE_FILE "src/sht3x/sht3x.c"
 
+#define INCLUDE_ENV5_SHT3X_INTERNAL_HEADER
 #include "Sht3x.h"
 #include "Common.h"
 #include "I2c.h"

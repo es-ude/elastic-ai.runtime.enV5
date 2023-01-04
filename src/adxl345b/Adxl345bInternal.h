@@ -1,3 +1,8 @@
+#ifndef INCLUDE_ENV5_ADXL345B_INTERNAL_HEADER
+#warning Internal header file "Adxl345bInternal.h" included from elsewhere
+#undef INCLUDE_ENV5_ADXL345B_INTERNAL_HEADER
+#endif
+
 #ifndef ENV5_ADXL345B_INTERNAL_HEADER
 #define ENV5_ADXL345B_INTERNAL_HEADER
 

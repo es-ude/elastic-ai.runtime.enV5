@@ -1,4 +1,5 @@
 #include "Spi.h"
+#define INCLUDE_ENV5_SPI_INTERNAL_HEADER
 #include "SpiInternal.h"
 #include <hardware/gpio.h>
 #include <hardware/spi.h>

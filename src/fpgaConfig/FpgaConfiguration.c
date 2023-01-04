@@ -1,9 +1,10 @@
 #define SOURCE_File "FPGA-CONFIG"
 
 #include "FpgaConfiguration.h"
-#include "Flash.h"
 #include "FpgaConfigDatahandler.h"
+#define INCLUDE_ENV5_FPGA_CONFIGURATION_INTERNAL_HEADER
 #include "FpgaConfigurationInternal.h"
+#include "Flash.h"
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>

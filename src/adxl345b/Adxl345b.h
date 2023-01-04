@@ -3,8 +3,9 @@
 
 /* TODO: Implement standby mode */
 
-#include "Adxl345bTypedefs.h"
 #include <stdint.h>
+
+#include "Adxl345bTypedefs.h"
 
 const static adxl345bRange_t ADXL345B_16G_RANGE = {16, 0b00001011, 0b00111111, 0.0345f};
 const static adxl345bRange_t ADXL345B_8G_RANGE = {8, 0b00001010, 0b00001111, 0.0175f};

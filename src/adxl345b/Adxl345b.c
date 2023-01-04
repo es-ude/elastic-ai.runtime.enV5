@@ -1,6 +1,7 @@
 #define SOURCE_FILE "src/adxl345b/adxl345b.c"
 
 #include "Adxl345b.h"
+#define INCLUDE_ENV5_ADXL345B_INTERNAL_HEADER
 #include "Adxl345bInternal.h"
 #include "Adxl345bTypedefs.h"
 #include "Common.h"

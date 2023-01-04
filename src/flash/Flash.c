@@ -1,8 +1,8 @@
 #define SOURCE_FILE "FLASH"
 
 #include "Flash.h"
+#define INCLUDE_ENV5_FLASH_INTERNAL_H
 #include "FlashInternal.h"
-#include "FlashTypedefs.h"
 #include "spi/Spi.h"
 #include <stdint.h>
 

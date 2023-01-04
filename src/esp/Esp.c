@@ -3,6 +3,7 @@
 #include "Esp.h"
 #include "AtCommands.h"
 #include "Common.h"
+#define INCLUDE_ENV5_ESP_INTERNAL_HEADER
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"

@@ -1,3 +1,8 @@
+#ifndef INCLUDE_ENV5_FLASH_INTERNAL_H
+#warning Internal header file "FlashInternal.h" included from elsewhere
+#undef INCLUDE_ENV5_FLASH_INTERNAL_H
+#endif
+
 #ifndef ENV5_FLASH_INTERNAL_H
 #define ENV5_FLASH_INTERNAL_H
 

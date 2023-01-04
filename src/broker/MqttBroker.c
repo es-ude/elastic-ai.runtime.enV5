@@ -8,13 +8,14 @@
 #include "Common.h"
 #include "Esp.h"
 #include "MqttBroker.h"
+#define INCLUDE_ENV5_MQTTBROKER_INTERNAL_HEADER
 #include "MqttBrokerInternal.h"
 
 // header from elastic-ai.runtime.c
 #include "CommunicationEndpoint.h"
-#include "Posting.h"
 #include "Subscriber.h"
 #include "TopicMatcher.h"
+#include "Protocol.h"
 
 /* region VARIABLES */
 
@@ -410,7 +411,7 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *client
 
 static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) {
     // generate LWT topic
-    char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic("status");
+    char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic(STATUS);
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
@@ -450,9 +451,8 @@ static void publishAliveStatusMessage() {
     size_t messageLength = strlen(mqttBrokerClientId) + 3;
     char *message = malloc(messageLength);
     snprintf(message, messageLength, "%s;1", mqttBrokerClientId);
-    posting_t aliveMessage = {.topic = "STATUS", .data = message, .retain = 1};
-    // publish message
-    communicationEndpointPublish(aliveMessage);
+
+    protocolPublishStatus(message);
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {

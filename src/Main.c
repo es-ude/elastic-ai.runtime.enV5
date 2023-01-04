@@ -5,7 +5,6 @@
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "I2c.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "NetworkConfiguration.h"

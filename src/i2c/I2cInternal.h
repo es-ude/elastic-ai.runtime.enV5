@@ -1,3 +1,8 @@
+#ifndef INCLUDE_ENV5_I2C_INTERNAL_HEADER
+#warning Internal header file "I2cInternal.h" included from elsewhere
+#undef INCLUDE_ENV5_I2C_INTERNAL_HEADER
+#endif
+
 #ifndef ENV5_I2C_INTERNAL_HEADER
 #define ENV5_I2C_INTERNAL_HEADER
 
