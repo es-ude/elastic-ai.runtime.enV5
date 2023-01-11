@@ -99,6 +99,8 @@ def calculateAndPrintFlashProgress(oldPercentage, sent_config, configSize):
 
 
 def verifyBitfile(ser, config):
+    ser.write(b'P')
+    time.sleep(0.5)
     config.loadfile()
     bitfile = open(config.filename, "rb")
     # skip the first bunch of data
@@ -138,8 +140,9 @@ def verifyBitfile(ser, config):
 
 
 def receive_and_prepare_flash_data():
-    logging.debug(ser.readline())
-    flash_data_block = ser.readline().strip().split(bytearray("###", 'utf-8'))
+    readline = ser.readline()
+    logging.debug(readline)
+    flash_data_block = readline.strip().split(bytearray("###", 'utf-8'))
     flash_data_block.pop()
     return [int(i) for i in flash_data_block]
 
