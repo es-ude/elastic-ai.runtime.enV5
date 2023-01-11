@@ -38,7 +38,7 @@ void fpgaConfigurationFlashConfiguration() { //TODO: communicate errors back
     uint16_t blockSize = FLASH_PAGE_SIZE;
     fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, blockSize);
 
-    if(fpgaConfigurationInternalEraseSectors()){
+    if(fpgaConfigurationInternalEraseSectors(flashAddress, configSize)){
         PRINT("Erasing the flash sectors has failed");
     }
     PRINT("Erasing the flash sectors succeeded");
@@ -132,7 +132,7 @@ void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uin
     free(eraseTest);
 }
 
-uint8_t fpgaConfigurationInternalEraseSectors() {
+uint8_t fpgaConfigurationInternalEraseSectors( uint32_t fpgaConfigurationConfigAddress,uint32_t fpgaConfigurationConfigSize) {
     uint16_t numSectors = ceilf((float)(fpgaConfigurationConfigSize) / FLASH_SECTOR_SIZE);
     uint8_t status=2;
     printf("Number of Sectors:\t\t %u\n", numSectors);
