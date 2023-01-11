@@ -10,7 +10,7 @@ void fpgaConfigHandlerSetAddress(uint32_t addr) {
 void fpgaConfigHandlerSetConfigSize(uint32_t conf_size) {
     config_size = conf_size;
 }
-uint16_t fpgaConfigHandlerReadData(uint8_t *block, uint16_t bufferLength) {
+uint16_t fpgaConfigHandlerReceiveData(uint8_t *block, uint16_t bufferLength) {
     readValueNum = 0;
     for (uint16_t i = 0; i < bufferLength; i++) {
         block[i] = i;

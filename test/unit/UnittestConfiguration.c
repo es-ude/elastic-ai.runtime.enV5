@@ -3,15 +3,18 @@
 #include "dummies/flash/FpgaConfigDatahandler.h"
 #include <stdbool.h>
 #include <unity.h>
+#include "FlashTypedefs.h"
 
-const uint16_t blocksize = 256;
+
+const uint16_t blocksize =FLASH_PAGE_SIZE; //todo: replace variable usage with define
 const uint8_t numberOfPages=4;
 const uint16_t configSize = blocksize * numberOfPages;
-const uint32_t sectorsize=65536;
+const uint32_t sectorsize=FLASH_SECTOR_SIZE;
 const uint8_t numberOfSectors=2;
 uint8_t expectedData[sectorsize * numberOfSectors];
 
 void setUp(void) {
+
     numWriteBlocks = 0;
     for (uint16_t i = 0; i < numberOfSectors; i++) {
         for (uint32_t j = 0; j < sectorsize; j++) {
@@ -90,16 +93,16 @@ void testWriteDataToFlashAddress0x10000(){
                                            "Addresses of flash pages");
 }
 
-/*void testVerifyDataAtAddress0(){
-    uint32_t address=0;
-    uint8_t flashData[sectorsize*numberOfSectors];
-    for(uint8_t i=0; i<256; i++){
-
-    }
-    flashSetData()
-    TEST_FAIL();
-
-}*/
+//void testVerifyDataAtAddress0(){
+//    uint32_t address=0;
+//    uint8_t flashData[sectorsize*numberOfSectors];
+//    for(uint8_t i=0; i<256; i++){
+//
+//    }
+//    flashSetData()
+//    TEST_FAIL();
+//
+//}
 
 int main(void) {
     UNITY_BEGIN();
@@ -107,6 +110,6 @@ int main(void) {
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
     RUN_TEST(testReadValue);
-//    RUN_TEST(testVerifyDataAtAddress0);
+   // RUN_TEST(testVerifyDataAtAddress0);
     return UNITY_END();
 }

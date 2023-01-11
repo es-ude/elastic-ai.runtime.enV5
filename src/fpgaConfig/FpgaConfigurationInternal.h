@@ -8,5 +8,6 @@ void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uin
                                                         uint32_t blockAddress);
 uint8_t fpgaConfigurationInternalEraseSectors(void);
 void fpgaConfigurationInternalFillBufferWithDebugData(uint8_t *buffer, uint16_t buffer_length);
+static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAddress, uint32_t *sizeToReceive);
 
 #endif /* ENV5_FPGA_CONFIGURATION_INTERNAL_HEADER */

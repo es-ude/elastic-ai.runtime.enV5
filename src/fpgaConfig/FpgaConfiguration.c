@@ -6,101 +6,112 @@
 #include "FpgaConfigurationInternal.h"
 #include <math.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include "Common.h"
 
-#define BUFFER_SIZE 256
-#define SECTOR_SIZE 65536
+/*
+ * todo:
+ * Different name: BitfileHandler
+ *  different name test
+ * move usb stuff into serialCom
+ * write send function
+ * */
 
-uint32_t fpgaConfigurationConfigAddress, fpgaConfigurationConfigSize;
+
 uint8_t *fpgaConfigurationBuffer, *fpgaConfigurationVerifyBuffer;
 
-void fpgaConfigurationFlashConfiguration() {
+static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAddress, uint32_t *sizeToReceive){
     // getting address
-    fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf( "%u\n", fpgaConfigurationConfigAddress);
-
-    uint32_t configRemaining;
-
+    fpgaConfigHandlerReadValue(flashAddress);
+    PRINT_SYNC( "%u", *flashAddress)
     // getting size of file
-    fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("%u\n", fpgaConfigurationConfigSize);
-    fpgaConfigurationBuffer = (uint8_t *)malloc(BUFFER_SIZE);
+    fpgaConfigHandlerReadValue(sizeToReceive);
+    PRINT_SYNC("%u", *sizeToReceive)
+}
 
-    uint16_t blockSize = BUFFER_SIZE;
+void fpgaConfigurationFlashConfiguration() { //TODO: communicate errors back
+    uint32_t flashAddress, configSize;
+    fpgaConfigurationInternalGetBitfileWriteArguments(&flashAddress, &configSize);
+
+    fpgaConfigurationBuffer = (uint8_t *)malloc(FLASH_PAGE_SIZE); // TODO: turn into array, remove free down below
+
+    uint16_t blockSize = FLASH_PAGE_SIZE;
     fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, blockSize);
-    uint8_t erase_error = fpgaConfigurationInternalEraseSectors();
-    if(erase_error){
-        printf("Erase failed\n");
-    }else{
-        printf("Erase succeeded\n");
+
+    if(fpgaConfigurationInternalEraseSectors()){
+        PRINT("Erasing the flash sectors has failed");
     }
-    printf("ack\n");
+    PRINT("Erasing the flash sectors succeeded");
+    PRINT_SYNC("ack")
 
-    uint32_t currentAddress = fpgaConfigurationConfigAddress;
-    configRemaining = fpgaConfigurationConfigSize;
+    uint32_t currentAddress = flashAddress;
+    uint32_t configRemaining = configSize; //TODO: rename amountRemaining
 
-    while (configRemaining > 0) {
-        if (configRemaining < BUFFER_SIZE) {
+    while (configRemaining > 0) { //TODO: extract into func pipeConfigIntoFlash
+        if (configRemaining < FLASH_PAGE_SIZE) {
             blockSize = configRemaining;
-            printf("last block address: %x, blockSize: %u\n", currentAddress, blockSize);
+            PRINT("last block address: %x, blockSize: %u", currentAddress, blockSize)
         }
-        fpgaConfigHandlerReadData(fpgaConfigurationBuffer, blockSize);
-        for (uint32_t index = 0; index < blockSize; index++) {
-            printf("%u", fpgaConfigurationBuffer[index]);
-        }
-        printf("\n");
+        fpgaConfigHandlerReceiveData(fpgaConfigurationBuffer, blockSize);
         flashWritePage(currentAddress, fpgaConfigurationBuffer, blockSize);
 
         currentAddress += blockSize;
         configRemaining -= blockSize;
 
-        fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, BUFFER_SIZE);
-        printf("ack\n");
+        fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, FLASH_PAGE_SIZE);
+        PRINT_SYNC("ack")
     }
     free(fpgaConfigurationBuffer);
-    printf("ack\n");
+    PRINT_SYNC("ack")
 }
 
 void fpgaConfigurationVerifyConfiguration() {
+    uint32_t fpgaConfigurationConfigAddress, fpgaConfigurationConfigSize;
     fpgaConfigurationConfigAddress = 0;
     uint32_t configRemaining;
     fpgaConfigurationVerifyBuffer = (uint8_t *)malloc(256);
-    fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationVerifyBuffer, BUFFER_SIZE);
+    fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationVerifyBuffer, FLASH_PAGE_SIZE);
 
-    uint16_t blockSize = BUFFER_SIZE;
+    uint16_t blockSize = FLASH_PAGE_SIZE;
 
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    printf("%u\n", fpgaConfigurationConfigAddress);
+    PRINT_SYNC("%u", fpgaConfigurationConfigAddress);
     fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    printf("%u\n", fpgaConfigurationConfigSize);
+    PRINT_SYNC("%u", fpgaConfigurationConfigSize);
 
     uint32_t currentAddress = fpgaConfigurationConfigAddress;
 
     configRemaining = fpgaConfigurationConfigSize;
 
     while (configRemaining > 0) {
-        if (configRemaining < BUFFER_SIZE) {
+        if (configRemaining < FLASH_PAGE_SIZE) {
             blockSize = configRemaining;
         }
-        printf("address %x ; blockSize: %u\n", currentAddress, blockSize);
+        PRINT_DEBUG("address %x ; blockSize: %u", currentAddress, blockSize);
         flashReadData(currentAddress, fpgaConfigurationVerifyBuffer, blockSize);
         currentAddress += blockSize;
         configRemaining -= blockSize;
 
-        // freeRtosTaskWrapperTaskSleep(100);
         for (uint32_t i = 0; i < blockSize; i++) {
-            printf("%u###", fpgaConfigurationVerifyBuffer[i]);
+            SEND_DATA("%u###", fpgaConfigurationVerifyBuffer[i]);
         }
-        printf("\n");
-        printf("ack\n");
+        SEND_DATA("\n");
+        PRINT_SYNC("ack");
         fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationVerifyBuffer,
-                                                         BUFFER_SIZE);
+                                                         FLASH_PAGE_SIZE);
     }
     free(fpgaConfigurationVerifyBuffer);
-    printf("ack\n");
+    PRINT_SYNC("ack")
 }
+void fpgaConfigurationInternalFormatFlashDataForSending(uint16_t blockSize, uint8_t *flashDataBuffer){
+    char *formattedFlashData= (char*)malloc(blockSize*sizeof(char));
 
+    for (uint32_t i = 0; i < blockSize; i++) {
+        SEND_DATA("%u###", flashDataBuffer[i]);
+    }
+    SEND_DATA("\n");
+
+}
 void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
     for (int index = 0; index < length; index++) {
         printf("%u", buffer[index]);
@@ -110,24 +121,24 @@ void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
 
 void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uint16_t blockCounter,
                                                         uint32_t blockAddress) {
-    uint8_t *eraseTest = (uint8_t *)malloc(BUFFER_SIZE);
+    uint8_t *eraseTest = (uint8_t *)malloc(FLASH_PAGE_SIZE);
     printf("error occurred: %u , block: %u , address: %x\n", eraseStatus, blockCounter,
            blockAddress);
-    flashReadData(blockAddress, eraseTest, BUFFER_SIZE);
-    fpgaConfigurationInternalPrintBuffer(eraseTest, BUFFER_SIZE);
+    flashReadData(blockAddress, eraseTest, FLASH_PAGE_SIZE);
+    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
 
-    flashReadData((blockAddress + SECTOR_SIZE - BUFFER_SIZE), eraseTest, BUFFER_SIZE);
-    fpgaConfigurationInternalPrintBuffer(eraseTest, BUFFER_SIZE);
+    flashReadData((blockAddress + FLASH_SECTOR_SIZE - FLASH_PAGE_SIZE), eraseTest, FLASH_PAGE_SIZE);
+    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
     free(eraseTest);
 }
 
 uint8_t fpgaConfigurationInternalEraseSectors() {
-    uint16_t numSectors = ceilf((float)(fpgaConfigurationConfigSize) / SECTOR_SIZE);
+    uint16_t numSectors = ceilf((float)(fpgaConfigurationConfigSize) / FLASH_SECTOR_SIZE);
     uint8_t status=2;
     printf("Number of Sectors:\t\t %u\n", numSectors);
     uint32_t blockAddress;
     for (uint16_t blockCounter = 0; blockCounter < numSectors; blockCounter++) {
-        blockAddress = fpgaConfigurationConfigAddress + ((uint32_t)blockCounter) * SECTOR_SIZE;
+        blockAddress = fpgaConfigurationConfigAddress + ((uint32_t)blockCounter) * FLASH_SECTOR_SIZE;
         status = flashEraseData(blockAddress);
         if(status==1){
             return 1;
@@ -138,12 +149,14 @@ uint8_t fpgaConfigurationInternalEraseSectors() {
 }
 
 void fpgaConfigurationInternalFillBufferWithDebugData(uint8_t *buffer, uint16_t buffer_length) {
+#ifdef DEBUG
     for (uint32_t index = 0; index < buffer_length; index = index + 4) {
         buffer[index] = 0xD;
         buffer[index + 1] = 0xE;
         buffer[index + 2] = 0xA;
         buffer[index + 3] = 0xD;
     }
+#endif
 }
 
 
