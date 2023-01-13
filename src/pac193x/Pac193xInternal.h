@@ -101,8 +101,7 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
  * @param valueToMeasure[in] defines which value should be measured
  * @return                   return the error code (0 if everything passed)
  */
-static pac193xErrorCode_t
-pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
+static pac193xErrorCode_t pac193xInternalSetMeasurementPropertiesForSingleShotMeasurement(pac193xMeasurementProperties_t *properties,
                                         pac193xValueToMeasure_t valueToMeasure);
 
 static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t sensor,

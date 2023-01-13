@@ -12,7 +12,7 @@ static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t c
     float measurement;
     
     pac193xErrorCode_t errorCode =
-                           pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
+                           pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return;

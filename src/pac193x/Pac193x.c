@@ -8,6 +8,7 @@
 #include "Pac193xTypedefs.h"
 #include <pico/time.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 /* Datasheet:
  * https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf
@@ -36,6 +37,8 @@ static const float pac193xInternalSamplingRate = 1024;
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
+
+/* region GENERAL FUNCTIONS */
 
 pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor) {
     gpioErrorCode_t gpioErrorCode = gpioSetPower(sensor.powerPin, GPIO_POWER_UP);
@@ -84,6 +87,10 @@ pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor) 
 
     return PAC193X_NO_ERROR;
 }
+
+/* endregion GENERAL FUNCTIONS */
+
+/* region SINGLE SHOT MEASUREMENTS */
 
 pac193xErrorCode_t pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
                                         pac193xSensorId_t *info) {
@@ -153,33 +160,82 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
         return errorCode;
     }
 
-    errorCode = pac193xGetMeasurementForChannel(sensor, channel, PAC193X_PACTUAL,
-                                                &measurements->powerActual);
+    return pac193xGetMeasurementForChannel(sensor, channel, PAC193X_POWER,
+                                           &measurements->powerActual);
+}
+
+/* endregion SINGLE SHOT MEASUREMENTS */
+
+/* region CONTINUOUS MEASUREMENTS */
+
+pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor,
+                                            bool resetRegisters) {
+    pac193xErrorCode_t errorCode =
+        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00010000);
     if (errorCode != PAC193X_NO_ERROR) {
-        return errorCode;
+        return PAC193X_INIT_ERROR;
     }
 
-    return pac193xGetMeasurementForChannel(sensor, channel, PAC193X_ENERGY, &measurements->energy);
+    if (resetRegisters) {
+        errorCode = pac193xInternalRefresh(sensor);
+        if (errorCode != PAC193X_NO_ERROR) {
+            return PAC193X_INIT_ERROR;
+        }
+    }
+
+    return PAC193X_NO_ERROR;
 }
 
-pac193xErrorCode_t pac193xStartAccumulation() {
-    // TODO: set sample rate
-    // TODO: send REFRESH_V command to apply changes without register reset
-    //       send REFRESH command to apply changes with register reset
-    
-    return PAC193X_UNDEFINED_ERROR;
+pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor) {
+    pac193xErrorCode_t errorCode = pac193xInternalSetDefaultConfiguration(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return PAC193X_INIT_ERROR;
+    }
+
+    return PAC193X_NO_ERROR;
 }
-pac193xErrorCode_t pac193XStopAccumulation(){
-    // TODO: set default config (disables accumulation)
-    
-    return PAC193X_UNDEFINED_ERROR;
-}
-pac193xErrorCode_t pac193xReadAccumulatedPower(){
+
+pac193xErrorCode_t pac193xReadAccumulatedPower(pac193xSensorConfiguration_t sensor,
+                                               pac193xPowerMeasurements_t *measurements) {
     // TODO: read accumulated power value ( PAC193X_CMD_READ_VPOWER{1,2,3,4}_ACC )
     // TODO: read accumulation counter ( PAC193X_CMD_READ_ACC_COUNT )
-    
+
+    //    case PAC193X_ENERGY:
+    //        properties->startReadAddress += PAC193X_CMD_READ_VPOWER1_ACC;
+    //        properties->calculationFunction = &pac193xInternalCalculateEnergy;
+    //        properties->sizeOfResponseBuffer = 6;
+    //        break;
+
     return PAC193X_UNDEFINED_ERROR;
 }
+
+pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t sensor,
+                                                 pac193xChannel_t channel,
+                                                 pac193xMeasurements_t valueToMeasure,
+                                                 float *value) {
+    // TODO: read requested average value for channel
+
+    //    case PAC193X_VSOURCE_AVG:
+    //        properties->startReadAddress += PAC193X_CMD_READ_VBUS1_AVG;
+    //        properties->calculationFunction = &pac193xInternalCalculateVoltageOfSource;
+    //        properties->sizeOfResponseBuffer = 2;
+    //        break;
+    //    case PAC193X_VSENSE_AVG:
+    //        properties->startReadAddress += PAC193X_CMD_READ_VSENSE1_AVG;
+    //        properties->calculationFunction = &pac193xInternalCalculateVoltageOfSense;
+    //        properties->sizeOfResponseBuffer = 2;
+    //        break;
+    //    case PAC193X_ISENSE_AVG:
+    //        properties->startReadAddress += PAC193X_CMD_READ_VSENSE1_AVG;
+    //        properties->calculationFunction = &pac193xInternalCalculateCurrentOfSense;
+    //        properties->sizeOfResponseBuffer = 2;
+    //        break;
+
+    return PAC193X_UNDEFINED_ERROR;
+}
+
+/* endregion CONTINUOUS MEASUREMENTS */
+
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
@@ -205,8 +261,8 @@ pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    /* sample rate of 1024Hz, enable continuous measurement mode, enable overflow alert */
-    errorCode = pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00001010);
+    /* enables single-shot mode, disables alert/overflow pin */
+    errorCode = pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00010000);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -326,6 +382,9 @@ pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor, uint8_t *r
         return errorCode;
     }
 
+    /* required due to internal calculations of the sensor */
+    sleep_ms(3);
+
     errorCode = pac193xInternalSendRequestToSensor(sensor, registerToRead);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
@@ -381,25 +440,13 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
     return channelIndex;
 }
 
-static pac193xErrorCode_t
-pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
-                                        pac193xValueToMeasure_t valueToMeasure) {
+static pac193xErrorCode_t pac193xInternalSetMeasurementPropertiesForSingleShotMeasurement(
+    pac193xMeasurementProperties_t *properties, pac193xValueToMeasure_t valueToMeasure) {
     PRINT_DEBUG("setting properties for requested measurement")
-    /*! address of a value to be measured are separated by 0x01 per channel:
-     *   -> CMD_READ_VBUS1 = 0x07, CMD_READ_VBUS2 = 0x08, ...
-     * \Important actual address will be added later by
-     * pac193xInternalSetMeasurementProperties(...) function
-     */
-    properties->startReadAddress = 1;
 
     switch (valueToMeasure) {
     case PAC193X_VSOURCE:
         properties->startReadAddress += PAC193X_CMD_READ_VBUS1;
-        properties->calculationFunction = &pac193xInternalCalculateVoltageOfSource;
-        properties->sizeOfResponseBuffer = 2;
-        break;
-    case PAC193X_VSOURCE_AVG:
-        properties->startReadAddress += PAC193X_CMD_READ_VBUS1_AVG;
         properties->calculationFunction = &pac193xInternalCalculateVoltageOfSource;
         properties->sizeOfResponseBuffer = 2;
         break;
@@ -408,30 +455,15 @@ pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properti
         properties->calculationFunction = &pac193xInternalCalculateVoltageOfSense;
         properties->sizeOfResponseBuffer = 2;
         break;
-    case PAC193X_VSENSE_AVG:
-        properties->startReadAddress += PAC193X_CMD_READ_VSENSE1_AVG;
-        properties->calculationFunction = &pac193xInternalCalculateVoltageOfSense;
-        properties->sizeOfResponseBuffer = 2;
-        break;
     case PAC193X_ISENSE:
         properties->startReadAddress += PAC193X_CMD_READ_VSENSE1;
         properties->calculationFunction = &pac193xInternalCalculateCurrentOfSense;
         properties->sizeOfResponseBuffer = 2;
         break;
-    case PAC193X_ISENSE_AVG:
-        properties->startReadAddress += PAC193X_CMD_READ_VSENSE1_AVG;
-        properties->calculationFunction = &pac193xInternalCalculateCurrentOfSense;
-        properties->sizeOfResponseBuffer = 2;
-        break;
-    case PAC193X_PACTUAL:
+    case PAC193X_POWER:
         properties->startReadAddress += PAC193X_CMD_READ_VPOWER1;
         properties->calculationFunction = &pac193xInternalCalculateActualPower;
         properties->sizeOfResponseBuffer = 4;
-        break;
-    case PAC193X_ENERGY:
-        properties->startReadAddress += PAC193X_CMD_READ_VPOWER1_ACC;
-        properties->calculationFunction = &pac193xInternalCalculateEnergy;
-        properties->sizeOfResponseBuffer = 6;
         break;
     default:
         PRINT_DEBUG("invalid properties")
@@ -448,17 +480,23 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
                                                  float *value) {
     /* store configurations for measurements */
     pac193xMeasurementProperties_t properties;
-    pac193xErrorCode_t errorCode =
-        pac193xInternalSetMeasurementProperties(&properties, valueToMeasure);
+    /* set channel offset for properties
+     * address of a value to be measured are separated by 0x01 per channel:
+     *   -> CMD_READ_VBUS1 = 0x07, CMD_READ_VBUS2 = 0x08, ...
+     */
+    properties.startReadAddress = channel;
+    pac193xErrorCode_t errorCode = pac193xInternalSetMeasurementPropertiesForSingleShotMeasurement(
+        &properties, valueToMeasure);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
     /* retrieve data from sensor */
-    uint8_t responseBuffer[properties.sizeOfResponseBuffer];
+    uint8_t *responseBuffer = malloc(properties.sizeOfResponseBuffer);
     errorCode = pac193xInternalGetDataFromSensor(
         sensor, responseBuffer, properties.sizeOfResponseBuffer, properties.startReadAddress);
     if (errorCode != PAC193X_NO_ERROR) {
+        free(responseBuffer);
         return errorCode;
     }
 
@@ -468,6 +506,7 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
     *value = (*properties.calculationFunction)(
         rawValue, sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(channel)]);
 
+    free(responseBuffer);
     return PAC193X_NO_ERROR;
 }
 

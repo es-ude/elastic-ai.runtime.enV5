@@ -2,7 +2,10 @@
 #define ENV5_PAC193X_HEADER
 
 #include "Pac193xTypedefs.h"
+#include <stdbool.h>
 #include <stdint.h>
+
+/* region GENERAL FUNCTIONS */
 
 /*! function that power up the sensor by setting PWRDN Pin to HIGH
  *
@@ -36,6 +39,10 @@ pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor);
  */
 pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor);
 
+/* endregion GENERAL FUNCTIONS */
+
+/* region SINGLE SHOT MEASUREMENTS */
+
 /*! function to retrieve the production information from the sensor
  *
  * @param sensor[in] configuration of the sensor to use
@@ -45,7 +52,7 @@ pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor);
 pac193xErrorCode_t pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
                                         pac193xSensorId_t *info);
 
-/*! function to read a specific values from the sensor for a specific channel
+/*! function to read a specific value from the sensor for a specific channel
  *
  * @param sensor[in]         configuration of the sensor to use
  * @param channel[in]        channel where the measurement should be taken from
@@ -58,7 +65,7 @@ pac193xErrorCode_t pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t 
                                                    pac193xValueToMeasure_t valueToMeasure,
                                                    float *value);
 
-/*! function to read \b all available values from the sensor for a specific
+/*! function to read \b all available single shot values from the sensor for a specific
  * channel
  *
  * @param sensor[in]        configuration of the sensor to use
@@ -70,9 +77,23 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
                                                        pac193xChannel_t channel,
                                                        pac193xMeasurements_t *measurements);
 
+/* endregion SINGLE SHOT MEASUREMENTS */
 
-pac193xErrorCode_t pac193xStartAccumulation();
-pac193xErrorCode_t pac193XStopAccumulation();
-pac193xErrorCode_t pac193xReadAccumulatedPower();
+/* region CONTINUOUS MEASUREMENTS */
+
+pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor,
+                                            bool resetRegisters);
+
+pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor);
+
+pac193xErrorCode_t pac193xReadAccumulatedPower(pac193xSensorConfiguration_t sensor,
+                                               pac193xPowerMeasurements_t *measurements);
+
+pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t sensor,
+                                                 pac193xChannel_t channel,
+                                                 pac193xMeasurements_t valueToMeasure,
+                                                 float *value);
+
+/* endregion CONTINUOUS MEASUREMENTS */
 
 #endif /* ENV5_PAC193X_HEADER */
