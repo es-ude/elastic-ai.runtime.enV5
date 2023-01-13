@@ -70,4 +70,9 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
                                                        pac193xChannel_t channel,
                                                        pac193xMeasurements_t *measurements);
 
+
+pac193xErrorCode_t pac193xStartAccumulation();
+pac193xErrorCode_t pac193XStopAccumulation();
+pac193xErrorCode_t pac193xReadAccumulatedPower();
+
 #endif /* ENV5_PAC193X_HEADER */

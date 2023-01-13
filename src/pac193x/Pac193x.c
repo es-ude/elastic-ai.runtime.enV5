@@ -162,6 +162,24 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
     return pac193xGetMeasurementForChannel(sensor, channel, PAC193X_ENERGY, &measurements->energy);
 }
 
+pac193xErrorCode_t pac193xStartAccumulation() {
+    // TODO: set sample rate
+    // TODO: send REFRESH_V command to apply changes without register reset
+    //       send REFRESH command to apply changes with register reset
+    
+    return PAC193X_UNDEFINED_ERROR;
+}
+pac193xErrorCode_t pac193XStopAccumulation(){
+    // TODO: set default config (disables accumulation)
+    
+    return PAC193X_UNDEFINED_ERROR;
+}
+pac193xErrorCode_t pac193xReadAccumulatedPower(){
+    // TODO: read accumulated power value ( PAC193X_CMD_READ_VPOWER{1,2,3,4}_ACC )
+    // TODO: read accumulation counter ( PAC193X_CMD_READ_ACC_COUNT )
+    
+    return PAC193X_UNDEFINED_ERROR;
+}
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */

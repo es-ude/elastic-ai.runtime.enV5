@@ -52,6 +52,12 @@ static pac193xSensorConfiguration_t sensor2 = {
 
 static void sensorTest() {
     // TODO: implement sensor test for background read
+    
+    // TODO: start continuous power accumulation
+    // TODO: busy wait for x ms
+    // TODO: read accumulated value along with counter
+    // TODO: stop continuous power accumulation
+    // TODO: print values to console
 }
 
 static void enterBootMode() {
