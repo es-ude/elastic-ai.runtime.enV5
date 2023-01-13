@@ -71,7 +71,11 @@ struct pac193xMeasurements {
 typedef struct pac193xMeasurements pac193xMeasurements_t;
 
 struct pac193xPowerMeasurements {
-
+    uint32_t counterOfMeasurements;
+    float powerChannel1;
+    float powerChannel2;
+    float powerChannel3;
+    float powerChannel4;
 };
 typedef struct pac193xPowerMeasurements pac193xPowerMeasurements_t;
 

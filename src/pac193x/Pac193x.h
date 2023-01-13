@@ -81,13 +81,13 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
 
 /* region CONTINUOUS MEASUREMENTS */
 
-pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor,
-                                            bool resetRegisters);
+pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor);
 
 pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor);
 
-pac193xErrorCode_t pac193xReadAccumulatedPower(pac193xSensorConfiguration_t sensor,
-                                               pac193xPowerMeasurements_t *measurements);
+pac193xErrorCode_t
+pac193xReadAccumulatedPowerForAllChannels(pac193xSensorConfiguration_t sensor,
+                                          pac193xPowerMeasurements_t *measurements);
 
 pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t sensor,
                                                  pac193xChannel_t channel,

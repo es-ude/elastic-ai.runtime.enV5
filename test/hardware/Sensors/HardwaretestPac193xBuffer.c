@@ -1,3 +1,5 @@
+#define SOURCE_FILE "PAC193X-BUFFER"
+
 #include "Common.h"
 #include "Pac193x.h"
 #include "Pac193xTypedefs.h"
@@ -5,22 +7,6 @@
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 #include <stdio.h>
-
-/* region HELPER */
-
-static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
-    float measurement;
-    
-    pac193xErrorCode_t errorCode =
-                           pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE, &measurement);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
-        return;
-    }
-    PRINT("VSource=%4.6fV", measurement)
-}
-
-/* endregion HELPER */
 
 /* region SENSOR DEFINITIONS */
 
@@ -50,14 +36,33 @@ static pac193xSensorConfiguration_t sensor2 = {
 
 /* endregion SENSOR DEFINITIONS */
 
-static void sensorTest() {
-    // TODO: implement sensor test for background read
-    
-    // TODO: start continuous power accumulation
-    // TODO: busy wait for x ms
-    // TODO: read accumulated value along with counter
-    // TODO: stop continuous power accumulation
-    // TODO: print values to console
+static void sensorTest(pac193xSensorConfiguration_t sensor) {
+    pac193xErrorCode_t errorCode = pac193xStartAccumulation(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        return;
+    }
+
+    /* wait to gather samples */
+    sleep_ms(2000);
+
+    pac193xPowerMeasurements_t measurements;
+    errorCode = pac193xReadAccumulatedPowerForAllChannels(sensor, &measurements);
+    if (errorCode != PAC193X_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        return;
+    }
+    errorCode = pac193XStopAccumulation(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        return;
+    }
+
+    PRINT("Performed %lu Measurements:", measurements.counterOfMeasurements)
+    PRINT("  Channel 1: %4.6fWs", measurements.powerChannel1)
+    PRINT("  Channel 2: %4.6fWs", measurements.powerChannel2)
+    PRINT("  Channel 3: %4.6fWs", measurements.powerChannel3)
+    PRINT("  Channel 4: %4.6fWs", measurements.powerChannel4)
 }
 
 static void enterBootMode() {
@@ -70,7 +75,7 @@ int main(void) {
     // wait for user console to connect
     while ((!stdio_usb_connected())) {}
     sleep_ms(500);
-    
+
     PRINT("===== INIT SENSOR 1 =====")
     pac193xErrorCode_t errorCode;
     while (1) {
@@ -82,23 +87,27 @@ int main(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     PRINT("===== START TEST =====")
-    PRINT("Please b (Boot mode) for a task to perform.")
+    PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.")
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds timeout */
-        
+
         switch (input) {
-        case 't':
-            sensorTest();
+        case '1':
+            sensorTest(sensor1);
+            break;
+        case '2':
+            sensorTest(sensor2);
+            break;
         case 'b':
             enterBootMode();
             break;
         default:
-            PRINT("Please b (Boot mode) for a task to perform.")
+            PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.")
             break;
         }
     }
-    
+
     return 0;
 }

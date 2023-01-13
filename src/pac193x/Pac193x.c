@@ -68,7 +68,12 @@ pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    return pac193xInternalSetDefaultConfiguration(sensor);
+    pac193xErrorCode_t errorCode = pac193xInternalSetDefaultConfiguration(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return PAC193X_INIT_ERROR;
+    }
+
+    return pac193xInternalRefresh(sensor);
 }
 
 pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor) {
@@ -85,7 +90,7 @@ pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor) 
         return PAC193X_INIT_ERROR;
     }
 
-    return PAC193X_NO_ERROR;
+    return pac193xInternalRefresh(sensor);
 }
 
 /* endregion GENERAL FUNCTIONS */
@@ -96,30 +101,27 @@ pac193xErrorCode_t pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
                                         pac193xSensorId_t *info) {
     uint8_t sizeOfResponseBuffer = 1;
 
-    pac193xErrorCode_t errorCode = pac193xInternalGetDataFromSensor(
-        sensor, &info->product_id, sizeOfResponseBuffer, PAC193X_CMD_READ_PRODUCT_ID);
+    /* needs to be called once before reading values to get the latest values*/
+    pac193xErrorCode_t errorCode = pac193xInternalRefreshV(sensor);
     if (errorCode != PAC193X_NO_ERROR) {
-        info->product_id = 0;
-        info->manufacturer_id = 0;
-        info->revision_id = 0;
+        return errorCode;
+    }
+
+    errorCode = pac193xInternalGetDataFromSensor(sensor, &info->product_id, sizeOfResponseBuffer,
+                                                 PAC193X_CMD_READ_PRODUCT_ID);
+    if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
     errorCode = pac193xInternalGetDataFromSensor(
         sensor, &info->manufacturer_id, sizeOfResponseBuffer, PAC193X_CMD_READ_MANUFACTURER_ID);
     if (errorCode != PAC193X_NO_ERROR) {
-        info->product_id = 0;
-        info->manufacturer_id = 0;
-        info->revision_id = 0;
         return errorCode;
     }
 
     errorCode = pac193xInternalGetDataFromSensor(sensor, &info->revision_id, sizeOfResponseBuffer,
                                                  PAC193X_CMD_READ_REVISION_ID);
     if (errorCode != PAC193X_NO_ERROR) {
-        info->product_id = 0;
-        info->manufacturer_id = 0;
-        info->revision_id = 0;
         return errorCode;
     }
 
@@ -133,54 +135,65 @@ pac193xErrorCode_t pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t 
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
         return PAC193X_INVALID_CHANNEL;
     }
+
+    /* needs to be called once before reading values to get the latest values*/
+    pac193xErrorCode_t errorCode = pac193xInternalRefreshV(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+
     return pac193xInternalGetData(sensor, channel, valueToMeasure, value);
 }
 
 pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
                                                        pac193xChannel_t channel,
                                                        pac193xMeasurements_t *measurements) {
-    /* refresh to get latest values */
-    pac193xInternalRefreshV(sensor);
-
-    pac193xErrorCode_t errorCode = pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE,
-                                                                   &measurements->voltageSource);
-    if (errorCode != PAC193X_NO_ERROR) {
-        return errorCode;
+    if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
+        return PAC193X_INVALID_CHANNEL;
     }
 
-    errorCode = pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSENSE,
-                                                &measurements->voltageSense);
+    /* needs to be called once before reading values to get the latest values*/
+    pac193xErrorCode_t errorCode = pac193xInternalRefreshV(sensor);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
     errorCode =
-        pac193xGetMeasurementForChannel(sensor, channel, PAC193X_ISENSE, &measurements->iSense);
+        pac193xInternalGetData(sensor, channel, PAC193X_VSOURCE, &measurements->voltageSource);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
 
-    return pac193xGetMeasurementForChannel(sensor, channel, PAC193X_POWER,
-                                           &measurements->powerActual);
+    errorCode =
+        pac193xInternalGetData(sensor, channel, PAC193X_VSENSE, &measurements->voltageSense);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+
+    errorCode = pac193xInternalGetData(sensor, channel, PAC193X_ISENSE, &measurements->iSense);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
+
+    return pac193xInternalGetData(sensor, channel, PAC193X_POWER, &measurements->powerActual);
 }
 
 /* endregion SINGLE SHOT MEASUREMENTS */
 
 /* region CONTINUOUS MEASUREMENTS */
 
-pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor,
-                                            bool resetRegisters) {
+pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor) {
+    /* disable single shot mode, set sample rate to 1024 samples/s, enable overflow alert */
     pac193xErrorCode_t errorCode =
-        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00010000);
+        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00000010);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
 
-    if (resetRegisters) {
-        errorCode = pac193xInternalRefresh(sensor);
-        if (errorCode != PAC193X_NO_ERROR) {
-            return PAC193X_INIT_ERROR;
-        }
+    /* refresh sensor to apply changes */
+    errorCode = pac193xInternalRefresh(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return PAC193X_INIT_ERROR;
     }
 
     return PAC193X_NO_ERROR;
@@ -192,21 +205,60 @@ pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor) 
         return PAC193X_INIT_ERROR;
     }
 
+    /* refresh sensor to apply changes */
+    errorCode = pac193xInternalRefresh(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return PAC193X_INIT_ERROR;
+    }
+
     return PAC193X_NO_ERROR;
 }
 
-pac193xErrorCode_t pac193xReadAccumulatedPower(pac193xSensorConfiguration_t sensor,
-                                               pac193xPowerMeasurements_t *measurements) {
-    // TODO: read accumulated power value ( PAC193X_CMD_READ_VPOWER{1,2,3,4}_ACC )
-    // TODO: read accumulation counter ( PAC193X_CMD_READ_ACC_COUNT )
+pac193xErrorCode_t
+pac193xReadAccumulatedPowerForAllChannels(pac193xSensorConfiguration_t sensor,
+                                          pac193xPowerMeasurements_t *measurements) {
+    /* needs to be called once before reading values to get the latest values*/
+    pac193xErrorCode_t errorCode = pac193xInternalRefresh(sensor);
+    if (errorCode != PAC193X_NO_ERROR) {
+        return errorCode;
+    }
 
-    //    case PAC193X_ENERGY:
-    //        properties->startReadAddress += PAC193X_CMD_READ_VPOWER1_ACC;
-    //        properties->calculationFunction = &pac193xInternalCalculateEnergy;
-    //        properties->sizeOfResponseBuffer = 6;
-    //        break;
+    // read accumulation counter ( PAC193X_CMD_READ_ACC_COUNT )
+    uint8_t *responseBuffer = malloc(3);
+    errorCode =
+        pac193xInternalGetDataFromSensor(sensor, responseBuffer, 3, PAC193X_CMD_READ_ACC_COUNT);
+    if (errorCode != PAC193X_NO_ERROR) {
+        free(responseBuffer);
+        return PAC193X_RECEIVE_DATA_ERROR;
+    }
+    measurements->counterOfMeasurements =
+        (uint32_t)pac193xInternalTransformResponseBufferToUInt64(responseBuffer, 3);
+    free(responseBuffer);
 
-    return PAC193X_UNDEFINED_ERROR;
+    // read accumulated power value ( PAC193X_CMD_READ_VPOWER{1,2,3,4}_ACC )
+    /* 6 bytes for each of the 4 channels */
+    responseBuffer = malloc(24);
+    errorCode =
+        pac193xInternalGetDataFromSensor(sensor, responseBuffer, 24, PAC193X_CMD_READ_VPOWER1_ACC);
+    if (errorCode != PAC193X_NO_ERROR) {
+        free(responseBuffer);
+        return PAC193X_RECEIVE_DATA_ERROR;
+    }
+    measurements->powerChannel1 = pac193xInternalCalculateEnergy(
+        pac193xInternalTransformResponseBufferToUInt64(responseBuffer, 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL01)]);
+    measurements->powerChannel2 = pac193xInternalCalculateEnergy(
+        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 6, 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL02)]);
+    measurements->powerChannel3 = pac193xInternalCalculateEnergy(
+        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 12, 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL03)]);
+    measurements->powerChannel4 = pac193xInternalCalculateEnergy(
+        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 18, 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL04)]);
+    free(responseBuffer);
+
+    return pac193xInternalRefresh(sensor);
 }
 
 pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t sensor,
@@ -261,7 +313,7 @@ pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    /* enables single-shot mode, disables alert/overflow pin */
+    /* enable single-shot mode, disables alert/overflow pin */
     errorCode = pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00010000);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
@@ -279,11 +331,6 @@ pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    /* refresh sensor to use updated settings */
-    errorCode = pac193xInternalRefresh(sensor);
-    if (errorCode != PAC193X_NO_ERROR) {
-        return PAC193X_INIT_ERROR;
-    }
     return PAC193X_NO_ERROR;
 }
 
@@ -305,7 +352,7 @@ pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
     }
     PRINT_DEBUG("configuration send successful")
 
-    return pac193xInternalRefreshV(sensor);
+    return PAC193X_NO_ERROR;
 }
 
 static pac193xErrorCode_t pac193xInternalRefresh(pac193xSensorConfiguration_t sensor) {
@@ -376,16 +423,7 @@ static pac193xErrorCode_t
 pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor, uint8_t *responseBuffer,
                                  uint8_t sizeOfResponseBuffer,
                                  pac193xRegisterAddress_t registerToRead) {
-    /* trigger refresh to store current values for request */
-    pac193xErrorCode_t errorCode = pac193xInternalRefresh(sensor);
-    if (errorCode != PAC193X_NO_ERROR) {
-        return errorCode;
-    }
-
-    /* required due to internal calculations of the sensor */
-    sleep_ms(3);
-
-    errorCode = pac193xInternalSendRequestToSensor(sensor, registerToRead);
+    pac193xErrorCode_t errorCode = pac193xInternalSendRequestToSensor(sensor, registerToRead);
     if (errorCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
