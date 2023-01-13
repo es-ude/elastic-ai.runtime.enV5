@@ -183,9 +183,10 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
 /* region CONTINUOUS MEASUREMENTS */
 
 pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor) {
-    /* disable single shot mode, set sample rate to 1024 samples/s, enable overflow alert */
+    /* disable single shot mode, set sample rate to 1024 samples/s, enable alert pin, enable
+     * overflow alert */
     pac193xErrorCode_t errorCode =
-        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00000010);
+        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00001010);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
