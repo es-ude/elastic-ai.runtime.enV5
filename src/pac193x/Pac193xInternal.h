@@ -101,7 +101,8 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
  * @param valueToMeasure[in] defines which value should be measured
  * @return                   return the error code (0 if everything passed)
  */
-static pac193xErrorCode_t pac193xInternalSetMeasurementPropertiesForSingleShotMeasurement(pac193xMeasurementProperties_t *properties,
+static pac193xErrorCode_t
+pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
                                         pac193xValueToMeasure_t valueToMeasure);
 
 static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t sensor,
@@ -118,9 +119,11 @@ static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *re
 
 static float pac193xInternalConvertToFloat(uint64_t input);
 
-static float pac193xInternalCalculateVoltageOfSense(uint64_t input, float resistor);
+static float pac193xInternalCalculateVoltageOfSense(uint64_t input,
+                                                    __attribute__((unused)) float resistor);
 
-static float pac193xInternalCalculateVoltageOfSource(uint64_t input, float resistor);
+static float pac193xInternalCalculateVoltageOfSource(uint64_t input,
+                                                     __attribute__((unused)) float resistor);
 
 static float pac193xInternalCalculateCurrentOfSense(uint64_t input, float resistor);
 

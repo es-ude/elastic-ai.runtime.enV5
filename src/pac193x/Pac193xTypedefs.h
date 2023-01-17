@@ -137,6 +137,9 @@ enum {
     PAC193X_VSENSE,
     PAC193X_ISENSE,
     PAC193X_POWER,
+    PAC193X_VSOURCE_AVG,
+    PAC193X_VSENSE_AVG,
+    PAC193X_ISENSE_AVG
 };
 typedef uint8_t pac193xValueToMeasure_t;
 
