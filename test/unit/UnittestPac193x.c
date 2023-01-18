@@ -185,27 +185,6 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsource(void) {
     TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
 }
 
-void pac193xGetMeasurementForChannelReadSuccessfulValueVsourceAvr(void) {
-    float result;
-
-    pac193xErrorCode_t errorCode =
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE_AVG, &result);
-
-    TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, errorCode);
-}
-
-void pac193xGetMeasurementForChannelReadCorrectValueVsourceAvr(void) {
-    float expectedValue = 0, actualValue = 0;
-
-    uint64_t expected_rawValue = ((uint64_t)byteZero << 8) | (uint64_t)byteZero;
-    expectedValue =
-        (32.0f * (((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator));
-
-    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE_AVG, &actualValue);
-
-    TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
-}
-
 void pac193xGetMeasurementForChannelReadSuccessfulValueVsense(void) {
     float result;
 
@@ -222,26 +201,6 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsense(void) {
     expectedValue = 0.1f * ((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator;
 
     pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE, &actualValue);
-
-    TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
-}
-
-void pac193xGetMeasurementForChannelReadSuccessfulValueVsenseAvg(void) {
-    float result;
-
-    pac193xErrorCode_t errorCode =
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE_AVG, &result);
-
-    TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, errorCode);
-}
-
-void pac193xGetMeasurementForChannelReadCorrectValueVsenseAvg(void) {
-    float expectedValue = 0, actualValue = 0;
-
-    uint64_t expected_rawValue = ((uint64_t)byteZero << 8) | (uint64_t)byteZero;
-    expectedValue = 0.1f * ((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator;
-
-    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE_AVG, &actualValue);
 
     TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
 }
@@ -267,32 +226,11 @@ void pac193xGetMeasurementForChannelReadCorrectValueIsense(void) {
     TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
 }
 
-void pac193xGetMeasurementForChannelReadSuccessfulValueIsenseAvg(void) {
-    float result;
-
-    pac193xErrorCode_t errorCode =
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ISENSE_AVG, &result);
-
-    TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, errorCode);
-}
-
-void pac193xGetMeasurementForChannelReadCorrectValueIsenseAvg(void) {
-    float expectedValue = 0, actualValue = 0;
-
-    uint64_t expected_rawValue = ((uint64_t)byteZero << 8) | (uint64_t)byteZero;
-    float FSC = 0.1f / SENSOR.rSense[usedChannelIndex];
-    expectedValue = FSC * (((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator);
-
-    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ISENSE_AVG, &actualValue);
-
-    TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
-}
-
 void pac193xGetMeasurementForChannelReadSuccessfulValuePactual(void) {
     float result;
 
     pac193xErrorCode_t errorCode =
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_PACTUAL, &result);
+        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_POWER, &result);
 
     TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, errorCode);
 }
@@ -307,32 +245,7 @@ void pac193xGetMeasurementForChannelReadCorrectValuePactual(void) {
     float pProp = expectedRawValue / pac193xInternalUnipolarPowerDenominator;
     expectedValue = powerFSR * pProp;
 
-    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_PACTUAL, &actualValue);
-
-    TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
-}
-
-void pac193xGetMeasurementForChannelReadSuccessfulValueEnergy(void) {
-    float result;
-
-    pac193xErrorCode_t errorCode =
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY, &result);
-
-    TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, errorCode);
-}
-
-void pac193xGetMeasurementForChannelReadCorrectValueEnergy(void) {
-    float expectedValue = 0, actualValue = 0;
-
-    uint64_t rawValue = ((uint64_t)byteZero << 40) | ((uint64_t)byteZero << 32) |
-                        ((uint64_t)byteZero << 24) | ((uint64_t)byteZero << 16) |
-                        ((uint64_t)byteZero << 8) | (uint64_t)byteZero;
-    float expectedRawValue = (float)rawValue;
-    float powerFSR = 3.2f / SENSOR.rSense[usedChannelIndex];
-    expectedValue = expectedRawValue * powerFSR /
-                    (pac193xInternalEnergyDenominator * pac193xInternalSamplingRate);
-
-    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY, &actualValue);
+    pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_POWER, &actualValue);
 
     TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
 }
@@ -418,20 +331,12 @@ int main(void) {
     RUN_TEST(pac193xGetMeasurementForChannelReturnInvalidChannelErrorIfChannelWrong);
     RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueVsource);
     RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueVsource);
-    RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueVsourceAvr);
-    RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueVsourceAvr);
     RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueVsense);
     RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueVsense);
-    RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueVsenseAvg);
-    RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueVsenseAvg);
     RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueIsense);
     RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueIsense);
-    RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueIsenseAvg);
-    RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueIsenseAvg);
     RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValuePactual);
     RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValuePactual);
-    RUN_TEST(pac193xGetMeasurementForChannelReadSuccessfulValueEnergy);
-    RUN_TEST(pac193xGetMeasurementForChannelReadCorrectValueEnergy);
 
     RUN_TEST(testAssertUint64tEquals);
 

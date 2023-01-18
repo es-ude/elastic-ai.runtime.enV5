@@ -24,14 +24,14 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 /* endregion */
 
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
     .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
     .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00000011},
-    .rSense = {0.82f, 0.82f, 0, 0},
+    .usedChannels = {.uint_channelsInUse = 0b00001111},
+    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
 };
 
 static void getValuesOfChannelWifi() {
@@ -66,8 +66,6 @@ static void getValuesOfChannelWifi() {
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!")
     }
-
-    PRINT("  Energy = %4.6fWs", measurements.energy)
 }
 
 static void getValuesOfChannelSensors() {
@@ -102,8 +100,6 @@ static void getValuesOfChannelSensors() {
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!")
     }
-
-    PRINT("  Energy = %4.6fWs", measurements.energy)
 }
 
 static void getSerialNumber() {
