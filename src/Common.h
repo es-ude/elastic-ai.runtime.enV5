@@ -19,10 +19,7 @@
         printf(str, ##__VA_ARGS__);                                                                \
         printf("\n");                                                                              \
     }
-#define SEND_DATA(str, ...)                                                                        \
-    {                                                                                              \
-        printf(str, ##__VA_ARGS__);                                                                \
-    }
+
 #ifdef DEBUG_MODE
 #define PRINT_DEBUG(str, ...)                                                                      \
     {                                                                                              \

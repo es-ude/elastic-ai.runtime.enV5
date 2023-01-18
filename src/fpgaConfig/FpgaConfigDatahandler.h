@@ -7,5 +7,9 @@ uint16_t fpgaConfigHandlerReceiveData(uint8_t *block, uint16_t bufferLength);
 
 void fpgaConfigHandlerReadValue(uint32_t *destination);
 
-void fpgaConfigHandlerSendData(char *data);
+void fpgaConfigHandlerSendData(uint8_t *data, uint16_t length);
+void fpgaConfigHandlerSendAck();
+
+
+
 #endif /* ENV5_FPGA_CONFIGURATION_HANDLER_HEADER */

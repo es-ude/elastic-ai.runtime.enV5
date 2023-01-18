@@ -1,4 +1,5 @@
-#define SOURCE_File "FPGA-CONFIG"
+#define SOURCE_FILE "FPGA-CONFIG"
+
 
 #include "FpgaConfiguration.h"
 #include "Flash.h"
@@ -18,8 +19,6 @@
  * */
 
 
-uint8_t *fpgaConfigurationBuffer, *fpgaConfigurationVerifyBuffer;
-
 static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAddress, uint32_t *sizeToReceive){
     // getting address
     fpgaConfigHandlerReadValue(flashAddress);
@@ -31,87 +30,68 @@ static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAdd
 
 void fpgaConfigurationFlashConfiguration() { //TODO: communicate errors back
     uint32_t flashAddress, configSize;
+    uint8_t fpgaConfigurationBuffer[FLASH_PAGE_SIZE];
+
     fpgaConfigurationInternalGetBitfileWriteArguments(&flashAddress, &configSize);
-
-    fpgaConfigurationBuffer = (uint8_t *)malloc(FLASH_PAGE_SIZE); // TODO: turn into array, remove free down below
-
-    uint16_t blockSize = FLASH_PAGE_SIZE;
-    fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, blockSize);
+    fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, FLASH_PAGE_SIZE);
 
     if(fpgaConfigurationInternalEraseSectors(flashAddress, configSize)){
-        PRINT("Erasing the flash sectors has failed");
+        PRINT("Erasing the flash sectors has failed")
+        return;
     }
     PRINT("Erasing the flash sectors succeeded");
-    PRINT_SYNC("ack")
+    fpgaConfigHandlerSendAck();
 
-    uint32_t currentAddress = flashAddress;
-    uint32_t configRemaining = configSize; //TODO: rename amountRemaining
-
-    while (configRemaining > 0) { //TODO: extract into func pipeConfigIntoFlash
-        if (configRemaining < FLASH_PAGE_SIZE) {
-            blockSize = configRemaining;
-            PRINT("last block address: %x, blockSize: %u", currentAddress, blockSize)
-        }
-        fpgaConfigHandlerReceiveData(fpgaConfigurationBuffer, blockSize);
-        flashWritePage(currentAddress, fpgaConfigurationBuffer, blockSize);
-
-        currentAddress += blockSize;
-        configRemaining -= blockSize;
-
-        fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationBuffer, FLASH_PAGE_SIZE);
-        PRINT_SYNC("ack")
-    }
-    free(fpgaConfigurationBuffer);
-    PRINT_SYNC("ack")
+    fpgaConfigurationInternalPipeConfigToAndFromFlash( &fpgaConfigurationInternalReceiveAndWriteDataOnFlash, fpgaConfigurationBuffer,flashAddress, configSize);
+    fpgaConfigHandlerSendAck();
 }
 
 void fpgaConfigurationVerifyConfiguration() {
-    uint32_t fpgaConfigurationConfigAddress, fpgaConfigurationConfigSize;
-    fpgaConfigurationConfigAddress = 0;
-    uint32_t configRemaining;
-    fpgaConfigurationVerifyBuffer = (uint8_t *)malloc(256);
+    uint32_t flashAddress, configSize;
+    uint8_t fpgaConfigurationVerifyBuffer[FLASH_PAGE_SIZE];
+
+    fpgaConfigurationInternalGetBitfileWriteArguments(&flashAddress, &configSize);
     fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationVerifyBuffer, FLASH_PAGE_SIZE);
+    fpgaConfigurationInternalPipeConfigToAndFromFlash( &fpgaConfigurationInternalReadDataOnFlash, fpgaConfigurationVerifyBuffer,flashAddress, configSize);
+    fpgaConfigHandlerSendAck();
+}
 
+
+void fpgaConfigurationInternalReceiveAndWriteDataOnFlash(uint32_t currentAddress, uint8_t* configurationBuffer, uint16_t blockSize){
+    fpgaConfigHandlerReceiveData ( configurationBuffer, blockSize );
+    flashWritePage ( currentAddress, configurationBuffer, blockSize );
+}
+
+void fpgaConfigurationInternalReadDataOnFlash(uint32_t currentAddress, uint8_t* configurationBuffer, uint16_t blockSize){
+    flashReadData(currentAddress, configurationBuffer, blockSize);
+    PRINT_DEBUG("address %x ; blockSize: %u", currentAddress, blockSize)
+    fpgaConfigHandlerSendData (configurationBuffer,blockSize);
+}
+void fpgaConfigurationInternalPipeConfigToAndFromFlash( void (*readerWriter) (uint32_t, uint8_t*, uint16_t),
+                                                        uint8_t * configurationBuffer,
+                                                        uint32_t flashAddress, uint32_t configSize)
+  {
+    uint32_t currentAddress  = flashAddress;
+    uint32_t amountRemaining = configSize;
     uint16_t blockSize = FLASH_PAGE_SIZE;
-
-    fpgaConfigHandlerReadValue(&fpgaConfigurationConfigAddress);
-    PRINT_SYNC("%u", fpgaConfigurationConfigAddress);
-    fpgaConfigHandlerReadValue(&fpgaConfigurationConfigSize);
-    PRINT_SYNC("%u", fpgaConfigurationConfigSize);
-
-    uint32_t currentAddress = fpgaConfigurationConfigAddress;
-
-    configRemaining = fpgaConfigurationConfigSize;
-
-    while (configRemaining > 0) {
-        if (configRemaining < FLASH_PAGE_SIZE) {
-            blockSize = configRemaining;
+    while (amountRemaining > 0) {
+        if (amountRemaining < FLASH_PAGE_SIZE) {
+            blockSize = amountRemaining;
+            PRINT("last block address: %x, blockSize: %u", currentAddress, blockSize)
         }
-        PRINT_DEBUG("address %x ; blockSize: %u", currentAddress, blockSize);
-        flashReadData(currentAddress, fpgaConfigurationVerifyBuffer, blockSize);
+        
+        readerWriter(currentAddress, configurationBuffer, blockSize);
         currentAddress += blockSize;
-        configRemaining -= blockSize;
-
-        for (uint32_t i = 0; i < blockSize; i++) {
-            SEND_DATA("%u###", fpgaConfigurationVerifyBuffer[i]);
-        }
-        SEND_DATA("\n");
-        PRINT_SYNC("ack");
-        fpgaConfigurationInternalFillBufferWithDebugData(fpgaConfigurationVerifyBuffer,
-                                                         FLASH_PAGE_SIZE);
+        amountRemaining -= blockSize;
+        fpgaConfigHandlerSendAck();
+        
+        fpgaConfigurationInternalFillBufferWithDebugData(configurationBuffer, FLASH_PAGE_SIZE);
+        
     }
-    free(fpgaConfigurationVerifyBuffer);
-    PRINT_SYNC("ack")
-}
-void fpgaConfigurationInternalFormatFlashDataForSending(uint16_t blockSize, uint8_t *flashDataBuffer){
-    char *formattedFlashData= (char*)malloc(blockSize*sizeof(char));
+  }
 
-    for (uint32_t i = 0; i < blockSize; i++) {
-        SEND_DATA("%u###", flashDataBuffer[i]);
-    }
-    SEND_DATA("\n");
 
-}
+
 void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
     for (int index = 0; index < length; index++) {
         printf("%u", buffer[index]);

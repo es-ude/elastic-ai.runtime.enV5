@@ -119,6 +119,7 @@ def verifyBitfile(ser, config):
     while config_remaining > 0:
         if config_remaining < blockSize:
             blockSize = config_remaining
+            logging.debug(ser.readline())
 
         flash_data_block = receive_and_prepare_flash_data()
         expected_block = [int(i) for i in bytearray(bitfile.read(blockSize))]
@@ -137,12 +138,15 @@ def verifyBitfile(ser, config):
 
     waitForAck(ser)
     bitfile.close()
+    logging.info("Bitfile has been verfied. You can proceed with your application.")
 
 
 def receive_and_prepare_flash_data():
-    readline = ser.readline()
-    logging.debug(readline)
-    flash_data_block = readline.strip().split(bytearray("###", 'utf-8'))
+    logging.debug(ser.readline())
+    flash_data_block = ser.readline().strip().split(bytearray("###", 'utf-8'))
+    #readline = ser.readline()
+    #logging.debug(readline)
+    #flash_data_block = readline.strip().split(bytearray("###", 'utf-8'))
     flash_data_block.pop()
     return [int(i) for i in flash_data_block]
 
