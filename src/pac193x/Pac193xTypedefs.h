@@ -48,10 +48,10 @@ struct pac193xSensorConfiguration {
 typedef struct pac193xSensorConfiguration pac193xSensorConfiguration_t;
 
 enum {
-    PAC193X_CHANNEL01,
-    PAC193X_CHANNEL02,
-    PAC193X_CHANNEL03,
-    PAC193X_CHANNEL04,
+    PAC193X_CHANNEL01 = 0,
+    PAC193X_CHANNEL02 = 1,
+    PAC193X_CHANNEL03 = 2,
+    PAC193X_CHANNEL04 = 3,
 };
 typedef uint8_t pac193xChannel_t;
 
@@ -67,9 +67,17 @@ struct pac193xMeasurements {
     float voltageSense;
     float iSense;
     float powerActual;
-    float energy;
 };
 typedef struct pac193xMeasurements pac193xMeasurements_t;
+
+struct pac193xPowerMeasurements {
+    uint32_t counterOfMeasurements;
+    float powerChannel1;
+    float powerChannel2;
+    float powerChannel3;
+    float powerChannel4;
+};
+typedef struct pac193xPowerMeasurements pac193xPowerMeasurements_t;
 
 struct pac193xMeasurementProperties {
     uint8_t startReadAddress;
@@ -126,13 +134,12 @@ typedef uint8_t pac193xSettings_t;
 
 enum {
     PAC193X_VSOURCE,
-    PAC193X_VSOURCE_AVG, /*!< rolling average of the last eight values. */
     PAC193X_VSENSE,
-    PAC193X_VSENSE_AVG, /*!< rolling average of the last eight values. */
     PAC193X_ISENSE,
-    PAC193X_ISENSE_AVG, /*!< rolling average of the last eight values. */
-    PAC193X_PACTUAL,
-    PAC193X_ENERGY,
+    PAC193X_POWER,
+    PAC193X_VSOURCE_AVG,
+    PAC193X_VSENSE_AVG,
+    PAC193X_ISENSE_AVG
 };
 typedef uint8_t pac193xValueToMeasure_t;
 

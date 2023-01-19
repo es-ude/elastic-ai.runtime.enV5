@@ -124,9 +124,11 @@ static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *re
 
 static float pac193xInternalConvertToFloat(uint64_t input);
 
-static float pac193xInternalCalculateVoltageOfSense(uint64_t input, float resistor);
+static float pac193xInternalCalculateVoltageOfSense(uint64_t input,
+                                                    __attribute__((unused)) float resistor);
 
-static float pac193xInternalCalculateVoltageOfSource(uint64_t input, float resistor);
+static float pac193xInternalCalculateVoltageOfSource(uint64_t input,
+                                                     __attribute__((unused)) float resistor);
 
 static float pac193xInternalCalculateCurrentOfSense(uint64_t input, float resistor);
 
