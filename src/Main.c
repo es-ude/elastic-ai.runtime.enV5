@@ -14,11 +14,15 @@
 
 // external headers
 #include <hardware/watchdog.h>
+#include <malloc.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
+#include <string.h>
 
 bool wifiValueIsRequested = false;
 bool sRAMValueIsRequested = false;
+
+char *twinID = NULL;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -56,22 +60,43 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     return measurement;
 }
 
-void receiveWifiDataStartRequest(posting_t posting) {
-    wifiValueIsRequested = true;
+void setTwinID(posting_t *posting) {
+    if ((*posting).data == twinID)
+        return;
+    if (twinID != NULL)
+        free(twinID);
+    twinID = malloc(sizeof((*posting).data));
+    strcpy(twinID, (*posting).data);
 }
 
 void receiveWifiDataStopRequest(posting_t posting) {
+    if (strstr(posting.data, ";1") != NULL)
+        return;
+
     wifiValueIsRequested = false;
+    protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = receiveWifiDataStopRequest});
+}
+
+void receiveWifiDataStartRequest(posting_t posting) {
+    wifiValueIsRequested = true;
+    setTwinID(&posting);
+    protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = receiveWifiDataStopRequest});
+}
+
+void receiveSRAMDataStopRequest(posting_t posting) {
+    //    When the status subscriber calls, but device just published online
+    if (strstr(posting.data, ";1") != NULL)
+        return;
+
+    sRAMValueIsRequested = false;
+    protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = receiveSRAMDataStopRequest});
 }
 
 void receiveSRAMDataStartRequest(posting_t posting) {
     sRAMValueIsRequested = true;
+    setTwinID(&posting);
+    protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = receiveSRAMDataStopRequest});
 }
-
-void receiveSRAMDataStopRequest(posting_t posting) {
-    sRAMValueIsRequested = false;
-}
-
 
 _Noreturn void mainTask(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
@@ -88,7 +113,7 @@ _Noreturn void mainTask(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     PRINT("===== INIT SENSOR 2 =====")
     while (1) {
         errorCode = pac193xInit(sensor2);
@@ -100,20 +125,26 @@ _Noreturn void mainTask(void) {
         sleep_ms(500);
     }
 
-    protocolSubscribeForDataStartRequest("wifiValue", (subscriber_t){.deliver =
-                                                                         receiveWifiDataStartRequest});
-    
-    protocolSubscribeForDataStopRequest("wifiValue", (subscriber_t){.deliver =
-                                                                         receiveWifiDataStopRequest});
-    
-    protocolSubscribeForDataStartRequest("sramValue",
+    protocolSubscribeForDataStartRequest("wifiValue",
+                                         (subscriber_t){.deliver = receiveWifiDataStartRequest});
+
+    protocolSubscribeForDataStopRequest("wifiValue",
+                                        (subscriber_t){.deliver = receiveWifiDataStopRequest});
+
+    protocolSubscribeForDataStartRequest("sRamValue",
                                          (subscriber_t){.deliver = receiveSRAMDataStartRequest});
-    
-    protocolSubscribeForDataStopRequest("sramValue",
+
+    protocolSubscribeForDataStopRequest("sRamValue",
                                         (subscriber_t){.deliver = receiveSRAMDataStopRequest});
-    
+
     char buffer[64];
-    
+
+    sleep_ms(1000);
+
+    mqttReady();
+
+    printf("Ready ...\n");
+
     while (true) {
         if (wifiValueIsRequested) {
             float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
