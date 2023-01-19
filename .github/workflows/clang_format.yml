@@ -10,8 +10,8 @@ on:
 jobs:
   checks:
     uses: 
-    - ./.github.com/workflows/unit_test.yml
-    - ./.github.com/workflows/build_all_targets.yml
+    - ./.github/workflows/unit_test.yml
+    - ./.github/workflows/build_all_targets.yml
 
   format:
     runs-on: ubuntu-latest
