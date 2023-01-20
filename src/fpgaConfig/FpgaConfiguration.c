@@ -23,6 +23,7 @@ static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAdd
     // getting address
     fpgaConfigHandlerReadValue(flashAddress);
     PRINT_SYNC( "%u", *flashAddress)
+
     // getting size of file
     fpgaConfigHandlerReadValue(sizeToReceive);
     PRINT_SYNC("%u", *sizeToReceive)
@@ -86,31 +87,8 @@ void fpgaConfigurationInternalPipeConfigToAndFromFlash( void (*readerWriter) (ui
         fpgaConfigHandlerSendAck();
         
         fpgaConfigurationInternalFillBufferWithDebugData(configurationBuffer, FLASH_PAGE_SIZE);
-        
     }
   }
-
-
-
-void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
-    for (int index = 0; index < length; index++) {
-        printf("%u", buffer[index]);
-    }
-    printf("\n");
-}
-
-void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uint16_t blockCounter,
-                                                        uint32_t blockAddress) {
-    uint8_t *eraseTest = (uint8_t *)malloc(FLASH_PAGE_SIZE);
-    printf("error occurred: %u , block: %u , address: %x\n", eraseStatus, blockCounter,
-           blockAddress);
-    flashReadData(blockAddress, eraseTest, FLASH_PAGE_SIZE);
-    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
-
-    flashReadData((blockAddress + FLASH_SECTOR_SIZE - FLASH_PAGE_SIZE), eraseTest, FLASH_PAGE_SIZE);
-    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
-    free(eraseTest);
-}
 
 uint8_t fpgaConfigurationInternalEraseSectors( uint32_t fpgaConfigurationConfigAddress,uint32_t fpgaConfigurationConfigSize) {
     uint16_t numSectors = ceilf((float)(fpgaConfigurationConfigSize) / FLASH_SECTOR_SIZE);
@@ -137,6 +115,26 @@ void fpgaConfigurationInternalFillBufferWithDebugData(uint8_t *buffer, uint16_t 
         buffer[index + 3] = 0xD;
     }
 #endif
+}
+
+void fpgaConfigurationInternalDebugPrintFlashAfterErase(uint8_t eraseStatus, uint16_t blockCounter,
+                                                        uint32_t blockAddress) {
+    uint8_t *eraseTest = (uint8_t *)malloc(FLASH_PAGE_SIZE);
+    printf("error occurred: %u , block: %u , address: %x\n", eraseStatus, blockCounter,
+           blockAddress);
+    flashReadData(blockAddress, eraseTest, FLASH_PAGE_SIZE);
+    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
+
+    flashReadData((blockAddress + FLASH_SECTOR_SIZE - FLASH_PAGE_SIZE), eraseTest, FLASH_PAGE_SIZE);
+    fpgaConfigurationInternalPrintBuffer(eraseTest, FLASH_PAGE_SIZE);
+    free(eraseTest);
+}
+
+void fpgaConfigurationInternalPrintBuffer(uint8_t *buffer, uint16_t length) {
+    for (int index = 0; index < length; index++) {
+        printf("%u", buffer[index]);
+    }
+    printf("\n");
 }
 
 
