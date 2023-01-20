@@ -240,6 +240,50 @@
 #define AT_MQTT_PUBLISH_LENGTH 23
 #define AT_MQTT_PUBLISH_RESPONSE "OK"
 
+/* Publish data if command would be longer than 256 bytes to broker
+ *
+ * Command:
+ *   AT+MQTTPUBRAW=<LinkID>,<"topic">,<length>,<qos>,<retain>
+ *
+ * Fields are:
+ * - LINK_ID -> always 0
+ * - TOPIC -> topic under which the data is published
+ * - LENGTH -> Length of MQTT Message
+ * - QOS -> Quality of service,
+ *          0=try delivery, 1=message delivered, 2=message delivered exactly one time
+ * - RETAIN -> Retain last message of topic, 0=disable, 1=enable
+ *
+ * Expected Response:
+ *   OK
+ *   >
+ */
+#define AT_MQTT_PUBLISH_LONG "AT+MQTTPUBRAW=0,\"%s\",%lu,0,0"
+#define AT_MQTT_PUBLISH_LONG_LENGTH 24
+#define AT_MQTT_PUBLISH_LONG_RESPONSE "OK"
+
+/* Publish data if command would be longer than 256 bytes to broker
+ *
+ * Command:
+ *  AT+HTTPCLIENT=<opt>,<content-type>,<"url">,[<"host">],[<"path">],<transport_type>[,<"data">][,<"http_req_header">][,<"http_req_header">][...]
+ *
+ * Fields are:
+ * - OPT -> Method of Request
+ * - CONTENT-TYPE -> Data type (1: json)
+ * - URL -> data to publish
+ * - HOST ->
+ * - PATH ->
+ * - TRANSPORT_TYPE -> Client transport type (Default 1, TCP)
+ * - DATA -> Data if POST requests
+ * - HTTP_REQ_HEADER -> Request Header
+ *
+ * Expected Response:
+ *   +HTTPCLIENT:<size>,<data>
+ *
+ *   OK
+ */
+#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,1"
+#define AT_HTTP_GET_LENGTH 23
+#define AT_HTTP_GET_RESPONSE "OK"
 /* endregion */
 
 #endif /* ENV5_AT_COMMANDS */

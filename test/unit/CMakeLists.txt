@@ -52,6 +52,7 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/src/uart/Uart.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
+        ${CMAKE_SOURCE_DIR}/src/network/HTTP.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/Esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/freeRtos/FreeRtosTaskWrapper.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/gpio/Gpio.c)
@@ -91,10 +92,9 @@ target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src
         ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_mqtt unity)
+target_link_libraries(unit-test_mqtt unity m)
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
-
 ##############################################
 ## region UNIT-TEST: unit-test_configuration
 add_executable(unit-test_configuration

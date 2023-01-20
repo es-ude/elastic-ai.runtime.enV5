@@ -1,6 +1,7 @@
 #ifndef ENV5_MQTT_BROKER_HEADER
 #define ENV5_MQTT_BROKER_HEADER
 
+#include "Posting.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -49,6 +50,8 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t 
  */
 mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
                                                 char *clientID);
+
+void publishLong(posting_t posting);
 
 /*! \brief disconnect from MQTT broker
  *

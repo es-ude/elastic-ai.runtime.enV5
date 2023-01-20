@@ -54,4 +54,6 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs);
  */
 void espSetMqttReceiverFunction(void (*receive)(char *));
 
+void espSetHTTPReceiverFunction(void (*receive)(char *));
+
 #endif // ENV5_ESP_HEADER

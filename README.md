@@ -10,7 +10,7 @@ For compiling the project the tools are:
     * gcc
     * arm-non-eabi-gcc
     * CMake
-    * ninja (or ninja-build)
+    * Ninja
 * recommended:
     * pre-commit
 
@@ -26,7 +26,8 @@ If this flag is not passed CMake will use the default build tool on your machine
 ## Configuration
 
 In the [network_configuration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings can be
-change. To stop changes in these to be committed you can do:
+change. To stop
+changes in these to be committed you can do:
 
 ```bash
 git update-index --assume-unchanged src/network_configuration.h
@@ -36,13 +37,17 @@ git update-index --assume-unchanged src/network_configuration.h
 
 ### Unit Tests
 
-To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used. The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
+To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used.
+
+The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
 
 ## Target Pico
 
 ### Build all Targets
 
-To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug output enabled. If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
+To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug
+output enabled.
+If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
 
 The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
 
@@ -72,9 +77,10 @@ The resulting `<test_name>.u2f` files to flash the pico can be found in the [out
 
 If the pico is connected to the local machine the `print()` inside the code will be redirected to the USB and is
 available as serial port output.
-This output can be read via a serial port reader like screen, minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+This output can be read via a serial port reader like screen,
+minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
-The following example shows how to use minicom on a unix based system:
+The following example shows how to use minicom on a Unix based system:
 
 ```bash
 minicom -b 115200 -o -D /dev/ttyACM0
@@ -88,7 +94,9 @@ minicom -b 115200 -o -D /dev/ttyACM0
 
 ### Debug Output
 
-To enable enhanced debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or add it in the CLion CMake options). This enables the `PRINT_DEBUG(...)` from common.h in all targets.
+To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cmake [setup](README.md#Setup) call (or
+add it in the CLion CMake options).
+This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
 ## MQTT Stress behavior
 
@@ -118,29 +126,35 @@ If the script fails repeatedly it's possible that the Bitfile currently in flash
 
 ![](/pics/jtag_header.jpg)
 
-## Sensors
+## Provided Sensor Libraries
 
 ### Power Sensor
 
 - Type: **PAC193X**
 - [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
 - Usage:
-    - Measure Power consumption of sensor array
-    - Measure Power consumption of WiFi module
-- Provided Functionality can be found in `src/pac193x/pac193x_public.h`
+    - Measure Power consumption of FPGA/Flash
+    - Measure Power consumption of Wi-Fi module
+- Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
 
 #### Basic Usage Example
 
 ```C
-#include "pac193x/pac193x_public.h"
+#include "pac193x/Pac193x.h"
 #include "hardware/i2c.h"
 
-float resistanceValues[4] = {0.82f, 0.82f, 0, 0};
-pac193xUsedChannels_t usedChannels = {.uint_channelsInUse = 0b00000011};
+pac193xSensorConfiguration_t sensor = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00000011},
+    .rSense = {0.82f, 0.82f, 0, 0},
+};
+
 
 int main(void) {
     // Initialize Sensor (ALWAYS REQUIRED)
-    pac193xErrorCode_t errorCode = pac193xInit(i2c1, resistanceValues, usedChannels);
+    pac193xErrorCode_t errorCode = pac193xInit(sensor);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
@@ -149,7 +163,7 @@ int main(void) {
     
     // Example: Read Values from Channel
     pac193xMeasurements_t measurements;
-    errorCode = pac193xGetAllMeasurementsForChannel(PAC193X_CHANNEL_SENSORS, &measurements);
+    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
@@ -159,7 +173,7 @@ int main(void) {
 }
 ```
 
-More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_pac193x.c`.
+More detailed examples, on how to use this sensor, can be found in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
 
 ### Temperature Sensor
 
@@ -168,12 +182,12 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 - Usage:
     - Measure the current temperature
     - Measure the current humidity
-- Provided functionality can be found in `src/sht3x/sht3x_public.h`
+- Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
 
 #### Basic Usage Example
 
 ```C
-#include "sht3x/sht3x_public.h"
+#include "sht3x/Sht3x.h"
 #include "hardware/i2c.h"
 
 int main(void) {
@@ -199,7 +213,7 @@ int main(void) {
 
 ```
 
-More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_sht3x.c`.
+More detailed examples, on how to use this sensor, can be found in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
 
 ### Acceleration Sensor
 
@@ -207,12 +221,12 @@ More detailed examples, on how to use this sensor, can be found in `test/hardwar
 - [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
 - Usage:
     - Measure the acceleration in x,y,z direction
-- Provided functionality can be found in `src/adxl345b/adxl345b_public.h`
+- Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
 
 #### Basic Usage Example
 
 ```C
-#include "adxl345b/adxl345b_public.h"
+#include "adxl345b/Adxl345b.h"
 #include "hardware/i2c.h"
 
 int main(void) {
@@ -237,7 +251,7 @@ int main(void) {
 }
 ```
 
-More detailed examples, on how to use this sensor, can be found in `test/hardware/Sensors/test_adxl345b.c`.
+More detailed examples, on how to use this sensor, can be found in [HardwaretestADXL345b.c](test/hardware/Sensors/HardwaretestAdxl345b.c).
 
 ## Submodules
 
