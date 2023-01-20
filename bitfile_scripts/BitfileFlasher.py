@@ -16,6 +16,11 @@ def initConfiguration(ser, config):
     ser.write(b'F')
     waitForAck(ser)
 
+def eraseSectors(ser):
+    numEraseSectors = ser.readline()
+    logging.info("Number of sectors to erase {}".format(numEraseSectors.strip()))
+    logging.info(ser.readline())
+    waitForAck(ser)
 
 def sendConfig(ser, config):
     initConfiguration(ser, config)
@@ -27,10 +32,7 @@ def sendConfig(ser, config):
     logging.info("sending address {}".format(config.address))
     writeValue(ser, config.address, "address")
     writeValue(ser, config.size, "size")
-    numEraseSectors = ser.readline()
-    logging.info("Number of sectors to erase {}".format(numEraseSectors.strip()))
-    logging.info(ser.readline())
-    waitForAck(ser)
+    eraseSectors(ser)
     logging.info("sending data")
     sendData(ser, config, bitfile)
     bitfile.close()
@@ -80,7 +82,7 @@ def sendData(ser, config, bitfile):
         bytes_has_written = ser.write(sending)
         if lastBlock == True:
             logging.info("Number of bytes in last block: {}".format(bytes_has_written))
-            logging.debug(ser.readline())
+            logging.debug(ser.readline().decode("utf-8"))
 
         waitForAck(ser)
         currentAddress += blockSize
@@ -119,9 +121,9 @@ def verifyBitfile(ser, config):
     while config_remaining > 0:
         if config_remaining < blockSize:
             blockSize = config_remaining
-            logging.debug(ser.readline())
+            logging.debug(ser.readline().decode("utf-8"))
 
-        flash_data_block = receive_and_prepare_flash_data()
+        flash_data_block = receive_and_prepare_flash_data(ser)
         expected_block = [int(i) for i in bytearray(bitfile.read(blockSize))]
         if len(flash_data_block) != len(expected_block):
             logging.error("Different length of blocks at block number {} \t Expected: {}, \t On Device {}"
@@ -141,12 +143,13 @@ def verifyBitfile(ser, config):
     logging.info("Bitfile has been verfied. You can proceed with your application.")
 
 
-def receive_and_prepare_flash_data():
-    logging.debug(ser.readline())
-    flash_data_block = ser.readline().strip().split(bytearray("###", 'utf-8'))
-    #readline = ser.readline()
-    #logging.debug(readline)
-    #flash_data_block = readline.strip().split(bytearray("###", 'utf-8'))
+def receive_and_prepare_flash_data(ser):
+    data=ser.readline().strip()
+    if "Debug" in data.decode("utf-8"):
+        logging.debug(data)
+        flash_data_block = ser.readline().strip().split(bytearray("###", 'utf-8'))
+    else:
+        flash_data_block=data.split(bytearray("###", 'utf-8'))
     flash_data_block.pop()
     return [int(i) for i in flash_data_block]
 

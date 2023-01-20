@@ -14,19 +14,17 @@
  * todo:
  * Different name: BitfileHandler
  *  different name test
- * move usb stuff into serialCom
- * write send function
  * */
 
 
 static void fpgaConfigurationInternalGetBitfileWriteArguments(uint32_t *flashAddress, uint32_t *sizeToReceive){
     // getting address
     fpgaConfigHandlerReadValue(flashAddress);
-    PRINT_SYNC( "%u", *flashAddress)
+    fpgaConfigHandlerSendDataAck(flashAddress);
 
     // getting size of file
     fpgaConfigHandlerReadValue(sizeToReceive);
-    PRINT_SYNC("%u", *sizeToReceive)
+    fpgaConfigHandlerSendDataAck(sizeToReceive);
 }
 
 void fpgaConfigurationFlashConfiguration() { //TODO: communicate errors back
@@ -65,7 +63,7 @@ void fpgaConfigurationInternalReceiveAndWriteDataOnFlash(uint32_t currentAddress
 
 void fpgaConfigurationInternalReadDataOnFlash(uint32_t currentAddress, uint8_t* configurationBuffer, uint16_t blockSize){
     flashReadData(currentAddress, configurationBuffer, blockSize);
-    PRINT_DEBUG("address %x ; blockSize: %u", currentAddress, blockSize)
+    PRINT_DEBUG("Debug: address %x ; blockSize: %u", currentAddress, blockSize)
     fpgaConfigHandlerSendData (configurationBuffer,blockSize);
 }
 void fpgaConfigurationInternalPipeConfigToAndFromFlash( void (*readerWriter) (uint32_t, uint8_t*, uint16_t),

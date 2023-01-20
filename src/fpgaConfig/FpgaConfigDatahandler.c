@@ -29,3 +29,7 @@ void fpgaConfigHandlerSendData(uint8_t *data, uint16_t length){
 void fpgaConfigHandlerSendAck(){
   printf("ack\n");
 }
+
+void fpgaConfigHandlerSendDataAck(uint32_t *data){
+    printf("%u\n", *data);
+}

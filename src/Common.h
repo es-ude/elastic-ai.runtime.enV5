@@ -14,11 +14,6 @@
         printf("\n");                                                                              \
     }
 
-#define PRINT_SYNC(str, ...)                                                                       \
-    {                                                                                              \
-        printf(str, ##__VA_ARGS__);                                                                \
-        printf("\n");                                                                              \
-    }
 
 #ifdef DEBUG_MODE
 #define PRINT_DEBUG(str, ...)                                                                      \
