@@ -408,7 +408,7 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     // generate LWT message
     size_t lwt_message_length = strlen(mqttBrokerClientId) + 3;
     char *lwt_message = malloc(lwt_message_length);
-    snprintf(lwt_message, lwt_message_length, "%s;0", mqttBrokerClientId);
+    snprintf(lwt_message, lwt_message_length, "%s;DEVICE;0", mqttBrokerClientId);
 
     // generate command to send connection configuration to esp module
     size_t commandLength =
@@ -441,7 +441,7 @@ static void publishAliveStatusMessage() {
     // create alive message
     size_t messageLength = strlen(mqttBrokerClientId) + 3;
     char *message = malloc(messageLength);
-    snprintf(message, messageLength, "%s;1", mqttBrokerClientId);
+    snprintf(message, messageLength, "%s;DEVICE;1", mqttBrokerClientId);
     posting_t aliveMessage = {.topic = "status", .data = message, .retain = 1};
 
     // publish message
