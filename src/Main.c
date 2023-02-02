@@ -22,7 +22,9 @@
 bool wifiValueIsRequested = false;
 bool sRAMValueIsRequested = false;
 
-char *twinID = NULL;
+bool hasTwin = false;
+
+char *twinID;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -60,42 +62,39 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     return measurement;
 }
 
-void setTwinID(posting_t *posting) {
-    if ((*posting).data == twinID)
+void setTwinID(char *newTwinID) {
+    if (newTwinID == twinID)
         return;
-    if (twinID != NULL)
+    if (newTwinID != NULL)
         free(twinID);
-    twinID = malloc(sizeof((*posting).data));
-    strcpy(twinID, (*posting).data);
+    twinID = malloc(strlen(newTwinID) + 1);
+    strcpy(twinID, newTwinID);
 }
 
-void receiveWifiDataStopRequest(posting_t posting) {
+void offline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
-
+    PRINT("Twin offline")
     wifiValueIsRequested = false;
-    protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = receiveWifiDataStopRequest});
+    sRAMValueIsRequested = false;
 }
 
 void receiveWifiDataStartRequest(posting_t posting) {
+    setTwinID(posting.data);
     wifiValueIsRequested = true;
-    setTwinID(&posting);
-    protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = receiveWifiDataStopRequest});
 }
 
-void receiveSRAMDataStopRequest(posting_t posting) {
-    //    When the status subscriber calls, but device just published online
-    if (strstr(posting.data, ";1") != NULL)
-        return;
-
-    sRAMValueIsRequested = false;
-    protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = receiveSRAMDataStopRequest});
+void receiveWifiDataStopRequest(posting_t posting) {
+    wifiValueIsRequested = false;
 }
 
 void receiveSRAMDataStartRequest(posting_t posting) {
+    setTwinID(posting.data);
     sRAMValueIsRequested = true;
-    setTwinID(&posting);
-    protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = receiveSRAMDataStopRequest});
+}
+
+void receiveSRAMDataStopRequest(posting_t posting) {
+    sRAMValueIsRequested = false;
 }
 
 _Noreturn void mainTask(void) {
@@ -146,15 +145,24 @@ _Noreturn void mainTask(void) {
     printf("Ready ...\n");
 
     while (true) {
+        if (!hasTwin && (wifiValueIsRequested || sRAMValueIsRequested)) {
+            hasTwin = true;
+            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = offline});
+        }
+        if (hasTwin && (!wifiValueIsRequested && !sRAMValueIsRequested)) {
+            hasTwin = false;
+            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = offline});
+        }
+
         if (wifiValueIsRequested) {
             float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
-            snprintf(buffer, sizeof buffer, "%f", channelWifiValue);
+            snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
             protocolPublishData("wifiValue", buffer);
         }
         sleep_ms(100);
         if (sRAMValueIsRequested) {
             float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
-            snprintf(buffer, sizeof buffer, "%f", channelSensorValue);
+            snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
             protocolPublishData("sRamValue", buffer);
         }
         sleep_ms(900);
@@ -197,6 +205,7 @@ int main() {
     init();
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(mainTask, "mainTask");
+
     // Starts FreeRTOS tasks
     freeRtosTaskWrapperStartScheduler();
 }
