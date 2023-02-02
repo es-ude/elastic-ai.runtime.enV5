@@ -2,7 +2,6 @@
 
 #include "FpgaConfiguration.h"
 #include "FpgaConfigDatahandler.h"
-#define INCLUDE_ENV5_FPGA_CONFIGURATION_INTERNAL_HEADER
 #include "FpgaConfigurationInternal.h"
 #include "Flash.h"
 #include <math.h>

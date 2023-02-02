@@ -1,6 +1,5 @@
 #define SOURCE_FILE "UART-TO-ESP"
 
-#define INCLUDE_ENV5_UART_INTERNAL_HEADER
 #include "Uart.h"
 #include "Common.h"
 #include "Gpio.h"

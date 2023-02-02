@@ -8,7 +8,6 @@
 #include "Common.h"
 #include "Esp.h"
 #include "MqttBroker.h"
-#define INCLUDE_ENV5_MQTTBROKER_INTERNAL_HEADER
 #include "MqttBrokerInternal.h"
 
 // header from elastic-ai.runtime.c

@@ -1,8 +1,3 @@
-#ifndef INCLUDE_ENV5_MQTTBROKER_INTERNAL_HEADER
-#warning Internal header file "MqttBrokerInternal.h" included from elsewhere
-#undef
-#endif
-
 #ifndef ENV5_MQTTBROKER_INTERNAL_HEADER
 #define ENV5_MQTTBROKER_INTERNAL_HEADER
 

@@ -1,6 +1,5 @@
 #define SOURCE_FILE "SEMAPHORE-WRAPPER"
 
-#define INCLUDE_ENV5_FREERTOS_TASKWRAPPER_INTERNAL_HEADER
 #include "FreeRtosSemaphoreWrapper.h"
 #include "FreeRTOS.h"
 #include "semphr.h"

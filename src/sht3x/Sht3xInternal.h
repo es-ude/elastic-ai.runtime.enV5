@@ -1,8 +1,3 @@
-#ifndef INCLUDE_ENV5_SHT3X_INTERNAL_HEADER
-#warning Internal header file "Sht3xInternal.h" included from elsewhere
-#undef INCLUDE_ENV5_SHT3X_INTERNAL_HEADER
-#endif
-
 #ifndef ENV5_SHT3X_INTERNAL_HEADER
 #define ENV5_SHT3X_INTERNAL_HEADER
 

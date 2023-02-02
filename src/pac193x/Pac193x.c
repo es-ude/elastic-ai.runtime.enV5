@@ -4,7 +4,6 @@
 #include "Common.h"
 #include "Gpio.h"
 #include "I2c.h"
-#define INCLUDE_ENV5_PAC193X_INTERNAL_HEADER
 #include "Pac193xInternal.h"
 #include "Pac193xTypedefs.h"
 #include <pico/time.h>

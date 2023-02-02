@@ -1,5 +1,4 @@
 #include "I2c.h"
-#define INCLUDE_ENV5_I2C_INTERNAL_HEADER
 #include "I2cInternal.h"
 #include "I2cTypedefs.h"
 #include <hardware/gpio.h>
