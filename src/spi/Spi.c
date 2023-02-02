@@ -21,8 +21,16 @@ void spiInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin, 
     gpio_set_function(misoPin, GPIO_FUNC_SPI);
 }
 
-void spiDeinit(spi_inst_t *spi) {
+void spiDeinit(spi_inst_t *spi, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
+               uint8_t misoPin) {
     spi_deinit(spi);
+    gpio_set_function(sckPin, GPIO_FUNC_SPI);
+    gpio_set_function(mosiPin, GPIO_FUNC_SPI);
+    gpio_set_function(misoPin, GPIO_FUNC_SPI);
+    gpio_deinit(csPin);
+    gpio_deinit(sckPin);
+    gpio_deinit(mosiPin);
+    gpio_deinit(misoPin);
 }
 
 void spiEnable(uint8_t csPin) {

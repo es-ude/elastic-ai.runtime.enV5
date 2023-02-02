@@ -3,6 +3,7 @@
 //
 
 #include "middleware.h"
+#include "flash/Flash.h"
 
 void middleware_init()
 {
@@ -14,6 +15,15 @@ void middleware_deinit()
     qxi_deinit();
 }
 
+//void middleware_configure_fpga(uint32_t address){
+//    uint8_t addr_arr[3];
+//    addr_arr[2] = (uint8_t)((0x00ff0000&address)>>16);
+//    addr_arr[1] = (uint8_t)((0x0000ff00&address)>>8);
+//    addr_arr[0] = (uint8_t)((0x000000ff&address));
+//
+//    flashWritePage(ADDR_MULTI_BOOT,addr_arr, sizeof (addr_arr));
+//
+//}
 void middleware_configure_fpag(uint32_t address)
 {
     uint8_t addr_arr[3];
@@ -24,7 +34,7 @@ void middleware_configure_fpag(uint32_t address)
     qxi_write_blocking(ADDR_MULTI_BOOT, addr_arr, 3);
 }
 
-void middleware_set_leds(uint8_t leds)
+void middleware_set_fpga_leds(uint8_t leds)
 {
     uint8_t write_data[1];
     write_data[0] = leds;

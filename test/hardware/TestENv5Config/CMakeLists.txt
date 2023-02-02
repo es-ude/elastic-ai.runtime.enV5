@@ -7,7 +7,8 @@ target_link_libraries(hardware-test_fpga_config
         spi_lib
         flash_lib
         fpga_config_lib
-        env5_lib)
+        env5_lib
+        middleware_lib)
 
 target_compile_definitions(hardware-test_fpga_config PRIVATE DEBUG)
 make_to_output_file(hardware-test_fpga_config)
