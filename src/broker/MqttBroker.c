@@ -414,7 +414,7 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
-    size_t lwt_message_length = strlen(mqttBrokerClientId) + 3;
+    size_t lwt_message_length = strlen(mqttBrokerClientId) + 10;
     char *lwt_message = malloc(lwt_message_length);
     snprintf(lwt_message, lwt_message_length, "%s;DEVICE;0", mqttBrokerClientId);
 
@@ -447,7 +447,7 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
 
 static void publishAliveStatusMessage() {
     // create alive message
-    size_t messageLength = strlen(mqttBrokerClientId) + 3;
+    size_t messageLength = strlen(mqttBrokerClientId) + 10;
     char *message = malloc(messageLength);
     snprintf(message, messageLength, "%s;DEVICE;1", mqttBrokerClientId);
 
