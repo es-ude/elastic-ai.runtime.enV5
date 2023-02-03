@@ -13,7 +13,7 @@
 
 void middleware_init();
 void middleware_deinit();
-void middleware_configure_fpag(uint32_t address);
+void middleware_configure_fpga(uint32_t address);
 void middleware_set_fpga_leds(uint8_t leds);
 uint8_t middleware_get_leds(void);
 uint8_t middleware_get_design_id(void);

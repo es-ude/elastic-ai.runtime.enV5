@@ -62,7 +62,7 @@ void configTask() {
         case 'i':
             init_helper(spi, baudrate);
             readDeviceID();
-            spiDeinit(spi, cs_pin, sck_pin ,mosi_pin, miso_pin);
+            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
             break;
         case 'I':
             middleware_init();
@@ -75,13 +75,13 @@ void configTask() {
             init_helper(spi, baudrate);
             printf("ack\n");
             fpgaConfigurationFlashConfiguration();
-            spiDeinit(spi, cs_pin, sck_pin ,mosi_pin, miso_pin);
+            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
             break;
         case 'V':
            init_helper(spi, baudrate);
             printf("ack\n");
             fpgaConfigurationVerifyConfiguration();
-            spiDeinit(spi, cs_pin, sck_pin ,mosi_pin, miso_pin);
+            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
             break;
         case 'K':
             middleware_init();
@@ -122,13 +122,13 @@ void configTask() {
             break;
         case 'C':
             middleware_init();
-            middleware_configure_fpag(0x0000);
+            middleware_configure_fpga(0x0000);
             printf("reconfig 0x0000\r\n");
             middleware_deinit();
             break;
         case 'c':
             middleware_init();
-            middleware_configure_fpag(0x00100000);
+            middleware_configure_fpga(0x00100000);
             printf("reconfig to 0x00100000\r\n");
             sleep_ms(1000);
             middleware_deinit();

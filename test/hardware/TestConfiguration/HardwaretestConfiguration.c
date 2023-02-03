@@ -35,7 +35,7 @@ void _Noreturn enterBootModeTaskHardwareTest(void) {
 }
 
 void init_helper(spi_inst_t *spi, uint32_t baudrate) {
-    spiInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
+    spiHardwareAdapterInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
     flashInit(cs_pin, spi);
 }
 

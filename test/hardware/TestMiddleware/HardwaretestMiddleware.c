@@ -40,7 +40,7 @@ uint8_t dat_sent[14];
 uint8_t dat_recv[14];
 int main()
 {
-
+    
     fpga_flash_spi_deinit();
     fpga_reset_init();
     leds_init();
@@ -65,7 +65,7 @@ int main()
         else if(c=='1')
         {
 
-            middleware_set_leds(0xff);
+            middleware_set_fpga_leds(0xff);
             uint8_t read_data = middleware_get_leds();
             if (read_data==0x0f)
                 printf("leds all on\r\n");
@@ -74,7 +74,7 @@ int main()
         }
         else if(c=='2')
         {
-            middleware_set_leds(0xf0);
+            middleware_set_fpga_leds(0xf0);
             uint8_t read_data = middleware_get_leds();
             if (read_data==0x00)
                 printf("leds all off\r\n");
@@ -83,12 +83,12 @@ int main()
         }
         else if(c=='3')
         {
-            middleware_configure_fpag(0x0000);
+            middleware_configure_fpga(0x0000);
             printf("reconfig 0x0000\r\n");
         }
         else if(c=='4')
         {
-            middleware_configure_fpag(0x00100000);
+            middleware_configure_fpga(0x00100000);
             printf("reconfig to 0x00100000\r\n");
             sleep_ms(1000);
             // try to read id and print it out

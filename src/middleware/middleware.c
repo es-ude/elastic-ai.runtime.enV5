@@ -24,7 +24,7 @@ void middleware_deinit()
 //    flashWritePage(ADDR_MULTI_BOOT,addr_arr, sizeof (addr_arr));
 //
 //}
-void middleware_configure_fpag(uint32_t address)
+void middleware_configure_fpga(uint32_t address)
 {
     uint8_t addr_arr[3];
     addr_arr[2] = (uint8_t)((0x00ff0000&address)>>16);
