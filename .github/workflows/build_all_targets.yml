@@ -1,10 +1,7 @@
 name: Build all Targets
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
@@ -12,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup
         run: |

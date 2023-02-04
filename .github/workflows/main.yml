@@ -1,6 +1,6 @@
 # Based on https://github.com/marketplace/actions/git-clang-format-action
 
-name: "Format code"
+name: "Format code and push changes"
 
 on:
   pull_request:
@@ -8,8 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  unit_test:
+    uses: ./.github/workflows/unit_test.yml
+  build:
+    uses: ./.github/workflows/build_all_targets.yml
+
   format:
     runs-on: ubuntu-latest
+    needs: [unit_test, build]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
