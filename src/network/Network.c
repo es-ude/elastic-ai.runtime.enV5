@@ -28,6 +28,8 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredential
         }
     }
 
+    freeRtosTaskWrapperTaskSleep(5000);
+    
     return NETWORK_NO_ERROR;
 }
 

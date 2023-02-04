@@ -1,9 +1,10 @@
 #ifndef ENV5_MQTT_BROKER_HEADER
 #define ENV5_MQTT_BROKER_HEADER
 
-#include "Posting.h"
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "Posting.h"
 
 #define MAX_SUBSCRIBER 100
 
@@ -64,5 +65,7 @@ void mqttBrokerDisconnect(bool force);
  * \param response the MQTT message received
  */
 void mqttBrokerReceive(char *response);
+
+void mqttReady(void);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

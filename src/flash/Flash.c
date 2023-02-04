@@ -2,7 +2,6 @@
 
 #include "Flash.h"
 #include "FlashInternal.h"
-#include "FlashTypedefs.h"
 #include "spi/Spi.h"
 #include <stdint.h>
 
