@@ -11,6 +11,4 @@ void fpgaConfigHandlerSendData(uint8_t *data, uint16_t length);
 void fpgaConfigHandlerSendAck();
 void fpgaConfigHandlerSendDataAck(uint32_t *data);
 
-
-
 #endif /* ENV5_FPGA_CONFIGURATION_HANDLER_HEADER */

@@ -14,7 +14,6 @@
         printf("\n");                                                                              \
     }
 
-
 #ifdef DEBUG_MODE
 #define PRINT_DEBUG(str, ...)                                                                      \
     {                                                                                              \

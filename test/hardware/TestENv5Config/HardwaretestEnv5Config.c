@@ -5,14 +5,14 @@
 #include "flash/Flash.h"
 #include "fpgaConfig/FpgaConfiguration.h"
 #include "hardware/watchdog.h"
+#include "middleware/middleware.h"
 #include "pico/stdlib.h"
 #include "spi/Spi.h"
-#include "middleware/middleware.h"
 #include <hardware/spi.h>
 #include <pico/bootrom.h>
 #include <pico/stdio.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 static const uint8_t sck_pin = 2;
 static const uint8_t miso_pin = 0;
@@ -53,8 +53,8 @@ void configTask() {
     spi_inst_t *spi = spi0;
     env5HwInit();
     uint8_t fpga_design_id;
-//  init_helper(spi, baudrate);
-        while (1) {
+    //  init_helper(spi, baudrate);
+    while (1) {
 
         char input = getchar_timeout_us(10000);
 
@@ -78,7 +78,7 @@ void configTask() {
             spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
             break;
         case 'V':
-           init_helper(spi, baudrate);
+            init_helper(spi, baudrate);
             printf("ack\n");
             fpgaConfigurationVerifyConfiguration();
             spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
@@ -87,7 +87,7 @@ void configTask() {
             middleware_init();
             middleware_set_fpga_leds(0xff);
             uint8_t read_data = middleware_get_leds();
-            if (read_data==0x0f)
+            if (read_data == 0x0f)
                 printf("leds all on\r\n");
             else
                 printf("set leds all on failed.\r\n");
@@ -96,7 +96,7 @@ void configTask() {
         case 'k':
             middleware_init();
             middleware_set_fpga_leds(0xf0);
-            if (middleware_get_leds()==0x00)
+            if (middleware_get_leds() == 0x00)
                 printf("leds all off\r\n");
             else
                 printf("set leds all off failed.\r\n");
@@ -115,7 +115,7 @@ void configTask() {
             env5HwFpgaPowersOff();
             break;
         case 'r':
-// env5HwFpgaFlashSpiDeinit();
+            // env5HwFpgaFlashSpiDeinit();
             env5HwFpgaReset(1);
             sleep_ms(10);
             env5HwFpgaReset(0);

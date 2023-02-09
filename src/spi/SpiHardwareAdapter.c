@@ -1,5 +1,5 @@
-#include "SpiHardwareAdapterInternal.h"
 #include "SpiHardwareAdapter.h"
+#include "SpiHardwareAdapterInternal.h"
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
 #include <stdint.h>
@@ -10,8 +10,8 @@ void spiInitChipSelect(const uint8_t csPin) {
     gpio_put(csPin, 1);
 }
 
-void spiHardwareAdapterInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
-             uint8_t misoPin) {
+void spiHardwareAdapterInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin,
+                            uint8_t mosiPin, uint8_t misoPin) {
 
     spiInitChipSelect(csPin);
     spi_init(spi, baudrate);
@@ -22,7 +22,7 @@ void spiHardwareAdapterInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, u
 }
 
 void spiHardwareAdapterDeinit(spi_inst_t *spi, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
-               uint8_t misoPin) {
+                              uint8_t misoPin) {
     spi_deinit(spi);
     gpio_set_function(sckPin, GPIO_FUNC_SPI);
     gpio_set_function(mosiPin, GPIO_FUNC_SPI);

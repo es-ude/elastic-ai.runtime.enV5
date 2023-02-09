@@ -6,6 +6,4 @@
 
 typedef struct spi_inst spi_inst_t;
 
-
-
 #endif /* ENV5_FLASH_TYPEDEFS */

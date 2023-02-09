@@ -6,6 +6,4 @@
 void fpgaConfigurationFlashConfiguration();
 void fpgaConfigurationVerifyConfiguration();
 
-
-
 #endif /* ENV5_FPGA_CONFIGURATION_HEADER */
