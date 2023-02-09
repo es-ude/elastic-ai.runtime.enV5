@@ -19,12 +19,16 @@
 #include <pico/stdlib.h>
 #include <string.h>
 
-bool wifiValueIsRequested = false;
-bool sRAMValueIsRequested = false;
-
-bool hasTwin = false;
-
 char *twinID;
+
+typedef struct receiver {
+    char *dataID;
+    void (*whenSubscribed)(char *dataID);
+    bool subscribed;
+} receiver_t;
+
+receiver_t receivers[5];
+uint16_t receivers_count = 0;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -75,26 +79,57 @@ void offline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
     PRINT("Twin offline")
-    wifiValueIsRequested = false;
-    sRAMValueIsRequested = false;
+
+    for (int i = 0; i < receivers_count; ++i) {
+        receivers[i].subscribed = false;
+    }
 }
 
-void receiveWifiDataStartRequest(posting_t posting) {
+void receiveDataStartRequest(posting_t posting) {
     setTwinID(posting.data);
-    wifiValueIsRequested = true;
+    
+    for (int i = 0; i < receivers_count; ++i) {
+        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
+            receivers[i].subscribed = true;
+            break;
+        }
+    }
 }
 
-void receiveWifiDataStopRequest(posting_t posting) {
-    wifiValueIsRequested = false;
-}
-
-void receiveSRAMDataStartRequest(posting_t posting) {
+void receiveDataStopRequest(posting_t posting) {
     setTwinID(posting.data);
-    sRAMValueIsRequested = true;
+
+    for (int i = 0; i < receivers_count; ++i) {
+        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
+            receivers[i].subscribed = false;
+            break;
+        }
+    }
 }
 
-void receiveSRAMDataStopRequest(posting_t posting) {
-    sRAMValueIsRequested = false;
+void addDataRequestReceiver(receiver_t receiver) {
+    receiver.subscribed = false;
+    protocolSubscribeForDataStartRequest(receiver.dataID,
+                                         (subscriber_t){.deliver = receiveDataStartRequest});
+
+    protocolSubscribeForDataStopRequest(receiver.dataID,
+                                        (subscriber_t){.deliver = receiveDataStopRequest});
+    receivers[receivers_count] = receiver;
+    receivers_count++;
+}
+
+void getAndPublishSRamValue(char *dataID) {
+    char buffer[64];
+    float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
+    snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
+    protocolPublishData(dataID, buffer);
+}
+
+void getAndPublishWifiValue(char *dataID) {
+    char buffer[64];
+    float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
+    snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
+    protocolPublishData(dataID, buffer);
 }
 
 _Noreturn void mainTask(void) {
@@ -124,48 +159,36 @@ _Noreturn void mainTask(void) {
         sleep_ms(500);
     }
 
-    protocolSubscribeForDataStartRequest("wifiValue",
-                                         (subscriber_t){.deliver = receiveWifiDataStartRequest});
-
-    protocolSubscribeForDataStopRequest("wifiValue",
-                                        (subscriber_t){.deliver = receiveWifiDataStopRequest});
-
-    protocolSubscribeForDataStartRequest("sRamValue",
-                                         (subscriber_t){.deliver = receiveSRAMDataStartRequest});
-
-    protocolSubscribeForDataStopRequest("sRamValue",
-                                        (subscriber_t){.deliver = receiveSRAMDataStopRequest});
-
-    char buffer[64];
-
     sleep_ms(1000);
+
+    addDataRequestReceiver(
+        (receiver_t){.dataID = "wifiValue", .whenSubscribed = getAndPublishWifiValue});
+    addDataRequestReceiver(
+        (receiver_t){.dataID = "sRamValue", .whenSubscribed = getAndPublishSRamValue});
 
     mqttReady();
 
     printf("Ready ...\n");
 
+    bool hasTwin = false;
     while (true) {
-        if (!hasTwin && (wifiValueIsRequested || sRAMValueIsRequested)) {
+        bool toSomeTopicIsSubscribed = false;
+        for (int i = 0; i < receivers_count; ++i) {
+            if (receivers[i].subscribed) {
+                receivers[i].whenSubscribed(receivers[i].dataID);
+                toSomeTopicIsSubscribed = true;
+            }
+            sleep_ms(500);
+        }
+
+        if (!hasTwin && (toSomeTopicIsSubscribed)) {
             hasTwin = true;
             protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = offline});
         }
-        if (hasTwin && (!wifiValueIsRequested && !sRAMValueIsRequested)) {
+        if (hasTwin && (!toSomeTopicIsSubscribed)) {
             hasTwin = false;
             protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = offline});
         }
-
-        if (wifiValueIsRequested) {
-            float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
-            snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
-            protocolPublishData("wifiValue", buffer);
-        }
-        sleep_ms(100);
-        if (sRAMValueIsRequested) {
-            float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
-            snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
-            protocolPublishData("sRamValue", buffer);
-        }
-        sleep_ms(900);
     }
 }
 
