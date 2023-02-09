@@ -162,9 +162,9 @@ _Noreturn void mainTask(void) {
     sleep_ms(1000);
 
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifiValue", .whenSubscribed = getAndPublishWifiValue});
+        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
     addDataRequestReceiver(
-        (receiver_t){.dataID = "sRamValue", .whenSubscribed = getAndPublishSRamValue});
+        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
 
     mqttReady();
 
