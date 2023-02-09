@@ -102,3 +102,13 @@ target_link_libraries(hardware-test_MQTTPublishRuntime
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTPublishRuntime PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTPublishRuntime)
+
+################## test_HTTP ##################
+add_executable(hardware-test_HTTP HardwaretestHTTP.c)
+target_link_libraries(hardware-test_HTTP
+        pico_stdlib
+        freeRtosUtils
+#        network_lib
+        hardware-testHelper)
+target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
+make_to_output_file(hardware-test_HTTP)
