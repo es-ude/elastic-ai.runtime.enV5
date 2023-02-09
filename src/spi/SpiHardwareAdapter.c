@@ -1,4 +1,5 @@
 #include "SpiHardwareAdapterInternal.h"
+#include "SpiHardwareAdapter.h"
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
 #include <stdint.h>

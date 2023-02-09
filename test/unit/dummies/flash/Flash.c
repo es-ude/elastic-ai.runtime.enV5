@@ -1,4 +1,5 @@
-#include "flash/Flash.h"
+//#include "flash/Flash.h"
+#include "Flash.h"
 #include <stdint.h>
 
 uint32_t addressSectorErase=0;

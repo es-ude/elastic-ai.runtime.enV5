@@ -2,8 +2,7 @@
 #include "dummies/flash/Flash.h"
 #include "dummies/flash/FpgaConfigDatahandler.h"
 #include <unity.h>
-#include "FlashTypedefs.h"
-
+#include "spi/SpiTypedefs.h"
 
 const uint8_t numberOfPages=4;
 const uint16_t configSize = FLASH_PAGE_SIZE * numberOfPages;

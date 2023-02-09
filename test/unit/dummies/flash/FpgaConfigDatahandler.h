@@ -2,7 +2,7 @@
 #define ENV5_FPGA_CONFIGURATION_HANDLER_HEADER
 
 #include <stdint.h>
-#include "FlashTypedefs.h"
+#include "spi/SpiTypedefs.h"
 static uint32_t address;
 static uint32_t config_size;
 extern uint8_t dataSent[FLASH_PAGE_SIZE*4];

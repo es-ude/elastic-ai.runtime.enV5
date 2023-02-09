@@ -42,6 +42,7 @@ else ()
                 espBroker_lib
                 fpga_config_lib
                 flash_lib
+                middleware_lib
                 hardware_spi
                 spi_lib
                 )

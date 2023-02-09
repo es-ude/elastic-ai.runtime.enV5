@@ -3,7 +3,7 @@
 
 #include <memory.h>
 #include <stdint.h>
-#include "FlashTypedefs.h"
+#include "spi/SpiTypedefs.h"
 
 extern uint32_t addressSectorErase;
 extern uint32_t numSectorErase;

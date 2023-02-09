@@ -1,7 +1,7 @@
 #ifndef ENV5_SPI_HEADER
 #define ENV5_SPI_HEADER
 #include <stdint.h>
-#include "FlashTypedefs.h"
+#include "SpiTypedefs.h"
 
 void spiInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
              uint8_t misoPin);
