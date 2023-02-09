@@ -4,10 +4,11 @@
 #include <unity.h>
 #include "spi/SpiTypedefs.h"
 
+#define NUMSECTORS 2
 const uint8_t numberOfPages=4;
 const uint16_t configSize = FLASH_PAGE_SIZE * numberOfPages;
-const uint8_t numberOfSectors=2;
-uint8_t expectedData[FLASH_SECTOR_SIZE * numberOfSectors];
+const uint8_t numberOfSectors= NUMSECTORS;
+uint8_t expectedData[FLASH_SECTOR_SIZE * NUMSECTORS];
 
 void setUp(void) {
     fpgaConfigHandlerNumWrittenBlock=0;
