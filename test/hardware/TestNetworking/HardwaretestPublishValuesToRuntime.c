@@ -18,15 +18,16 @@
 void publishTestDataSram(uint16_t i) {
     char buffer[6];
     sprintf(buffer, "%i.100", i);
-    char *data = malloc(strlen(buffer));
+    char *data = malloc(strlen(buffer) + 1);
     strcpy(data, buffer);
     protocolPublishData("sram", data);
     free(data);
 }
+
 void publishTestDataWifi(uint16_t i) {
     char buffer[6];
     sprintf(buffer, "%i.200", i);
-    char *data = malloc(strlen(buffer));
+    char *data = malloc(strlen(buffer) + 1);
     strcpy(data, buffer);
     protocolPublishData("wifi", data);
     free(data);
