@@ -42,9 +42,11 @@ else ()
                 espBroker_lib
                 fpga_config_lib
                 flash_lib
+                middleware_lib
                 hardware_spi
                 spi_lib
-                sensor_lib_pac193x)
+                sensor_lib_pac193x
+        )
         make_to_output_file(main)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")

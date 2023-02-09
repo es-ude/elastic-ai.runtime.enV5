@@ -1,20 +1,33 @@
-#include "flash/Flash.h"
+//#include "flash/Flash.h"
+#include "Flash.h"
 #include <stdint.h>
 
-uint32_t addressBlockErase;
+uint32_t addressSectorErase = 0;
 uint32_t addressWrite[4];
-uint8_t dataComplete[256 * 4];
+uint32_t numSectorErase = 0;
+uint8_t dataComplete[FLASH_SECTOR_SIZE * 4];
+uint32_t numWriteBlocks;
 
-uint32_t numBlockErase = 0;
-uint32_t numWriteBlocks = 0;
+uint8_t *flash;
+uint8_t flashLength;
+
+void flashSetData(uint8_t *flashData, uint32_t sizeFlashData) {
+    flash = flashData;
+    flashLength = sizeFlashData;
+}
 
 uint8_t flashEraseData(uint32_t address) {
-    numBlockErase++;
-    addressBlockErase = address;
+    numSectorErase++;
+    addressSectorErase = address;
     return 0;
 }
 
 int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length) {
+    if (address == 0) {
+        for (uint16_t i = 0; i < length; i++) {
+            data_buffer[i] = flash[i + address];
+        }
+    }
     return 2;
 }
 int flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size) {

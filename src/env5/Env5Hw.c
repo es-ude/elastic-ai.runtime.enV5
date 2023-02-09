@@ -88,4 +88,5 @@ void env5HwInit() {
     env5HwLedsInit();
     env5HwFpgaPowerInit();
     env5HwFpgaReset(0);
+    env5HwLedsInit();
 }
