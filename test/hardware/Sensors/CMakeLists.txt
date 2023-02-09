@@ -33,3 +33,12 @@ target_link_libraries(hardware-test_dualpac193x
         hardware_i2c
         sensor_lib_pac193x)
 make_to_output_file(hardware-test_dualpac193x)
+
+################### hardware-test_pac193xbuffer ###################
+add_executable(hardware-test_pac193xbuffer HardwaretestPac193xBuffer.c)
+target_link_libraries(hardware-test_pac193xbuffer
+        pico_stdio
+        pico_time
+        hardware_i2c
+        sensor_lib_pac193x)
+make_to_output_file(hardware-test_pac193xbuffer)
