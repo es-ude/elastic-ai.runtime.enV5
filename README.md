@@ -87,7 +87,9 @@ minicom -b 115200 -o -D /dev/ttyACM0
 ```
 
 * `-b 115200` -> baud rate for connection
-* `-D /dev/ttyACM0` -> serial port (maybe different on your machine)
+* `-D /dev/ttyACM0` -> serial port
+  * differs depending on the host machine
+  * can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux /  macOS)
 * `-o` -> disable modem initialisation
 
 ### Debug Output
@@ -99,6 +101,30 @@ This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 ## MQTT Stress behavior
 
 When MQTT messages are sent to fast to the device, some message will be dropped.
+
+## FPGA Configuration
+
+The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
+To write a file to the flash, the ENv5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
+[test/hardware/TestEnv5Config](test/hardware/TestENv5Config/).
+The Test only works on the ENv5, not the SensorBoard.
+Put the Bit- or Binfile you want to send to the Device in the directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with a number of arguments
+
+* required: serial port of device `-p` or `--port`
+* optionally: baudrate of serial connection `-b` or `--baudrate` 
+* 1st positional argument path to bitfile
+* 2nd positional argument start flash address bitfile should be written at
+
+The python script will send the Bitfile via serial to the ENv5 and afterwards verify that it's been written correctly. To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with the config that starts at address 0x0).
+The hardware test `hardware-test_fpga_config` can be used for this by sending the character 'r' via serial to the device. 
+
+If your board does not contain a FPGA, use the hardware test `hardware-test_config` in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/) instead to test if the Bitfile Flashing worked.
+
+### Known Problems
+
+If the script fails repeatedly it's possible that the Bitfile currently in flash memory is wrong and the FPGA repeatedly tries to reconfigure without success. It then blocks the flash until it is put into JTAG mode by shorting the 1x2 pinheader on the board, seen in the picture below.
+
+![](/pics/jtag_header.jpg)
 
 ## Provided Sensor Libraries
 
