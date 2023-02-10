@@ -1,6 +1,7 @@
 #include "Esp.h"
 #include "EspUnitTest.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 espErrorCode_t ESPDUMMY_RETURN_CODE;
 

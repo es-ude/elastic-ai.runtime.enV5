@@ -12,7 +12,7 @@ void _Noreturn httpTask(void) {
     
     char *response;
 
-    uint8_t code = HTTPGet("http://httpbin.org/get", &response);
+    uint8_t code = HTTPGet("http://eu.httpbin.org/get", &response);
     
     PRINT("%d\n", code);
     

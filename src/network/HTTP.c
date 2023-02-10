@@ -17,6 +17,7 @@ void HTTPReceive(char *header) {
 }
 
 HTTPStatus HTTPGet(const char *url, char **data) {
+    PRINT_DEBUG("Http get")
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
         return HTTP_CONNECTION_FAILED;
@@ -30,8 +31,9 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
     char *httpGet = malloc(lengthOfString);
     snprintf(httpGet, lengthOfString, AT_HTTP_GET, url);
-
-    if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
+    
+    if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 20000) == ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT_DEBUG("Wrong answer")
         if (HTTPResponse != NULL) {
             free(HTTPResponse);
         }
@@ -42,6 +44,7 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     strcpy(*data, HTTPResponse);
     free(HTTPResponse);
     HTTPResponse = NULL;
+    
     return HTTP_SUCCESS;
 }
 

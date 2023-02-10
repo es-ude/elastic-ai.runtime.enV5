@@ -281,8 +281,9 @@
  *
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,1"
-#define AT_HTTP_GET_LENGTH 23
+#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,2"
+
+#define AT_HTTP_GET_LENGTH 25
 #define AT_HTTP_GET_RESPONSE "OK"
 /* endregion */
 
