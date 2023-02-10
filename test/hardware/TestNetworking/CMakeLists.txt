@@ -102,3 +102,14 @@ target_link_libraries(hardware-test_MQTTPublishRuntime
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTPublishRuntime PRIVATE DEBUG)
 make_to_output_file(hardware-test_MQTTPublishRuntime)
+
+################## test_Durability ##################
+add_executable(hardware-test_Durability HardwaretestDurability.c)
+target_link_libraries(hardware-test_Durability
+        sensor_lib_pac193x
+        hardware_i2c
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_Durability PRIVATE DEBUG)
+make_to_output_file(hardware-test_Durability)
