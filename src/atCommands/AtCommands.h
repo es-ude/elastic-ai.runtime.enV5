@@ -281,10 +281,36 @@
  *
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,2"
+#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,1"
 
 #define AT_HTTP_GET_LENGTH 25
 #define AT_HTTP_GET_RESPONSE "OK"
+/* endregion */
+
+/* Publish data if command would be longer than 256 bytes to broker
+ *
+ * Command:
+ *  AT+HTTPCLIENT=<opt>,<content-type>,<"url">,[<"host">],[<"path">],<transport_type>[,<"data">][,<"http_req_header">][,<"http_req_header">][...]
+ *
+ * Fields are:
+ * - OPT -> Method of Request
+ * - CONTENT-TYPE -> Data type (1: json)
+ * - URL -> data to publish
+ * - HOST ->
+ * - PATH ->
+ * - TRANSPORT_TYPE -> Client transport type (Default 1, TCP)
+ * - DATA -> Data if POST requests
+ * - HTTP_REQ_HEADER -> Request Header
+ *
+ * Expected Response:
+ *   +HTTPCLIENT:<size>,<data>
+ *
+ *   OK
+ */
+#define AT_HTTPS_GET "AT+HTTPCLIENT=2,0,\"%s\",,,2"
+
+#define AT_HTTPS_GET_LENGTH 25
+#define AT_HTTPS_GET_RESPONSE "OK"
 /* endregion */
 
 #endif /* ENV5_AT_COMMANDS */
