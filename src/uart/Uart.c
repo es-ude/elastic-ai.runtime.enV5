@@ -7,6 +7,7 @@
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 #include <string.h>
+#include "FreeRtosTaskWrapper.h"
 
 /* region VARIABLES */
 
@@ -124,7 +125,9 @@ void uartInternalHandleNewLine(void) {
             PRINT_DEBUG("Expected message received: %s", uartDevice->receiveBuffer)
             uartCorrectResponseReceived = true;
         } else {
-            PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
+            if(strlen(uartDevice->receiveBuffer) < 15) {
+                PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
+            }
         }
     }
 }

@@ -67,7 +67,6 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
         }
         freeRtosTaskWrapperTaskSleep(REFRESH_RESPOND_IN_MS);
     }
-
     // free command buffer of UART
     uartFreeCommandBuffer();
 

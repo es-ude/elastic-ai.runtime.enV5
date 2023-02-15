@@ -4,6 +4,7 @@
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "HTTP.h"
+#include "string.h"
 
 void _Noreturn httpTask(void) {
     PRINT("=== STARTING TEST ===")
@@ -12,9 +13,22 @@ void _Noreturn httpTask(void) {
     
     char *response;
 
-    uint8_t code = HTTPGet("http://eu.httpbin.org/get", &response);
+    uint8_t code = HTTPGet("http://httpbin.org/get", &response);
     
-    PRINT("%d\n", code);
+    PRINT("returns with %d\n", code);
+    PRINT("len %d\n", strlen(response));
+    
+    for(uint8_t i = 0; i < strlen(response); i++)
+    {
+        printf("%c", response[i]);
+        if(i % 20 == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+    //free(response);
+    
+    PRINT("done\n");
     
     while(1);
     

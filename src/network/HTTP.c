@@ -32,22 +32,20 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     char *httpGet = malloc(lengthOfString);
     snprintf(httpGet, lengthOfString, AT_HTTP_GET, url);
     
-    if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 20000) == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT_DEBUG("Wrong answer")
+    if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
         if (HTTPResponse != NULL) {
             free(HTTPResponse);
         }
         return HTTP_CONNECTION_FAILED;
     }
-
-    *data = malloc(sizeof(char) * strlen(HTTPResponse));
-    strcpy(*data, HTTPResponse);
-    free(HTTPResponse);
+    
+    *data = HTTPResponse;
     HTTPResponse = NULL;
     
     return HTTP_SUCCESS;
 }
 
 void HTTPSetReceiverFunction(void) {
+    PRINT_DEBUG("Receiver Func was executed\n");
     espSetHTTPReceiverFunction(HTTPReceive);
 }
