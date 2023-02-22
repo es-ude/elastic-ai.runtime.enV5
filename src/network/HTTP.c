@@ -10,8 +10,19 @@
 char *HTTPResponse = NULL;
 
 void HTTPReceive(char *header) {
-    header = strstr(header, ",");
+    header = strstr(header, ":");
     header++;
+//    uint8_t i=0;
+//    char* size;
+    char* body;
+//    while(header[i]!=','){
+//        size[i]=header[i];
+//    }
+    uint32_t size=strtol(header, &body, 10);
+   // header++;
+    body++;
+    PRINT_DEBUG("%d", size)
+    PRINT_DEBUG("%s", body)
     HTTPResponse = malloc(sizeof(char) * strlen(header));
     strcpy(HTTPResponse, header);
 }
@@ -41,7 +52,6 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     
     *data = HTTPResponse;
     HTTPResponse = NULL;
-    
     return HTTP_SUCCESS;
 }
 
