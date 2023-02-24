@@ -13,31 +13,19 @@ void _Noreturn httpTask(void) {
     connectToNetwork();
 
     char *response;
-    
-//
-//    char *baseURL = "http://192.168.0.216:5000/getfile?pos=%d";
-//    char *wholeurl = malloc(sizeof (char) * (strlen(baseURL) + 3));
-    //char *url = "http://192.168.0.216:5000/getfile";
-//    sprintf(wholeurl, baseURL, 100);
-//    PRINT_DEBUG(wholeurl);
-    uint8_t code = HTTPGet("http://192.168.0.216:5000/getfile/0", &response);
-   // uint8_t code = HTTPGet("http://httpbin.org/get", &response);
-    PRINT("returns with %d\n", code);
-    // PRINT("len %d\n", strlen(response));
+    uint8_t code = HTTPGet("http://192.168.203.99:5000/getfile/0", &response);
 
-    for (uint32_t i = 0; i < 256; i++) {
-        printf("%c", response[i]);
-        if (i % 69 == 0) {
-            printf("\n");
-        }
+    PRINT("HTTPGet response: %d\n", code);
+
+    PRINT("len %d\n", strlen(response));
+    for (uint32_t i = 0; i < 100; i++) {
+        PRINT("%c", response[i])
     }
-    printf("\n");
     free(response);
 
-    PRINT("done\n");
+    PRINT("done\n")
 
-    while (1)
-        ;
+    while (1) {}
 }
 
 int main() {
@@ -45,4 +33,6 @@ int main() {
     freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(httpTask, "httpTask");
     freeRtosTaskWrapperStartScheduler();
+
+    return 0;
 }

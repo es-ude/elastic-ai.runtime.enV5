@@ -9,22 +9,15 @@
 
 char *HTTPResponse = NULL;
 
-void HTTPReceive(char *header) {
-    header = strstr(header, ":");
-    header++;
-//    uint8_t i=0;
-//    char* size;
-    char* body;
-//    while(header[i]!=','){
-//        size[i]=header[i];
-//    }
-    uint32_t size=strtol(header, &body, 10);
-   // header++;
-    body++;
-    PRINT_DEBUG("%d", size)
-    PRINT_DEBUG("%s", body)
-    HTTPResponse = malloc(sizeof(char) * strlen(header));
-    strcpy(HTTPResponse, header);
+void HTTPReceive(char *httpResponse) {
+    char *startSize = strstr(httpResponse, ":") + 1;
+    char *endSize = strstr(httpResponse, ",");
+    uint32_t size = strtol(startSize, &endSize, 10);
+    
+    char *body = strstr(startSize, ",") + 1;
+    
+    HTTPResponse = malloc(sizeof(char) * size);
+    memcpy(HTTPResponse, body, size);
 }
 
 HTTPStatus HTTPGet(const char *url, char **data) {
@@ -42,20 +35,20 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
     char *httpGet = malloc(lengthOfString);
     snprintf(httpGet, lengthOfString, AT_HTTP_GET, url);
-    
+
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
         if (HTTPResponse != NULL) {
             free(HTTPResponse);
         }
         return HTTP_CONNECTION_FAILED;
     }
-    
+
     *data = HTTPResponse;
     HTTPResponse = NULL;
     return HTTP_SUCCESS;
 }
 
 void HTTPSetReceiverFunction(void) {
-    PRINT_DEBUG("Receiver Func was executed\n");
+    PRINT_DEBUG("Receiver Func was executed\n")
     espSetHTTPReceiverFunction(HTTPReceive);
 }
