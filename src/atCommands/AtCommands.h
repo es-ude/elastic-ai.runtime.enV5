@@ -268,34 +268,22 @@
 /* Publish data if command would be longer than 256 bytes to broker
  *
  * Command:
- * AT+HTTPCLIENT=OPT,CONTENT,"URL","HOST","PATH",TRANSPORT,"DATA","HTTP_HEADER",...
+ *   AT+HTTPCGET="URL",SEND_BUFFER,RECEIVE_BUFFER,TIMEOUT
  *
  * Fields are:
- * - OPT -> Method of Request
- *          1=HEAD, 2=GET, 3=POST, 4=PUT, 5=DELETE
- * - CONTENT -> Data type,
- *              0=application/x-www-form-urlencoded
- *              1=application/json
- *              2=multipart/form-data
- *              3=text/xml
- * - URL -> data to publish
- * - HOST -> host, can be omitted
- * - PATH -> path, can be omitted
- * - TRANSPORT -> Client transport type, 1=HTTP, 2=HTTPS, default is 1
- * - DATA -> Data if POST requests
- * - HTTP_HEADER -> Request Header, more than one possible
+ * - URL -> string that represent the URL
+ * - SEND_BUFFER -> send buffer size in byte, optional, range 0 to 10240, default: 2048
+ * - RECEIVE_BUFFER -> receive buffer size in byte, optional, range 0 to 10240, default 2048
+ * - TIMEOUT -> timeout in ms, range 0 to 180000, default: 5000
  *
  * Expected Response:
- *   +HTTPCLIENT:<size>,<data>
- *
+ *   +HTTPCGET:<size>,<data>
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",\"\",\"\",1"
-#define AT_HTTP_GET_LENGTH 29
+#define AT_HTTP_GET "AT+HTTPCGET=\"%s\",,,9000"
+#define AT_HTTP_GET_LENGTH 26
 #define AT_HTTP_GET_RESPONSE "OK"
-#define AT_HTTPS_GET "AT+HTTPCLIENT=2,0,\"%s\",\"\",\"\",2"
-#define AT_HTTPS_GET_LENGTH 29
-#define AT_HTTPS_GET_RESPONSE "OK"
+
 
 /* endregion HTTP */
 

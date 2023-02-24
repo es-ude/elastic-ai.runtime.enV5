@@ -114,8 +114,8 @@ void uartInternalHandleNewLine(void) {
             // handle Received MQTT message -> pass to correct subscriber
             uartMqttBrokerReceive(uartDevice->receiveBuffer);
         }
-        if ((strncmp("++HTTPCLIENT", uartDevice->receiveBuffer, 12) == 0 ||
-             strncmp("+HTTPCLIENT", uartDevice->receiveBuffer, 11) == 0) &&
+        if ((strncmp("++HTTPCGET", uartDevice->receiveBuffer, 10) == 0 ||
+             strncmp("+HTTPCGET", uartDevice->receiveBuffer, 9) == 0) &&
             uartHTPPReceive != NULL) {
             // handle HTTP message
             uartHTPPReceive(uartDevice->receiveBuffer);

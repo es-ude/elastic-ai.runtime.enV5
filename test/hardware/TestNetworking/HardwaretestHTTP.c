@@ -12,18 +12,17 @@ void _Noreturn httpTask(void) {
 
     connectToNetwork();
 
-    char *response;
+    HttpResponse_t *response;
     uint8_t code = HTTPGet("http://192.168.203.99:5000/getfile/0", &response);
 
     PRINT("HTTPGet response: %d\n", code);
-
-    PRINT("len %d\n", strlen(response));
-    for (uint32_t i = 0; i < 100; i++) {
-        PRINT("%c", response[i])
+    PRINT("len %lu\n", response->length);
+    for (uint32_t i = 0; i < response->length; i++) {
+        printf("%c", response->response[i]);
     }
-    free(response);
-
-    PRINT("done\n")
+    printf("\n");
+    HTTPCleanResponseBuffer(response);
+    PRINT("done")
 
     while (1) {}
 }

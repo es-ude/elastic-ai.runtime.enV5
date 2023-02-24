@@ -7,20 +7,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *HTTPResponse = NULL;
+HttpResponse_t *HTTPResponse = NULL;
 
 void HTTPReceive(char *httpResponse) {
     char *startSize = strstr(httpResponse, ":") + 1;
     char *endSize = strstr(httpResponse, ",");
     uint32_t size = strtol(startSize, &endSize, 10);
-    
+
     char *body = strstr(startSize, ",") + 1;
-    
-    HTTPResponse = malloc(sizeof(char) * size);
-    memcpy(HTTPResponse, body, size);
+
+    HTTPResponse = malloc(sizeof(HttpResponse_t));
+    HTTPResponse->length = size;
+    HTTPResponse->response = malloc(sizeof(uint8_t) * size);
+    memcpy(HTTPResponse->response, body, size);
 }
 
-HTTPStatus HTTPGet(const char *url, char **data) {
+HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     PRINT_DEBUG("Http get")
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
@@ -46,6 +48,12 @@ HTTPStatus HTTPGet(const char *url, char **data) {
     *data = HTTPResponse;
     HTTPResponse = NULL;
     return HTTP_SUCCESS;
+}
+
+void HTTPCleanResponseBuffer(HttpResponse_t *response) {
+    free(response->response);
+    free(response);
+    response = NULL;
 }
 
 void HTTPSetReceiverFunction(void) {
