@@ -98,7 +98,7 @@
 #define AT_DISCONNECT_LENGTH 9
 #define AT_DISCONNECT_RESPONSE "OK"
 
-/* endregion */
+/* endregion NETWORK */
 
 /* region MQTT */
 
@@ -261,56 +261,42 @@
 #define AT_MQTT_PUBLISH_LONG_LENGTH 24
 #define AT_MQTT_PUBLISH_LONG_RESPONSE "OK"
 
+/* endregion MQTT*/
+
+/* region HTTP */
+
 /* Publish data if command would be longer than 256 bytes to broker
  *
  * Command:
- *  AT+HTTPCLIENT=<opt>,<content-type>,<"url">,[<"host">],[<"path">],<transport_type>[,<"data">][,<"http_req_header">][,<"http_req_header">][...]
+ * AT+HTTPCLIENT=OPT,CONTENT,"URL","HOST","PATH",TRANSPORT,"DATA","HTTP_HEADER",...
  *
  * Fields are:
  * - OPT -> Method of Request
- * - CONTENT-TYPE -> Data type (1: json)
+ *          1=HEAD, 2=GET, 3=POST, 4=PUT, 5=DELETE
+ * - CONTENT -> Data type,
+ *              0=application/x-www-form-urlencoded
+ *              1=application/json
+ *              2=multipart/form-data
+ *              3=text/xml
  * - URL -> data to publish
- * - HOST ->
- * - PATH ->
- * - TRANSPORT_TYPE -> Client transport type (Default 1, TCP)
+ * - HOST -> host, can be omitted
+ * - PATH -> path, can be omitted
+ * - TRANSPORT -> Client transport type, 1=HTTP, 2=HTTPS, default is 1
  * - DATA -> Data if POST requests
- * - HTTP_REQ_HEADER -> Request Header
+ * - HTTP_HEADER -> Request Header, more than one possible
  *
  * Expected Response:
  *   +HTTPCLIENT:<size>,<data>
  *
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,1"
-
-#define AT_HTTP_GET_LENGTH 25
+#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",\"\",\"\",1"
+#define AT_HTTP_GET_LENGTH 29
 #define AT_HTTP_GET_RESPONSE "OK"
-/* endregion */
-
-/* Publish data if command would be longer than 256 bytes to broker
- *
- * Command:
- *  AT+HTTPCLIENT=<opt>,<content-type>,<"url">,[<"host">],[<"path">],<transport_type>[,<"data">][,<"http_req_header">][,<"http_req_header">][...]
- *
- * Fields are:
- * - OPT -> Method of Request
- * - CONTENT-TYPE -> Data type (1: json)
- * - URL -> data to publish
- * - HOST ->
- * - PATH ->
- * - TRANSPORT_TYPE -> Client transport type (Default 1, TCP)
- * - DATA -> Data if POST requests
- * - HTTP_REQ_HEADER -> Request Header
- *
- * Expected Response:
- *   +HTTPCLIENT:<size>,<data>
- *
- *   OK
- */
-#define AT_HTTPS_GET "AT+HTTPCLIENT=2,0,\"%s\",,,2"
-
-#define AT_HTTPS_GET_LENGTH 25
+#define AT_HTTPS_GET "AT+HTTPCLIENT=2,0,\"%s\",\"\",\"\",2"
+#define AT_HTTPS_GET_LENGTH 29
 #define AT_HTTPS_GET_RESPONSE "OK"
-/* endregion */
+
+/* endregion HTTP */
 
 #endif /* ENV5_AT_COMMANDS */
