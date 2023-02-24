@@ -1,4 +1,4 @@
-#define SOURCE_FILE "FLASH"
+ #define SOURCE_FILE "FLASH"
 
 #include "Flash.h"
 #include "FlashInternal.h"
@@ -28,7 +28,7 @@ int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length) {
     return spiReadBlocking(flashSpi, flashCsPin, cmd, 4, data_buffer, length);
 }
 
-uint8_t flashReadStatusReg(void) {
+flashEraseErrorCode_t flashReadStatusReg(void) {
     uint8_t statusReg;
     uint8_t readStatusRegister = 0x05;
     spiReadBlocking(flashSpi, flashCsPin, &readStatusRegister, 1, &statusReg, 1);
@@ -36,7 +36,8 @@ uint8_t flashReadStatusReg(void) {
 }
 
 uint8_t flashEraseErrorOccurred(void) {
-    return ((flashReadStatusReg() >> 5) & 1);
+    flashEraseErrorCode_t flashEraseErrorCode = ((flashReadStatusReg() >> 5) & 1);
+    return flashEraseErrorCode;
 }
 
 void flashWaitForDone(void) {
@@ -50,7 +51,7 @@ uint8_t flashEraseData(uint32_t address) {
     flashWriteEnable();
     spiWriteSingleCmd(flashSpi, flashCsPin, cmd, 4);
     flashWaitForDone();
-    uint8_t status = flashEraseErrorOccurred();
+    flashEraseErrorCode_t status = flashEraseErrorOccurred();
     return status;
 }
 

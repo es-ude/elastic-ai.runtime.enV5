@@ -1,8 +1,11 @@
 #ifndef ENV5_FLASH_HEADER
 #define ENV5_FLASH_HEADER
 
+#include "FlashTypedefs.h"
 #include "spi/SpiTypedefs.h"
 #include <stdint.h>
+
+
 
 void flashInit(uint8_t chip_select, spi_inst_t *spiInst);
 

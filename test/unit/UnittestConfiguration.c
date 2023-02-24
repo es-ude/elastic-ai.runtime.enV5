@@ -1,7 +1,7 @@
 #include "FpgaConfiguration.h"
 #include "dummies/flash/Flash.h"
 #include "dummies/flash/FpgaConfigDatahandler.h"
-#include "spi/SpiTypedefs.h"
+#include "FlashTypedefs.h"
 #include <unity.h>
 
 #define NUMSECTORS 2

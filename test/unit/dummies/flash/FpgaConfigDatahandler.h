@@ -1,7 +1,7 @@
 #ifndef ENV5_FPGA_CONFIGURATION_HANDLER_HEADER
 #define ENV5_FPGA_CONFIGURATION_HANDLER_HEADER
 
-#include "spi/SpiTypedefs.h"
+#include "FlashTypedefs.h"
 #include <stdint.h>
 static uint32_t address;
 static uint32_t config_size;
