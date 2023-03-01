@@ -3,37 +3,42 @@
 #include <stdint.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <memory.h>
 #include "FpgaConfigurationHttp.h"
 #include "FpgaConfiguration.h"
 #include "Flash.h"
 
-uint8_t* (*getData)(uint32_t)=NULL;
-uint8_t data[256];
-void setCommunication(uint8_t* (*getDataFun)(uint32_t)){
+
+HttpResponse_t* (*getData)(uint32_t)=NULL;
+
+void setCommunication(HttpResponse_t* (*getDataFun)(uint32_t)){
     getData=getDataFun;
 }
 
 uint32_t internalCalculateNumBlocks(uint32_t sizeOfConfiguration){
     return ceilf((float)(sizeOfConfiguration) / FLASH_PAGE_SIZE);
 }
-uint8_t* configure(uint32_t startAddress, uint32_t sizeOfConfiguration){
-    flashEraseErrorCode_t status=fpgaConfigurationEraseSectors(startAddress, sizeOfConfiguration);
+configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration){
+    printf("test beginning config\n");
+    if(fpgaConfigurationEraseSectors(startAddress, sizeOfConfiguration)==FLASH_ERASE_ERROR){
+        return CONFIG_ERASE_ERROR;
+    }
+    printf("Erased\n");
     uint32_t numBlocks= internalCalculateNumBlocks(sizeOfConfiguration);
     uint32_t currentAddress=startAddress;
-    uint8_t* block;
+    
     for(uint32_t numBlock=0; numBlock<numBlocks; numBlock++){
-        uint8_t* block=getData(numBlock);
-        flashWritePage(currentAddress, block, FLASH_PAGE_SIZE);
-        currentAddress+=FLASH_PAGE_SIZE;
+        HttpResponse_t * block;
+        block=getData(numBlock);
+        printf("Of response: %u\n" ,block->response[1] );
+        flashWritePage(currentAddress, block->response, block->length);
+        currentAddress+=block->length;
+        free(block);
     }
-    return block;
+    return CONFIG_NO_ERROR;
 
 }
 
-uint8_t* dataReceive(uint32_t address){
-    for(uint16_t i=0; i<256; i++){
-        data[i]=i;
-    }
-    return data;
-}
+
 
