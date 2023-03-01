@@ -109,6 +109,7 @@ target_link_libraries(hardware-test_HTTP
         pico_stdlib
         freeRtosUtils
 #        network_lib
+        fpga_config_lib
         hardware-testHelper)
 target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP)
