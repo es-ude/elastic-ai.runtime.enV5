@@ -5,8 +5,8 @@
 #include <stdint.h>
 static uint32_t address;
 static uint32_t config_size;
-extern uint8_t dataSent[FLASH_PAGE_SIZE * 4];
-extern uint8_t fpgaConfigHandlerNumWrittenBlock;
+uint8_t dataSent[FLASH_PAGE_SIZE * 5];
+uint8_t fpgaConfigHandlerNumWrittenBlock;
 void fpgaConfigHandlerSetAddress(uint32_t addr);
 void fpgaConfigHandlerSetConfigSize(uint32_t conf_size);
 

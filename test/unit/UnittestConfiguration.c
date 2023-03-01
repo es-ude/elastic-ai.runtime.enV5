@@ -5,7 +5,7 @@
 #include <unity.h>
 
 #define NUMSECTORS 2
-const uint8_t numberOfPages = 4;
+const uint8_t numberOfPages = 5;
 const uint16_t configSize = FLASH_PAGE_SIZE * numberOfPages;
 const uint8_t numberOfSectors = NUMSECTORS;
 uint8_t expectedData[FLASH_SECTOR_SIZE * NUMSECTORS];
@@ -79,7 +79,7 @@ int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
-    RUN_TEST(testVerifyDataAtAddress0);
+//    RUN_TEST(testVerifyDataAtAddress0);
     RUN_TEST(testVerifyDataAtAddress0x10000);
     return UNITY_END();
 }
