@@ -108,8 +108,18 @@ add_executable(hardware-test_HTTP HardwaretestHTTP.c)
 target_link_libraries(hardware-test_HTTP
         pico_stdlib
         freeRtosUtils
-#        network_lib
-        fpga_config_lib
+        network_lib
         hardware-testHelper)
 target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP)
+
+################## test_HTTP-Flash ##################
+add_executable(hardware-test_HTTP-Flash HardwaretestHttpStoreToFlash.c)
+target_link_libraries(hardware-test_HTTP-Flash
+        pico_stdlib
+        freeRtosUtils
+        network_lib
+        fpga_config_lib
+        hardware-testHelper)
+target_compile_definitions(hardware-test_HTTP-Flash PRIVATE DEBUG)
+make_to_output_file(hardware-test_HTTP-Flash)
