@@ -6,13 +6,28 @@
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include "UartConfiguration.h"
 #include <stdbool.h>
 
 /* region VARIABLES */
 
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
+
+static uartDevice_t uartDevice = {
+    // Below depends on the hardware connection
+    // you should modify it according to your hardware
+    .name = "uart_to_esp32",
+    .uartId = 1,
+    .txPin = 4,
+    .rxPin = 5,
+
+    // Below depends on the firmware on the esp32 module
+    .baudrateSet = 115200,
+    .baudrateActual = 0,
+    .dataBits = 8,
+    .stopBits = 1,
+    .parity = NoneParity,
+};
 
 /* endregion */
 
