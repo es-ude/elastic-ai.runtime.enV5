@@ -1,7 +1,7 @@
 [submodule "extern/unity"]
 	path = extern/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
-    branch = master
+	branch = v2.5.2
 [submodule "extern/freeRTOS/Kernel"]
 	path = extern/freeRTOS/Kernel
     url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
