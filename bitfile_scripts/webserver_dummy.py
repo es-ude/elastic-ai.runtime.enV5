@@ -18,12 +18,12 @@ def get_file(position: str):
     Using positional arguments as parameter did not work!
     """
     buffer = BytesIO()
-    buffer.write(read_slice(int(position), "bitfiles/env5_bitfiles/id_0x11/env5_top_reconfig.bin"))
+    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/id_0x11/env5_top_reconfig.bin"))
     buffer.seek(0)
     return send_file(
         buffer,
         as_attachment=True,
-        download_name='bitfile.bit',
+        download_name='bitfile.bin',
         mimetype='application/octet-stream')
 
 

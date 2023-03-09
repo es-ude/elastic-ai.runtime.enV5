@@ -12,6 +12,7 @@
 
 HttpResponse_t* (*getData)(uint32_t)=NULL;
 
+
 void setCommunication(HttpResponse_t* (*getDataFun)(uint32_t)){
     getData=getDataFun;
 }
@@ -31,10 +32,11 @@ configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration)
     for(uint32_t numBlock=0; numBlock<numBlocks; numBlock++){
         HttpResponse_t * block;
         block=getData(numBlock);
-        printf("Of response: %u\n" ,block->response[1] );
         flashWritePage(currentAddress, block->response, block->length);
         currentAddress+=block->length;
+        free(block->response);
         free(block);
+        block=NULL;
     }
     return CONFIG_NO_ERROR;
 

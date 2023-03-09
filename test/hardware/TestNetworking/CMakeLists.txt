@@ -120,6 +120,10 @@ target_link_libraries(hardware-test_HTTP-Flash
         freeRtosUtils
         network_lib
         fpga_config_lib
-        hardware-testHelper)
+        hardware-testHelper
+        hardware_spi
+        spi_lib
+        flash_lib
+        env5_lib)
 target_compile_definitions(hardware-test_HTTP-Flash PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP-Flash)

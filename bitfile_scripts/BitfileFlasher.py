@@ -131,7 +131,10 @@ def verifyBitfile(ser, config):
             sys.exit(0)
         else:
             for i in range(blockSize):
-                assert (expected_block[i] == flash_data_block[i]), "Bitfile Verification failed"
+                if expected_block[i] != flash_data_block[i]:
+                    logging.error("Bitfile Verification failed at block {}".format(numBlock))
+                    sys.exit(0)
+               # assert (expected_block[i] == flash_data_block[i]), "Bitfile Verification failed at block {}".format(numBlock)
 
         config_remaining -= blockSize
         position += blockSize

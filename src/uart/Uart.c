@@ -126,7 +126,7 @@ void uartInternalHandleNewLine(void) {
             uartCorrectResponseReceived = true;
         } else {
             if(strlen(uartDevice->receiveBuffer) < 15) {
-                PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
+              //  PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
             }
         }
     }
