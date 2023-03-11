@@ -1,18 +1,14 @@
 function(include_unity)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}extern/unity)
-endfunction()
-
-function(include_pico_sdk)
-    include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/pico-sdk/pico_sdk_init.cmake)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/unity)
 endfunction()
 
 function(enV5_init)
-    #init pico_sdk
-    pico_sdk_init()
     # add runtime.c
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/elastic-ai.runtime.c)
+
     # add freeRTOS
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/freeRTOS)
+
     # libraries from the elastic-ai.runtime.enV5 repo
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/adxl345b)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/atCommands)
