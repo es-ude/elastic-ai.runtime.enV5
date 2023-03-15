@@ -23,6 +23,7 @@ uint32_t internalCalculateNumBlocks(uint32_t sizeOfConfiguration){
 configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration){
     printf("test beginning config\n");
     if(fpgaConfigurationEraseSectors(startAddress, sizeOfConfiguration)==FLASH_ERASE_ERROR){
+        printf("flash erase error\n");
         return CONFIG_ERASE_ERROR;
     }
     printf("Erased\n");
@@ -32,6 +33,16 @@ configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration)
     for(uint32_t numBlock=0; numBlock<numBlocks; numBlock++){
         HttpResponse_t * block;
         block=getData(numBlock);
+//        if(numBlock==0){
+//            printf("current address: %u\n", currentAddress);
+//          for(uint32_t i=0; i<block->length; i++){
+//              printf("%02x", block->response[i]);
+//              if(i%128==0){
+//                  printf("\n");
+//              }
+//          }
+//          printf("\n");
+//        }
         flashWritePage(currentAddress, block->response, block->length);
         currentAddress+=block->length;
         free(block->response);

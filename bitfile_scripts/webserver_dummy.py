@@ -18,7 +18,7 @@ def get_file(position: str):
     Using positional arguments as parameter did not work!
     """
     buffer = BytesIO()
-    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/id_0x11/env5_top_reconfig.bin"))
+    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/led_run_10_times_faster/led_test.bin"))
     buffer.seek(0)
     return send_file(
         buffer,

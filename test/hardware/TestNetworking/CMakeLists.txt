@@ -124,6 +124,7 @@ target_link_libraries(hardware-test_HTTP-Flash
         hardware_spi
         spi_lib
         flash_lib
+        middleware_lib
         env5_lib)
 target_compile_definitions(hardware-test_HTTP-Flash PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP-Flash)

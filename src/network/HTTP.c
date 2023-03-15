@@ -8,7 +8,7 @@
 #include <string.h>
 
 HttpResponse_t *HTTPResponse = NULL;
-
+volatile uint32_t httpCount=0;
 void HTTPReceive(char *httpResponse) {
     char *startSize = strstr(httpResponse, ":") + 1;
     char *endSize = strstr(httpResponse, ",");
@@ -20,6 +20,8 @@ void HTTPReceive(char *httpResponse) {
     HTTPResponse->length = size;
     HTTPResponse->response = malloc(sizeof(uint8_t) * size);
     memcpy(HTTPResponse->response, body, size);
+  
+    
 }
 
 HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {

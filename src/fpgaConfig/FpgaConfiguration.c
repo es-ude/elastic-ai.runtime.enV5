@@ -133,7 +133,9 @@ flashEraseErrorCode_t fpgaConfigurationEraseSectors(uint32_t fpgaConfigurationCo
     for (uint16_t blockCounter = 0; blockCounter < numSectors; blockCounter++) {
         blockAddress =
             fpgaConfigurationConfigAddress + ((uint32_t)blockCounter) * FLASH_SECTOR_SIZE;
+        printf("pre erase %u\n", blockCounter );
         status = flashEraseData(blockAddress);
+        printf("post erase %u\n", blockCounter );
         if (status == FLASH_ERASE_ERROR) {
             return FLASH_ERASE_ERROR;
         }
