@@ -5,11 +5,11 @@
 #include <memory.h>
 #include <stdint.h>
 
-uint32_t addressSectorErase;
-uint32_t numSectorErase;
-uint32_t addressWrite[5];
-uint8_t dataComplete[FLASH_SECTOR_SIZE * 4];
-uint32_t numWriteBlocks;
+extern uint32_t addressSectorErase;
+extern uint32_t numSectorErase;
+extern uint32_t addressWrite[5];
+extern uint8_t dataComplete[FLASH_SECTOR_SIZE * 4];
+extern uint32_t numWriteBlocks;
 
 
 

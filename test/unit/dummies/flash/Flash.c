@@ -1,7 +1,6 @@
-//#include "flash/Flash.h"
 #include "Flash.h"
 #include <stdint.h>
-#include <printf.h>
+#include <stdio.h>
 
 uint32_t addressSectorErase = 0;
 uint32_t addressWrite[5];

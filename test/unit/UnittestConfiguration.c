@@ -1,7 +1,7 @@
-#include "FpgaConfiguration.h"
-#include "dummies/flash/Flash.h"
-#include "dummies/flash/FpgaConfigDatahandler.h"
+#include "Flash.h"
 #include "FlashTypedefs.h"
+#include "FpgaConfigDatahandler.h"
+#include "FpgaConfiguration.h"
 #include <unity.h>
 
 #define NUMSECTORS 2
@@ -79,7 +79,7 @@ int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testWriteDataToFlashAtAddress0);
     RUN_TEST(testWriteDataToFlashAddress0x10000);
-//    RUN_TEST(testVerifyDataAtAddress0);
+    //    RUN_TEST(testVerifyDataAtAddress0);
     RUN_TEST(testVerifyDataAtAddress0x10000);
     return UNITY_END();
 }
