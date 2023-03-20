@@ -4,8 +4,8 @@
 #include "MqttBroker.h"
 #include "Network.h"
 
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PASSWORD"};
+networkCredentials_t networkCredentials = {.ssid = "iPhone von David", .password = "gert2244"};
 
-mqttBrokerHost_t mqttHost = {.ip = "255.255.255.255", .port = "1883", .userID = "", .password = ""};
+mqttBrokerHost_t mqttHost = {.ip = "172.20.10.7", .port = "1883", .userID = "", .password = ""};
 
 #endif /* ENV5_NETWORK_CONFIGURATION */

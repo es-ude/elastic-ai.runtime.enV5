@@ -12,9 +12,9 @@
 
 // header from elastic-ai.runtime.c
 #include "CommunicationEndpoint.h"
+#include "Protocol.h"
 #include "Subscriber.h"
 #include "TopicMatcher.h"
-#include "Protocol.h"
 
 /* region VARIABLES */
 
@@ -118,10 +118,6 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
     }
 }
 
-void mqttReady(void) {
-    publishAliveStatusMessage();
-}
-
 void mqttBrokerDisconnect(bool force) {
     // check if force disconnect is requested!
     if (!force) {
@@ -201,6 +197,13 @@ void communicationEndpointPublishRaw(posting_t posting) {
     }
 
     size_t commandLength = AT_MQTT_PUBLISH_LENGTH + strlen(posting.topic) + strlen(posting.data);
+    
+    // max length of publish command is 64 bytes
+    if (commandLength >= 64) {
+        publishLong(posting);
+        return;
+    }
+
     char *publishData = malloc(commandLength);
     if (posting.retain) {
         snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data, "1");
@@ -414,9 +417,10 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
-    size_t lwt_message_length = strlen(mqttBrokerClientId) + 17;
+    size_t lwt_message_length = strlen(mqttBrokerClientId) + 31;
     char *lwt_message = malloc(lwt_message_length);
-    snprintf(lwt_message, lwt_message_length, "%s;DEVICE;0", mqttBrokerClientId);
+    snprintf(lwt_message, lwt_message_length, "ID:%s;TYPE:DEVICE;STATE:OFFLINE",
+             mqttBrokerClientId);
 
     // generate command to send connection configuration to esp module
     size_t commandLength =
@@ -445,11 +449,12 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     }
 }
 
-static void publishAliveStatusMessage() {
+void publishAliveStatusMessage(char *measurements) {
     // create alive message
-    size_t messageLength = strlen(mqttBrokerClientId) + 17;
+    size_t messageLength = strlen(mqttBrokerClientId) + strlen(measurements) + 45;
     char *message = malloc(messageLength);
-    snprintf(message, messageLength, "%s;DEVICE;1", mqttBrokerClientId);
+    snprintf(message, messageLength, "ID:%s;TYPE:DEVICE;STATE:ONLINE;MEASUREMENTS:%s;",
+             mqttBrokerClientId, measurements);
 
     protocolPublishStatus(message);
 }

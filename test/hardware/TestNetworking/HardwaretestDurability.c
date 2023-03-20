@@ -166,7 +166,7 @@ _Noreturn void mainTask(void) {
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
     
-    mqttReady();
+    publishAliveStatusMessage("wifi,sram");
     
     printf("Ready ...\n");
     

@@ -87,7 +87,7 @@ void offline(posting_t posting) {
 
 void receiveDataStartRequest(posting_t posting) {
     setTwinID(posting.data);
-    
+
     for (int i = 0; i < receivers_count; ++i) {
         if (strstr(posting.topic, receivers[i].dataID) != NULL) {
             receivers[i].subscribed = true;
@@ -165,8 +165,8 @@ _Noreturn void mainTask(void) {
         (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-
-    mqttReady();
+    
+    publishAliveStatusMessage("wifi,sram");
 
     printf("Ready ...\n");
 
