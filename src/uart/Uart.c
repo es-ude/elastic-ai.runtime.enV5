@@ -6,8 +6,8 @@
 #include "UartInternal.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
+#include <stdlib.h>
 #include <string.h>
-//#include "FreeRtosTaskWrapper.h"
 
 /* region VARIABLES */
 
@@ -15,14 +15,17 @@ static uartDevice_t *uartDevice;
 
 volatile static bool uartLastReceivedCharacterWasReturn = false;
 volatile static bool uartCorrectResponseReceived = false;
+volatile static uint16_t uartAwaitingHttpGet = 0;
+volatile static bool uartCurrentMessageIsHttpResponse = false;
+volatile static uint32_t uartHttpResponseLength = 0;
 
 static char *uartCommandToSend = "\0";
 static char *uartExpectedResponseFromEsp = "\0";
 
 void (*uartMqttBrokerReceive)(char *) = NULL;
-void (*uartHTPPReceive)(char *) = NULL;
+void (*uartHTTPReceive)(char *) = NULL;
 
-/* endregion */
+/* endregion  VARIABLES*/
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -40,8 +43,8 @@ void uartInit(uartDevice_t *device) {
     gpioSetPinFunction(uartDevice->rxPin, GPIO_FUNCTION_UART);
 
     // Set up our UART with requested baud rate.
-    // The call will return the actual baud rate selected, which will be as close as possible
-    // to that requested
+    // The call will return the actual baud rate selected, which will be as close as possible to
+    // that requested
     uartDevice->baudrateActual =
         uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrateSet);
 
@@ -72,7 +75,7 @@ void uartSetMqttReceiverFunction(void (*receive)(char *)) {
 }
 
 void uartSetHTTPReceiverFunction(void (*receive)(char *)) {
-    uartHTPPReceive = receive;
+    uartHTTPReceive = receive;
 }
 
 uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
@@ -83,13 +86,21 @@ uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
     }
 
     // reset internal buffer
+    PRINT_DEBUG("Reset Buffer")
     uartCommandToSend = command;
     uartCorrectResponseReceived = false;
     uartExpectedResponseFromEsp = expectedResponse;
 
+    // required for HTTPCGET response handling
+    if (strncmp("AT+HTTPCGET", command, 11) == 0) {
+        PRINT_DEBUG("Add HTTPGET")
+        uartAwaitingHttpGet++;
+    }
+
     // send command over uart
-    PRINT_DEBUG("COMMAND: %s", command)
+    PRINT_DEBUG("COMMAND: \"%s\"", command)
     uart_puts((uart_inst_t *)uartDevice->uartInstance, command);
+    // send \r\n because AT command always ends with CR-LF
     uart_puts((uart_inst_t *)uartDevice->uartInstance, "\r\n");
 
     return UART_NO_ERROR;
@@ -103,63 +114,92 @@ void uartFreeCommandBuffer(void) {
     uartCommandToSend = "\0";
 }
 
-/* endregion */
+/* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
 
+/*! IMPORTANT: Don't use print statements for debugging!!
+ *             Print statements will cause timing/buffer issues
+ */
 void uartInternalHandleNewLine(void) {
-    if (strlen(uartDevice->receiveBuffer) != 0) {
-        if (strncmp("+MQTTSUBRECV", uartDevice->receiveBuffer, 12) == 0 &&
-            uartMqttBrokerReceive != NULL) {
-            // handle Received MQTT message -> pass to correct subscriber
+    if (0 == strlen(uartDevice->receiveBuffer)) {
+        PRINT_DEBUG("Empty Buffer")
+        return;
+    }
+
+    if (strncmp("+MQTTSUBRECV", uartDevice->receiveBuffer, 12) == 0) {
+        // handle Received MQTT message -> pass to correct subscriber
+        if (uartMqttBrokerReceive != NULL) {
             uartMqttBrokerReceive(uartDevice->receiveBuffer);
         }
-        if ((strncmp("++HTTPCGET", uartDevice->receiveBuffer, 10) == 0 ||
-             strncmp("+HTTPCGET", uartDevice->receiveBuffer, 9) == 0) &&
-            uartHTPPReceive != NULL) {
-            // handle HTTP message
-            uartHTPPReceive(uartDevice->receiveBuffer);
+    } else if (strncmp("+HTTPCGET", uartDevice->receiveBuffer, 9) == 0) {
+        uartCurrentMessageIsHttpResponse = false;
+        uartAwaitingHttpGet--;
+        // handle HTTP message
+        if (uartHTTPReceive != NULL) {
+            uartHTTPReceive(uartDevice->receiveBuffer);
         }
-        if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
-                    strlen(uartExpectedResponseFromEsp)) == 0) {
-            PRINT_DEBUG("Expected message received: %s", uartDevice->receiveBuffer)
-            uartCorrectResponseReceived = true;
-        } else {
-            if(strlen(uartDevice->receiveBuffer) < 15) {
-              //  PRINT_DEBUG("Received message was: %s", uartDevice->receiveBuffer)
-            }
-        }
+    }
+    if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
+                strlen(uartExpectedResponseFromEsp)) == 0) {
+        uartCorrectResponseReceived = true;
     }
 }
 
+/*! IMPORTANT: Don't use print statements for debugging!!
+ *             Print statements will cause timing/buffer issues
+ */
 void uartInternalCallbackUartRxInterrupt() {
     while (uart_is_readable((uart_inst_t *)uartDevice->uartInstance)) {
         char receivedCharacter = uart_getc((uart_inst_t *)uartDevice->uartInstance);
 
-        if (receivedCharacter == '\n' || receivedCharacter == '\r' || receivedCharacter == '\0') {
-            if (uartLastReceivedCharacterWasReturn && receivedCharacter == '\n') {
-                // Line End reached
-                uartInternalHandleNewLine();
-                uartDevice->receivedCharacter_count = 0;
-            } else if (receivedCharacter == '\r') {
-                // store for next call
-                uartLastReceivedCharacterWasReturn = true;
-            }
-        } else if (receivedCharacter == '>' && uartDevice->receivedCharacter_count == 1) {
-            uartInternalHandleNewLine();
-            uartDevice->receivedCharacter_count = 0;
-        } else {
-            // Store new character in buffer
+        // handle HTTP get
+        if (uartCurrentMessageIsHttpResponse && uartHttpResponseLength > 0) {
+            // append new character to buffer
             uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = receivedCharacter;
-            uartDevice->receivedCharacter_count++;
 
-            // store for next call
+            // increase buffer last character pointer for next character
+            uartDevice->receivedCharacter_count++;
+            uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
+
+            uartHttpResponseLength--;
+            continue;
+        }
+        if (!uartCurrentMessageIsHttpResponse && uartAwaitingHttpGet > 0 &&
+            receivedCharacter == ',') {
+            if (strncmp("+HTTPCGET", uartDevice->receiveBuffer, 9) == 0) {
+                uartCurrentMessageIsHttpResponse = true;
+                char *startSize = strstr(uartDevice->receiveBuffer, ":") + 1;
+                char *endSize = strstr(uartDevice->receiveBuffer, ",");
+                uartHttpResponseLength = strtol(startSize, &endSize, 10);
+            }
+        }
+
+        // check for Response end: CR-LF
+        // CR = \r = 0b00001101 = 0x0D -> Carriage Return
+        // LF = \n = 0b00001010 = 0x0A -> New Line
+        if (uartLastReceivedCharacterWasReturn && receivedCharacter == '\n') {
+            // remove last \r from response buffer
+            uartDevice->receiveBuffer[uartDevice->receivedCharacter_count--] = '\0';
+            // call response handle
+            uartInternalHandleNewLine();
+            // reset response buffer
+            uartDevice->receivedCharacter_count = 0;
+            uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
+            continue;
+        } else if (receivedCharacter == '\r') {
+            uartLastReceivedCharacterWasReturn = true;
+        } else {
             uartLastReceivedCharacterWasReturn = false;
         }
 
-        // Neutralize buffer for next character
+        // append new character to buffer
+        uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = receivedCharacter;
+
+        // increase buffer last character pointer for next character
+        uartDevice->receivedCharacter_count++;
         uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
     }
 }
 
-/* endregion */
+/* endregion INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
