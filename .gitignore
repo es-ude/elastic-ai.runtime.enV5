@@ -5,6 +5,7 @@ networks.txt
 node_modules/
 .husky/
 *.json
+**/__pycache__/
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
