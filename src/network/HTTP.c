@@ -8,24 +8,22 @@
 #include <string.h>
 
 HttpResponse_t *HTTPResponse = NULL;
-volatile uint32_t httpCount=0;
+volatile uint32_t httpCount = 0;
+
 void HTTPReceive(char *httpResponse) {
     char *startSize = strstr(httpResponse, ":") + 1;
     char *endSize = strstr(httpResponse, ",");
-    uint32_t size = strtol(startSize, &endSize, 10);
+    uint32_t bytesOfData = strtol(startSize, &endSize, 10);
 
-    char *body = strstr(startSize, ",") + 1;
+    char *data = strstr(startSize, ",") + 1;
 
     HTTPResponse = malloc(sizeof(HttpResponse_t));
-    HTTPResponse->length = size;
-    HTTPResponse->response = malloc(sizeof(uint8_t) * size);
-    memcpy(HTTPResponse->response, body, size);
-  
-    
+    HTTPResponse->length = bytesOfData;
+    HTTPResponse->response = malloc(sizeof(uint8_t) * bytesOfData);
+    memcpy(HTTPResponse->response, data, bytesOfData);
 }
 
 HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
-    PRINT_DEBUG("Http get")
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
         return HTTP_CONNECTION_FAILED;
@@ -42,7 +40,7 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
 
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
         if (HTTPResponse != NULL) {
-            free(HTTPResponse);
+            HTTPCleanResponseBuffer(HTTPResponse);
         }
         return HTTP_CONNECTION_FAILED;
     }
@@ -59,6 +57,6 @@ void HTTPCleanResponseBuffer(HttpResponse_t *response) {
 }
 
 void HTTPSetReceiverFunction(void) {
-    PRINT_DEBUG("Receiver Func was executed\n")
+    PRINT_DEBUG("Receive function set")
     espSetHTTPReceiverFunction(HTTPReceive);
 }

@@ -14,17 +14,10 @@
     <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Community-Supported-Ports" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Partner-Supported-Ports" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/btstack" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/cyw43-driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/lwip" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/mbedtls" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/allwinner" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/bridgetek/ft9xx/ft90x-sdk" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/broadcom" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/broadcom/firmware.wiki" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/gd/nuclei-sdk" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/infineon/mtb-xmclib-cat3" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/microchip" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/mindmotion/mm32sdk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/nordic/nrfx" vcs="Git" />
@@ -32,7 +25,6 @@
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/nxp/lpcopen" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/nxp/mcux-sdk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/nxp/nxp_sdk" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/raspberry_pi/Pico-PIO-USB" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/renesas/rx" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/silabs/cmsis-dfp-efm32gg12b" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/sony/cxd56/spresense-exported-sdk" vcs="Git" />
@@ -49,8 +41,6 @@
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/cmsis_device_l1" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/cmsis_device_l4" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/cmsis_device_l5" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/cmsis_device_u5" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/cmsis_device_wb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32f0xx_hal_driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32f1xx_hal_driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32f2xx_hal_driver" vcs="Git" />
@@ -64,10 +54,7 @@
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32l1xx_hal_driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32l4xx_hal_driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32l5xx_hal_driver" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32u5xx_hal_driver" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/st/stm32wbxx_hal_driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/ti" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/hw/mcu/wch/ch32v307" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/lib/CMSIS_5" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/lib/FreeRTOS-Kernel" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/tinyusb/lib/lwip" vcs="Git" />
