@@ -1,3 +1,6 @@
+#define SOURCE_FILE "ENV5-HW"
+
+#include "Common.h"
 #include "Env5Hw.h"
 #include "pico/stdlib.h"
 
@@ -33,6 +36,7 @@ void env5HwFpgaPowersOn() {
 
     // MOS FETS on
     gpio_put(FPGA_MOS_EN_PIN, 0);
+    PRINT_DEBUG("FPGA Powered On.")
 }
 
 void env5HwFpgaPowersOff() {
@@ -41,6 +45,7 @@ void env5HwFpgaPowersOff() {
 
     // MOS FETS on
     gpio_put(FPGA_MOS_EN_PIN, 1);
+    PRINT_DEBUG("FPGA Powered Off.")
 }
 
 void env5HwFpgaResetInit(void) {
