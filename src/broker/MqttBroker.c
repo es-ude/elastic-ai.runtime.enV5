@@ -197,7 +197,7 @@ void communicationEndpointPublishRaw(posting_t posting) {
     }
 
     size_t commandLength = AT_MQTT_PUBLISH_LENGTH + strlen(posting.topic) + strlen(posting.data);
-    
+
     // max length of publish command is 64 bytes
     if (commandLength >= 64) {
         publishLong(posting);
@@ -226,12 +226,19 @@ void publishLong(posting_t posting) {
         return;
     }
 
-    posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
-    int dataStringLength = floor(log10((strlen(posting.data)))) + 1;
+    double dataStringLength = floor(log10((strlen(posting.data)))) + 1;
 
     size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataStringLength;
     char *publishData = malloc(commandLength);
-    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic, strlen(posting.data));
+
+    if (posting.retain) {
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
+                 (unsigned long)strlen(posting.data), "1");
+    } else {
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
+                 (unsigned long)strlen(posting.data), "0");
+    }
+
 
     if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) ==
         ESP_WRONG_ANSWER_RECEIVED) { // why not OK\n>?
@@ -417,10 +424,9 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
-    size_t lwt_message_length = strlen(mqttBrokerClientId) + 31;
-    char *lwt_message = malloc(lwt_message_length);
-    snprintf(lwt_message, lwt_message_length, "ID:%s;TYPE:DEVICE;STATE:OFFLINE",
-             mqttBrokerClientId);
+    char *lwt_message = getStatusMessage((status_t){
+        .id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = STATUS_TYPE_DEVICE});
+    size_t lwt_message_length = strlen(lwt_message);
 
     // generate command to send connection configuration to esp module
     size_t commandLength =
@@ -450,13 +456,10 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
 }
 
 void publishAliveStatusMessage(char *measurements) {
-    // create alive message
-    size_t messageLength = strlen(mqttBrokerClientId) + strlen(measurements) + 45;
-    char *message = malloc(messageLength);
-    snprintf(message, messageLength, "ID:%s;TYPE:DEVICE;STATE:ONLINE;MEASUREMENTS:%s;",
-             mqttBrokerClientId, measurements);
-
-    protocolPublishStatus(message);
+    protocolPublishStatus((status_t){.id = mqttBrokerClientId,
+                                     .type = STATUS_TYPE_DEVICE,
+                                     .state = STATUS_STATE_ONLINE,
+                                     .measurements = measurements});
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {

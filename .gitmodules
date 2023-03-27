@@ -9,9 +9,8 @@
 [submodule "extern/elastic-ai.runtime.c"]
 	path = extern/elastic-ai.runtime.c
 	url = https://github.com/es-ude/elastic-ai.runtime.c
-	branch = v2.0.0
+	branch = v2.2.0
 [submodule "extern/pico-sdk"]
 	path = extern/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
 	branch = master
-

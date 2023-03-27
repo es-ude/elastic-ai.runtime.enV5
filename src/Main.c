@@ -76,7 +76,7 @@ void setTwinID(char *newTwinID) {
 }
 
 void offline(posting_t posting) {
-    if (strstr(posting.data, ";1") != NULL)
+    if (strstr(posting.data, STATUS_STATE_ONLINE) != NULL)
         return;
     PRINT("Twin offline")
 
