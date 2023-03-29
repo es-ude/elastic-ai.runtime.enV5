@@ -23,6 +23,8 @@ cmake -B cmake-build-debug -G Ninja .
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
 If this flag is not passed CMake will use the default build tool on your machine (mostly Makefiles).
 
+To run the FPGA related flash scripts it is recommended to create a loval virtual environment and install the tool from the [requirements.txt](bitfile_scripts/requirements.txt).
+
 ### CMake Profiles
 
 There are three CMake Profiles provided with the CLion settings: Debug, Release, and UnitTests.
@@ -38,7 +40,7 @@ In the [NetworkConfiguration.h](src/NetworkConfiguration.h) file the Network and
 changed. To stop changes in these to be staged you should exclude them:
 
 ```bash
-git update-index --assume-unchanged src/network_configuration.h
+git update-index --assume-unchanged src/NetworkConfiguration.h
 ```
 
 The same should be done for the CLion Settings stored in [.idea](.idea):

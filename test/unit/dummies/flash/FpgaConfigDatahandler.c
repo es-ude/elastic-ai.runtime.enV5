@@ -2,9 +2,12 @@
 
 #include "FpgaConfigDatahandler.h"
 
+uint32_t address;
+uint32_t config_size;
+uint8_t dataSent[FLASH_PAGE_SIZE * 5];
+uint8_t fpgaConfigHandlerNumWrittenBlock;
 uint8_t readValueNum = 0;
-uint8_t dataSent[FLASH_PAGE_SIZE * 4];
-uint8_t fpgaConfigHandlerNumWrittenBlock = 0;
+
 void fpgaConfigHandlerSetAddress(uint32_t addr) {
     address = addr;
 }

@@ -51,7 +51,6 @@ void espInit(void) {
 
 espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     uartErrorCode_t uartToEspErrorCode = uartSendCommand(cmd, expectedResponse);
-
     if (uartToEspErrorCode == UART_IS_BUSY) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
         return ESP_UART_IS_BUSY;
@@ -68,7 +67,6 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
         }
         freeRtosTaskWrapperTaskSleep(REFRESH_RESPOND_IN_MS);
     }
-
     // free command buffer of UART
     uartFreeCommandBuffer();
 

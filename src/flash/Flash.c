@@ -1,8 +1,9 @@
-#define SOURCE_FILE "FLASH"
+ #define SOURCE_FILE "FLASH"
 
 #include "Flash.h"
 #include "FlashInternal.h"
 #include "spi/Spi.h"
+#include "pico/printf.h"
 #include <stdint.h>
 
 static uint8_t flashCsPin;
@@ -36,7 +37,8 @@ uint8_t flashReadStatusReg(void) {
 }
 
 uint8_t flashEraseErrorOccurred(void) {
-    return ((flashReadStatusReg() >> 5) & 1);
+    flashEraseErrorCode_t flashEraseErrorCode = ((flashReadStatusReg() >> 5) & 1);
+    return flashEraseErrorCode;
 }
 
 void flashWaitForDone(void) {
@@ -48,9 +50,14 @@ void flashWaitForDone(void) {
 uint8_t flashEraseData(uint32_t address) {
     uint8_t cmd[4] = {0xD8, address >> 16, address >> 8, address};
     flashWriteEnable();
+    printf("post write enable\n");
     spiWriteSingleCmd(flashSpi, flashCsPin, cmd, 4);
+    
+    printf("post single command \n");
     flashWaitForDone();
-    uint8_t status = flashEraseErrorOccurred();
+    printf("post wait done \n");
+    flashEraseErrorCode_t status = flashEraseErrorOccurred();
+    printf("post erase error\n");
     return status;
 }
 
