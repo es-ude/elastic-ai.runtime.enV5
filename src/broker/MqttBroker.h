@@ -68,6 +68,6 @@ void mqttBrokerReceive(char *response);
 
 
 /*! \brief Published Online Status */
-void mqttReady(void);
+void  publishAliveStatusMessage(char * measurements);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

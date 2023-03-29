@@ -257,7 +257,7 @@
  *   OK
  *   >
  */
-#define AT_MQTT_PUBLISH_LONG "AT+MQTTPUBRAW=0,\"%s\",%lu,0,0"
+#define AT_MQTT_PUBLISH_LONG "AT+MQTTPUBRAW=0,\"%s\",%lu,0,%s"
 #define AT_MQTT_PUBLISH_LONG_LENGTH 24
 #define AT_MQTT_PUBLISH_LONG_RESPONSE "OK"
 

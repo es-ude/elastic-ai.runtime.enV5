@@ -128,3 +128,14 @@ target_link_libraries(hardware-test_HTTP-Flash
         env5_lib)
 target_compile_definitions(hardware-test_HTTP-Flash PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP-Flash)
+
+################## test_Durability ##################
+add_executable(hardware-test_Durability HardwaretestDurability.c)
+target_link_libraries(hardware-test_Durability
+        sensor_lib_pac193x
+        hardware_i2c
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_Durability PRIVATE DEBUG)
+make_to_output_file(hardware-test_Durability)

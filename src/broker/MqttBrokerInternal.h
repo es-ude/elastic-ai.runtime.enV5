@@ -17,8 +17,6 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *client
 
 static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void);
 
-static void publishAliveStatusMessage();
-
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic);
 
 static char *mqttBrokerInternalConcatDomainWithTopic(const char *topic);
