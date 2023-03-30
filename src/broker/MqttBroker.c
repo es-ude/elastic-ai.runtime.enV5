@@ -177,7 +177,6 @@ void communicationEndpointPublish(posting_t posting) {
     }
     posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
     communicationEndpointPublishRaw(posting);
-    free(posting.topic);
 }
 
 void communicationEndpointPublishRemote(posting_t posting) {
@@ -187,7 +186,6 @@ void communicationEndpointPublishRemote(posting_t posting) {
     }
     posting.topic = mqttBrokerInternalConcatDomainWithTopic(posting.topic);
     communicationEndpointPublishRaw(posting);
-    free(posting.topic);
 }
 
 void communicationEndpointPublishRaw(posting_t posting) {
@@ -239,16 +237,11 @@ void publishLong(posting_t posting) {
                  (unsigned long)strlen(posting.data), "0");
     }
 
-
     if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) ==
-        ESP_WRONG_ANSWER_RECEIVED) { // why not OK\n>?
+        ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not publish to topic: %s.", posting.topic)
     } else {
-        if (espSendCommand(posting.data, "+MQTTPUB:OK", 1000) == ESP_WRONG_ANSWER_RECEIVED) {
-            PRINT("Could not publish to topic: %s.", posting.topic)
-        } else {
-            PRINT("Published to %s.", posting.topic)
-        }
+        PRINT("Published to %s.", posting.topic)
     }
 
     free(publishData);
