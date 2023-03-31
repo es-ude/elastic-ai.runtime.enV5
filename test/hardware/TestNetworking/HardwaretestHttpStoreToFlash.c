@@ -19,7 +19,7 @@ static const uint8_t miso_pin = 0;
 static const uint8_t mosi_pin = 3;
 static const uint8_t cs_pin = 1;
 static const uint32_t baudrate = 5000 * 1000;
-static char baseUrl[] = "http://192.168.178.24:5000/getfile/%u";
+static char baseUrl[] = "http://192.168.203.51:5000/getfile/%u";
 
 void readDeviceID() {
     uint8_t id[6];
@@ -60,7 +60,7 @@ void _Noreturn httpTask(void) {
     while (1) {
 
         char input = getchar_timeout_us(10000);
-
+        uint8_t fpga_design_id;
         switch (input) {
         case 'L':
             env5HwLedsAllOn();
@@ -78,6 +78,14 @@ void _Noreturn httpTask(void) {
             init_helper(spi, baudrate);
             readDeviceID();
             spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
+            break;
+        case 'I':
+           
+            middleware_init();
+            fpga_design_id = middleware_get_design_id();
+            printf("design id: %02x\r\n", fpga_design_id);
+            sleep_ms(10);
+            middleware_deinit();
             break;
         case 'F':
             // load bitfile to flash

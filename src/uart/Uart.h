@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define UART_BUFFER_SIZE 1024
+#define UART_BUFFER_SIZE 20000
 
 typedef struct uartInstance uartInstance_t;
 typedef unsigned int uint;

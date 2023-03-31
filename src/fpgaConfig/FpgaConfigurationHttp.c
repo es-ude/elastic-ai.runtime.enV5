@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "Flash.h"
 #include "FpgaConfiguration.h"
+#include "pico/time.h"
 #include <math.h>
 #include <memory.h>
 #include <stdint.h>
@@ -11,14 +12,21 @@
 #include <stdlib.h>
 
 HttpResponse_t *(*getData)(uint32_t) = NULL;
-
+uint32_t currentAddress;
+    uint32_t receiveBufferSize=5120;
+void writeBlock(uint32_t numBlocks, uint32_t numBlock,
+                uint32_t numPageWrites, const HttpResponse_t *block);
+void cleanup(HttpResponse_t *block);
 void setCommunication(HttpResponse_t *(*getDataFun)(uint32_t)) {
     getData = getDataFun;
 }
 
-uint32_t internalCalculateNumBlocks(uint32_t sizeOfConfiguration) {
-    return ceilf((float)(sizeOfConfiguration) / FLASH_PAGE_SIZE);
+uint32_t internalCalculateNumBlocks(uint32_t sizeOfConfiguration, uint32_t blockSize) {
+    return ceilf((float)(sizeOfConfiguration) / blockSize);
 }
+
+
+
 configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration) {
     printf("test beginning config\n");
     if (fpgaConfigurationEraseSectors(startAddress, sizeOfConfiguration) == FLASH_ERASE_ERROR) {
@@ -26,28 +34,45 @@ configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration)
         return CONFIG_ERASE_ERROR;
     }
     printf("Erased\n");
-    uint32_t numBlocks = internalCalculateNumBlocks(sizeOfConfiguration);
+    uint32_t numBlocks = internalCalculateNumBlocks(sizeOfConfiguration, receiveBufferSize);
     PRINT_DEBUG("Number of Blocks: %lu", numBlocks);
-    uint32_t currentAddress = startAddress;
-
-    for (uint32_t numBlock = 0; numBlock < numBlocks; numBlock++) {
+    currentAddress = startAddress;
+    uint32_t numBlock=0;
+    uint32_t numPageWrites= internalCalculateNumBlocks(receiveBufferSize, FLASH_PAGE_SIZE);
+    while (numBlock<numBlocks){
         HttpResponse_t *block;
         block = getData(numBlock);
-        //        if (numBlock == 67) {
-        //            printf("current address: %04X\ndata:\n", currentAddress);
-        //            for (uint32_t i = 0; i < block->length; i++) {
-        //                printf("%02X ", block->response[i]);
-        //                if (i != 0 && i % 16 == 0) {
-        //                    printf("\n");
-        //                }
-        //            }
-        //            printf("\n");
-        //        }
-        flashWritePage(currentAddress, block->response, block->length);
-        currentAddress += block->length;
-        free(block->response);
-        free(block);
-        block = NULL;
+        
+        if (numBlock != (numBlocks-1) && block->length!=receiveBufferSize){
+            // sleep_ms(5000);
+            cleanup(block);
+            continue;
+        }
+        writeBlock(numBlocks, numBlock, numPageWrites, block);
+        cleanup(block);
+        numBlock++;
     }
     return CONFIG_NO_ERROR;
+}
+
+void cleanup(HttpResponse_t *block)
+{
+    free(block->response);
+    free(block);
+    block = NULL;
+}
+void writeBlock(uint32_t numBlocks, uint32_t numBlock,
+                uint32_t numPageWrites, const HttpResponse_t *block) {
+    for (uint32_t i=0; i<numPageWrites; i++) {
+        if ((numBlock == numBlocks - 1) && (i == numPageWrites - 1)) {
+            uint32_t lastBlockSize = block->length % FLASH_PAGE_SIZE;
+            flashWritePage(currentAddress, &(block->response[i * FLASH_PAGE_SIZE]),
+                           lastBlockSize);
+            currentAddress += lastBlockSize;
+        } else {
+            flashWritePage(currentAddress, &(block->response[i * FLASH_PAGE_SIZE]),
+                           FLASH_PAGE_SIZE);
+            currentAddress += FLASH_PAGE_SIZE;
+        }
+    }
 }
