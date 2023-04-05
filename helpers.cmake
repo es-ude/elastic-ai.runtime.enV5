@@ -54,5 +54,5 @@ function(make_to_output_file target)
     add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_BINARY_DIR}/${relative_path}/${target}.uf2
-            ${CMAKE_SOURCE_DIR}/out/${relative_path}/${target}.uf2)
+            ${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}/${relative_path}/${target}.uf2)
 endfunction()
