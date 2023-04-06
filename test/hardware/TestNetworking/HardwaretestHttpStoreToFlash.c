@@ -91,7 +91,7 @@ void _Noreturn httpTask(void) {
             // load bitfile to flash
             init_helper(spi, baudrate);
             printf("ack\n");
-            configErrorCode_t configErrorCode = configure(0, 205272);
+            configErrorCode_t configErrorCode = configure(0x00100000, 205272);
             if (configErrorCode == CONFIG_ERASE_ERROR) {
                 PRINT("ERASE ERROR")
             }

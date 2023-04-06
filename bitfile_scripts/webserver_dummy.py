@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 def read_slice(position: int, filename: str) -> bytes:
     with open(filename, "rb") as file:
-        file.seek(position *5120)
-        chunk: bytes = file.read(5120)
+        file.seek(position *1024)
+        chunk: bytes = file.read(1024)
     return chunk
 
 
@@ -18,7 +18,7 @@ def get_file(position: str):
     Using positional arguments as parameter did not work!
     """
     buffer = BytesIO()
-    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/id_0x22/env5_top_reconfig.bin"))
+    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/id_0x11/env5_top_reconfig.bin"))
     buffer.seek(0)
     return send_file(
         buffer,

@@ -280,8 +280,8 @@
  *   +HTTPCGET:<size>,<data>
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCGET=\"%s\",,6000,9000"
-#define AT_HTTP_GET_LENGTH 30
+#define AT_HTTP_GET "AT+HTTPCGET=\"%s\",,,9000"
+#define AT_HTTP_GET_LENGTH 26
 #define AT_HTTP_GET_RESPONSE "OK"
 
 
