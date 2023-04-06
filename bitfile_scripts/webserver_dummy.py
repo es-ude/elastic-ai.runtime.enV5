@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 def read_slice(position: int, filename: str) -> bytes:
     with open(filename, "rb") as file:
-        file.seek(position * 256)
-        chunk: bytes = file.read(256)
+        file.seek(position *1024)
+        chunk: bytes = file.read(1024)
     return chunk
 
 

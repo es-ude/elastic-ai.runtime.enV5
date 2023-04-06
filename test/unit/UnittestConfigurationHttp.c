@@ -7,9 +7,10 @@
 
 
 #define NUMSECTORS 2
-const uint8_t numberOfPages = 5;
-const uint16_t configSize = FLASH_PAGE_SIZE * numberOfPages;
+uint8_t numberOfPages;
 const uint8_t numberOfSectors = NUMSECTORS;
+const uint16_t http_receive_size=1024;
+const uint32_t config_size=3000;
 
 void setUp(void) {
     numWriteBlocks = 0;
@@ -32,49 +33,48 @@ void writeExpectedAddresses(uint32_t *expectedAddresses, uint32_t startingAddres
 }
 void testWriteData(){
     uint32_t startAddress=0;
-    uint32_t sizeOfConfiguration=numberOfPages*FLASH_PAGE_SIZE;
-    uint8_t expected[sizeOfConfiguration];
-    for(uint16_t j=0;j<numberOfPages; j++) {
-        for (uint16_t i = 0; i < FLASH_PAGE_SIZE; i++) {
-            expected[i+j*FLASH_PAGE_SIZE] = i;
-        }
+    uint8_t expected[config_size];
+    for(uint32_t j=0;j<config_size; j++) {
+        expected[j]=j%FLASH_PAGE_SIZE;
     }
-
-    printf("Hallo?\n");
+    
     setCommunication(dataReceive);
-    configErrorCode_t status=configure(startAddress,sizeOfConfiguration);
-    printf("\n%u\n",dataComplete[1]);
+    configErrorCode_t status=configure(startAddress,config_size);
     
-    
+    numberOfPages=config_size/FLASH_PAGE_SIZE;
     uint32_t expectedAddresses[numberOfPages];
     writeExpectedAddresses(expectedAddresses, startAddress, numberOfPages);
     TEST_ASSERT_EQUAL_UINT32_ARRAY_MESSAGE(expectedAddresses, addressWrite, numberOfPages,
                                            "Addresses of flash pages");
     
-    
-   // TEST_ASSERT_EQUAL_UINT8(CONFIG_NO_ERROR, status);
-   // TEST_ASSERT_EQUAL_UINT32(1, numSectorErase);
-   // TEST_ASSERT_EQUAL_UINT32(numberOfPages, numWriteBlocks);
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE(expected, (&dataComplete[0] + startAddress),
-                                                     sizeOfConfiguration,
+                                                     config_size,
                                           "Content of written data");
 }
 
-HttpResponse_t* dataReceive(uint32_t address){
-    uint8_t data[256];
-    HttpResponse_t * block = malloc(sizeof(HttpResponse_t));
-    block->length = 256;
-    block->response = malloc(sizeof(uint8_t) * 256);
- 
-    for(uint16_t i=0; i<256; i++){
-        data[i]=i;
+HttpResponse_t* dataReceive(uint32_t blockNum){
+    printf("num Block: %i\n", blockNum);
+    uint32_t blockSize;
+    if((config_size) / http_receive_size==blockNum){
+        blockSize=config_size%http_receive_size;
+        printf("size last block: %i\n", blockSize);
+    
+    }else{
+        blockSize=http_receive_size;
     }
-    memcpy(block->response, data, 256);
+    uint8_t data[blockSize];
+    HttpResponse_t * block = malloc(sizeof(HttpResponse_t));
+    block->length =blockSize;
+    block->response = malloc(sizeof(uint8_t) * blockSize);
+ 
+    for(uint32_t i=0; i<blockSize; i++){
+        data[i]=i%FLASH_PAGE_SIZE;
+    }
+    memcpy(block->response, data,blockSize);
     return block;
 }
 int main(void) {
     UNITY_BEGIN();
-    printf("haaaalllo=???\n‚");
     RUN_TEST(testWriteData);
   
     return UNITY_END();
