@@ -1,6 +1,6 @@
 # Based on https://github.com/marketplace/actions/git-clang-format-action
 
-name: "Format code and push changes"
+name: "Format code"
 
 on:
   pull_request:
