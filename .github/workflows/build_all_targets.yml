@@ -1,4 +1,4 @@
-name: Build all Targets
+name: "Build all Targets"
 
 on:
   workflow_call:
