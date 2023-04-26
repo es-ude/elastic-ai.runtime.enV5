@@ -256,10 +256,10 @@ _Noreturn void fpgaTask(void) {
         free(downloadRequest);
         downloadRequest = NULL;
 
-        // reset FPGA
-        env5HwFpgaReset(1);
-        freeRtosTaskWrapperTaskSleep(10);
-        env5HwFpgaReset(0);
+//        // reset FPGA
+//        env5HwFpgaReset(1);
+//        freeRtosTaskWrapperTaskSleep(10);
+//        env5HwFpgaReset(0);
 
         // load bitfile to FPGA
         env5HwFpgaPowersOn();
@@ -389,15 +389,23 @@ void receiveDownloadBinRequest(posting_t posting) {
     char *urlStart = strstr(posting.data, "URL:") + 4;
     char *urlEnd = strstr(urlStart, ";") - 1;
     size_t urlLength = urlEnd - urlStart + 1;
-    char *url = malloc(urlLength + 3);
+    char *url = malloc(urlLength);
     memcpy(url, urlStart, urlLength);
-
-    char *sizeStart = strstr("SIZE:", posting.data) + 5;
-    size_t length = strtol(sizeStart, NULL, 10);
-
+    url[urlLength-1]='\0';
+    char *sizeStart = strstr(posting.data,"SIZE:" ) + 5;
+    char *endSize = strstr(sizeStart, ";")-1;
+    size_t length = strtol(sizeStart, &endSize, 10);
+    
+    char *positionStart=strstr( posting.data,"POSITION:")+9;
+    char *positionEnd = strstr(positionStart, ";")-1;
+    size_t position=strtol(positionStart, &positionEnd, 10);
+    
+      //eig 37 sind 44
+    
     downloadRequest = malloc(sizeof(downloadRequest_t));
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
+    downloadRequest->startAddress= position;
 }
 
 HttpResponse_t *getResponse(uint32_t block_number) {

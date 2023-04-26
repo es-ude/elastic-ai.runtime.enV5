@@ -44,7 +44,6 @@ configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration)
         block = getData(numBlock);
         
         if (numBlock != (numBlocks-1) && block->length!=receiveBufferSize){
-             sleep_ms(50);
             cleanup(block);
             continue;
         }
