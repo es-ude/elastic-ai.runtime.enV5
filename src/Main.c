@@ -2,7 +2,10 @@
 
 // internal headers
 #include "Common.h"
+#include "Env5Hw.h"
 #include "Esp.h"
+#include "Flash.h"
+#include "FpgaConfigurationHttp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
@@ -10,9 +13,12 @@
 #include "NetworkConfiguration.h"
 #include "Pac193x.h"
 #include "Protocol.h"
+#include "Spi.h"
+#include "middleware.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
+#include <hardware/spi.h>
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
@@ -22,6 +28,17 @@
 #include <string.h>
 
 /* region VARIABLES/DEFINES */
+
+/* region FLASH */
+
+#define FLASH_SPI spi0
+#define FLASH_SCK 2
+#define FLASH_MISO 0
+#define FLASH_MOSI 3
+#define FLASH_CS 1
+#define FLASH_BAUDRATE 5000000
+
+/* endregion FLASH */
 
 /* region POWER-SENSOR 1 */
 
@@ -66,9 +83,15 @@ typedef struct receiver {
     void (*whenSubscribed)(char *dataID);
     bool subscribed;
 } receiver_t;
-
 receiver_t receivers[5];
 uint16_t receivers_count = 0;
+
+typedef struct downloadRequest {
+    char *url;
+    size_t fileSizeInBytes;
+    size_t startAddress;
+} downloadRequest_t;
+downloadRequest_t *downloadRequest = NULL;
 
 /* endregion MQTT */
 
@@ -83,6 +106,9 @@ void init(void);
 
 /// retrieve single-shot value from power sensor
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel);
+
+void flashFpga(uint8_t address);
+void downloadBinFile();
 
 /* endregion HARDWARE */
 
@@ -101,12 +127,18 @@ _Noreturn void enterBootModeTask(void);
 
 void setTwinID(char *newTwinID);
 void offline(posting_t posting);
-void offline(posting_t posting);
+void addDataRequestReceiver(receiver_t receiver);
+void addCommandRequestReceiver(receiver_t receiver);
+
 void receiveDataStartRequest(posting_t posting);
 void receiveDataStopRequest(posting_t posting);
-void addDataRequestReceiver(receiver_t receiver);
 void getAndPublishSRamValue(char *dataID);
 void getAndPublishWifiValue(char *dataID);
+
+void receiveDownloadBinRequest(posting_t posting);
+void receiveFlashFpgaRequest(posting_t posting);
+
+HttpResponse_t *getResponse(uint32_t block_number);
 
 /* endregion MQTT */
 
@@ -115,12 +147,10 @@ void getAndPublishWifiValue(char *dataID);
 int main() {
     init();
 
-    //    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
-    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
+    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
+    //    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperStartScheduler();
-
-    while (true) {}
 }
 
 /* region PROTOTYPE IMPLEMENTATIONS */
@@ -158,18 +188,24 @@ void init(void) {
     while (1) {
         errorCode = pac193xInit(powersensor2);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.")
+            PRINT("Initialised PAC193X sensor 2.")
             break;
         }
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
 
+    // initialize SPI, flash and FPGA
+    spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
+    flashInit(FLASH_CS, FLASH_SPI);
+    env5HwInit();
+    setCommunication(getResponse);
+
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
 
-    // enables watchdog timer (10s)
-    watchdog_enable(10000, 1);
+    // enables watchdog timer (5s)
+    watchdog_enable(5000, 1);
 }
 
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
@@ -186,9 +222,50 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
 }
 
 _Noreturn void fpgaTask(void) {
+    /* NOTES:
+     *   1. add listener for download start command (MQTT)
+     *      uart handle should only set flag -> download handled at task
+     *   2. download data from server and stored to flash
+     *   4. add listener for FPGA flashing command
+     *   5. trigger flash of FPGA
+     *      handled in UART interrupt
+     */
+
+    setCommunication(getResponse);
+
+    freeRtosTaskWrapperTaskSleep(5000);
+    protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
+
+    PRINT("Ready ...")
+
     while (1) {
-        // TODO
-        freeRtosTaskWrapperTaskSleep(1000);
+        if (downloadRequest == NULL) {
+            freeRtosTaskWrapperTaskSleep(1000);
+            continue;
+        }
+
+        // download bitfile from server
+        PRINT_DEBUG("Download: address: %s, size: %i", downloadRequest->url,
+                    downloadRequest->fileSizeInBytes)
+        if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
+            CONFIG_ERASE_ERROR) {
+            PRINT("ERASE ERROR")
+            protocolPublishCommandResponse("FLASH", false);
+        }
+        free(downloadRequest->url);
+        free(downloadRequest);
+        downloadRequest = NULL;
+
+        // reset FPGA
+        env5HwFpgaReset(1);
+        freeRtosTaskWrapperTaskSleep(10);
+        env5HwFpgaReset(0);
+
+        // load bitfile to FPGA
+        env5HwFpgaPowersOn();
+        PRINT_DEBUG("reconfig done")
+
+        protocolPublishCommandResponse("FLASH", true);
     }
 }
 
@@ -197,7 +274,6 @@ _Noreturn void sensorTask(void) {
         (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-
     publishAliveStatusMessage("wifi,sram");
 
     PRINT("Ready ...")
@@ -307,6 +383,40 @@ void getAndPublishWifiValue(char *dataID) {
     float channelWifiValue = measureValue(powersensor1, PAC193X_CHANNEL_WIFI);
     snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
     protocolPublishData(dataID, buffer);
+}
+
+void receiveDownloadBinRequest(posting_t posting) {
+    char *urlStart = strstr(posting.data, "URL:") + 4;
+    char *urlEnd = strstr(urlStart, ";") - 1;
+    size_t urlLength = urlEnd - urlStart + 1;
+    char *url = malloc(urlLength + 3);
+    memcpy(url, urlStart, urlLength);
+
+    char *sizeStart = strstr("SIZE:", posting.data) + 5;
+    size_t length = strtol(sizeStart, NULL, 10);
+
+    downloadRequest = malloc(sizeof(downloadRequest_t));
+    downloadRequest->url = url;
+    downloadRequest->fileSizeInBytes = length;
+}
+
+HttpResponse_t *getResponse(uint32_t block_number) {
+    char *blockNo = malloc(10 * sizeof(char));
+    sprintf(blockNo, "%li", block_number);
+
+    char *URL = malloc(strlen(downloadRequest->url) + 1 + strlen(blockNo));
+    strcpy(URL, downloadRequest->url);
+    strcat(URL, "/");
+    strcat(URL, blockNo);
+
+    HttpResponse_t *response;
+    uint8_t code = HTTPGet(URL, &response);
+    PRINT_DEBUG("HTTP Get returns with %u", code);
+    PRINT_DEBUG("Response Length: %li", response->length)
+
+    free(blockNo);
+    free(URL);
+    return response;
 }
 
 /* endregion PROTOTYPE IMPLEMENTATIONS */
