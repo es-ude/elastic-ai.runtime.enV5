@@ -245,8 +245,11 @@ _Noreturn void fpgaTask(void) {
         }
 
         // download bitfile from server
-        PRINT_DEBUG("Download: address: %s, size: %i", downloadRequest->url,
+        PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
+                    downloadRequest->startAddress,
+                                                                              downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
+        freeRtosTaskWrapperTaskSleep(20000);
         if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
             CONFIG_ERASE_ERROR) {
             PRINT("ERASE ERROR")
@@ -258,9 +261,9 @@ _Noreturn void fpgaTask(void) {
 
 //        // reset FPGA
 //        env5HwFpgaReset(1);
-//        freeRtosTaskWrapperTaskSleep(10);
+        freeRtosTaskWrapperTaskSleep(10);
 //        env5HwFpgaReset(0);
-
+        spiDeinit(FLASH_SPI, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
         // load bitfile to FPGA
         env5HwFpgaPowersOn();
         PRINT_DEBUG("reconfig done")
