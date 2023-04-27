@@ -28,14 +28,10 @@ uint32_t internalCalculateNumBlocks(uint32_t sizeOfConfiguration, uint32_t block
 
 
 configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration) {
-    printf("test beginning config\n");
     if (fpgaConfigurationEraseSectors(startAddress, sizeOfConfiguration) == FLASH_ERASE_ERROR) {
-        printf("flash erase error\n");
         return CONFIG_ERASE_ERROR;
     }
-    printf("Erased\n");
     uint32_t numBlocks = internalCalculateNumBlocks(sizeOfConfiguration, receiveBufferSize);
-    PRINT_DEBUG("Number of Blocks: %lu", numBlocks);
     currentAddress = startAddress;
     uint32_t numBlock=0;
     uint32_t numPageWrites= internalCalculateNumBlocks(receiveBufferSize, FLASH_PAGE_SIZE);
