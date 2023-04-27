@@ -195,9 +195,7 @@ void init(void) {
         sleep_ms(500);
     }
 
-    // initialize SPI, flash and FPGA
-    spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
-    flashInit(FLASH_CS, FLASH_SPI);
+    
     env5HwInit();
     setCommunication(getResponse);
 
@@ -230,7 +228,9 @@ _Noreturn void fpgaTask(void) {
      *   5. trigger flash of FPGA
      *      handled in UART interrupt
      */
-
+    
+    
+    
     setCommunication(getResponse);
 
     freeRtosTaskWrapperTaskSleep(5000);
@@ -243,13 +243,18 @@ _Noreturn void fpgaTask(void) {
             freeRtosTaskWrapperTaskSleep(1000);
             continue;
         }
-
+        
+        env5HwFpgaPowersOff();
+    
+        // initialize SPI, flash and FPGA
+        spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
+        flashInit(FLASH_CS, FLASH_SPI);
+        
         // download bitfile from server
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
                     downloadRequest->startAddress,
                                                                               downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
-        freeRtosTaskWrapperTaskSleep(20000);
         if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
             CONFIG_ERASE_ERROR) {
             PRINT("ERASE ERROR")
