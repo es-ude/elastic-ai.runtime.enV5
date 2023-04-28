@@ -115,7 +115,7 @@ add_test(unit-test_configuration unit-test_configuration)
 ## region UNIT-TEST: unit-test_binary-arithmetic-abstraction
 add_executable(unit-test_binary-arithmetic-abstraction
         ${CMAKE_CURRENT_LIST_DIR}/UnittestBinaryArithmeticAbstraction.c
-        ${CMAKE_SOURCE_DIR}/src/sha256/RegisterAbstraction.c)
+        ${CMAKE_SOURCE_DIR}/src/sha256/BinaryArithmeticAbstraction.c)
 target_include_directories(unit-test_binary-arithmetic-abstraction PUBLIC
         ${CMAKE_SOURCE_DIR}/src/sha256
         ${CMAKE_SOURCE_DIR}/extern
