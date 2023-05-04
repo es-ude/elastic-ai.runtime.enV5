@@ -148,7 +148,7 @@ int main() {
     init();
 
     freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
-    //    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperStartScheduler();
 }
@@ -195,7 +195,6 @@ void init(void) {
         sleep_ms(500);
     }
 
-    
     env5HwInit();
     setCommunication(getResponse);
 
@@ -215,7 +214,7 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return -1;
     }
-    PRINT("Measured Value: %4.2f")
+    PRINT("Measured Value: %4.2f", measurement)
     return measurement;
 }
 
@@ -228,9 +227,7 @@ _Noreturn void fpgaTask(void) {
      *   5. trigger flash of FPGA
      *      handled in UART interrupt
      */
-    
-    
-    
+
     setCommunication(getResponse);
 
     freeRtosTaskWrapperTaskSleep(5000);
@@ -245,15 +242,14 @@ _Noreturn void fpgaTask(void) {
         }
         
         env5HwFpgaPowersOff();
-    
+
         // initialize SPI, flash and FPGA
         spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
         flashInit(FLASH_CS, FLASH_SPI);
-        
+
         // download bitfile from server
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
-                    downloadRequest->startAddress,
-                                                                              downloadRequest->url,
+                    downloadRequest->startAddress, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
         if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
             CONFIG_ERASE_ERROR) {
@@ -264,10 +260,10 @@ _Noreturn void fpgaTask(void) {
         free(downloadRequest);
         downloadRequest = NULL;
 
-//        // reset FPGA
-//        env5HwFpgaReset(1);
+        //        // reset FPGA
+        //        env5HwFpgaReset(1);
         freeRtosTaskWrapperTaskSleep(10);
-//        env5HwFpgaReset(0);
+        //        env5HwFpgaReset(0);
         spiDeinit(FLASH_SPI, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
         // load bitfile to FPGA
         env5HwFpgaPowersOn();
@@ -394,26 +390,25 @@ void getAndPublishWifiValue(char *dataID) {
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
+    // get download request
     char *urlStart = strstr(posting.data, "URL:") + 4;
     char *urlEnd = strstr(urlStart, ";") - 1;
     size_t urlLength = urlEnd - urlStart + 1;
     char *url = malloc(urlLength);
     memcpy(url, urlStart, urlLength);
-    url[urlLength-1]='\0';
-    char *sizeStart = strstr(posting.data,"SIZE:" ) + 5;
-    char *endSize = strstr(sizeStart, ";")-1;
+    url[urlLength - 1] = '\0';
+    char *sizeStart = strstr(posting.data, "SIZE:") + 5;
+    char *endSize = strstr(sizeStart, ";") - 1;
     size_t length = strtol(sizeStart, &endSize, 10);
-    
-    char *positionStart=strstr( posting.data,"POSITION:")+9;
-    char *positionEnd = strstr(positionStart, ";")-1;
-    size_t position=strtol(positionStart, &positionEnd, 10);
-    
-      //eig 37 sind 44
-    
+
+    char *positionStart = strstr(posting.data, "POSITION:") + 9;
+    char *positionEnd = strstr(positionStart, ";") - 1;
+    size_t position = strtol(positionStart, &positionEnd, 10);
+
     downloadRequest = malloc(sizeof(downloadRequest_t));
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
-    downloadRequest->startAddress= position;
+    downloadRequest->startAddress = position;
 }
 
 HttpResponse_t *getResponse(uint32_t block_number) {
