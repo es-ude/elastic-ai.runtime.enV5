@@ -1,0 +1,29 @@
+# https://github.com/semantic-release/semantic-release
+
+name: "Semantic Release"
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  format:
+    uses: ./.github/workflows/format.yml
+
+  release:
+    name: release
+    needs: [ format ]
+    runs-on: ubuntu-latest
+    permissions:
+      content: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 18
+      - run: npm ci
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
