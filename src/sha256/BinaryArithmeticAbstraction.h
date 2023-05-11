@@ -7,3 +7,5 @@
 
 uint32_t rightShift(uint32_t input, uint8_t num);
 uint32_t leftShift(uint32_t input, uint8_t num);
+uint32_t rightRotate(uint32_t input, uint8_t num);
+uint32_t leftRotate(uint32_t input, uint8_t num);
