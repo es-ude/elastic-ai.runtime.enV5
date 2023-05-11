@@ -1,5 +1,8 @@
 #include "BinaryArithmeticAbstraction.h"
-#define UINT32_MAX  ((uint32_t)-1)  //habe ich definiert, weil es scheinbar häufig so genutzt wird?
+//#define UINT32_MAX  ((uint32_t)-1)  //habe ich definiert, weil es scheinbar häufig so genutzt
+// wird?
+                                    //warnung, weil es "redefined" wird
+#include <stdbool.h>
 
 uint32_t leftShift(uint32_t input, uint8_t num) {
     return input<<num;
@@ -17,7 +20,7 @@ uint32_t leftRotate(uint32_t input, uint8_t num) {
     return leftShift(input, num) | rightShift(input, 32-num);//change for different inputsize
 }
 
-boolean xor(boolean inputOne, boolean inputTwo){
+bool xor(bool inputOne, bool inputTwo){
     return (!inputOne & inputTwo) | (inputOne & !inputTwo);
 }
 
@@ -28,9 +31,9 @@ boolean xor(boolean inputOne, boolean inputTwo){
     return (negationInputOne & inputTwo) | (inputOne & negationInputTwo);
 }*/
 
-unint32_t sigmaZero(uint32_t input){
+uint32_t sigmaZero(uint32_t input){
     return input;
 }
-unint32_t sigmaOne(uint32_t input){
+uint32_t sigmaOne(uint32_t input){
     return input;
 }

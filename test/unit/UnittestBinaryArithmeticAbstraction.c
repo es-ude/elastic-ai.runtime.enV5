@@ -1,6 +1,7 @@
 #include "BinaryArithmeticAbstraction.h"
 #include "unity.h"
 
+
 void setUp(void) {}
 
 void tearDown(void) {}
@@ -73,6 +74,27 @@ void rightRotateInp2147483670Num3(void){
     00000000 00000000 0000000 10110100 leftRotateThree 180
     */
 
+void xorTrueTrue(void){
+    int actual = xor(1,1);
+    int expected = 0;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+void xorFalseFalse(void){
+    int actual = xor(0,0);
+    int expected = 0;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+void xorTrueFalse(void){
+    int actual = xor(1,0);
+    int expected = 1;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+void xorFalseTrue(void){
+    int actual = xor(0,1);
+    int expected = 1;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
 
 int main(void) {
     UNITY_BEGIN();
@@ -85,6 +107,10 @@ int main(void) {
     RUN_TEST(rightRotateInp2147483670Num3);
     RUN_TEST(leftRotateInp22Num5);
     RUN_TEST(rightRotateInp22Num5);
+    RUN_TEST(xorTrueTrue);
+    RUN_TEST(xorFalseFalse);
+    RUN_TEST(xorTrueFalse);
+    RUN_TEST(xorFalseTrue);
 
     
     return UNITY_END();
