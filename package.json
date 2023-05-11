@@ -1,0 +1,12 @@
+{
+  "name": "elastic-ai.runtime.enV5",
+  "private": true,
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "devDependencies": {
+    "@semantic-release/github": "^8.0.7"
+  }
+}
