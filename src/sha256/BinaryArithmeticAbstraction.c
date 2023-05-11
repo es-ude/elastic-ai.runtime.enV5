@@ -25,9 +25,14 @@ uint32_t bitwiseXor(uint32_t inputOne, uint32_t inputTwo){
     return inputOne ^ inputTwo;
 }
 
-uint32_t sigmaZero(uint32_t input){
-    return input;
+uint32_t sigmaZero(uint32_t input){  // a xor b xor c
+    return bitwiseXor(bitwiseXor(rightRotate(input,7),
+                                        rightRotate(input,18)),
+                                        rightShift(input, 3));
 }
-uint32_t sigmaOne(uint32_t input){
-    return input;
+
+uint32_t sigmaOne(uint32_t input){  // a xor b xor c
+    return bitwiseXor(bitwiseXor(rightRotate(input,17),
+                                        rightRotate(input,19)),
+                                        rightShift(input, 10));
 }
