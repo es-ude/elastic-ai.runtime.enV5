@@ -259,15 +259,14 @@ _Noreturn void fpgaTask(void) {
         free(downloadRequest->url);
         free(downloadRequest);
         downloadRequest = NULL;
+        PRINT("Download finished!")
 
-        //        // reset FPGA
-        //        env5HwFpgaReset(1);
+        // reset FPGA
         freeRtosTaskWrapperTaskSleep(10);
-        //        env5HwFpgaReset(0);
         spiDeinit(FLASH_SPI, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
         // load bitfile to FPGA
         env5HwFpgaPowersOn();
-        PRINT_DEBUG("reconfig done")
+        PRINT("FPGA reconfigured")
 
         protocolPublishCommandResponse("FLASH", true);
     }
