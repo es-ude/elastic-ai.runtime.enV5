@@ -3,6 +3,7 @@
 
 #include "FlashTypedefs.h"
 #include <stdint.h>
+
 extern uint32_t address;
 extern uint32_t config_size;
 extern uint8_t dataSent[FLASH_PAGE_SIZE * 5];

@@ -3,7 +3,6 @@
 #include "FpgaConfigDatahandler.h"
 
 uint32_t address;
-uint32_t config_size;
 uint8_t dataSent[FLASH_PAGE_SIZE * 5];
 uint8_t fpgaConfigHandlerNumWrittenBlock;
 uint8_t readValueNum = 0;
