@@ -61,3 +61,7 @@ uint32_t calculationOfWords(uint32_t wZero, uint32_t wOne, uint32_t wNine, uint3
 uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
     return bitwiseXor(bitwiseXor((a + b), (a + c)), (b + c));
 }
+
+uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
+    return bitwiseXor((e & f),(bitwiseNot(e) & g));
+}
