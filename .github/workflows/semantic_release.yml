@@ -14,9 +14,6 @@ jobs:
     name: release
     needs: [ format ]
     runs-on: ubuntu-latest
-    permissions:
-      content: write
-      packages: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
