@@ -44,7 +44,7 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
         }
         return HTTP_CONNECTION_FAILED;
     }
-    
+
     *data = HTTPResponse;
     HTTPResponse = NULL;
     free(httpGet);

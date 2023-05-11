@@ -243,7 +243,7 @@ void publishLong(posting_t posting) {
         free(publishData);
         return;
     }
-    
+
     if (espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) ==
         ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not publish to topic: %s. II", posting.topic)

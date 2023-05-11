@@ -240,7 +240,7 @@ _Noreturn void fpgaTask(void) {
             freeRtosTaskWrapperTaskSleep(1000);
             continue;
         }
-        
+
         env5HwFpgaPowersOff();
 
         // initialize SPI, flash and FPGA

@@ -80,7 +80,7 @@ void _Noreturn httpTask(void) {
             spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
             break;
         case 'I':
-           
+
             middleware_init();
             fpga_design_id = middleware_get_design_id();
             printf("design id: %02x\r\n", fpga_design_id);

@@ -1,7 +1,7 @@
 #define SOURCE_FILE "ENV5-HW"
 
-#include "Common.h"
 #include "Env5Hw.h"
+#include "Common.h"
 #include "pico/stdlib.h"
 
 void env5HwFpgaFlashSpiDeinit() {

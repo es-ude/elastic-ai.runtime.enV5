@@ -23,9 +23,9 @@ uint8_t flashEraseData(uint32_t address) {
 }
 
 int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length) {
-        for (uint16_t i = 0; i < length; i++) {
-            data_buffer[i] = flash[i + address];
-        }
+    for (uint16_t i = 0; i < length; i++) {
+        data_buffer[i] = flash[i + address];
+    }
 
     return 2;
 }

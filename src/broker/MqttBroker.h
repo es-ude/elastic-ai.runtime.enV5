@@ -66,8 +66,7 @@ void mqttBrokerDisconnect(bool force);
  */
 void mqttBrokerReceive(char *response);
 
-
 /*! \brief Published Online Status */
-void  publishAliveStatusMessage(char * measurements);
+void publishAliveStatusMessage(char *measurements);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

@@ -285,7 +285,6 @@
 #define AT_HTTP_GET_LENGTH 26
 #define AT_HTTP_GET_RESPONSE "OK"
 
-
 /* endregion HTTP */
 
 #endif /* ENV5_AT_COMMANDS */

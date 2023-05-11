@@ -5,8 +5,6 @@
 #include "spi/SpiTypedefs.h"
 #include <stdint.h>
 
-
-
 void flashInit(uint8_t chip_select, spi_inst_t *spiInst);
 
 int flashReadId(uint8_t *data_buffer, uint16_t length);

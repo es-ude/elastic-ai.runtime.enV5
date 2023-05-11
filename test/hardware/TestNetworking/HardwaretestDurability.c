@@ -56,9 +56,9 @@ static pac193xSensorConfiguration_t sensor2 = {
 
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
-    
+
     pac193xErrorCode_t errorCode =
-                           pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
+        pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
         return -1;
@@ -79,7 +79,7 @@ void offline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
     PRINT("Twin offline")
-    
+
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i].subscribed = false;
     }
@@ -87,7 +87,7 @@ void offline(posting_t posting) {
 
 void receiveDataStartRequest(posting_t posting) {
     setTwinID(posting.data);
-    
+
     for (int i = 0; i < receivers_count; ++i) {
         if (strstr(posting.topic, receivers[i].dataID) != NULL) {
             receivers[i].subscribed = true;
@@ -98,7 +98,7 @@ void receiveDataStartRequest(posting_t posting) {
 
 void receiveDataStopRequest(posting_t posting) {
     setTwinID(posting.data);
-    
+
     for (int i = 0; i < receivers_count; ++i) {
         if (strstr(posting.topic, receivers[i].dataID) != NULL) {
             receivers[i].subscribed = false;
@@ -111,7 +111,7 @@ void addDataRequestReceiver(receiver_t receiver) {
     receiver.subscribed = false;
     protocolSubscribeForDataStartRequest(receiver.dataID,
                                          (subscriber_t){.deliver = receiveDataStartRequest});
-    
+
     protocolSubscribeForDataStopRequest(receiver.dataID,
                                         (subscriber_t){.deliver = receiveDataStopRequest});
     receivers[receivers_count] = receiver;
@@ -135,7 +135,7 @@ void getAndPublishWifiValue(char *dataID) {
 _Noreturn void mainTask(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
     mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
-    
+
     PRINT("===== INIT SENSOR 1 =====")
     pac193xErrorCode_t errorCode;
     while (1) {
@@ -147,7 +147,7 @@ _Noreturn void mainTask(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     PRINT("===== INIT SENSOR 2 =====")
     while (1) {
         errorCode = pac193xInit(sensor2);
@@ -158,18 +158,18 @@ _Noreturn void mainTask(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     sleep_ms(1000);
-    
+
     addDataRequestReceiver(
         (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-    
+
     publishAliveStatusMessage("wifi,sram");
-    
+
     printf("Ready ...\n");
-    
+
     bool hasTwin = false;
     while (true) {
         bool toSomeTopicIsSubscribed = false;
@@ -180,7 +180,7 @@ _Noreturn void mainTask(void) {
             }
             sleep_ms(500);
         }
-        
+
         if (!hasTwin && (toSomeTopicIsSubscribed)) {
             hasTwin = true;
             protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = offline});
@@ -228,7 +228,7 @@ int main() {
     init();
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(mainTask, "mainTask");
-    
+
     // Starts FreeRTOS tasks
     freeRtosTaskWrapperStartScheduler();
 }

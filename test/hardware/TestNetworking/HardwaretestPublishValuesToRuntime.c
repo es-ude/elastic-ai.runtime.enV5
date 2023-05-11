@@ -35,10 +35,10 @@ void publishTestDataWifi(uint16_t i) {
 
 void _Noreturn mqttTask(void) {
     PRINT("=== STARTING TEST ===")
-    
+
     connectToNetwork();
     connectToMQTT();
-    
+
     uint64_t messageData = 0;
     while (1) {
         publishTestDataSram(messageData);
@@ -50,7 +50,7 @@ void _Noreturn mqttTask(void) {
 
 int main() {
     initHardwareTest();
-    
+
     freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask");
     freeRtosTaskWrapperStartScheduler();

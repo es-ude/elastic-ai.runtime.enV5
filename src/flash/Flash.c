@@ -1,9 +1,9 @@
- #define SOURCE_FILE "FLASH"
+#define SOURCE_FILE "FLASH"
 
 #include "Flash.h"
 #include "FlashInternal.h"
-#include "spi/Spi.h"
 #include "pico/printf.h"
+#include "spi/Spi.h"
 #include <stdint.h>
 
 static uint8_t flashCsPin;
@@ -51,7 +51,7 @@ uint8_t flashEraseData(uint32_t address) {
     uint8_t cmd[4] = {0xD8, address >> 16, address >> 8, address};
     flashWriteEnable();
     spiWriteSingleCmd(flashSpi, flashCsPin, cmd, 4);
-    
+
     flashWaitForDone();
     flashEraseErrorCode_t status = flashEraseErrorOccurred();
     return status;

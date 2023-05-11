@@ -11,8 +11,6 @@ extern uint32_t addressWrite[12];
 extern uint8_t dataComplete[FLASH_SECTOR_SIZE * 4];
 extern uint32_t numWriteBlocks;
 
-
-
 void flashSetData(uint8_t *flashData, uint32_t sizeFlashData);
 uint8_t flashEraseData(uint32_t address);
 int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length);
