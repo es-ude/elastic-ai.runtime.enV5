@@ -21,8 +21,8 @@ void rightShiftInp22Num3(void) {
 }
     /*
     00000000 00000000 00000000 00010110 start 22
-    00000000 00000000 00000000 00000010 rightShift 2
-    00000000 00000000 00000000 10110000 leftShift 176
+    00000000 00000000 00000000 00000010 rightShiftThree 2
+    00000000 00000000 00000000 10110000 leftShiftThree 176
     */
 
 void leftShiftInp2147483670Num5(void) {
@@ -37,13 +37,29 @@ void rightShiftInp2147483670Num5(void) {
 }
     /*
     10000000 00000000 0000000 00010110 start 2 147 483 670
-    00000100 00000000 0000000 00000000 rightShift 67 108 864
-    00000000 00000000 0000010 11000000 leftShift 704
+    00000100 00000000 0000000 00000000 rightShiftFive 67 108 864
+    00000000 00000000 0000010 11000000 leftShiftFive 704
     */
+
+void leftRotateInp22Num5(void) {
+    uint32_t actual = leftRotate(22, 5);
+    uint32_t expected = 704;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+void rightRotateInp22Num5(void) {
+    uint32_t actual = rightRotate(22, 5);
+    uint32_t expected = 2952790016;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+/*
+    00000000 00000000 00000000 00010110 start 22
+    10110000 00000000 00000000 00000000 rightRotateFive 2952790016
+    00000000 00000000 00000010 11000000 leftRotateFive 704
+*/
 
 void leftRotateInp2147483670Num3(void){
     uint32_t actual = leftRotate(2147483670, 3);
-    uint32_t expected = 177; // was 180
+    uint32_t expected = 180;
     TEST_ASSERT_EQUAL(expected, actual);
 }
 void rightRotateInp2147483670Num3(void){
@@ -65,8 +81,11 @@ int main(void) {
     RUN_TEST(rightShiftInp22Num3);
     RUN_TEST(leftShiftInp2147483670Num5);
     RUN_TEST(rightShiftInp2147483670Num5);
-    RUN_TEST(rightRotateInp2147483670Num3);
     RUN_TEST(leftRotateInp2147483670Num3);
+    RUN_TEST(rightRotateInp2147483670Num3);
+    RUN_TEST(leftRotateInp22Num5);
+    RUN_TEST(rightRotateInp22Num5);
+
     
     return UNITY_END();
 }
