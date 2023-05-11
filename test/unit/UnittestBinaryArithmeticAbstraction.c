@@ -106,13 +106,28 @@ void bitwiseXorInp2147483670and3489660930(void) {
     uint32_t expected = 1342177300;
     TEST_ASSERT_EQUAL(expected, actual);
 }
-
-
 /*
     10000000 00000000 0000000 00010110 XOR          2147483670
     11010000 00000000 0000000 00000010              3489660930
     __________________________________
     01010000 00000000 0000000 00010100              1342177300
+*/
+void bitwiseNotInp1870659584(void){
+    uint32_t actual = bitwiseNot(1870659584);
+    uint32_t expected = 2424307711;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+/*  01101111 10000000 00000000 00000000
+    10010000 01111111 11111111 11111111
+*/
+
+void bitwiseNotInp1870659588(void){
+    uint32_t actual = bitwiseNot(1870659588);
+    uint32_t expected = 2424307707;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+/*  01101111 10000000 00000000 00000100
+    10010000 01111111 11111111 11111011
 */
 
 void sigmaZeroInp1870659584(void){
@@ -206,6 +221,8 @@ int main(void) {
     RUN_TEST(logicalXorFalseTrue);
     RUN_TEST(bitwiseXorInp6and3);
     RUN_TEST(bitwiseXorInp2147483670and3489660930);
+    RUN_TEST(bitwiseNotInp1870659584);
+    RUN_TEST(bitwiseNotInp1870659588);
     RUN_TEST(sigmaZeroInp1870659584);
     RUN_TEST(sigmaZeroInp10110110100101110101011011000010);
     RUN_TEST(sigmaOneInp1870659584);
