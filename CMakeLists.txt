@@ -33,9 +33,9 @@ else ()
     if (TARGET tinyusb_device)
         add_subdirectory(test/hardware)
 
-        add_executable(main src/Main.c) # creates executable
-        target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
-        target_link_libraries(main
+        add_executable(demo src/Demo.c) # creates executable
+        target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/src)
+        target_link_libraries(demo
                 pico_stdlib
                 freeRtosUtils
                 network_lib
@@ -47,7 +47,7 @@ else ()
                 spi_lib
                 sensor_lib_pac193x
                 env5_lib)
-        make_to_output_file(main)
+        make_to_output_file(demo)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
     endif ()
