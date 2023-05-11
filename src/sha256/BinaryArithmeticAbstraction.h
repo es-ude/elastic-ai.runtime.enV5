@@ -5,4 +5,5 @@
 
 #include "stdint.h"
 
-uint8_t add(uint8_t first, uint8_t second);
+uint32_t rightShift(uint32_t input, uint8_t num);
+uint32_t leftShift(uint32_t input, uint8_t num);
