@@ -65,3 +65,7 @@ uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
 uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
     return bitwiseXor((e & f),(bitwiseNot(e) & g));
 }
+
+//Sorry, dass ich hier jetzt nicht arithmetischen kram mit rein gepackt habe, aber ich dachte das
+// sortieren wir besser morgen gemeinsam, was nochmal separat soll und was
+// nicht. Freue mich schon :))
