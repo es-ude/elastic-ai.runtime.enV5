@@ -36,6 +36,17 @@ uint32_t sigmaOne(uint32_t input){  // a xor b xor c
                                         rightRotate(input,19)),
                                         rightShift(input, 10));
 }
+uint32_t sigmaTwo(uint32_t input){  // a xor b xor c
+    return bitwiseXor(bitwiseXor(rightRotate(input,6),
+                                    rightRotate(input,11)),
+                                    rightRotate(input, 25));
+}
+
+uint32_t sigmaThree(uint32_t input){  // a xor b xor c
+    return bitwiseXor(bitwiseXor(rightRotate(input,2),
+                                     rightRotate(input,13)),
+                                     rightRotate(input, 22));
+}
 
 uint32_t calculationOfWords(uint32_t wZero, uint32_t wOne, uint32_t wNine, uint32_t wFourteen){
     wSixteen = wZero + sigmaZero(wOne) + wNine + sigmaOne(wFourteen);
