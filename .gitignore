@@ -1,8 +1,11 @@
-### commitlint.js ###
+### Custom ###
+.tool-versions
+.venv
+networks.txt
 node_modules/
-package-lock.json
-package.json
 .husky/
+*.json
+**/__pycache__/
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode

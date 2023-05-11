@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Fetch Submodules
+        run: git submodule update --init --recursive
+
       - name: Setup
         run: |
           sudo apt-get install gcc-arm-none-eabi

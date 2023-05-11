@@ -1,6 +1,7 @@
 #ifndef ENV5_FLASH_HEADER
 #define ENV5_FLASH_HEADER
 
+#include "FlashTypedefs.h"
 #include "spi/SpiTypedefs.h"
 #include <stdint.h>
 

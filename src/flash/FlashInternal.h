@@ -5,7 +5,7 @@ void flashWriteEnable(void);
 
 uint8_t flashReadStatusReg(void);
 
-uint8_t flashEraseErrorOccurred(void);
+flashEraseErrorCode_t flashEraseErrorOccurred(void);
 
 void flashWaitForDone(void);
 

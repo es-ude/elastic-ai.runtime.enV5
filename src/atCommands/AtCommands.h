@@ -98,7 +98,7 @@
 #define AT_DISCONNECT_LENGTH 9
 #define AT_DISCONNECT_RESPONSE "OK"
 
-/* endregion */
+/* endregion NETWORK */
 
 /* region MQTT */
 
@@ -155,7 +155,7 @@
  * Expected Response:
  *   OK
  */
-#define AT_MQTT_CONNECTION_CONFIGURATION "AT+MQTTCONNCFG=0,60,0,\"%s\",\"%s\",1,1"
+#define AT_MQTT_CONNECTION_CONFIGURATION "AT+MQTTCONNCFG=0,30,0,\"%s\",\"%s\",1,1"
 #define AT_MQTT_CONNECTION_CONFIGURATION_LENGTH 32
 #define AT_MQTT_CONNECTION_CONFIGURATION_RESPONSE "OK"
 
@@ -257,33 +257,34 @@
  *   OK
  *   >
  */
-#define AT_MQTT_PUBLISH_LONG "AT+MQTTPUBRAW=0,\"%s\",%lu,0,0"
+#define AT_MQTT_PUBLISH_LONG "AT+MQTTPUBRAW=0,\"%s\",%lu,0,%s"
 #define AT_MQTT_PUBLISH_LONG_LENGTH 24
-#define AT_MQTT_PUBLISH_LONG_RESPONSE "OK"
+#define AT_MQTT_PUBLISH_LONG_START "OK"
+#define AT_MQTT_PUBLISH_LONG_RESPONSE "+MQTTPUB:OK"
+
+/* endregion MQTT*/
+
+/* region HTTP */
 
 /* Publish data if command would be longer than 256 bytes to broker
  *
  * Command:
- *  AT+HTTPCLIENT=<opt>,<content-type>,<"url">,[<"host">],[<"path">],<transport_type>[,<"data">][,<"http_req_header">][,<"http_req_header">][...]
+ *   AT+HTTPCGET="URL",SEND_BUFFER,RECEIVE_BUFFER,TIMEOUT
  *
  * Fields are:
- * - OPT -> Method of Request
- * - CONTENT-TYPE -> Data type (1: json)
- * - URL -> data to publish
- * - HOST ->
- * - PATH ->
- * - TRANSPORT_TYPE -> Client transport type (Default 1, TCP)
- * - DATA -> Data if POST requests
- * - HTTP_REQ_HEADER -> Request Header
+ * - URL -> string that represent the URL
+ * - SEND_BUFFER -> send buffer size in byte, optional, range 0 to 10240, default: 2048
+ * - RECEIVE_BUFFER -> receive buffer size in byte, optional, range 0 to 10240, default 2048
+ * - TIMEOUT -> timeout in ms, range 0 to 180000, default: 5000
  *
  * Expected Response:
- *   +HTTPCLIENT:<size>,<data>
- *
+ *   +HTTPCGET:<size>,<data>
  *   OK
  */
-#define AT_HTTP_GET "AT+HTTPCLIENT=2,0,\"%s\",,,1"
-#define AT_HTTP_GET_LENGTH 23
+#define AT_HTTP_GET "AT+HTTPCGET=\"%s\",,,9000"
+#define AT_HTTP_GET_LENGTH 26
 #define AT_HTTP_GET_RESPONSE "OK"
-/* endregion */
+
+/* endregion HTTP */
 
 #endif /* ENV5_AT_COMMANDS */

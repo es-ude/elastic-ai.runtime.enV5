@@ -12,7 +12,7 @@
 
 // header from elastic-ai.runtime.c
 #include "CommunicationEndpoint.h"
-#include "Posting.h"
+#include "Protocol.h"
 #include "Subscriber.h"
 #include "TopicMatcher.h"
 
@@ -23,6 +23,7 @@ char *mqttBrokerClientId = NULL;
 uint8_t mqttBrokerNumberOfSubscriptions = 0;
 mqttBrokerSubscription_t mqttBrokerSubscriptions[MAX_SUBSCRIBER];
 bool mqttBrokerReceiverFunctionSet = false;
+bool mqttUserConfigSet = false;
 
 /* endregion */
 
@@ -67,12 +68,16 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
         return MQTT_ALREADY_CONNECTED;
     }
 
-    // store mqtt client/domain
-    mqttBrokerErrorCode_t userConfigError =
-        mqttBrokerInternalSetUserConfiguration(clientID, credentials.userID, credentials.password);
-    if (userConfigError != MQTT_NO_ERROR) {
-        return userConfigError;
+    if (!mqttUserConfigSet) {
+        // store mqtt client/domain
+        mqttBrokerErrorCode_t userConfigError = mqttBrokerInternalSetUserConfiguration(
+            clientID, credentials.userID, credentials.password);
+        if (userConfigError != MQTT_NO_ERROR)
+            return userConfigError;
+        else
+            mqttUserConfigSet = true;
     }
+
     mqttBrokerInternalSetBrokerDomain(brokerDomain);
 
     // store connection configuration
@@ -100,7 +105,6 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
-        publishAliveStatusMessage();
         return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
@@ -173,7 +177,6 @@ void communicationEndpointPublish(posting_t posting) {
     }
     posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
     communicationEndpointPublishRaw(posting);
-    free(posting.topic);
 }
 
 void communicationEndpointPublishRemote(posting_t posting) {
@@ -183,7 +186,6 @@ void communicationEndpointPublishRemote(posting_t posting) {
     }
     posting.topic = mqttBrokerInternalConcatDomainWithTopic(posting.topic);
     communicationEndpointPublishRaw(posting);
-    free(posting.topic);
 }
 
 void communicationEndpointPublishRaw(posting_t posting) {
@@ -193,6 +195,13 @@ void communicationEndpointPublishRaw(posting_t posting) {
     }
 
     size_t commandLength = AT_MQTT_PUBLISH_LENGTH + strlen(posting.topic) + strlen(posting.data);
+
+    // max length of publish command is 64 bytes
+    if (commandLength >= 64) {
+        publishLong(posting);
+        return;
+    }
+
     char *publishData = malloc(commandLength);
     if (posting.retain) {
         snprintf(publishData, commandLength, AT_MQTT_PUBLISH, posting.topic, posting.data, "1");
@@ -215,23 +224,31 @@ void publishLong(posting_t posting) {
         return;
     }
 
-    posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
-    int dataStringLength = floor(log10((strlen(posting.data)))) + 1;
+    double dataStringLength = floor(log10((strlen(posting.data)))) + 1;
 
     size_t commandLength = AT_MQTT_PUBLISH_LONG_LENGTH + strlen(posting.topic) + dataStringLength;
     char *publishData = malloc(commandLength);
-    snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic, strlen(posting.data));
 
-    if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) ==
-        ESP_WRONG_ANSWER_RECEIVED) { // why not OK\n>?
-        PRINT("Could not publish to topic: %s.", posting.topic)
+    if (posting.retain) {
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
+                 (unsigned long)strlen(posting.data), "1");
     } else {
-        if (espSendCommand(posting.data, "+MQTTPUB:OK", 1000) == ESP_WRONG_ANSWER_RECEIVED) {
-            PRINT("Could not publish to topic: %s.", posting.topic)
-        } else {
-            PRINT("Published to %s.", posting.topic)
-        }
+        snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
+                 (unsigned long)strlen(posting.data), "0");
     }
+
+    if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 1000) ==
+        ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not publish to topic: %s. I", posting.topic)
+        free(publishData);
+        return;
+    }
+
+    if (espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 1000) ==
+        ESP_WRONG_ANSWER_RECEIVED) {
+        PRINT("Could not publish to topic: %s. II", posting.topic)
+    }
+    PRINT("Published to %s.", posting.topic)
 
     free(publishData);
     free(posting.topic);
@@ -402,13 +419,13 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *client
 
 static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) {
     // generate LWT topic
-    char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic("status");
+    char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic(STATUS);
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
-    size_t lwt_message_length = strlen(mqttBrokerClientId) + 3;
-    char *lwt_message = malloc(lwt_message_length);
-    snprintf(lwt_message, lwt_message_length, "%s;0", mqttBrokerClientId);
+    char *lwt_message = getStatusMessage((status_t){
+        .id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = STATUS_TYPE_DEVICE});
+    size_t lwt_message_length = strlen(lwt_message);
 
     // generate command to send connection configuration to esp module
     size_t commandLength =
@@ -437,15 +454,11 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
     }
 }
 
-static void publishAliveStatusMessage() {
-    // create alive message
-    size_t messageLength = strlen(mqttBrokerClientId) + 3;
-    char *message = malloc(messageLength);
-    snprintf(message, messageLength, "%s;1", mqttBrokerClientId);
-    posting_t aliveMessage = {.topic = "status", .data = message, .retain = 1};
-
-    // publish message
-    communicationEndpointPublish(aliveMessage);
+void publishAliveStatusMessage(char *measurements) {
+    protocolPublishStatus((status_t){.id = mqttBrokerClientId,
+                                     .type = STATUS_TYPE_DEVICE,
+                                     .state = STATUS_STATE_ONLINE,
+                                     .measurements = measurements});
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {

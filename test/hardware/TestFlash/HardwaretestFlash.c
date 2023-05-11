@@ -45,7 +45,7 @@ void init_helper(spi_inst_t *spi, uint32_t baudrate) {
 
 // 256Mb flash, 4kb + 64 kb sector
 void readDeviceID() {
-    uint8_t *id = (uint8_t *)malloc(6);
+    uint8_t *id[6];
     flashReadId(id, 6);
     printf("Device ID is: ");
     printf("%02X%02X%02X%02X%02X", id[0], id[1], id[2], id[3], id[4]);

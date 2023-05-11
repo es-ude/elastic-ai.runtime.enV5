@@ -16,11 +16,13 @@ def initConfiguration(ser, config):
     ser.write(b'F')
     waitForAck(ser)
 
+
 def eraseSectors(ser):
     numEraseSectors = ser.readline()
     logging.info("Number of sectors to erase {}".format(numEraseSectors.strip()))
     logging.info(ser.readline())
     waitForAck(ser)
+
 
 def sendConfig(ser, config):
     initConfiguration(ser, config)
@@ -101,7 +103,7 @@ def calculateAndPrintFlashProgress(oldPercentage, sent_config, configSize):
 
 
 def verifyBitfile(ser, config):
-    ser.write(b'P')
+    # ser.write(b'P')
     time.sleep(0.5)
     config.loadfile()
     bitfile = open(config.filename, "rb")
@@ -113,45 +115,52 @@ def verifyBitfile(ser, config):
     writeValue(ser, config.address, "address")
     writeValue(ser, config.size, "size")
 
-    blockSize = 256
+    block_size = 256
     numBlock = 0
     position = config.address
     config_remaining = config.size
 
     while config_remaining > 0:
-        if config_remaining < blockSize:
-            blockSize = config_remaining
+        if config_remaining < block_size:
+            block_size = config_remaining
             logging.debug(ser.readline().decode("utf-8"))
 
         flash_data_block = receive_and_prepare_flash_data(ser)
-        expected_block = [int(i) for i in bytearray(bitfile.read(blockSize))]
+        expected_block = [int(i) for i in bytearray(bitfile.read(block_size))]
         if len(flash_data_block) != len(expected_block):
             logging.error("Different length of blocks at block number {} \t Expected: {}, \t On Device {}"
-                          .format(numBlock,len(expected_block),len(flash_data_block)))
+                          .format(numBlock, len(expected_block), len(flash_data_block)))
             sys.exit(0)
         else:
-            for i in range(blockSize):
-                assert (expected_block[i] == flash_data_block[i]), "Bitfile Verification failed"
+            for i in range(0, block_size):
+                if expected_block[i] != flash_data_block[i]:
+                    logging.info(
+                        "Expected block: {:02X}  -  Received block: {:02X}".format(expected_block[i],
+                                                                                   flash_data_block[i]))
+                    logging.error("Bitfile Verification failed at byte {} of block {}".format(i, numBlock))
+                    sys.exit(0)
+        # assert (expected_block[i] == flash_data_block[i]), "Bitfile Verification failed at block {}".format(numBlock)
 
-        config_remaining -= blockSize
-        position += blockSize
+        config_remaining -= block_size
+        position += block_size
         numBlock += 1
         waitForAck(ser)
 
     waitForAck(ser)
     bitfile.close()
-    logging.info("Bitfile has been verfied. You can proceed with your application.")
+    logging.info("Bitfile has been verified. You can proceed with your application.")
 
 
 def receive_and_prepare_flash_data(ser):
-    data=ser.readline().strip()
+    data = ser.readline().strip()
     if "Debug" in data.decode("utf-8"):
         logging.debug(data)
         flash_data_block = ser.readline().strip().split(bytearray("###", 'utf-8'))
     else:
-        flash_data_block=data.split(bytearray("###", 'utf-8'))
+        flash_data_block = data.split(bytearray("###", 'utf-8'))
     flash_data_block.pop()
     return [int(i) for i in flash_data_block]
+
 
 def buildParser():
     parser = argparse.ArgumentParser(description='Flash Bitfile')
@@ -161,11 +170,12 @@ def buildParser():
     parser.add_argument("destination_address", help="location in flash")
     return parser
 
+
 if __name__ == '__main__':
-    parser=buildParser()
+    parser = buildParser()
     arguments = parser.parse_args()
     ser = serial.Serial(arguments.port, arguments.baudrate)
     config = Configuration("bitfile_scripts/bitfiles/" + arguments.source_file, int(arguments.destination_address, 16))
-    sendConfig(ser, config)
+    # sendConfig(ser, config)
     verifyBitfile(ser, config)
     ser.close()

@@ -10,15 +10,12 @@ if (UNIT_TEST)
 
     project(enV5 C CXX ASM)
 
-    fetch_git_submodules()
-
     include(CTest)
 
     add_subdirectory(extern/unity)
     add_subdirectory(test/unit)
 else ()
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-    fetch_git_submodules()
 
     include(extern/pico-sdk/pico_sdk_init.cmake)
 
@@ -33,9 +30,9 @@ else ()
     if (TARGET tinyusb_device)
         add_subdirectory(test/hardware)
 
-        add_executable(main src/Main.c) # creates executable
-        target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/src)
-        target_link_libraries(main
+        add_executable(demo src/Demo.c) # creates executable
+        target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/src)
+        target_link_libraries(demo
                 pico_stdlib
                 freeRtosUtils
                 network_lib
@@ -45,8 +42,9 @@ else ()
                 middleware_lib
                 hardware_spi
                 spi_lib
-                )
-        make_to_output_file(main)
+                sensor_lib_pac193x
+                env5_lib)
+        make_to_output_file(demo)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
     endif ()
