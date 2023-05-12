@@ -10,4 +10,4 @@
  .Typedef basierend auf Struct
  .funktion, die als Parameter ein Wort bekommt, von dem wir den Hash verechnen wollen. In dieser
  Funktion erstelle ich dann den struct
- 
+ */
