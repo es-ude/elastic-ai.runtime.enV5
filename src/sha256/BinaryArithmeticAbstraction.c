@@ -37,16 +37,24 @@ uint32_t smallSigmaOne(uint32_t input){  // a xor b xor c ; σ1
                                         rightShift(input, 10));
 }
 
+uint32_t bigSigmaZero(uint32_t input){  // a xor b xor c ; Σ0
+    return bitwiseXor(bitwiseXor(rightRotate(input,2),
+                                 rightRotate(input,13)),
+                      rightRotate(input, 22));
+}
+
 uint32_t bigSigmaOne(uint32_t input){  // a xor b xor c ; Σ1
     return bitwiseXor(bitwiseXor(rightRotate(input,6),
                                     rightRotate(input,11)),
                                     rightRotate(input, 25));
 }
 
-uint32_t bigSigmaZero(uint32_t input){  // a xor b xor c ; Σ0
-    return bitwiseXor(bitwiseXor(rightRotate(input,2),
-                                     rightRotate(input,13)),
-                                     rightRotate(input, 22));
+uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
+    return bitwiseXor(bitwiseXor((a + b), (a + c)), (b + c));
+}
+
+uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
+    return bitwiseXor((e & f),(bitwiseNot(e) & g));
 }
 
 uint32_t calculationOfWords(
@@ -58,12 +66,4 @@ uint32_t calculationOfWords(
     return wSixteen;
 }
 
-uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
-    return bitwiseXor(bitwiseXor((a + b), (a + c)), (b + c));
-}
-
-uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
-    return bitwiseXor((e & f),(bitwiseNot(e) & g));
-}
-
-//you find explaination here   https://sha256algorithm.com/
+//you find explanation here   https://sha256algorithm.com/
