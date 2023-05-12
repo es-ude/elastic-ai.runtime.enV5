@@ -64,6 +64,6 @@ uint32_t calculationOfWords(
     uint32_t wFourteen){
     uint32_t wSixteen = wZero + smallSigmaZero(wOne) + wNine + smallSigmaOne(wFourteen);
     return wSixteen;
-}
+} // addition > uint32_t !!!
 
 //you find explanation here   https://sha256algorithm.com/
