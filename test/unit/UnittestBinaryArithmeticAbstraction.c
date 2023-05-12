@@ -43,7 +43,7 @@ void rightShiftInp2147483670Num5(void) {
     00000000 00000000 0000010 11000000 leftShiftFive 704
     */
 
-void leftRotateInp22Num5(void) {
+void leftRotateInp22Num5(void) {                                           //ratation Test with 32
     uint32_t actual = leftRotate(22, 5);
     uint32_t expected = 704;
     TEST_ASSERT_EQUAL(expected, actual);
@@ -110,36 +110,21 @@ void bitwiseNotInp1870659588(void){
 */
 
 void sigmaZeroInp1870659584(void){
-    uint32_t actual = sigmaZero(1870659584);
+    uint32_t actual = smallSigmaZero(1870659584);
     uint32_t expected = 221191136;
     TEST_ASSERT_EQUAL(expected, actual);
 }
-/*  01101111 10000000 00000000 00000000       Input (2^30)+(2^29)+(2^27)+(2^26)+(2^25)+(2^24)+(2^23)
+/*  01101111 10000000 00000000 00000000       Input
     -----------------------------------
     00000000 11011111 00000000 00000000       rightRotate7
     00000000 00000000 00011011 11100000 XOR   rightRotate18
     00001101 11110000 00000000 00000000 XOR   rightShift3
     -----------------------------------
-    00001101 00101111 00011011 11100000       (2^27)+(2^26)+(2^24)+(2^21)+(2^19)+(2^18)+(2^17)+
-    (2^16)+(2^12)+(2^11)+(2^9)+(2^8)+(2^7)+(2^6)+(2^5)
+    00001101 00101111 00011011 11100000
 */
-void sigmaZeroInp10110110100101110101011011000010(void) { //warum funktioniert das mit Binären
-                                                          // Zahlen nicht?
-    TEST_IGNORE();
-    uint32_t actual = sigmaZero(10110110100101110101011011000010);
-    uint32_t expected = 01000110000011110110100111010000;
-    TEST_ASSERT_EQUAL(expected, actual);
-}
-/*  10110110100101110101011011000010
-    --------------------------------
-    10000101011011010010111010101101
-    11010101101100001010110110100101 XOR
-    00010110110100101110101011011000 XOR
-    --------------------------------
-    01000110000011110110100111010000
-*/
+
 void sigmaZeroInp3338694732(void){
-    uint32_t actual = sigmaZero(3338694732);
+    uint32_t actual = smallSigmaZero(3338694732);
     uint32_t expected = 2675801897;
     TEST_ASSERT_EQUAL(expected, actual);
 }
@@ -154,7 +139,7 @@ void sigmaZeroInp3338694732(void){
     (2^20)+(2^19)+(2^18)+(2^16)+(2^14)+(2^13)+(2^12)+(2^11)+(2^10)+(2^9)+(2^8)+(2^5)+(2^3)+(2^0)
  */
 void sigmaOneInp1870659584(void){
-    uint32_t actual = sigmaOne(1870659584);
+    uint32_t actual = smallSigmaOne(1870659584);
     uint32_t expected = 1825328;
     TEST_ASSERT_EQUAL(expected, actual);
 }
@@ -168,7 +153,7 @@ void sigmaOneInp1870659584(void){
     (2^17)+(2^19)+(2^20)
 */
 void sigmaOneInp3338694732(void) {
-    uint32_t actual = sigmaOne(3338694732);
+    uint32_t actual = smallSigmaOne(3338694732);
     uint32_t expected = 907975548;
     TEST_ASSERT_EQUAL(expected, actual);
 }
@@ -199,7 +184,6 @@ int main(void) {
     RUN_TEST(bitwiseNotInp1870659584);
     RUN_TEST(bitwiseNotInp1870659588);
     RUN_TEST(sigmaZeroInp1870659584);
-    RUN_TEST(sigmaZeroInp10110110100101110101011011000010);
     RUN_TEST(sigmaOneInp1870659584);
     
     return UNITY_END();

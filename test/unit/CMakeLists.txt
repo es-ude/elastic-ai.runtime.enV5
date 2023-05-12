@@ -123,3 +123,15 @@ target_include_directories(unit-test_binary-arithmetic-abstraction PUBLIC
 target_link_libraries(unit-test_binary-arithmetic-abstraction unity m)
 add_test(unit-test_binary-arithmetic-abstraction-abstraction unit-test_binary-arithmetic-abstraction)
 ## endregion
+
+## region UNIT-TEST: unit-test_sha256
+add_executable(unit-test_binary-sha256
+        ${CMAKE_CURRENT_LIST_DIR}/UnittestSha256.c
+        ${CMAKE_SOURCE_DIR}/src/sha256/Sha256.c)
+target_include_directories(unit-test_sha256 PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/sha256
+        ${CMAKE_SOURCE_DIR}/extern
+        ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(unit-test_sha256 unity m)
+add_test(unit-test_sha256 unit-test_sha256)
+## endregion
