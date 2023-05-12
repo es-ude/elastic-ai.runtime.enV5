@@ -51,7 +51,7 @@ uint32_t bigSigmaOne(uint32_t input){  // a xor b xor c ; Σ1
 
 uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
     return bitwiseXor(bitwiseXor((a + b), (a + c)), (b + c));
-}
+} // addition > uint32_t !!!
 
 uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
     return bitwiseXor((e & f),(bitwiseNot(e) & g));

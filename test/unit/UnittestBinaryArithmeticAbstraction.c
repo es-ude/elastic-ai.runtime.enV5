@@ -254,6 +254,39 @@ void bigSigmaOneInp1870659584(void) {
  *      11000001 10110011 11110000 00110111         expected 3249795127
  */
 
+void majorityInp1870659584and3249795127and4(void) {
+    TEST_IGNORE();
+    uint32_t actual = majority(1870659584,3249795127,4);
+    uint32_t expected = 0;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
+/*
+ *     01101111 10000000 00000000 00000000 a
+ *     11000001 10110011 11110000 00110111 b
+ *     00000000 00000000 00000000 00000100 c
+ *     100110001 00110011 11110000 00110111 (a+b) > uint32_t !!!
+ *     (a+c)
+ *     (b+c)
+ */
+
+void choiceInp1870659584and3249795127and4(void) {
+    TEST_IGNORE();
+    uint32_t actual = choice(1870659584,3249795127,4);
+    uint32_t expected = 1098907652;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
+/*
+ *     01101111 10000000 00000000 00000000 e
+ *     11000001 10110011 11110000 00110111 f
+ *     00000000 00000000 00000000 00000100 g
+ *     10010000 01111111 11111111 11111111 (notE)
+ *     01000001 10000000 00000000 00000000 (e&f)
+ *     00000000 00000000 00000000 00000100 (notE&g)
+ *     01000001 10000000 00000000 00000100 (e&f) XOR (notE&g) 1098907652
+*/
+
 int main(void) {
     UNITY_BEGIN();
     
@@ -279,6 +312,8 @@ int main(void) {
     RUN_TEST(bigSigmaZeroInp3338694733);
     RUN_TEST(bigSigmaOneInp1870659584);
     RUN_TEST(bigSigmaOneInp3338694733);
+    RUN_TEST(majorityInp1870659584and3249795127and4);
+    RUN_TEST(choiceInp1870659584and3249795127and4);
     
     return UNITY_END();
 }
