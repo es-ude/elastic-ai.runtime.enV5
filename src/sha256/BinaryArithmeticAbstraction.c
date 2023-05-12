@@ -51,7 +51,9 @@ uint32_t bigSigmaOne(uint32_t input){  // a xor b xor c ; Σ1
 
 uint32_t majority(uint32_t a, uint32_t b, uint32_t c){
     return bitwiseXor(bitwiseXor((a & b), (a & c)), (b & c));
-}/* addition > uint32_t !!!
+}
+
+/* addition > uint32_t !!!
 -> https://csrc.nist.gov/csrc/media/publications/fips/180/4/final/documents/fips180-4-draft-aug2014.pdf
 page 10 (4.1.2)
  */
@@ -66,17 +68,25 @@ uint32_t additionOfWords(uint32_t a, uint32_t b){
     return (a + b) % h;
 }
 
+/*
+ page 9 (3.2)
+ https://csrc.nist.gov/csrc/media/publications/fips/180/4/final/documents/fips180-4-draft-aug2014.pdf
+*/
+
+
 uint32_t calculationOfWords(
     uint32_t wZero,
     uint32_t wOne,
     uint32_t wNine,
     uint32_t wFourteen){
-    uint32_t wSixteen = wZero + smallSigmaZero(wOne) + wNine + smallSigmaOne(wFourteen);
+    uint32_t wSixteen = additionOfWords(
+                     additionOfWords(
+                     additionOfWords(wZero,
+                                        smallSigmaZero(wOne)),
+                                        wNine),
+                                        smallSigmaOne(wFourteen));
     return wSixteen;
-} /* addition > uint32_t !!!
- page 9 (3.2)
- https://csrc.nist.gov/csrc/media/publications/fips/180/4/final/documents/fips180-4-draft-aug2014.pdf
-*/
+}
 
 
 //you find some other explanation here   https://sha256algorithm.com/
