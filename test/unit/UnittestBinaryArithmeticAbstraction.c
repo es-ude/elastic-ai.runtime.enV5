@@ -194,7 +194,6 @@ int main(void) {
     RUN_TEST(rightRotateInp2147483670Num3);
     RUN_TEST(leftRotateInp22Num5);
     RUN_TEST(rightRotateInp22Num5);
-
     RUN_TEST(bitwiseXorInp6and3);
     RUN_TEST(bitwiseXorInp2147483670and3489660930);
     RUN_TEST(bitwiseNotInp1870659584);

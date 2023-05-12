@@ -25,13 +25,13 @@ uint32_t bitwiseNot(uint32_t input){
     return ~input;
 }
 
-uint32_t sigmaZero(uint32_t input){  // a xor b xor c
+uint32_t sigmaZero(uint32_t input){  // a xor b xor c ; σ0
     return bitwiseXor(bitwiseXor(rightRotate(input,7),
                                         rightRotate(input,18)),
                                         rightShift(input, 3));
 }
 
-uint32_t sigmaOne(uint32_t input){  // a xor b xor c
+uint32_t sigmaOne(uint32_t input){  // a xor b xor c ; σ1
     return bitwiseXor(bitwiseXor(rightRotate(input,17),
                                         rightRotate(input,19)),
                                         rightShift(input, 10));
@@ -62,6 +62,4 @@ uint32_t choice(uint32_t e, uint32_t f, uint32_t g){
     return bitwiseXor((e & f),(bitwiseNot(e) & g));
 }
 
-//Sorry, dass ich hier jetzt nicht arithmetischen kram mit rein gepackt habe, aber ich dachte das
-// sortieren wir besser morgen gemeinsam, was nochmal separat soll und was
-// nicht. Freue mich schon :))
+//you find explaination here   https://sha256algorithm.com/
