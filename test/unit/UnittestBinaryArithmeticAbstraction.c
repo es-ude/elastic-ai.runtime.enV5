@@ -375,6 +375,23 @@ void additionOfWordsInp221191136and913408(void){
     TEST_ASSERT_EQUAL(expected, actual);
 }
 
+void calculationOfWordsOne(void){ //too long with Input within name
+    uint32_t actual = calculationOfWords(221191136,
+                                         3338694733,
+                                         4067365644,
+                                         1870659584);
+    uint32_t expected = 2671216709;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
+/*
+ * smallSigmaZero3338694733 = 2675801897
+ * smallSigmaOne1870659584 = 1825328
+ (221191136 + 2675801897) % h = 2896993033
+ (2896993033 + 4067365644) % h = 2669391381
+ (2669391381 + 1825328) % h = 2671216709
+ */
+
 int main(void) {
     UNITY_BEGIN();
     
@@ -409,6 +426,7 @@ int main(void) {
     RUN_TEST(additionOfWordsInp8and9);
     RUN_TEST(additionOfWordsInp221191136and9);
     RUN_TEST(additionOfWordsInp221191136and913408);
+    RUN_TEST(calculationOfWordsOne);
     
     return UNITY_END();
 }
