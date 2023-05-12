@@ -356,6 +356,25 @@ void choiceInp221191136and913408and4067365644(void) {
 * 11110010 01001101 00010000 00001100    (e&f) XOR (notE&g) expected: 4065136652
 */
 
+
+void additionOfWordsInp8and9(void){
+    uint32_t actual = additionOfWords(8,9);
+    uint32_t expected = 17;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
+void additionOfWordsInp221191136and9(void){
+    uint32_t actual = additionOfWords(221191136,9);
+    uint32_t expected = 221191145;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
+void additionOfWordsInp221191136and913408(void){
+    uint32_t actual = additionOfWords(221191136,913408);
+    uint32_t expected = 222104544;
+    TEST_ASSERT_EQUAL(expected, actual);
+}
+
 int main(void) {
     UNITY_BEGIN();
     
@@ -387,6 +406,9 @@ int main(void) {
     RUN_TEST(choiceInp1870659584and3249795127and4);
     RUN_TEST(choiceInp4294967289and913408and4067365644);
     RUN_TEST(choiceInp221191136and913408and4067365644);
+    RUN_TEST(additionOfWordsInp8and9);
+    RUN_TEST(additionOfWordsInp221191136and9);
+    RUN_TEST(additionOfWordsInp221191136and913408);
     
     return UNITY_END();
 }
