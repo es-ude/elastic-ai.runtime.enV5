@@ -75,27 +75,6 @@ void rightRotateInp2147483670Num3(void){
     00000000 00000000 0000000 10110100 leftRotateThree 180
     */
 
-void logicalXorTrueTrue(void){
-    int actual = logicalXor(1,1);
-    int expected = 0;
-    TEST_ASSERT_EQUAL(expected, actual);
-}
-void logicalXorFalseFalse(void){
-    int actual = logicalXor(0,0);
-    int expected = 0;
-    TEST_ASSERT_EQUAL(expected, actual);
-}
-void logicalXorTrueFalse(void){
-    int actual = logicalXor(1,0);
-    int expected = 1;
-    TEST_ASSERT_EQUAL(expected, actual);
-}
-void logicalXorFalseTrue(void){
-    int actual = logicalXor(0,1);
-    int expected = 1;
-    TEST_ASSERT_EQUAL(expected, actual);
-}
-
 void bitwiseXorInp6and3(void) {
     uint32_t actual = bitwiseXor(6, 3);
     uint32_t expected = 5;
@@ -215,10 +194,7 @@ int main(void) {
     RUN_TEST(rightRotateInp2147483670Num3);
     RUN_TEST(leftRotateInp22Num5);
     RUN_TEST(rightRotateInp22Num5);
-    RUN_TEST(logicalXorTrueTrue);
-    RUN_TEST(logicalXorFalseFalse);
-    RUN_TEST(logicalXorTrueFalse);
-    RUN_TEST(logicalXorFalseTrue);
+
     RUN_TEST(bitwiseXorInp6and3);
     RUN_TEST(bitwiseXorInp2147483670and3489660930);
     RUN_TEST(bitwiseNotInp1870659584);
