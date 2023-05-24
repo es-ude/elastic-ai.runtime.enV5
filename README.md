@@ -14,18 +14,21 @@ For compiling the project the tools are:
 * recommended:
     * pre-commit
 
+> You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script
+> in the project [root directory](.).
+
 First you need to load CMake once, if you use the CLion IDE as recommended, the IDE does that for you.
-If you want to do this by yourself please refer to [CMake Profiles](##cmake_profiles).
+If you want to do this by yourself please refer to [CMake Profiles](#cmake_profiles).
 
 To run the FPGA related flash scripts it is recommended to create a local virtual Python environment and install the
 tool from the [requirements.txt](bitfile_scripts/requirements.txt).
 
 ### CMake Profiles
 
-There are three CMake Profiles provided with the CLion settings: Debug, Release, and UnitTests.
-The UnitTests profile only needs to be selected to run the unit tests.
+There are three CMake Profiles provided with the CLion settings: **Debug**, **Release**, and **UnitTests**.
 
-The Debug and Release targets differ only in the amount of debug print information when the targets are run on a device.
+The UnitTests profile only needs to be selected to run the unit tests.
+The Debug and Release targets differ only in the amount of printed information when the targets are running on a device.
 
 Profiles:
 
@@ -46,7 +49,8 @@ If this flag is not passed CMake will use the default build tool on your machine
 ### Configuration
 
 In the [NetworkConfiguration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings can be
-changed. To stop changes in these to be staged you should exclude them:
+changed.
+To stop changes in these to be staged you should exclude them:
 
 ```bash
 git update-index --assume-unchanged src/NetworkConfiguration.h
@@ -73,7 +77,7 @@ cmake --build cmake-build-test -j 4 --clean-first
 ctest --test-dir cmake-build-test/test/unit --output-on-failure
 ```
 
-The build unit-tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
+The built unit-tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
 
 ## Target Pico
 
@@ -91,7 +95,7 @@ The release targets can be built by executing:
 cmake --build cmake-build-release -j 4
 ```
 
-The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
+The `*.uf2` files to flash the pico can than be found under the [out](./out) folder.
 
 ### Build Demo
 
@@ -101,7 +105,7 @@ The main executable ([demo.c](src/Demo.c)) can be built with:
 cmake --build cmake-build-release -j 4 --target main
 ```
 
-The resulting `demo.uf2` file to flash the pico can be found in the [out](./out) folder.
+The resulting `demo.uf2` file to flash the pico can be found under the [out](./out) folder.
 
 ### Hardware Tests
 
@@ -113,12 +117,12 @@ cmake --build cmake-build-debug -j 4 --target <test_name>
 
 replacing `<test_name>` with the name of the test.
 
-The resulting `<test_name>.u2f` files to flash the pico can be found in the [out](./out) folder.
+The resulting `<test_name>.u2f` files to flash the pico can be found under the [out](./out) folder.
 
 ### CMD line output
 
-If the pico is connected to the local machine the `print()` statements inside the code will be redirected to the USB and
-is available as serial port output.
+If the pico is connected to the local machine the `printf()` statements inside the code will be redirected to the USB
+and is available as serial port output.
 This output can be read via a serial port reader like screen, minicom
 or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
@@ -147,45 +151,51 @@ When MQTT messages are sent to fast to the device, some message will be dropped.
 ## FPGA Configuration
 
 The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
-To write a file to the flash, the ENv5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
-[test/hardware/TestEnv5Config](test/hardware/TestENv5Config/).
-The Test only works on the ENv5, not the SensorBoard.
+To write a file to the flash, the enV5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
+[cmake-build-debug/test/hardware/TestEnv5Config](cmake-build-debug/test/hardware/TestENv5Config).
+**The Test only works on the enV5, not the SensorBoard.**
 Put the Bit- or Binfile you want to send to the Device in the
 directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python
-script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with a number of arguments
+script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with the required arguments:
 
-* required: serial port of device `-p` or `--port`
-* optionally: baudrate of serial connection `-b` or `--baudrate`
-* 1st positional argument path to bitfile
-* 2nd positional argument start flash address bitfile should be written at
+```
+python BitfileFlasher.py --port <device_serial_port> [--baudrate <serial_baudrate>] <path_to_bitfile> <start_flash_address>
+```
 
-The python script will send the Bitfile via serial to the ENv5 and afterwards verify that it's been written correctly.
+* `--port` [required] serial port of the device
+* `--baudrate` [optional] baudrate of serial connection
+* `$1` [required] path to bitfile
+* `$2` [required] start address of the flash, where the bitfile should be written to
+
+The python script will send the Bitfile via serial to the enV5 and verifies that it has been written correctly.
 To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with
-the config that starts at address 0x0).
-The hardware test `hardware-test_fpga_config` can be used for this by sending the character 'r' via serial to the
+the config that starts at address 0x00).
+The hardware test `hardware-test_fpga_config` can be used for this by sending the character `r` via serial to the
 device.
 
-If your board does not contain a FPGA, use the hardware test `hardware-test_config`
-in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/) instead to test if the Bitfile Flashing worked.
+If your board does not contain an FPGA, use the hardware test `hardware-test_config`
+in [test/hardware/TestConfiguration](test/hardware/TestConfiguration) instead to test if the Bitfile flashing is working
+correctly.
 
 ### Known Problems
 
-If the script fails repeatedly it's possible that the Bitfile currently in flash memory is wrong and the FPGA repeatedly
-tries to reconfigure without success. It then blocks the flash until it is put into JTAG mode by shorting the 1x2
-pinheader on the board, seen in the picture below.
+If the script fails repeatedly it's possible that the Bitfile currently in the flash memory is defect and the FPGA
+repeatedly tries to reconfigure without success.
+The FPGA then blocks the flash until it is put into JTAG mode by shorting the 1x2 pin-header on the board, seen in the
+picture below.
 
-![](/pics/jtag_header.jpg)
+![](./pics/jtag_header.jpg)
 
 ## Provided Sensor Libraries
 
 ### Power Sensor
 
-- Type: **PAC193X**
-- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
-- Usage:
-    - Measure Power consumption of FPGA/Flash
-    - Measure Power consumption of Wi-Fi module
-- Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
+* Type: **PAC193X**
+* [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
+* Usage:
+    * Measure Power consumption of the FPGA/Flash
+    * Measure Power consumption of the Wi-Fi module
+* Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
 
 #### Basic Usage Example
 
@@ -228,12 +238,12 @@ in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
 
 ### Temperature Sensor
 
-- Type: **SHT3X**
-- [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
-- Usage:
-    - Measure the current temperature
-    - Measure the current humidity
-- Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
+* Type: **SHT3X**
+* [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
+* Usage:
+    * Measure the current temperature
+    * Measure the current humidity
+* Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
 
 #### Basic Usage Example
 
@@ -269,11 +279,11 @@ in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
 
 ### Acceleration Sensor
 
-- Type: **ADXL345B**
-- [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
-- Usage:
-    - Measure the acceleration in x,y,z direction
-- Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
+* Type: **ADXL345B**
+* [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
+* Usage:
+    * Measure the acceleration in x,y,z direction
+* Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
 
 #### Basic Usage Example
 
@@ -318,7 +328,7 @@ Following submodules are being used
 
 [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
 
-### Troubleshooting
+## Troubleshooting
 
 * In case the command which fetches the submodules fails, try
   executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
