@@ -16,6 +16,7 @@ function(include_src)
     add_subdirectory(src/flash)
     add_subdirectory(src/env5)
     add_subdirectory(src/atCommands)
+    add_subdirectory(src/http)
 endfunction()
 
 function(make_to_output_file target)

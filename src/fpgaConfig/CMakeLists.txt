@@ -9,5 +9,5 @@ target_link_libraries(fpga_config_lib INTERFACE
         flash_lib
         pico_stdlib
         network_lib
-
+        http_lib
         )

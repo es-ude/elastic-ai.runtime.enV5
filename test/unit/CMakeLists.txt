@@ -52,13 +52,14 @@ add_executable(unit-test_network
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware/uart.c
         ${CMAKE_SOURCE_DIR}/src/uart/Uart.c
         ${CMAKE_SOURCE_DIR}/src/network/Network.c
-        ${CMAKE_SOURCE_DIR}/src/network/HTTP.c
+        ${CMAKE_SOURCE_DIR}/src/http/HTTP.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/esp/Esp.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/freeRtos/FreeRtosTaskWrapper.c
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/gpio/Gpio.c)
 target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
+        ${CMAKE_SOURCE_DIR}/src/http
         ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
@@ -84,6 +85,7 @@ add_executable(unit-test_mqtt
 target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
+        ${CMAKE_SOURCE_DIR}/src/http
         ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
@@ -104,6 +106,7 @@ add_executable(unit-test_configuration
         ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/FpgaConfigDatahandler.c)
 target_include_directories(unit-test_configuration PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/flash
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/src/flash
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig
         ${CMAKE_SOURCE_DIR}/src)
@@ -117,14 +120,15 @@ add_executable(unit-test_configurationHttp
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig/FpgaConfigurationHttp.c
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig/FpgaConfiguration.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/Flash.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/network/HTTP.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/http/HTTP.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/FpgaConfigDatahandler.c)
 target_include_directories(unit-test_configurationHttp PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/dummies/flash
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/flash
         ${CMAKE_SOURCE_DIR}/src/flash
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig
         ${CMAKE_SOURCE_DIR}/src/network
+        ${CMAKE_SOURCE_DIR}/src/http
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_configurationHttp unity m)
 add_test(unit-test_configurationHttp unit-test_configurationHttp)
