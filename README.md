@@ -7,23 +7,18 @@ Elastic AI implementation for the Elastic Node version 5.
 For compiling the project the tools are:
 
 * required:
-    * gcc
-    * arm-non-eabi-gcc
-    * CMake
-    * Ninja
+    * gcc (local C compiler)
+    * arm-non-eabi-gcc (C compiler for Target device)
+    * CMake (Build Script Generator)
+    * Ninja (Build Tool)
 * recommended:
     * pre-commit
 
-First you need to load CMake once (CLion does that for you):
+First you need to load CMake once, if you use the CLion IDE as recommended, the IDE does that for you.
+If you want to do this by yourself please refer to [CMake Profiles](##cmake_profiles).
 
-```bash
-cmake -B cmake-build-debug -G Ninja .
-```
-
-The flag `-G Ninja` tells CMake to use Ninja as the build tool.
-If this flag is not passed CMake will use the default build tool on your machine (mostly Makefiles).
-
-To run the FPGA related flash scripts it is recommended to create a loval virtual environment and install the tool from the [requirements.txt](bitfile_scripts/requirements.txt).
+To run the FPGA related flash scripts it is recommended to create a local virtual Python environment and install the
+tool from the [requirements.txt](bitfile_scripts/requirements.txt).
 
 ### CMake Profiles
 
@@ -32,7 +27,21 @@ The UnitTests profile only needs to be selected to run the unit tests.
 
 The Debug and Release targets differ only in the amount of debug print information when the targets are run on a device.
 
-On cloning the repository only the Debug Profile is active, make sure to load it once before activating or adding others.
+Profiles:
+
+```bash
+# Unit-test profile
+cmake -B cmake-build-debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
+
+# Debug profile
+cmake -B cmake-build-debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
+
+# Release profile
+cmake -B cmake-build-release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
+```
+
+The flag `-G Ninja` tells CMake to use Ninja as the build tool.
+If this flag is not passed CMake will use the default build tool on your machine (mostly Makefiles).
 
 ### Configuration
 
@@ -54,36 +63,52 @@ git ls-files -z | xargs -0 git update-index --assume-unchanged
 
 ### Unit Tests
 
-To build and run the unit tests the [run_unittest.sh](./run_unittest.sh) script can be used.
+The unit-tests can be build and executed by running:
 
-The tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
+```bash
+# build the unit-tests
+cmake --build cmake-build-test -j 4 --clean-first
+
+# execute the unit-tests
+ctest --test-dir cmake-build-test/test/unit --output-on-failure
+```
+
+The build unit-tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
 
 ## Target Pico
 
 ### Build all Targets
 
-To build all targets at once the [build_debug.sh](./build_debug.sh) script can be used to generate builds with debug
-output enabled.
-If you don't want the debug output enabled use the [build_release.sh](./build_release.sh) script.
+The debug targets can be built by executing:
+
+```bash
+cmake --build cmake-build-debug -j 4
+```
+
+The release targets can be built by executing:
+
+```bash
+cmake --build cmake-build-release -j 4
+```
 
 The `*.uf2` files to flash the pico can than be found in the [out](./out) folder.
 
-### Build Main
+### Build Demo
 
-The main executable ([main.c](src/Main.c)) can be build with:
+The main executable ([demo.c](src/Demo.c)) can be built with:
 
 ```bash
-cmake --build cmake-build-debug --target main
+cmake --build cmake-build-release -j 4 --target main
 ```
 
-The resulting `main.uf2` file to flash the pico can be found in the [out](./out) folder.
+The resulting `demo.uf2` file to flash the pico can be found in the [out](./out) folder.
 
 ### Hardware Tests
 
 The hardware tests can be build using
 
 ```bash
-cmake --build cmake-build-debug --target <test_name>
+cmake --build cmake-build-debug -j 4 --target <test_name>
 ```
 
 replacing `<test_name>` with the name of the test.
@@ -92,10 +117,10 @@ The resulting `<test_name>.u2f` files to flash the pico can be found in the [out
 
 ### CMD line output
 
-If the pico is connected to the local machine the `print()` inside the code will be redirected to the USB and is
-available as serial port output.
-This output can be read via a serial port reader like screen,
-minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+If the pico is connected to the local machine the `print()` statements inside the code will be redirected to the USB and
+is available as serial port output.
+This output can be read via a serial port reader like screen, minicom
+or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
 The following example shows how to use minicom on a Unix based system:
 
@@ -105,8 +130,8 @@ minicom -b 115200 -o -D /dev/ttyACM0
 
 * `-b 115200` -> baud rate for connection
 * `-D /dev/ttyACM0` -> serial port
-  * differs depending on the host machine
-  * can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux /  macOS)
+    * differs depending on the host machine
+    * can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux / macOS)
 * `-o` -> disable modem initialisation
 
 ### Debug Output
@@ -125,21 +150,29 @@ The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash
 To write a file to the flash, the ENv5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
 [test/hardware/TestEnv5Config](test/hardware/TestENv5Config/).
 The Test only works on the ENv5, not the SensorBoard.
-Put the Bit- or Binfile you want to send to the Device in the directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with a number of arguments
+Put the Bit- or Binfile you want to send to the Device in the
+directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python
+script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with a number of arguments
 
 * required: serial port of device `-p` or `--port`
-* optionally: baudrate of serial connection `-b` or `--baudrate` 
+* optionally: baudrate of serial connection `-b` or `--baudrate`
 * 1st positional argument path to bitfile
 * 2nd positional argument start flash address bitfile should be written at
 
-The python script will send the Bitfile via serial to the ENv5 and afterwards verify that it's been written correctly. To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with the config that starts at address 0x0).
-The hardware test `hardware-test_fpga_config` can be used for this by sending the character 'r' via serial to the device. 
+The python script will send the Bitfile via serial to the ENv5 and afterwards verify that it's been written correctly.
+To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with
+the config that starts at address 0x0).
+The hardware test `hardware-test_fpga_config` can be used for this by sending the character 'r' via serial to the
+device.
 
-If your board does not contain a FPGA, use the hardware test `hardware-test_config` in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/) instead to test if the Bitfile Flashing worked.
+If your board does not contain a FPGA, use the hardware test `hardware-test_config`
+in [test/hardware/TestConfiguration](test/hardware/TestConfiguration/) instead to test if the Bitfile Flashing worked.
 
 ### Known Problems
 
-If the script fails repeatedly it's possible that the Bitfile currently in flash memory is wrong and the FPGA repeatedly tries to reconfigure without success. It then blocks the flash until it is put into JTAG mode by shorting the 1x2 pinheader on the board, seen in the picture below.
+If the script fails repeatedly it's possible that the Bitfile currently in flash memory is wrong and the FPGA repeatedly
+tries to reconfigure without success. It then blocks the flash until it is put into JTAG mode by shorting the 1x2
+pinheader on the board, seen in the picture below.
 
 ![](/pics/jtag_header.jpg)
 
@@ -190,7 +223,8 @@ int main(void) {
 }
 ```
 
-More detailed examples, on how to use this sensor, can be found in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
+More detailed examples, on how to use this sensor, can be found
+in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
 
 ### Temperature Sensor
 
@@ -230,7 +264,8 @@ int main(void) {
 
 ```
 
-More detailed examples, on how to use this sensor, can be found in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
+More detailed examples, on how to use this sensor, can be found
+in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
 
 ### Acceleration Sensor
 
@@ -268,7 +303,8 @@ int main(void) {
 }
 ```
 
-More detailed examples, on how to use this sensor, can be found in [HardwaretestADXL345b.c](test/hardware/Sensors/HardwaretestAdxl345b.c).
+More detailed examples, on how to use this sensor, can be found
+in [HardwaretestADXL345b.c](test/hardware/Sensors/HardwaretestAdxl345b.c).
 
 ## Submodules
 
