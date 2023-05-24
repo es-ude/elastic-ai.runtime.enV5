@@ -34,6 +34,7 @@ else ()
         target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/src)
         target_link_libraries(demo
                 pico_stdlib
+                http_lib
                 freeRtosUtils
                 network_lib
                 espBroker_lib

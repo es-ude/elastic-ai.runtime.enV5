@@ -12,6 +12,7 @@ function(enV5_init)
     # libraries from the elastic-ai.runtime.enV5 repo
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/adxl345b)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/atCommands)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/http)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/broker)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/env5)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/esp)

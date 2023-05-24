@@ -2,6 +2,7 @@
 #define ENV5_HTTP_H
 
 #include <stdint.h>
+
 typedef enum HTTPStatus { HTTP_SUCCESS = 1, HTTP_CONNECTION_FAILED = 2 } HTTPStatus;
 
 struct httpResponse {

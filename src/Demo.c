@@ -8,6 +8,7 @@
 #include "FpgaConfigurationHttp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
+#include "HTTP.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "NetworkConfiguration.h"
