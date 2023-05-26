@@ -127,7 +127,8 @@ add_test(unit-test_binary-arithmetic-abstraction-abstraction unit-test_binary-ar
 ## region UNIT-TEST: unit-test_sha256
 add_executable(unit-test_sha256
         ${CMAKE_CURRENT_LIST_DIR}/UnittestSha256.c
-        ${CMAKE_SOURCE_DIR}/src/sha256/Sha256.c)
+        ${CMAKE_SOURCE_DIR}/src/sha256/Sha256.c
+        ${CMAKE_SOURCE_DIR}/src/sha256/BinaryArithmeticAbstraction.c)
 target_include_directories(unit-test_sha256 PUBLIC
         ${CMAKE_SOURCE_DIR}/src/sha256
         ${CMAKE_SOURCE_DIR}/extern
