@@ -1,24 +1,24 @@
 # elastic-ai.runtime.enV5
 
-Elastic AI implementation for the Elastic Node version 5.
+Elastic AI implementation for the Elastic Node version 5 (enV5).
 
 ## Setup
 
 For compiling the project the tools are:
 
-* required:
-    * gcc (local C compiler)
-    * arm-non-eabi-gcc (C compiler for Target device)
-    * CMake (Build Script Generator)
-    * Ninja (Build Tool)
-* recommended:
-    * pre-commit
+- required:
+  - gcc (local C compiler)
+  - arm-non-eabi-gcc (C compiler for Target device)
+  - CMake (Build Script Generator)
+  - Ninja (Build Tool)
+- recommended:
+  - pre-commit
 
 > You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script
 > in the project [root directory](.).
 
 First you need to load CMake once, if you use the CLion IDE as recommended, the IDE does that for you.
-If you want to do this by yourself please refer to [CMake Profiles](#cmake_profiles).
+If you want to do this by yourself please refer to [CMake Profiles](#cmake-profiles).
 
 To run the FPGA related flash scripts it is recommended to create a local virtual Python environment and install the
 tool from the [requirements.txt](bitfile_scripts/requirements.txt).
@@ -34,13 +34,13 @@ Profiles:
 
 ```bash
 # Unit-test profile
-cmake -B cmake-build-debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
+cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
 
 # Debug profile
-cmake -B cmake-build-debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
+cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
 
 # Release profile
-cmake -B cmake-build-release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
+cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
 ```
 
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
@@ -48,19 +48,12 @@ If this flag is not passed CMake will use the default build tool on your machine
 
 ### Configuration
 
-In the [NetworkConfiguration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings can be
-changed.
-To stop changes in these to be staged you should exclude them:
+In the [NetworkConfiguration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings are stored.
+You have to change these values to allow the system to work with your environment.
+To stop changes in these files to be staged and accidentally pushing your secrets to GitHub you should exclude them:
 
 ```bash
 git update-index --assume-unchanged src/NetworkConfiguration.h
-```
-
-The same should be done for the CLion Settings stored in [.idea](.idea):
-
-```bash
-cd .idea
-git ls-files -z | xargs -0 git update-index --assume-unchanged
 ```
 
 ## Target local machine
@@ -71,13 +64,13 @@ The unit-tests can be build and executed by running:
 
 ```bash
 # build the unit-tests
-cmake --build cmake-build-test -j 4 --clean-first
+cmake --build build/unit-tests -j 4 --clean-first
 
 # execute the unit-tests
-ctest --test-dir cmake-build-test/test/unit --output-on-failure
+ctest --test-dir build/unit-tests/test/unit --output-on-failure
 ```
 
-The built unit-tests can then be found under [cmake-build-test/test/unit](./cmake-build-test/test/unit) as executables.
+The built unit-tests can then be found under [build/unit-tests/test/unit](./build/unit-tests/test/unit) as executables.
 
 ## Target Pico
 
@@ -86,13 +79,13 @@ The built unit-tests can then be found under [cmake-build-test/test/unit](./cmak
 The debug targets can be built by executing:
 
 ```bash
-cmake --build cmake-build-debug -j 4
+cmake --build build/debug -j 4
 ```
 
 The release targets can be built by executing:
 
 ```bash
-cmake --build cmake-build-release -j 4
+cmake --build build/release -j 4
 ```
 
 The `*.uf2` files to flash the pico can than be found under the [out](./out) folder.
@@ -102,7 +95,7 @@ The `*.uf2` files to flash the pico can than be found under the [out](./out) fol
 The main executable ([demo.c](src/Demo.c)) can be built with:
 
 ```bash
-cmake --build cmake-build-release -j 4 --target main
+cmake --build build/release -j 4 --target main
 ```
 
 The resulting `demo.uf2` file to flash the pico can be found under the [out](./out) folder.
@@ -112,7 +105,7 @@ The resulting `demo.uf2` file to flash the pico can be found under the [out](./o
 The hardware tests can be build using
 
 ```bash
-cmake --build cmake-build-debug -j 4 --target <test_name>
+cmake --build build/debug -j 4 --target <test_name>
 ```
 
 replacing `<test_name>` with the name of the test.
@@ -132,11 +125,11 @@ The following example shows how to use minicom on a Unix based system:
 minicom -b 115200 -o -D /dev/ttyACM0
 ```
 
-* `-b 115200` -> baud rate for connection
-* `-D /dev/ttyACM0` -> serial port
-    * differs depending on the host machine
-    * can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux / macOS)
-* `-o` -> disable modem initialisation
+- `-b 115200` -> baud rate for connection
+- `-D /dev/ttyACM0` -> serial port
+  - differs depending on the host machine
+  - can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux / macOS)
+- `-o` -> disable modem initialisation
 
 ### Debug Output
 
@@ -152,7 +145,7 @@ When MQTT messages are sent to fast to the device, some message will be dropped.
 
 The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
 To write a file to the flash, the enV5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
-[cmake-build-debug/test/hardware/TestEnv5Config](cmake-build-debug/test/hardware/TestENv5Config).
+[build/debug/test/hardware/TestEnv5Config](build/debug/test/hardware/TestENv5Config).
 **The Test only works on the enV5, not the SensorBoard.**
 Put the Bit- or Binfile you want to send to the Device in the
 directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python
@@ -162,10 +155,10 @@ script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with the required 
 python BitfileFlasher.py --port <device_serial_port> [--baudrate <serial_baudrate>] <path_to_bitfile> <start_flash_address>
 ```
 
-* `--port` [required] serial port of the device
-* `--baudrate` [optional] baudrate of serial connection
-* `$1` [required] path to bitfile
-* `$2` [required] start address of the flash, where the bitfile should be written to
+- `--port` [required] serial port of the device
+- `--baudrate` [optional] baudrate of serial connection
+- `$1` [required] path to bitfile
+- `$2` [required] start address of the flash, where the bitfile should be written to
 
 The python script will send the Bitfile via serial to the enV5 and verifies that it has been written correctly.
 To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with
@@ -190,12 +183,12 @@ picture below.
 
 ### Power Sensor
 
-* Type: **PAC193X**
-* [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
-* Usage:
-    * Measure Power consumption of the FPGA/Flash
-    * Measure Power consumption of the Wi-Fi module
-* Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
+- Type: **PAC193X**
+- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
+- Usage:
+  - Measure Power consumption of the FPGA/Flash
+  - Measure Power consumption of the Wi-Fi module
+- Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
 
 #### Basic Usage Example
 
@@ -218,9 +211,9 @@ int main(void) {
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }
-    
+
     // DO STUFF
-    
+
     // Example: Read Values from Channel
     pac193xMeasurements_t measurements;
     errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
@@ -228,7 +221,7 @@ int main(void) {
         return errorCode;
     }
     // ...
-    
+
     return 0;
 }
 ```
@@ -238,12 +231,12 @@ in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
 
 ### Temperature Sensor
 
-* Type: **SHT3X**
-* [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
-* Usage:
-    * Measure the current temperature
-    * Measure the current humidity
-* Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
+- Type: **SHT3X**
+- [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
+- Usage:
+  - Measure the current temperature
+  - Measure the current humidity
+- Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
 
 #### Basic Usage Example
 
@@ -257,18 +250,18 @@ int main(void) {
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
-    
+
     // DO STUFF
-    
+
     // Example: Read Temperature and Humidity
     float temperature, humidity;
     errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
-    
+
     // ...
-    
+
     return 0;
 }
 
@@ -279,11 +272,11 @@ in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
 
 ### Acceleration Sensor
 
-* Type: **ADXL345B**
-* [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
-* Usage:
-    * Measure the acceleration in x,y,z direction
-* Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
+- Type: **ADXL345B**
+- [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
+- Usage:
+  - Measure the acceleration in x,y,z direction
+- Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
 
 #### Basic Usage Example
 
@@ -297,18 +290,18 @@ int main(void) {
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    
+
     // DO STUFF
-    
+
     // Example: Read G value in x, y and z direction
     float xAxis, yAxis, zAxis;
     errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);;
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    
+
     // ...
-    
+
     return 0;
 }
 ```
@@ -330,7 +323,7 @@ Following submodules are being used
 
 ## Troubleshooting
 
-* In case the command which fetches the submodules fails, try
+- In case the command which fetches the submodules fails, try
   executing `git submodule update --init --recursive --force`. This will most likely fix the problem.
-* To generate a clean CMake Build without deleting and reinitializing the build directory
+- To generate a clean CMake Build without deleting and reinitializing the build directory
   run `cmake --build <build_dir> --target clean`.
