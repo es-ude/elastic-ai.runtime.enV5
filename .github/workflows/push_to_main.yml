@@ -1,0 +1,33 @@
+# Workflow requires Variables to be defined as follows:
+#   secrets.PUSH_TOKEN -> Password with rights to push to repository
+
+name: "Create Release"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  semantic_release:
+    name: Generate Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: "lts/*"
+      - name: Install semantic-release Plugin
+        run: npm clean-install
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+        run: npx semantic-release
