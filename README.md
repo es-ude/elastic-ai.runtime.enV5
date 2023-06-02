@@ -1,3 +1,6 @@
+[![Tests](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml/badge.svg)](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml)
+[![Create Release](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg)](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml)
+
 # elastic-ai.runtime.enV5
 
 Elastic AI implementation for the Elastic Node version 5 (enV5).
