@@ -1,0 +1,94 @@
+# Workflow requires Variables to be defined as follows:
+#   secrets.PUSH_TOKEN -> Password with rights to push to repository
+
+name: "Tests"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    outputs:
+      new_sha: ${{ steps.sha.outputs.SHA }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+      - name: Install clang-format
+        run: |
+          sudo apt update
+          sudo apt install -y clang-format
+      - name: Get C Files
+        run: |
+          echo SRC=$(git ls-tree --full-tree -r HEAD | grep -e "\.\(c\|h\)\$" | cut -f 2) >> $GITHUB_ENV
+      - name: Apply clang-format to Files
+        run: |
+          clang-format --style=file --fallback-style=llvm -i $SRC
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "style: beautify ${{ github.head_ref }}"
+          commit_user_name: github-actions
+          commit_user_email: action@github.com
+          commit_author: github-actions <action@github.com>
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+      - name: Update SHA
+        id: sha
+        run: |
+          new_sha=$(git rev-parse HEAD)
+          echo "SHA=$new_sha" >> $GITHUB_OUTPUT
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs:
+      - clang-format
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.clang-format.outputs.new_sha }}
+      - name: Fetch Git Submodules
+        run: |
+          git submodule update --init --recursive
+      - name: Install Environment
+        run: |
+          sudo apt update
+          sudo apt install -y ninja-build
+      - name: Setup CMake
+        run: |
+          cmake -B build/unit-tests -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -G Ninja .
+      - name: Build Targets
+        run: |
+          cmake --build build/unit-tests -j 4
+      - name: Run Unit-Tests
+        run: ctest --test-dir build/unit-tests/test/unit --output-on-failure
+
+  build_all_targets:
+    runs-on: ubuntu-latest
+    needs:
+      - clang-format
+      - unit-tests
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.clang-format.outputs.new_sha }}
+      - name: Fetch Git Submodules
+        run: |
+          git submodule update --init --recursive
+      - name: Setup Environment
+        run: |
+          sudo apt update
+          sudo apt install -y ninja-build gcc-arm-none-eabi
+      - name: Setup CMake
+        run: |
+          cmake -B build/debug -D CMAKE_BUILD_TYPE=RELEASE -G Ninja .
+      - name: Build Targets
+        run: cmake --build build/debug -j 4
