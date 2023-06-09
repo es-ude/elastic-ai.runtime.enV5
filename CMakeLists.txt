@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 include(helpers.cmake)
 
+add_library(CException INTERFACE)
+target_sources(CException INTERFACE ${CMAKE_SOURCE_DIR}/extern/cexception/lib/CException.c)
+target_include_directories(CException INTERFACE ${CMAKE_SOURCE_DIR}/extern/cexception/lib)
+
 if (DEBUG_OUTPUT)
     add_definitions(-DDEBUG_MODE)
 endif ()
