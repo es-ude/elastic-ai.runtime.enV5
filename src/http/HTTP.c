@@ -2,11 +2,11 @@
 
 #include "HTTP.h"
 #include "AtCommands.h"
+#include "CException.h"
 #include "Common.h"
 #include "Esp.h"
 #include <stdlib.h>
 #include <string.h>
-#include "CException.h"
 
 HttpResponse_t *HTTPResponse = NULL;
 volatile uint32_t httpCount = 0;
@@ -53,17 +53,12 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t *response) {
-    CEXCEPTION_T e;
-    
-    Try{
-        free(response->response);
-        free(response);
-        response = NULL;
+    if (response == NULL){
+        Throw(RESPONSE_IS_NULL);
     }
-    Catch(e){
-        PRINT("error: 0x%02X", e);
-    }
-    
+    free(response->response);
+    free(response);
+    response = NULL;
 }
 
 void HTTPSetReceiverFunction(void) {

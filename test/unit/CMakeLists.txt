@@ -68,7 +68,7 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_network unity)
+target_link_libraries(unit-test_network unity CException)
 add_test(unit-test_network unit-test_network)
 ## endregion
 ##############################################
@@ -130,6 +130,6 @@ target_include_directories(unit-test_configurationHttp PUBLIC
         ${CMAKE_SOURCE_DIR}/src/network
         ${CMAKE_SOURCE_DIR}/src/http
         ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_configurationHttp unity m)
+target_link_libraries(unit-test_configurationHttp unity m CException)
 add_test(unit-test_configurationHttp unit-test_configurationHttp)
 ## endregion

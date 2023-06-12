@@ -1,8 +1,8 @@
-
-
 #include "HTTP.h"
 #include <stddef.h>
 #include <string.h>
+#include "CException.h"
+
 HttpResponse_t *HTTPResponse = NULL;
 
 void HTTPReceive(char *httpResponse) {}
@@ -16,6 +16,12 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     return HTTP_SUCCESS;
 }
 
-void HTTPCleanResponseBuffer(HttpResponse_t *response) {}
+
+void HTTPCleanResponseBuffer(HttpResponse_t *response) {
+    if (response == NULL){
+        Throw(RESPONSE_IS_NULL);
+    }
+}
+
 
 void HTTPSetReceiverFunction(void) {}

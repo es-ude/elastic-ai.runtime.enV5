@@ -1,3 +1,4 @@
+#include "CException.h"
 #include "FlashTypedefs.h"
 #include "FpgaConfigurationHttp.h"
 #include "flash/Flash.h"
@@ -71,9 +72,23 @@ HttpResponse_t *dataReceive(uint32_t blockNum) {
     memcpy(block->response, data, blockSize);
     return block;
 }
+
+void test_HTTPCleanResponseBufferShouldThrowException() {
+    HttpResponse_t *response = NULL;
+    CEXCEPTION_T e;
+    Try {
+        HTTPCleanResponseBuffer(response);
+        TEST_FAIL_MESSAGE("Should have thrown!");
+    }
+    Catch(e) {
+        TEST_ASSERT_EQUAL(RESPONSE_IS_NULL, e);
+    }
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testWriteData);
+    RUN_TEST(test_HTTPCleanResponseBufferShouldThrowException);
 
     return UNITY_END();
 }

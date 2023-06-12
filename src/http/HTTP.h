@@ -5,6 +5,8 @@
 
 typedef enum HTTPStatus { HTTP_SUCCESS = 1, HTTP_CONNECTION_FAILED = 2 } HTTPStatus;
 
+enum Exceptions {RESPONSE_IS_NULL = 1};
+
 struct httpResponse {
     uint32_t length;
     uint8_t *response;
