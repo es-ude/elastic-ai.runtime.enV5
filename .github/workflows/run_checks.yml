@@ -10,8 +10,22 @@ on:
       - 'main'
 
 jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Lint Commits
+        uses: wagoid/commitlint-github-action@v5
+
   clang-format:
     runs-on: ubuntu-latest
+    needs: 
+      - lint-commits
     outputs:
       new_sha: ${{ steps.sha.outputs.SHA }}
     steps:
