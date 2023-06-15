@@ -27,6 +27,7 @@ void HTTPReceive(char *httpResponse) {
 HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
+        Throw(HTTP_CONNECTION_FAILED);
         return HTTP_CONNECTION_FAILED;
     }
 
