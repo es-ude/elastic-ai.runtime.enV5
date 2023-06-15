@@ -4,6 +4,7 @@
 #include "FlashTypedefs.h"
 #include "spi/SpiTypedefs.h"
 #include <stdint.h>
+#include "FileIterator.h"
 
 void flashInit(uint8_t chip_select, spi_inst_t *spiInst);
 
@@ -13,6 +14,8 @@ int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length);
 
 uint8_t flashEraseData(uint32_t address);
 
-int flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size);
+flashWriteError_t flashWritePage(uint32_t address, uint8_t *data, uint16_t data_size);
+
+flashWriteError_t flashWrite( uint32_t address, dataBlock_t* dataBlock);
 
 #endif /* ENV5_FLASH_HEADER */

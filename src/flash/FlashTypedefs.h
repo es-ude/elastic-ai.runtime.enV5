@@ -12,5 +12,11 @@ enum {
     FLASH_ERASE_ERROR = 0x01,
 
 };
+
+typedef enum {
+    FLASH_WRITE_SUCCEED=0,
+    FLASH_WRITE_ERROR=1,
+}flashWriteError_t;
+
 typedef uint8_t flashEraseErrorCode_t;
 #endif // ENV5_FLASHTYPEDEFS_H

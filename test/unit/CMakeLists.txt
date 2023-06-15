@@ -121,11 +121,24 @@ add_executable(unit-test_configurationHttp
         ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/FpgaConfigDatahandler.c)
 target_include_directories(unit-test_configurationHttp PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/dummies/flash
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash
         ${CMAKE_SOURCE_DIR}/src/flash
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig
         ${CMAKE_SOURCE_DIR}/src/network
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_configurationHttp unity m)
 add_test(unit-test_configurationHttp unit-test_configurationHttp)
+## endregion
+##############################################
+## region UNIT-TEST: unit-test_flash
+add_executable(unit-test_flash
+        ${CMAKE_CURRENT_LIST_DIR}/UnittestFlash.c
+        ${CMAKE_SOURCE_DIR}/src/flash/Flash.c
+        )
+target_include_directories(unit-test_flash PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/dummies
+        ${CMAKE_SOURCE_DIR}/src/flash
+        ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(unit-test_flash unity m)
+add_test(unit-test_flash unit-test_flash)
 ## endregion
