@@ -1,84 +1,83 @@
-#ifndef ENV5_SHT3X_HEADER
-#define ENV5_SHT3X_HEADER
+#ifndef ENV5_SHT3X_INTERNAL_HEADER
+#define ENV5_SHT3X_INTERNAL_HEADER
 
-#include "Sht3xTypedefs.h"
+/*! Datasheet:
+ * https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf
+ */
+
+#include "include/Sht3xTypedefs.h"
 #include <stdint.h>
 
-/*! initializes the temperature sensor
- *  function has to be called before use of the sensor can be used \n
- *  \b IMPORTANT: needs max 1.5ms for idle state after power up
- *
- * @param[in] i2cHost i2c line to be used with sensor
- * @return            return the error code (0 if everything passed)
- */
-sht3xErrorCode_t sht3xInit(i2c_inst_t *i2cHost);
+/* region CONSTANTS */
 
-/*! function to read the value of the serial number from the sensor
- *
- * @param[out] serialNumber memory where the serial number is stored
- * @return                  return the error code (0 if everything passed)
+/*! constant to store the precalculated value for the CRC8 checksum \n
+ *  calculation P(x) = x^8 + x^5 + x^4 + 1 = 0b00110001= 0x31
  */
-sht3xErrorCode_t sht3xReadSerialNumber(uint32_t *serialNumber);
+static const uint16_t sht3xCrc8Polynomial = 0x31;
 
-/*! function to read the status register (settings) from the sensor
- *
- * @param[out] statusRegister memory where the status register is stored
- * @return                    return the error code (0 if everything passed)
+/*! constant to store the denominator used to calculate the temperature in
+ * degrees celsius \n calculation : 2^16 - 1
  */
-sht3xErrorCode_t sht3xReadStatusRegister(sht3xStatusRegister_t *statusRegister);
+static const float sht3xDenominator = (1 << 16) - 1.0f;
 
-/*! function to read the temperature \b and the humidity from the sensor
+/* endregion */
+
+/* region FUNCTION PROTOTYPES */
+
+/*! send a request to sensor via the i2c bus
  *
- * @param[out] temperature memory where the temperature is stored
- * @param[out] humidity    memory where the temperature is stored
- * @return                 return the error code (0 if everything passed)
+ * @param command[in] the 16 bit long command to be send to the sensor
+ * @return            returns the error code (0 if everything passed)
  */
-sht3xErrorCode_t sht3xGetTemperatureAndHumidity(float *temperature, float *humidity);
+static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xCommand_t command);
 
-/*! function to read \b only the temperature from the sensor
+/*! function to receive data from the sensor via i2c bus
  *
- * @param temperature[out] memory where the temperature is stored
- * @return                 return the error code (0 if everything passed)
+ * @param responseBuffer[out]      memory where the received data is stored
+ * @param sizeOfResponseBuffer[in] size of the response buffer
+ * @return                         returns the error code (0 if everything
+ *                                 passed)
  */
-sht3xErrorCode_t sht3xGetTemperature(float *temperature);
+static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(uint8_t *responseBuffer,
+                                                           uint8_t sizeOfResponseBuffer);
 
-/*! function to read \b only the humidity from the sensor \n
- *  CAUTION: due to hardware limitations the value of the temperature is read
- *           and processed, but not stored
+/*! function to perform a CRC8 checksum check on the received data
+ *  calculates the 8 bit checksum of the first two bytes and compares it to
+ *  the third byte of the input \n
+ *  \b CAUTION: size has to be a multiple of 3
  *
- * @param humidity[out] memory where the humidity is stored
- * @return              return the error code (0 if everything passed)
+ * @param responseBuffer[in]       data to be tested
+ * @param sizeOfResponseBuffer[in] size of the response buffer
+ * @return                         returns the error code (0 if everything
+ *                                 passed)
  */
-sht3xErrorCode_t sht3xGetHumidity(float *humidity);
+static sht3xErrorCode_t sht3xInternalPerformChecksumCheck(const uint8_t *responseBuffer,
+                                                          uint8_t sizeOfResponseBuffer);
 
-/*! function to get the last measured value from the sensor buffer
+/*! function to calculate the CRC8 checksum of two given bytes
+ *  based on the CRC8 algorithm from the datasheet
  *
- * @param temperature[out] memory where the temperature is stored
- * @param humidity[out]    memory where the humidity is stored
- * @return                 return the error code (0 if everything passed)
+ * @param dataBuffer[in] pointer to memory where two bytes are stored
+ * @return               checksum of the input
  */
-sht3xErrorCode_t sht3xReadMeasurementBuffer(float *temperature, float *humidity);
+static uint8_t sht3xInternalCalculateChecksum(const uint8_t *dataBuffer);
 
-/*! function to enable the heater module of the sensor \n
- *  the heater can be used to check the plausibility of the measured values \n
- *  the heater is automatically disabled after a reset
+/*! function to convert the raw data from the sensor to a real world
+ * temperature value
  *
- * @return return the error code (0 if everything passed)
+ * @param rawValue[in] 16 bit raw data from the sensor
+ * @return             returns the temperature in degree celcius
  */
-sht3xErrorCode_t sht3xEnableHeater(void);
+static float sht3xInternalCalculateTemperature(uint16_t rawValue);
 
-/*! function to manually disable the heater module of the sensor
+/*! function to convert the raw data from the sensor to a real world humidity
+ * value
  *
- * @return return the error code (0 if everything passed)
+ * @param rawValue[in] 16 bit raw data from the sensor
+ * @return             returns the humidity in RH\%
  */
-sht3xErrorCode_t sht3xDisableHeater(void);
+static float sht3xInternalCalculateHumidity(uint16_t rawValue);
 
-/*! function to trigger a soft reset of the sensor which recalibrates the sensor
- * and resets the system controller \n \b IMPORTANT: Hard RESET can be triggered
- * by turning the power off and on again
- *
- * @return return the error code (0 if everything passed)
- */
-sht3xErrorCode_t sht3xSoftReset(void);
+/* endregion */
 
-#endif /*ENV5_SHT3X_HEADER */
+#endif /* ENV5_SHT3X_INTERNAL_HEADER */

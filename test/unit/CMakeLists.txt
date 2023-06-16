@@ -3,11 +3,13 @@
 add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c
         ${CMAKE_SOURCE_DIR}/src/sht3x/Sht3x.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c
-        ${CMAKE_SOURCE_DIR}/src/sht3x
+        ${CMAKE_SOURCE_DIR}/src/sht3x/include
+        ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_sht3x unity)
