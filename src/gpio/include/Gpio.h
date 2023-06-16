@@ -37,4 +37,6 @@ typedef uint8_t gpioPinFunction_t;
 
 gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function);
 
+gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin);
+
 #endif /* ENV5_GPIO_HEADER */

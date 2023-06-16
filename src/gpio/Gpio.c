@@ -16,3 +16,9 @@ gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function) {
 
     return GPIO_NO_ERROR;
 }
+
+gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin) {
+    gpio_pull_up(pin);
+
+    return GPIO_NO_ERROR;
+}
