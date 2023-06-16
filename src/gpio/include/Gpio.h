@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 enum {
     GPIO_NO_ERROR = 0x00,

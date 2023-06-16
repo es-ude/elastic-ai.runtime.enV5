@@ -6,7 +6,6 @@
 #include "Gpio.h"
 #include "hardware/spi.h"
 #include "spi/Spi.h"
-#include "hardware/spi.h"
 
 // configuration is set in the header file.
 void qxi_init(void) {
