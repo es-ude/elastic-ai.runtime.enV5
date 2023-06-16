@@ -1,4 +1,4 @@
-	# Workflow requires Variables to be defined as follows:
+# Workflow requires Variables to be defined as follows:
 #   secrets.PUSH_TOKEN -> Password with rights to push to repository
 
 name: "Tests"
