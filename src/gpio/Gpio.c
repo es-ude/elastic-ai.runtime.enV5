@@ -1,6 +1,6 @@
 #define SOURCE_FILE "GPIO-LIB"
 
-#include "Gpio.h"
+#include "include/Gpio.h"
 #include <hardware/gpio.h>
 
 gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode) {
