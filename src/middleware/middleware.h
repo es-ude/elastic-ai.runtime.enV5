@@ -1,10 +1,8 @@
-//
-// Created by chao on 26/12/22.
-//
-
 #ifndef MY_PROJECT_MIDDLEWARE_H
 #define MY_PROJECT_MIDDLEWARE_H
+
 #include "qxi.h"
+#include <stdint.h>
 
 #define ADDR_MULTI_BOOT 0x0005
 #define ADDR_LEDS 0x0003
@@ -19,4 +17,5 @@ uint8_t middleware_get_leds(void);
 uint8_t middleware_get_design_id(void);
 void middleware_write_blocking(uint32_t address, uint8_t *data, uint16_t len);
 uint8_t middleware_read_blocking(uint32_t address, uint8_t *data, uint16_t len);
+
 #endif // MY_PROJECT_MIDDLEWARE_H

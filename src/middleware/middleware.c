@@ -1,9 +1,8 @@
-//
-// Created by chao on 26/12/22.
-//
+#define SOURCE_FILE "QXI"
 
 #include "middleware.h"
-#include "flash/Flash.h"
+#include "qxi.h"
+#include <stdint.h>
 
 void middleware_init() {
     qxi_init();

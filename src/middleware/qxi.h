@@ -1,13 +1,9 @@
-//
-// Created by chao on 26/12/22.
-//
-
 #ifndef MY_PROJECT_QXI_H
 #define MY_PROJECT_QXI_H
 
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
-#include <stdbool.h>
+#include <stdint.h>
 
 // Below are the PIOs to the FPGA, depends on the hardware design
 // on ENv5
@@ -22,8 +18,8 @@
 #define QXI_SPI_SCK_PIN 18
 #define QXI_SPI_CS_PIN 17
 
-//#define QXI_BAUD_RATE 62000*1000 // @62MHz
-#define QXI_BAUD_RATE 62000 * 1000 // @62MHz
+// #define QXI_BAUD_RATE 62000*1000 // @62MHz
+#define QXI_BAUD_RATE (62000 * 1000) // @62MHz
 
 // Notice: the format is depends on the design on FPGA
 #define QXI_CPOL SPI_CPOL_0
@@ -38,4 +34,5 @@ void qxi_deinit(void);
 void qxi_read_blocking(uint16_t addr, uint8_t *buf, size_t len);
 void qxi_write_blocking(uint16_t addr, uint8_t data[], uint16_t len);
 void qxi_set_speed(uint baudrate);
+
 #endif // MY_PROJECT_QXI_H
