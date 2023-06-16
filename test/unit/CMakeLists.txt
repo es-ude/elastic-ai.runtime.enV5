@@ -44,7 +44,7 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/pac193x/include
         ${CMAKE_SOURCE_DIR}/src/time/include
-        ${CMAKE_SOURCE_DIR}/src/gpio
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
         ${CMAKE_SOURCE_DIR}/src/i2c
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
@@ -66,7 +66,7 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/http
-        ${CMAKE_SOURCE_DIR}/src/gpio
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
         ${CMAKE_SOURCE_DIR}/src/atCommands
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/freeRtos
