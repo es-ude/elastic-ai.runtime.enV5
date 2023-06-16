@@ -5,6 +5,5 @@ target_include_directories(esp_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(esp_lib INTERFACE
         at_commands
         freeRtosUtils
-        pico_stdlib
         uart_lib
         network_lib)
