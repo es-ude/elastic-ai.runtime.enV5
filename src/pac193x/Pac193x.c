@@ -41,7 +41,7 @@ static const float pac193xInternalSamplingRate = 1024;
 /* region GENERAL FUNCTIONS */
 
 pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor) {
-    gpioErrorCode_t gpioErrorCode = gpioSetPower(sensor.powerPin, GPIO_POWER_UP);
+    gpioErrorCode_t gpioErrorCode = gpioEnablePin(sensor.powerPin, GPIO_POWER_UP);
     if (gpioErrorCode != GPIO_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -53,7 +53,7 @@ pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor) {
 }
 
 pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
-    gpioErrorCode_t gpioErrorCode = gpioSetPower(sensor.powerPin, GPIO_POWER_DOWN);
+    gpioErrorCode_t gpioErrorCode = gpioEnablePin(sensor.powerPin, GPIO_POWER_DOWN);
     if (gpioErrorCode != GPIO_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }

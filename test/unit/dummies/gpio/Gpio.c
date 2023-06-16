@@ -4,7 +4,7 @@
 
 #include "Gpio.h"
 
-gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode) {
+gpioErrorCode_t gpioEnablePin(gpioPin_t pin, gpioPowerMode_t powerMode) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }
