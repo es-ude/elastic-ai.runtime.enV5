@@ -36,12 +36,14 @@ add_executable(unit-test_pac193x
         ${CMAKE_CURRENT_LIST_DIR}/UnittestPac193x.c
         ${CMAKE_SOURCE_DIR}/src/pac193x/Pac193x.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/Gpio.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
+        ${CMAKE_SOURCE_DIR}/src/pac193x/include
+        ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/src/gpio
         ${CMAKE_SOURCE_DIR}/src/i2c
-        ${CMAKE_SOURCE_DIR}/src/pac193x
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
