@@ -7,7 +7,7 @@ add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
-        ${CMAKE_SOURCE_DIR}/src/i2c
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/src/sht3x/include
         ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/extern
@@ -24,7 +24,7 @@ add_executable(unit-test_adxl345b
         ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
-        ${CMAKE_SOURCE_DIR}/src/i2c
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/src/adxl345b/include
         ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/extern
@@ -45,7 +45,7 @@ target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_SOURCE_DIR}/src/pac193x/include
         ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/src/gpio/include
-        ${CMAKE_SOURCE_DIR}/src/i2c
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
@@ -67,7 +67,7 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/http
         ${CMAKE_SOURCE_DIR}/src/gpio/include
-        ${CMAKE_SOURCE_DIR}/src/atCommands
+        ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/freeRtos
         ${CMAKE_SOURCE_DIR}/src/network
@@ -92,8 +92,8 @@ target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/http
-        ${CMAKE_SOURCE_DIR}/src/gpio
-        ${CMAKE_SOURCE_DIR}/src/atCommands
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
+        ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
         ${CMAKE_SOURCE_DIR}/src/broker
