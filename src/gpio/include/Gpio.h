@@ -2,6 +2,7 @@
 #define ENV5_GPIO_HEADER
 
 #include <stdint.h>
+#include <stdbool.h>
 
 enum {
     GPIO_NO_ERROR = 0x00,
@@ -18,8 +19,6 @@ enum {
 };
 typedef uint8_t gpioPowerMode_t;
 
-gpioErrorCode_t gpioSetPower(gpioPin_t pin, gpioPowerMode_t powerMode);
-
 enum {
     GPIO_FUNCTION_XIP = 0,
     GPIO_FUNCTION_SPI = 1,
@@ -35,8 +34,14 @@ enum {
 };
 typedef uint8_t gpioPinFunction_t;
 
+gpioErrorCode_t gpioEnablePin(gpioPin_t pin, gpioPowerMode_t powerMode);
+
+gpioErrorCode_t gpioDisablePin(gpioPin_t pin);
+
 gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function);
 
 gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin);
+
+gpioErrorCode_t gpioSetPin(gpioPin_t pin, bool setHigh);
 
 #endif /* ENV5_GPIO_HEADER */
