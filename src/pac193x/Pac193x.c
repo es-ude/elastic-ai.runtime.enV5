@@ -4,9 +4,9 @@
 #include "Common.h"
 #include "Gpio.h"
 #include "I2c.h"
-#include "Pac193xInternal.h"
-#include "Pac193xTypedefs.h"
-#include <pico/time.h>
+#include "Time.h"
+#include "include/Pac193x.h"
+#include "include/Pac193xTypedefs.h"
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -22,7 +22,7 @@ static const float pac193xInternalUnipolarVoltageDenominator = (float)(1U << 16)
 /*! Denominator for unipolar power measurement: 2^{32} = 4294967296
  *
  * \Information This denominator is 2^{28} according to the datasheet,
- *            however testing has shown that 2^{32} is actually correct
+ *              however, testing has shown that 2^{32} is actually correct
  */
 static const float pac193xInternalUnipolarPowerDenominator = (float)(1ULL << 32);
 
@@ -41,19 +41,19 @@ static const float pac193xInternalSamplingRate = 1024;
 /* region GENERAL FUNCTIONS */
 
 pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor) {
-    gpioErrorCode_t gpioErrorCode = gpioSetPower(sensor.powerPin, GPIO_POWER_UP);
+    gpioErrorCode_t gpioErrorCode = gpioEnablePin(sensor.powerPin, GPIO_POWER_UP);
     if (gpioErrorCode != GPIO_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
 
     /* sleep to make sure the sensor is idle  */
-    sleep_ms(10);
+    sleep_for_ms(10);
 
     return PAC193X_NO_ERROR;
 }
 
 pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
-    gpioErrorCode_t gpioErrorCode = gpioSetPower(sensor.powerPin, GPIO_POWER_DOWN);
+    gpioErrorCode_t gpioErrorCode = gpioEnablePin(sensor.powerPin, GPIO_POWER_DOWN);
     if (gpioErrorCode != GPIO_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -260,7 +260,7 @@ pac193xReadAccumulatedPowerForAllChannels(pac193xSensorConfiguration_t sensor,
         return errorCode;
     }
 
-    // read accumulation counter ( PAC193X_CMD_READ_ACC_COUNT )
+    // read accumulation counter (PAC193X_CMD_READ_ACC_COUNT)
     uint8_t *responseBuffer = malloc(3);
     errorCode =
         pac193xInternalGetDataFromSensor(sensor, responseBuffer, 3, PAC193X_CMD_READ_ACC_COUNT);
@@ -445,8 +445,8 @@ static pac193xErrorCode_t pac193xInternalRefresh(pac193xSensorConfiguration_t se
         return errorCode;
     }
 
-    /* sleep because sensor is unreachable for 1ms after refresh */
-    sleep_ms(1);
+    /* sleep because the sensor is unreachable for 1ms after refresh */
+    sleep_for_ms(1);
 
     PRINT_DEBUG("refresh successful")
     return PAC193X_NO_ERROR;
@@ -461,8 +461,8 @@ static pac193xErrorCode_t pac193xInternalRefreshV(pac193xSensorConfiguration_t s
         return errorCode;
     }
 
-    /* sleep because sensor is unreachable for 1ms after refresh */
-    sleep_ms(1);
+    /* sleep because the sensor is unreachable for 1ms after refresh */
+    sleep_for_ms(1);
 
     PRINT_DEBUG("pac193xInternalRefreshV successful")
     return PAC193X_NO_ERROR;
@@ -616,7 +616,7 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
                                                  float *value) {
     /* store configurations for measurements */
     pac193xMeasurementProperties_t properties;
-    /* set channel offset for properties
+    /* set channel offset for property
      * address of a value to be measured are separated by 0x01 per channel:
      *   -> CMD_READ_VBUS1 = 0x07, CMD_READ_VBUS2 = 0x08, ...
      */

@@ -3,8 +3,9 @@
 #include "Sht3x.h"
 #include "Common.h"
 #include "I2c.h"
-#include "Sht3xInternal.h"
-#include "pico/time.h"
+#include "Time.h"
+#include "include/Sht3x.h"
+#include "include/Sht3xTypedefs.h"
 
 /* region VARIABLES */
 
@@ -23,9 +24,9 @@ sht3xErrorCode_t sht3xInit(i2c_inst_t *i2cHost) {
     i2cInit(sht3xSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
 
     /* sleep to make sure the sensor is fully initialized */
-    sleep_ms(2);
+    sleep_for_ms(2);
 
-    /* check if SHT3X is on Bus by requesting serial number without processing
+    /* check if SHT3X is on the Bus by requesting serial number without processing
      */
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];

@@ -1,13 +1,15 @@
-#############################################
+##############################################
 ## region UNIT-TEST: unit-test_sht3
 add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c
         ${CMAKE_SOURCE_DIR}/src/sht3x/Sht3x.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
-        ${CMAKE_SOURCE_DIR}/src/i2c
-        ${CMAKE_SOURCE_DIR}/src/sht3x
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
+        ${CMAKE_SOURCE_DIR}/src/sht3x/include
+        ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_sht3x unity)
@@ -18,11 +20,13 @@ add_test(unit-test_sht3x unit-test_sht3x)
 add_executable(unit-test_adxl345b
         ${CMAKE_CURRENT_LIST_DIR}/UnittestAdxl345b.c
         ${CMAKE_SOURCE_DIR}/src/adxl345b/Adxl345b.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
-        ${CMAKE_SOURCE_DIR}/src/i2c
-        ${CMAKE_SOURCE_DIR}/src/adxl345b
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
+        ${CMAKE_SOURCE_DIR}/src/adxl345b/include
+        ${CMAKE_SOURCE_DIR}/src/time/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_adxl345b unity)
@@ -34,12 +38,14 @@ add_executable(unit-test_pac193x
         ${CMAKE_CURRENT_LIST_DIR}/UnittestPac193x.c
         ${CMAKE_SOURCE_DIR}/src/pac193x/Pac193x.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/Gpio.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
 target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
-        ${CMAKE_SOURCE_DIR}/src/gpio
-        ${CMAKE_SOURCE_DIR}/src/i2c
-        ${CMAKE_SOURCE_DIR}/src/pac193x
+        ${CMAKE_SOURCE_DIR}/src/pac193x/include
+        ${CMAKE_SOURCE_DIR}/src/time/include
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
+        ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_pac193x unity)
@@ -60,8 +66,8 @@ target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/http
-        ${CMAKE_SOURCE_DIR}/src/gpio
-        ${CMAKE_SOURCE_DIR}/src/atCommands
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
+        ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/freeRtos
         ${CMAKE_SOURCE_DIR}/src/network
@@ -86,8 +92,8 @@ target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
         ${CMAKE_SOURCE_DIR}/src/http
-        ${CMAKE_SOURCE_DIR}/src/gpio
-        ${CMAKE_SOURCE_DIR}/src/atCommands
+        ${CMAKE_SOURCE_DIR}/src/gpio/include
+        ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_SOURCE_DIR}/src/FreeRTOSUtils
         ${CMAKE_SOURCE_DIR}/src/broker

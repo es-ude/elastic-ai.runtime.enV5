@@ -1,7 +1,7 @@
+#include "include/I2c.h"
+#include "Gpio.h"
 #include "I2c.h"
-#include "I2cInternal.h"
-#include "I2cTypedefs.h"
-#include <hardware/gpio.h>
+#include "include/I2cTypedefs.h"
 #include <hardware/i2c.h>
 #include <stdint.h>
 
@@ -55,13 +55,13 @@ i2cErrorCode_t i2cReadData(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
 static void i2cInternalSetupSda(uint8_t sdaGPIO) {
-    gpio_set_function(sdaGPIO, GPIO_FUNC_I2C);
-    gpio_pull_up(sdaGPIO);
+    gpioSetPinFunction(sdaGPIO, GPIO_FUNCTION_I2C);
+    gpioEnablePullUp(sdaGPIO);
 }
 
 static void i2cInternalSetupScl(uint8_t sclGPIO) {
-    gpio_set_function(sclGPIO, GPIO_FUNC_I2C);
-    gpio_pull_up(sclGPIO);
+    gpioSetPinFunction(sclGPIO, GPIO_FUNCTION_I2C);
+    gpioEnablePullUp(sclGPIO);
 }
 
 static int i2cInternalWriteBlocking(const uint8_t *bytesToSend, uint16_t numberOfBytesToSend,

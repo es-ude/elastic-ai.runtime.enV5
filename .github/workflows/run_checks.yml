@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-          persist-credentials: false
+          token: ${{ secrets.PUSH_TOKEN }}
       - name: Install clang-format
         run: |
           sudo apt update
@@ -51,8 +51,6 @@ jobs:
           commit_user_name: github-actions
           commit_user_email: action@github.com
           commit_author: github-actions <action@github.com>
-        env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
       - name: Update SHA
         id: sha
         run: |

@@ -5,5 +5,5 @@ target_sources(freeRtosUtils INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/FreeRtosSemaphoreWrapper.c)
 target_include_directories(freeRtosUtils INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 target_link_libraries(freeRtosUtils INTERFACE
-        pico_stdlib
+        time_interface
         freertos)

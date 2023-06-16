@@ -1,13 +1,11 @@
 #include "SpiHardwareAdapter.h"
+#include "Gpio.h"
 #include "SpiHardwareAdapterInternal.h"
-#include <hardware/gpio.h>
 #include <hardware/spi.h>
 #include <stdint.h>
 
 void spiInitChipSelect(const uint8_t csPin) {
-    gpio_init(csPin);
-    gpio_set_dir(csPin, GPIO_OUT);
-    gpio_put(csPin, 1);
+    gpioEnablePin(csPin, GPIO_POWER_UP);
 }
 
 void spiHardwareAdapterInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin,
@@ -16,29 +14,31 @@ void spiHardwareAdapterInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, u
     spiInitChipSelect(csPin);
     spi_init(spi, baudrate);
 
-    gpio_set_function(sckPin, GPIO_FUNC_SPI);
-    gpio_set_function(mosiPin, GPIO_FUNC_SPI);
-    gpio_set_function(misoPin, GPIO_FUNC_SPI);
+    gpioSetPinFunction(sckPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(mosiPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(misoPin, GPIO_FUNCTION_SPI);
 }
 
 void spiHardwareAdapterDeinit(spi_inst_t *spi, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
                               uint8_t misoPin) {
     spi_deinit(spi);
-    gpio_set_function(sckPin, GPIO_FUNC_SPI);
-    gpio_set_function(mosiPin, GPIO_FUNC_SPI);
-    gpio_set_function(misoPin, GPIO_FUNC_SPI);
-    gpio_deinit(csPin);
-    gpio_deinit(sckPin);
-    gpio_deinit(mosiPin);
-    gpio_deinit(misoPin);
+
+    gpioSetPinFunction(sckPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(mosiPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(misoPin, GPIO_FUNCTION_SPI);
+
+    gpioDisablePin(csPin);
+    gpioDisablePin(sckPin);
+    gpioDisablePin(mosiPin);
+    gpioDisablePin(misoPin);
 }
 
 void spiHardwareAdapterEnable(uint8_t csPin) {
-    gpio_put(csPin, 0);
+    gpioSetPin(csPin, false);
 }
 
 void spiHardwareAdapterDisable(uint8_t csPin) {
-    gpio_put(csPin, 1);
+    gpioSetPin(csPin, true);
 }
 
 int spiHardwareAdapterReadBlocking(spi_inst_t *spi, uint8_t *dataRead, uint16_t lengthRead) {
