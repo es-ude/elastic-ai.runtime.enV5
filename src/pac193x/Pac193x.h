@@ -1,134 +1,136 @@
-#ifndef ENV5_PAC193X_HEADER
-#define ENV5_PAC193X_HEADER
+#ifndef ENV5_PAC193X_INTERNAL_HEADER
+#define ENV5_PAC193X_INTERNAL_HEADER
 
-#include "Pac193xTypedefs.h"
+#include "include/Pac193xTypedefs.h"
 #include <stdbool.h>
 #include <stdint.h>
 
-/* region GENERAL FUNCTIONS */
+/* region SENSOR COMMUNICATION */
 
-/*! function that power up the sensor by setting PWRDN Pin to HIGH
+static pac193xErrorCode_t pac193xInternalCheckSensorAvailable(pac193xSensorConfiguration_t sensor);
+
+static pac193xErrorCode_t
+pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor);
+
+/*! send configuration to the sensor
  *
- * @param sensor[in] configuration for sensor to use
+ * @param registerToWrite[in] address of the register where the settings should
+ * be stored
+ * @param settingsToWrite[in] byte to store as settings
+ * @return                    return the error code (0 if everything passed)
+ */
+static pac193xErrorCode_t
+pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
+                                         pac193xRegisterAddress_t registerToWrite,
+                                         pac193xSettings_t settingsToWrite);
+
+/*! triggers reload of configuration and freezes accumulator
+ *
+ * \Information
+ *   1. reloads configuration\n
+ *   2. store current values of accumulator until next execution of refresh()\n
+ *   3. resets the accumulator
+ *
+ * @param sensor[in] sensor to refresh
  * @return           returns the error code (0 if everything passed)
  */
-pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor);
+static pac193xErrorCode_t pac193xInternalRefresh(pac193xSensorConfiguration_t sensor);
 
-/*! function that power down the sensor by setting PWRDN Pin to LOW
- * \Important After powered up again all settings will be set to default!
+/*! triggers reload of configuration and freezes accumulator
  *
- * @param sensor[in] configuration for sensor to use
+ * \Information
+ *   1. reloads configuration\n
+ *   2. store current values of accumulator until next execution of refresh()\n
+ *   3. \b NOT resetting the accumulator
+ *
+ * @param sensor[in] sensor to refresh
  * @return           returns the error code (0 if everything passed)
  */
-pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor);
+static pac193xErrorCode_t pac193xInternalRefreshV(pac193xSensorConfiguration_t sensor);
 
-/*! initializes the power sensor
- *  \Important function has to be called before the sensor can be used \n
- *             needs max 1.5ms for idle state after power up
- *  \Important function pac193xPowerUpSensor(...) has to be called beforehand
-
- * @param sensor[in] configuration for sensor to use
- * @return           returns the error code (0 if everything passed)
- */
-pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor);
-
-/*! updates the number of used channels
+/*! send request for register to read to sensor
  *
- * @param sensor[in] sensor configuration with updated channels
- * @return           returns the error code (0 if everything passed)
+ * @param registerToRead[in] address of register to read
+ * @return                   return the error code (0 if everything passed)
  */
-pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor);
+static pac193xErrorCode_t
+pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
+                                   pac193xRegisterAddress_t registerToRead);
 
-/* endregion GENERAL FUNCTIONS */
-
-/* region SINGLE SHOT MEASUREMENTS */
-
-/*! function to retrieve the production information from the sensor
+/*! receive data from sensor
  *
- * @param sensor[in] configuration of the sensor to use
- * @param info[out]  struct that holds the information read from the sensor
- * @return           returns the error code (0 if everything passed)
+ * @param responseBuffer[out]      byte buffer where the received will be stored
+ * @param sizeOfResponseBuffer[in] size of the buffer for the response
+ * @return                         return the error code (0 if everything
+ * passed)
  */
-pac193xErrorCode_t pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
-                                        pac193xSensorId_t *info);
+static pac193xErrorCode_t pac193xInternalReceiveDataFromSensor(pac193xSensorConfiguration_t sensor,
+                                                               uint8_t *responseBuffer,
+                                                               uint8_t sizeOfResponseBuffer);
 
-/*! function to read a specific value from the sensor for a specific channel
+/*! requests and receives data from the sensor\n
+ *  combines: pac193xInternalSendRequestToSensor(...) and pac193xInternalReceiveDataFromSensor(...)
  *
- * @param sensor[in]         configuration of the sensor to use
- * @param channel[in]        channel where the measurement should be taken from
- * @param valueToMeasure[in] value to be measured
- * @param value[out]         memory where the retrieved value will be stored
- * @return                   returns the error code (0 if everything passed)
+ * @param responseBuffer[out]
+ * @param sizeOfResponseBuffer[in]
+ * @param registerToRead[in]
+ * @return
  */
-pac193xErrorCode_t pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
-                                                   pac193xChannel_t channel,
-                                                   pac193xValueToMeasure_t valueToMeasure,
-                                                   float *value);
+static pac193xErrorCode_t pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor,
+                                                           uint8_t *responseBuffer,
+                                                           uint8_t sizeOfResponseBuffer,
+                                                           pac193xRegisterAddress_t registerToRead);
 
-/*! function to read \b all available single shot values from the sensor for a specific
- * channel
+/* endregion SENSOR COMMUNICATION */
+
+/* region SETUP MEASUREMENTS */
+
+static bool pac193xInternalCheckChannelIsActive(pac193xUsedChannels_t usedChannels,
+                                                pac193xChannel_t channelToTest);
+
+static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_t channel);
+
+/*! store adequate properties for the requested measurement
  *
- * @param sensor[in]        configuration of the sensor to use
- * @param channel[in]       channel where the measurement should be taken from
- * @param measurements[out] memory where the struct with the measured values will be stored
- * @return                  returns the error code (0 if everything passed)
- */
-pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
-                                                       pac193xChannel_t channel,
-                                                       pac193xMeasurements_t *measurements);
-
-/* endregion SINGLE SHOT MEASUREMENTS */
-
-/* region CONTINUOUS MEASUREMENTS */
-
-/*! function to start continuous measurement as accumulator/average with 1024 samples/second
+ * \Information
+ *   - register to start read\n
+ *   - function to convert raw data\n
+ *   - number of requested bytes
  *
- * @param sensor[in] configuration of the sensor to use
- * @return           returns the error code (o if everything passed)
+ * @param properties[out]    memory where the properties should be stored
+ * @param valueToMeasure[in] defines which value should be measured
+ * @return                   return the error code (0 if everything passed)
  */
-pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor);
+static pac193xErrorCode_t
+pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
+                                        pac193xValueToMeasure_t valueToMeasure);
 
-/*! function to stop continuous measurement and return to single shot mode
- *
- * @param sensor[in] configuration of the sensor to use
- * @return           returns the error code (o if everything passed)
- */
-pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor);
-
-/*! function to get the counter of accumulated values and the accumulated power values for all
- * channels of the sensor
- *
- * @param sensor[in]        configuration of the sensor to use
- * @param measurements[out] memory where the struct with the measured values will be stored
- * @return                  returns the error code (o if everything passed)
- */
-pac193xErrorCode_t
-pac193xReadAccumulatedPowerForAllChannels(pac193xSensorConfiguration_t sensor,
-                                          pac193xPowerMeasurements_t *measurements);
-
-/*! function to read an rolling average value of from sensor
- *
- * @param sensor[in]         configuration of the sensor to use
- * @param channel[in]        channel where the measurement should be taken from
- * @param valueToMeasure[in] value to be measured
- * @param value[out]         memory where the retrieved value will be stored
- * @return                   returns the error code (o if everything passed)
- */
-pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t sensor,
+static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t sensor,
                                                  pac193xChannel_t channel,
                                                  pac193xValueToMeasure_t valueToMeasure,
                                                  float *value);
 
-/*! function to read an rolling average value of from sensor
- *
- * @param sensor[in]        configuration of the sensor to use
- * @param channel[in]       channel where the measurement should be taken from
- * @param measurements[out] memory where the struct with the measured values will be stored
- * @return                  returns the error code (o if everything passed)
- */
-pac193xErrorCode_t pac193xReadAllAverageMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
-                                                               pac193xChannel_t channel,
-                                                               pac193xMeasurements_t *measurements);
-/* endregion CONTINUOUS MEASUREMENTS */
+/* endregion SETUP MEASUREMENTS */
 
-#endif /* ENV5_PAC193X_HEADER */
+/* region DATA TRANSFORMATION */
+
+static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *responseBuffer,
+                                                               uint8_t sizeOfResponseBuffer);
+
+static float pac193xInternalConvertToFloat(uint64_t input);
+
+static float pac193xInternalCalculateVoltageOfSense(uint64_t input,
+                                                    __attribute__((unused)) float resistor);
+
+static float pac193xInternalCalculateVoltageOfSource(uint64_t input,
+                                                     __attribute__((unused)) float resistor);
+
+static float pac193xInternalCalculateCurrentOfSense(uint64_t input, float resistor);
+
+static float pac193xInternalCalculateActualPower(uint64_t input, float resistor);
+
+static float pac193xInternalCalculateEnergy(uint64_t input, float resistor);
+
+/* endregion DATA TRANSFORMATION */
+
+#endif /* ENV5_PAC193X_INTERNAL_HEADER */
