@@ -1,8 +1,8 @@
 #ifndef ENV5_GPIO_HEADER
 #define ENV5_GPIO_HEADER
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 enum {
     GPIO_NO_ERROR = 0x00,

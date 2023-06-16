@@ -3,8 +3,8 @@
 #include "FreeRtosTaskWrapper.h"
 #include "Common.h"
 #include "FreeRtosTaskWrapperInternal.h"
-#include <FreeRTOS.h>
 #include "Time.h"
+#include <FreeRTOS.h>
 #include <task.h>
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
