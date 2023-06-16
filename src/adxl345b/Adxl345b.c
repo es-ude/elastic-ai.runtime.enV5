@@ -1,12 +1,11 @@
-#define SOURCE_FILE "src/adxl345b/adxl345b.c"
+#define SOURCE_FILE "ADXL345B-LIB"
 
+#include "include/Adxl345b.h"
 #include "Adxl345b.h"
-#include "Adxl345bInternal.h"
-#include "Adxl345bTypedefs.h"
 #include "Common.h"
 #include "I2c.h"
-#include "pico/time.h"
-#include <stdint.h>
+#include "Time.h"
+#include "include/Adxl345bTypedefs.h"
 
 /* region CONSTANTS */
 
@@ -27,7 +26,7 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
     i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
 
     /* sleep to make sure the sensor is fully initialized */
-    sleep_ms(2);
+    sleep_for_ms(2);
 
     /* Check if sensor ADXL345B is on Bus by requesting serial number without
      * processing */
@@ -151,7 +150,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(int *deltaX, int *deltaY, int *delta
         return errorCode;
     }
 
-    sleep_ms(2);
+    sleep_for_ms(2);
 
     /* collect 100 samples without force */
     int samplesWithoutForce[100][3];
@@ -191,7 +190,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(int *deltaX, int *deltaY, int *delta
             samplesWithoutForce[counter][1] = dataY;
             samplesWithoutForce[counter][2] = dataZ;
 
-            sleep_ms(20);
+            sleep_for_ms(20);
             counter++;
         }
     }
@@ -215,7 +214,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(int *deltaX, int *deltaY, int *delta
         return errorCode;
     }
 
-    sleep_ms(2);
+    sleep_for_ms(2);
 
     /* collect 100 samples with force */
     int samplesWithForce[100][3];
@@ -256,7 +255,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(int *deltaX, int *deltaY, int *delta
             samplesWithForce[counter][1] = dataY;
             samplesWithForce[counter][2] = dataZ;
 
-            sleep_ms(20);
+            sleep_for_ms(20);
             counter++;
         }
     }

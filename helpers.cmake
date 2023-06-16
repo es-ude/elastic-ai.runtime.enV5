@@ -17,6 +17,7 @@ function(include_src)
     add_subdirectory(src/env5)
     add_subdirectory(src/atCommands)
     add_subdirectory(src/http)
+    add_subdirectory(src/time)
 endfunction()
 
 function(make_to_output_file target)
