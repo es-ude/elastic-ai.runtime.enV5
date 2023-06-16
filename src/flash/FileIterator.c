@@ -1,7 +1,6 @@
 #define SOURCE_FILE "FILEITERATOR"
 #include "FileIterator.h"
 #include "Common.h"
-#include "FreeRtosTaskWrapper.h"
 #include <string.h>
 #include <stdlib.h>
 

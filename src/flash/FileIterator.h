@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
 typedef struct dataBlock {
     uint32_t size;
     uint8_t *data;
 } dataBlock_t;
+
 typedef struct configurationBlock {
     uint32_t address;
     dataBlock_t* dataBlock;

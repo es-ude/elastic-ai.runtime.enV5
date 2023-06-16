@@ -1,4 +1,5 @@
 #include "Flash.h"
+#include "fakeFlash.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -29,7 +30,8 @@ int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length) {
 
     return 2;
 }
-int flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size) {
+
+flashWriteError_t flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size) {
     addressWrite[numWriteBlocks] = address;
     for (uint16_t i = 0; i < page_size; i++) {
         dataComplete[address + i] = data[i];

@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 HttpResponse_t *(*getData)(uint32_t) = NULL;
 uint32_t currentAddress;
 uint32_t receiveBufferSize = 1024;
@@ -60,7 +59,7 @@ configErrorCode_t configure(uint32_t startAddress, uint32_t sizeOfConfiguration)
 void writeConfigurationBlock(uint32_t address, dataBlock_t* dataBlock){
 //    PRINT("write configuration block, address %u and datablock size %u", address, dataBlock->size)
 // configurationBlock_t configurationBlock={.address=address, .dataBlock=dataBlock};
-    flashWrite( address, dataBlock);
+    flashWrite(address, dataBlock);
 }
 //void writeBlock(uint32_t numBlocks, uint32_t numBlock, uint32_t numPageWrites,
 //                const HttpResponse_t *block) {

@@ -1,4 +1,5 @@
 #include "Flash.h"
+#include "fakeFlash.h"
 #include "FlashTypedefs.h"
 #include "FpgaConfigDatahandler.h"
 #include "FpgaConfiguration.h"

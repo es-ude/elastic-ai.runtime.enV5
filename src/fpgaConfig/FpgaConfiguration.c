@@ -63,7 +63,7 @@ void fpgaConfigurationInternalReceiveAndWriteDataOnFlash(uint32_t currentAddress
                                                          uint8_t *configurationBuffer,
                                                          uint16_t blockSize) {
     fpgaConfigHandlerReceiveData(configurationBuffer, blockSize);
-    flashWritePage(currentAddress, configurationBuffer, blockSize);
+    flashWrite(currentAddress, &(dataBlock_t){.data = configurationBuffer, .size = blockSize} );
 }
 
 void fpgaConfigurationInternalReadDataOnFlash(uint32_t currentAddress, uint8_t *configurationBuffer,

@@ -1,6 +1,6 @@
 #include "FlashTypedefs.h"
 #include "FpgaConfigurationHttp.h"
-#include "flash/Flash.h"
+#include "fakeFlash.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unity.h>
@@ -38,7 +38,7 @@ void testWriteData() {
     }
 
     setCommunication(dataReceive);
-    configErrorCode_t status = configure(startAddress, config_size);
+    configure(startAddress, config_size);
 
     numberOfPages = config_size / FLASH_PAGE_SIZE;
     uint32_t expectedAddresses[numberOfPages];

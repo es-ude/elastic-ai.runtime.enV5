@@ -14,8 +14,6 @@ int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length);
 
 uint8_t flashEraseData(uint32_t address);
 
-flashWriteError_t flashWritePage(uint32_t address, uint8_t *data, uint16_t data_size);
-
-flashWriteError_t flashWrite( uint32_t address, dataBlock_t* dataBlock);
+flashWriteError_t flashWrite(uint32_t address, dataBlock_t* dataBlock);
 
 #endif /* ENV5_FLASH_HEADER */
