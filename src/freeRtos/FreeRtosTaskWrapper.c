@@ -4,7 +4,7 @@
 #include "Common.h"
 #include "FreeRtosTaskWrapperInternal.h"
 #include <FreeRTOS.h>
-#include <pico/time.h>
+#include "Time.h"
 #include <task.h>
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
@@ -29,7 +29,7 @@ void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName
 
 void freeRtosTaskWrapperTaskSleep(int timeInMs) {
     if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED)
-        sleep_ms(timeInMs);
+        sleep_for_ms(timeInMs);
     else {
         // vTaskDelay does not support delaying less than typically 10ms
         if (timeInMs < 10) {
