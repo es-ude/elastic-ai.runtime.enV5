@@ -136,7 +136,7 @@ add_test(unit-test_configurationHttp unit-test_configurationHttp)
 ##############################################
 ## region UNIT-TEST: unit-test_http
 add_executable(unit-test_Http
-        ${CMAKE_CURRENT_LIST_DIR}/UnittestHttp.c
+        ${CMAKE_CURRENT_LIST_DIR}/UnittestHTTP.c
         ${CMAKE_SOURCE_DIR}/src/http/HTTP.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/esp/Esp.c)
 target_include_directories(unit-test_Http PUBLIC
