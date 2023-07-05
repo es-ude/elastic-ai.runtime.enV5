@@ -4,7 +4,7 @@
 #include "Adxl345b.h"
 #include "Common.h"
 #include "I2c.h"
-#include "Time.h"
+#include "Sleep.h"
 #include "include/Adxl345bTypedefs.h"
 
 /* region CONSTANTS */
