@@ -42,7 +42,7 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     snprintf(httpGet, lengthOfString, AT_HTTP_GET, url);
 
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
-     if (HTTPResponse != NULL) {
+        if (HTTPResponse != NULL) {
             HTTPCleanResponseBuffer(HTTPResponse);
         }
         Throw(HTTP_CONNECTION_FAILED);
@@ -56,7 +56,7 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t *response) {
-    if (response == NULL){
+    if (response == NULL) {
         Throw(RESPONSE_IS_NULL);
     }
     free(response->response);
