@@ -2,11 +2,14 @@
 #include <string.h>
 #include "CException.h"
 #include "Esp.h"
+#include "EspUnitTest.h"
 #include "HTTP.h"
 #include "unity.h"
 
 
-void setUp() {}
+void setUp() {
+    ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
+}
 
 void tearDown() {}
 
@@ -83,7 +86,6 @@ void test_HTTPwrongCommand(void) {
     
     CEXCEPTION_T e;
     Try {
-        //espSendCommand() never returns ESP_WRONG_ANSWER_RECEIVED because of Dummie
         HTTPGet(url, data);
         TEST_FAIL_MESSAGE("Should have thrown HTTP_CONNECTION_FAILED!");
     }
