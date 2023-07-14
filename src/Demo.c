@@ -27,6 +27,7 @@
 // external headers
 #include <malloc.h>
 #include <string.h>
+#include "CException.h"
 
 /* region VARIABLES/DEFINES */
 
@@ -421,10 +422,16 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, blockNo);
 
     HttpResponse_t *response;
-    uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with %u", code);
-    PRINT_DEBUG("Response Length: %li", response->length)
-
+    CEXCEPTION_T e;
+    Try {
+        uint8_t code = HTTPGet(URL, &response);
+        PRINT_DEBUG("HTTP Get returns with %u", code);
+        PRINT_DEBUG("Response Length: %li", response->length);
+    }
+    Catch(e){
+        PRINT_DEBUG("CException in HTTPGet");
+    };
+    
     free(blockNo);
     free(URL);
     return response;
