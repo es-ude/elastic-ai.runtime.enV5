@@ -421,7 +421,7 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, "/");
     strcat(URL, blockNo);
 
-    HttpResponse_t *response;
+    HttpResponse_t *response = NULL;
     CEXCEPTION_T e;
     Try {
         uint8_t code = HTTPGet(URL, &response);
