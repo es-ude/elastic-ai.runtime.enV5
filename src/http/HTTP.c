@@ -28,13 +28,11 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
         Throw(HTTP_CONNECTION_FAILED);
-        return HTTP_CONNECTION_FAILED;
     }
 
     if (strlen(url) > 256) {
         PRINT_DEBUG("HTTP ERROR - URL to long");
         Throw(HTTP_CONNECTION_FAILED);
-        return HTTP_CONNECTION_FAILED;
     }
 
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
@@ -46,7 +44,6 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
             HTTPCleanResponseBuffer(HTTPResponse);
         }
         Throw(HTTP_CONNECTION_FAILED);
-        return HTTP_CONNECTION_FAILED;
     }
 
     *data = HTTPResponse;
