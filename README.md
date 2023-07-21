@@ -98,7 +98,7 @@ The `*.uf2` files to flash the pico can than be found under the [out](./out) fol
 The main executable ([demo.c](src/Demo.c)) can be built with:
 
 ```bash
-cmake --build build/release -j 4 --target main
+cmake --build build/release -j 4 --target demo
 ```
 
 The resulting `demo.uf2` file to flash the pico can be found under the [out](./out) folder.
@@ -114,6 +114,13 @@ cmake --build build/debug -j 4 --target <test_name>
 replacing `<test_name>` with the name of the test.
 
 The resulting `<test_name>.u2f` files to flash the pico can be found under the [out](./out) folder.
+
+### Flashing the Elastic Node V5
+
+1. Press and hold 'MCU BOOT' on the Elastic Node
+2. Press 'MCU RST' on the Elastic Node
+3. Release 'MCU BOOT'
+4. Copy the `.uf2` File to the RPI-RP2 device
 
 ### CMD line output
 
@@ -145,6 +152,12 @@ This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 When MQTT messages are sent to fast to the device, some message will be dropped.
 
 ## FPGA Configuration
+
+### Via Elastic-ai.runtime
+
+Coming soon...
+
+### Via Python Script (deprecated)
 
 The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
 To write a file to the flash, the enV5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
