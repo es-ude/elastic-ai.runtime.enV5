@@ -15,6 +15,7 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
+#include "Adxl345b.h"
 #include "middleware.h"
 
 // pico-sdk headers
@@ -136,6 +137,7 @@ void receiveDataStartRequest(posting_t posting);
 void receiveDataStopRequest(posting_t posting);
 void getAndPublishSRamValue(char *dataID);
 void getAndPublishWifiValue(char *dataID);
+void getAndPublishGValue(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 void receiveFlashFpgaRequest(posting_t posting);
@@ -196,7 +198,13 @@ void init(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-
+    
+    errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    if (errorCode == ADXL345B_NO_ERROR)
+        PRINT("Initialised ADXL345B.")
+    else
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
+    
     env5HwInit();
     setCommunication(getResponse);
 
