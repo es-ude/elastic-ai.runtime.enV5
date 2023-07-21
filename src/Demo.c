@@ -278,7 +278,9 @@ _Noreturn void sensorTask(void) {
         (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-    publishAliveStatusMessage("wifi,sram");
+    addDataRequestReceiver(
+        (receiver_t){.dataID = "g-value", .whenSubscribed = getAndPublishGValue});
+    publishAliveStatusMessage("wifi,sram,g-value");
 
     PRINT("Ready ...")
 
@@ -386,6 +388,19 @@ void getAndPublishWifiValue(char *dataID) {
     char buffer[64];
     float channelWifiValue = measureValue(powersensor1, PAC193X_CHANNEL_WIFI);
     snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
+    protocolPublishData(dataID, buffer);
+}
+
+void getAndPublishGValue(char *dataID) {
+    float xAxis, yAxis, zAxis;
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis,  &yAxis, &zAxis);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("ERROR in Measuring G Value!")
+        return;
+    }
+    float gValue = xAxis + yAxis + zAxis;
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "%f", gValue);
     protocolPublishData(dataID, buffer);
 }
 
