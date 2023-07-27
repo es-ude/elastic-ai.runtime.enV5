@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Env5Hw.h"
 #include "Esp.h"
@@ -15,7 +16,6 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "middleware.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -83,6 +83,8 @@ typedef struct receiver {
     char *dataID;
     void (*whenSubscribed)(char *dataID);
     bool subscribed;
+    uint8_t frequency;
+    uint32_t lastPublished;
 } receiver_t;
 receiver_t receivers[5];
 uint16_t receivers_count = 0;
@@ -135,6 +137,7 @@ void receiveDataStartRequest(posting_t posting);
 void receiveDataStopRequest(posting_t posting);
 void getAndPublishSRamValue(char *dataID);
 void getAndPublishWifiValue(char *dataID);
+void getAndPublishGValue(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 void receiveFlashFpgaRequest(posting_t posting);
@@ -148,9 +151,9 @@ HttpResponse_t *getResponse(uint32_t block_number);
 int main() {
     init();
 
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
     freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperStartScheduler();
 }
 
@@ -195,6 +198,12 @@ void init(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
+
+    errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    if (errorCode == ADXL345B_NO_ERROR)
+        PRINT("Initialised ADXL345B.")
+    else
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
 
     env5HwInit();
     setCommunication(getResponse);
@@ -275,22 +284,31 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
+        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
     addDataRequestReceiver(
-        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-    publishAliveStatusMessage("wifi,sram");
+        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
+    addDataRequestReceiver(
+        (receiver_t){.dataID = "g-value", .whenSubscribed = getAndPublishGValue, .frequency = 1});
+    publishAliveStatusMessage("wifi,sram,g-value");
 
     PRINT("Ready ...")
 
+    uint32_t seconds;
     bool hasTwin = false;
     while (true) {
+        seconds = (time_us_32()) / 1000000;
+        freeRtosTaskWrapperTaskSleep(250);
+
         bool toSomeTopicIsSubscribed = false;
         for (int i = 0; i < receivers_count; ++i) {
             if (receivers[i].subscribed) {
-                receivers[i].whenSubscribed(receivers[i].dataID);
+                if (seconds - receivers[i].lastPublished >= receivers[i].frequency) {
+                    PRINT("sec: %lu, data: %s", seconds, receivers[i].dataID)
+                    receivers[i].whenSubscribed(receivers[i].dataID);
+                    receivers[i].lastPublished = seconds;
+                }
                 toSomeTopicIsSubscribed = true;
             }
-            freeRtosTaskWrapperTaskSleep(500);
         }
 
         if (!hasTwin && (toSomeTopicIsSubscribed)) {
@@ -386,6 +404,19 @@ void getAndPublishWifiValue(char *dataID) {
     char buffer[64];
     float channelWifiValue = measureValue(powersensor1, PAC193X_CHANNEL_WIFI);
     snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
+    protocolPublishData(dataID, buffer);
+}
+
+void getAndPublishGValue(char *dataID) {
+    float xAxis, yAxis, zAxis;
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("ERROR in Measuring G Value!")
+        return;
+    }
+    float gValue = xAxis + yAxis + zAxis;
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "%f", gValue);
     protocolPublishData(dataID, buffer);
 }
 
