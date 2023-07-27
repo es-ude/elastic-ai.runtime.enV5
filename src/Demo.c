@@ -85,6 +85,8 @@ typedef struct receiver {
     char *dataID;
     void (*whenSubscribed)(char *dataID);
     bool subscribed;
+    uint8_t frequency;
+    uint32_t lastPublished;
 } receiver_t;
 receiver_t receivers[5];
 uint16_t receivers_count = 0;
@@ -284,24 +286,29 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
+        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue,.frequency=1});
     addDataRequestReceiver(
-        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-    addDataRequestReceiver(
-        (receiver_t){.dataID = "g-value", .whenSubscribed = getAndPublishGValue});
-    publishAliveStatusMessage("wifi,sram,g-value");
+        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency=3});
+    publishAliveStatusMessage("wifi,sram");
 
     PRINT("Ready ...")
-
+    
+    uint32_t seconds;
     bool hasTwin = false;
     while (true) {
+        seconds = (time_us_32()) / 1000000;
+        freeRtosTaskWrapperTaskSleep(250);
+
         bool toSomeTopicIsSubscribed = false;
         for (int i = 0; i < receivers_count; ++i) {
             if (receivers[i].subscribed) {
-                receivers[i].whenSubscribed(receivers[i].dataID);
+                if (seconds - receivers[i].lastPublished >= receivers[i].frequency) {
+                    PRINT("sec: %lu, data: %s", seconds, receivers[i].dataID)
+                    receivers[i].whenSubscribed(receivers[i].dataID);
+                    receivers[i].lastPublished = seconds;
+                }
                 toSomeTopicIsSubscribed = true;
             }
-            freeRtosTaskWrapperTaskSleep(500);
         }
 
         if (!hasTwin && (toSomeTopicIsSubscribed)) {
