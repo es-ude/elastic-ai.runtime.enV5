@@ -153,9 +153,9 @@ HttpResponse_t *getResponse(uint32_t block_number);
 int main() {
     init();
 
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
     freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperStartScheduler();
 }
 
