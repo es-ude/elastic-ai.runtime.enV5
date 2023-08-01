@@ -22,7 +22,6 @@ void _Noreturn httpTask(void) {
             HTTPCleanResponseBuffer(&response);
         }
 
-
         freeRtosTaskWrapperTaskSleep(3000);
     }
 }

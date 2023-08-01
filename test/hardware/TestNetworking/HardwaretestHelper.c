@@ -33,7 +33,7 @@ void initHardwareTest(void) {
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
     watchdog_enable(5000000, 1); // max timeout ~8.3s
-    
+
     while (1) {
         if (getchar_timeout_us(0) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
