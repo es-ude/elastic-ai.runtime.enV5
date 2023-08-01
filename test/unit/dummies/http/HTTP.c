@@ -15,12 +15,6 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
     data = &HTTPResponse;
 }
 
-
-void HTTPCleanResponseBuffer(HttpResponse_t **response) {
-    if (response == NULL){
-        Throw(HTTP_RESPONSE_IS_NULL);
-    }
-}
-
+void HTTPCleanResponseBuffer(HttpResponse_t **response) {}
 
 void HTTPSetReceiverFunction(void) {}

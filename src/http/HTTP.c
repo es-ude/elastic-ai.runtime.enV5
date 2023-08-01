@@ -43,7 +43,7 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
 
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
         if (HTTPResponse != NULL) {
-            HTTPCleanResponseBuffer(HTTPResponse);
+            HTTPCleanResponseBuffer(&HTTPResponse);
         }
         Throw(HTTP_CONNECTION_FAILED);
     }
@@ -53,13 +53,10 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
     free(httpGet);
 }
 
-void HTTPCleanResponseBuffer(HttpResponse_t *response) {
-    if (response == NULL) {
-        Throw(HTTP_RESPONSE_IS_NULL);
-    }
-    free(response->response);
-    free(response);
-    response = NULL;
+void HTTPCleanResponseBuffer(HttpResponse_t **response) {
+    free((*response)->response);
+    free(*response);
+    *response = NULL;
 }
 
 void HTTPSetReceiverFunction(void) {
