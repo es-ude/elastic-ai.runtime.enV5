@@ -44,6 +44,7 @@ else ()
                 hardware_spi
                 spi_lib
                 sensor_lib_pac193x
+                sensor_lib_adxl345b
                 env5_lib)
         make_to_output_file(demo)
     elseif (PICO_ON_DEVICE)

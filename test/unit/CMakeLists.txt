@@ -4,12 +4,12 @@ add_executable(unit-test_sht3x
         ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c
         ${CMAKE_SOURCE_DIR}/src/sht3x/Sht3x.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/sleep/Sleep.c)
 target_include_directories(unit-test_sht3x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/src/sht3x/include
-        ${CMAKE_SOURCE_DIR}/src/time/include
+        ${CMAKE_SOURCE_DIR}/src/sleep/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_sht3x unity)
@@ -21,12 +21,12 @@ add_executable(unit-test_adxl345b
         ${CMAKE_CURRENT_LIST_DIR}/UnittestAdxl345b.c
         ${CMAKE_SOURCE_DIR}/src/adxl345b/Adxl345b.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/sleep/Sleep.c)
 target_include_directories(unit-test_adxl345b PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/src/adxl345b/include
-        ${CMAKE_SOURCE_DIR}/src/time/include
+        ${CMAKE_SOURCE_DIR}/src/sleep/include
         ${CMAKE_SOURCE_DIR}/extern
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_adxl345b unity)
@@ -39,11 +39,11 @@ add_executable(unit-test_pac193x
         ${CMAKE_SOURCE_DIR}/src/pac193x/Pac193x.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/gpio/Gpio.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/time/Time.c)
+        ${CMAKE_CURRENT_LIST_DIR}/dummies/sleep/Sleep.c)
 target_include_directories(unit-test_pac193x PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/dummies
         ${CMAKE_SOURCE_DIR}/src/pac193x/include
-        ${CMAKE_SOURCE_DIR}/src/time/include
+        ${CMAKE_SOURCE_DIR}/src/sleep/include
         ${CMAKE_SOURCE_DIR}/src/gpio/include
         ${CMAKE_SOURCE_DIR}/src/i2c/include
         ${CMAKE_SOURCE_DIR}/extern
