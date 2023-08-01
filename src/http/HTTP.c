@@ -26,12 +26,12 @@ void HTTPReceive(char *httpResponse) {
 HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
-        return HTTP_CONNECTION_FAILED;
+        return HTTP_HARDWARE_NOT_READY;
     }
 
     if (strlen(url) > 256) {
         PRINT_DEBUG("HTTP ERROR - URL to long")
-        return HTTP_CONNECTION_FAILED;
+        return HTTP_URL_TO_LONG;
     }
 
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
@@ -40,8 +40,9 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
 
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
         if (HTTPResponse != NULL) {
-            HTTPCleanResponseBuffer(HTTPResponse);
+            HTTPCleanResponseBuffer(&HTTPResponse);
         }
+        free(httpGet);
         return HTTP_CONNECTION_FAILED;
     }
 
@@ -51,10 +52,10 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     return HTTP_SUCCESS;
 }
 
-void HTTPCleanResponseBuffer(HttpResponse_t *response) {
-    free(response->response);
-    free(response);
-    response = NULL;
+void HTTPCleanResponseBuffer(HttpResponse_t **response) {
+    free((*response)->response);
+    free(*response);
+    *response = NULL;
 }
 
 void HTTPSetReceiverFunction(void) {

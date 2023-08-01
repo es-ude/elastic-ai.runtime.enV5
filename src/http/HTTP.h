@@ -3,7 +3,12 @@
 
 #include <stdint.h>
 
-typedef enum HTTPStatus { HTTP_SUCCESS = 1, HTTP_CONNECTION_FAILED = 2 } HTTPStatus;
+typedef enum HTTPStatus {
+    HTTP_SUCCESS = 0x00,
+    HTTP_HARDWARE_NOT_READY,
+    HTTP_URL_TO_LONG,
+    HTTP_CONNECTION_FAILED,
+} HTTPStatus;
 
 struct httpResponse {
     uint32_t length;
@@ -28,6 +33,6 @@ void HTTPSetReceiverFunction(void);
  *
  * @param response buffer to be removed
  */
-void HTTPCleanResponseBuffer(HttpResponse_t *response);
+void HTTPCleanResponseBuffer(HttpResponse_t **response);
 
 #endif // ENV5_HTTP_H

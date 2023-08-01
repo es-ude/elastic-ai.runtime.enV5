@@ -141,3 +141,12 @@ target_link_libraries(hardware-test_Durability
         hardware-testHelper)
 target_compile_definitions(hardware-test_Durability PRIVATE DEBUG)
 make_to_output_file(hardware-test_Durability)
+
+################## test_networkStrength ##################
+add_executable(hardware-test_checknetwork HardwaretestCheckNetwork.c)
+target_link_libraries(hardware-test_checknetwork
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper)
+target_compile_definitions(hardware-test_checknetwork PRIVATE DEBUG)
+make_to_output_file(hardware-test_checknetwork)
