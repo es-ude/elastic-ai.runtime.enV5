@@ -91,18 +91,24 @@ void networkDisconnectFromNetwork(void) {
     }
 }
 
-void networkcheckConnection(void) {
+networkErrorCode_t networkcheckConnection(void) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Chip not working!")
-        return;
+        return NETWORK_ESP_CHIP_FAILED;
     }
     if (espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT("No connection to disconnect from!")
-        return;
+        return NETWORK_ESTABLISH_CONNECTION_FAILED;
     }
 
     char *checkConnection = malloc(AT_CHECK_CONNECTION_LENGTH);
     strcpy(checkConnection, AT_CHECK_CONNECTION);
-    espSendCommand(checkConnection, AT_CHECK_CONNCETION_RESPONSE, 5000);
+    espErrorCode_t espErrorCode =
+        espSendCommand(checkConnection, AT_CHECK_CONNCETION_RESPONSE, 5000);
     free(checkConnection);
+
+    if (espErrorCode == ESP_NO_ERROR) {
+        return NETWORK_NO_ERROR;
+    }
+    return NETWORK_ESTABLISH_CONNECTION_FAILED;
 }

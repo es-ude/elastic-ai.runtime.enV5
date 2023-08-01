@@ -98,10 +98,11 @@ uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
     }
 
     // send command over uart
-    PRINT_DEBUG("COMMAND: \"%s\"", command)
+    PRINT_DEBUG("Sending command: \"%s\"", command)
     uart_puts((uart_inst_t *)uartDevice->uartInstance, command);
     // send \r\n because AT command always ends with CR-LF
     uart_puts((uart_inst_t *)uartDevice->uartInstance, "\r\n");
+    PRINT_DEBUG("command send")
 
     return UART_NO_ERROR;
 }
@@ -139,6 +140,9 @@ void uartInternalHandleNewLine(void) {
         if (uartHTTPReceive != NULL) {
             uartHTTPReceive(uartDevice->receiveBuffer);
         }
+    } else if (strncmp("+CWJAP", uartDevice->receiveBuffer, 6) == 0) {
+        PRINT_DEBUG("Message: %s", uartDevice->receiveBuffer);
+        uartCorrectResponseReceived = true;
     }
     if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
                 strlen(uartExpectedResponseFromEsp)) == 0) {

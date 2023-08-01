@@ -6,21 +6,24 @@
 #include "HardwaretestHelper.h"
 
 void _Noreturn httpTask(void) {
-    PRINT("=== STARTING TEST ===")
-
     connectToNetwork();
 
-    HttpResponse_t *response;
-    uint8_t code = HTTPGet("http://192.168.203.51:5000/getfile/0", &response);
+    PRINT("=== STARTING TEST ===")
 
-    PRINT("HTTP Get returns with %u", code);
-    PRINT("Response Length: %li", response->length);
-    PRINT("Response: %s", response->response)
+    HttpResponse_t *response = NULL;
 
-    HTTPCleanResponseBuffer(response);
-    PRINT("done")
+    while (1) {
+        uint8_t code = HTTPGet("http://192.168.178.24:5000/check", &response);
 
-    while (1) {}
+        PRINT("HTTP Get returns with %u", code);
+        if (code == HTTP_SUCCESS) {
+            PRINT("Response Length: %li", response->length);
+            PRINT("Response: %s", response->response)
+            HTTPCleanResponseBuffer(&response);
+        }
+
+        freeRtosTaskWrapperTaskSleep(3000);
+    }
 }
 
 int main() {

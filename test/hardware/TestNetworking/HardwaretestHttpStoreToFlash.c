@@ -9,17 +9,23 @@
 #include "Spi.h"
 #include "env5/Env5Hw.h"
 #include "middleware/middleware.h"
+
 #include <hardware/spi.h>
+#include <pico/stdlib.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+static spi_inst_t *spi = spi0;
 static const uint8_t sck_pin = 2;
 static const uint8_t miso_pin = 0;
 static const uint8_t mosi_pin = 3;
 static const uint8_t cs_pin = 1;
 static const uint32_t baudrate = 5000 * 1000;
-static char baseUrl[] = "http://192.168.203.51:5000/getfile/%u";
+volatile char *baseUrl = NULL;
+static char baseUrlSlow[] = "http://192.168.178.24:5000/getslow/%u";
+static char baseUrlFast[] = "http://192.168.178.24:5000/getfast/%u";
 
 void readDeviceID() {
     uint8_t id[6];
@@ -28,9 +34,79 @@ void readDeviceID() {
     printf("%02X%02X%02X%02X%02X", id[0], id[1], id[2], id[3], id[4]);
     printf("\n");
 }
+
 void init_helper(spi_inst_t *spi, uint32_t baudrate) {
     spiInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
     flashInit(cs_pin, spi);
+}
+
+void testFlashAccessible() {
+    init_helper(spi, baudrate);
+    readDeviceID();
+    spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
+}
+
+/// only available on special FPGA configurations!!
+void getDesignId() {
+    middleware_init();
+    uint8_t fpga_design_id = middleware_get_design_id();
+    printf("design id: %02x\r\n", fpga_design_id);
+    sleep_ms(10);
+    middleware_deinit();
+}
+
+void downloadBitfileToFlash(bool address0) {
+    init_helper(spi, baudrate);
+    configErrorCode_t configErrorCode0;
+    if (address0) {
+        baseUrl = baseUrlSlow;
+        configErrorCode0 = configure(0x00000000, 85540); // blink slow
+    } else {
+        baseUrl = baseUrlFast;
+        configErrorCode0 = configure(0x00100000, 86166); // blink fast
+    }
+    if (configErrorCode0 == CONFIG_ERASE_ERROR) {
+        PRINT("ERASE ERROR")
+    } else if (configErrorCode0 != CONFIG_NO_ERROR) {
+        PRINT("ERROR")
+    } else {
+        PRINT("DONE")
+    }
+    spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
+}
+
+void checkBitfileOnFlash() {
+    init_helper(spi, baudrate);
+    printf("ack\n");
+    fpgaConfigurationVerifyConfiguration();
+    spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
+}
+
+void resetFPGA() {
+    env5HwFpgaReset(1);
+    sleep_ms(10);
+    env5HwFpgaReset(0);
+    PRINT("FPGA reset performed")
+}
+
+void loadBitfile(uint32_t address) {
+    middleware_init();
+    middleware_configure_fpga(address);
+    PRINT("reconfig from 0x%08lX", address)
+    sleep_ms(1000);
+    middleware_deinit();
+}
+
+void setFpgaLed(bool on) {
+    middleware_init();
+    middleware_set_fpga_leds(on ? 0xFF : 0xF0);
+    uint8_t read_data = middleware_get_leds();
+    if (read_data == on ? 0x0F : 0x00) {
+        PRINT("Set all LEDs")
+    } else {
+        PRINT("Set all LEDs failed")
+    }
+    middleware_deinit();
 }
 
 HttpResponse_t *getResponse(uint32_t block_number) {
@@ -41,7 +117,7 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     sprintf(URL, baseUrl, block_number);
 
     uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with %u", code);
+    PRINT_DEBUG("HTTP Get returns with 0x%02X", code);
     PRINT_DEBUG("Response Length: %li", response->length)
 
     free(URL);
@@ -52,15 +128,11 @@ HttpResponse_t *getResponse(uint32_t block_number) {
 void _Noreturn httpTask(void) {
     PRINT("=== STARTING TEST ===")
     connectToNetwork();
-    spi_inst_t *spi = spi0;
     env5HwInit();
-
     setCommunication(getResponse);
 
     while (1) {
-
-        char input = getchar_timeout_us(10000);
-        uint8_t fpga_design_id;
+        char input = getchar_timeout_us(3000);
         switch (input) {
         case 'L':
             env5HwLedsAllOn();
@@ -69,88 +141,41 @@ void _Noreturn httpTask(void) {
             env5HwLedsAllOff();
             break;
         case 'P':
-            // power on FPGA
-            // only required for old hardware before using flash
             env5HwFpgaPowersOn();
             break;
-        case 'i':
-            // test flash accessible
-            init_helper(spi, baudrate);
-            readDeviceID();
-            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
-            break;
-        case 'I':
-
-            middleware_init();
-            fpga_design_id = middleware_get_design_id();
-            printf("design id: %02x\r\n", fpga_design_id);
-            sleep_ms(10);
-            middleware_deinit();
-            break;
-        case 'F':
-            // load bitfile to flash
-            init_helper(spi, baudrate);
-            printf("ack\n");
-            configErrorCode_t configErrorCode = configure(0x00100000, 205272);
-            if (configErrorCode == CONFIG_ERASE_ERROR) {
-                PRINT("ERASE ERROR")
-            }
-            PRINT("done")
-            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
-            break;
-        case 'V':
-            // check bitfile on flash
-            init_helper(spi, baudrate);
-            printf("ack\n");
-            fpgaConfigurationVerifyConfiguration();
-            spiDeinit(spi, cs_pin, sck_pin, mosi_pin, miso_pin);
-            break;
-        case 'r':
-            // reset FPGA
-            env5HwFpgaReset(1);
-            sleep_ms(10);
-            env5HwFpgaReset(0);
-            break;
-        case 'C':
-            // load bitfile from address 0
-            middleware_init();
-            middleware_configure_fpga(0x0000);
-            printf("reconfig 0x0000\r\n");
-            middleware_deinit();
-            break;
-        case 'c':
-            // load bitfile from address 1
-            middleware_init();
-            middleware_configure_fpga(0x00100000);
-            printf("reconfig to 0x00100000\r\n");
-            sleep_ms(1000);
-            middleware_deinit();
-            break;
         case 'p':
-            // power off FPGA
             env5HwFpgaPowersOff();
             break;
-
+        case 'i':
+            testFlashAccessible();
+            break;
+        case 'I':
+            getDesignId();
+            break;
+        case 'f':
+            downloadBitfileToFlash(true);
+            break;
+        case 'F':
+            downloadBitfileToFlash(false);
+            break;
+        case 'V':
+            checkBitfileOnFlash();
+            break;
+        case 'r':
+            resetFPGA();
+            break;
+        case 'C':
+            loadBitfile(0x00000000);
+            break;
+        case 'c':
+            loadBitfile(0x00100000);
+            break;
         case 'K':
-            middleware_init();
-            middleware_set_fpga_leds(0xff);
-            uint8_t read_data = middleware_get_leds();
-            if (read_data == 0x0f)
-                printf("leds all on\r\n");
-            else
-                printf("set leds all on failed.\r\n");
-            middleware_deinit();
+            setFpgaLed(true);
             break;
         case 'k':
-            middleware_init();
-            middleware_set_fpga_leds(0xf0);
-            if (middleware_get_leds() == 0x00)
-                printf("leds all off\r\n");
-            else
-                printf("set leds all off failed.\r\n");
-            middleware_deinit();
+            setFpgaLed(false);
             break;
-
         default:
             break;
         }
@@ -159,7 +184,7 @@ void _Noreturn httpTask(void) {
 
 int main() {
     initHardwareTest();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
+    // freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(httpTask, "httpTask");
     freeRtosTaskWrapperStartScheduler();
 

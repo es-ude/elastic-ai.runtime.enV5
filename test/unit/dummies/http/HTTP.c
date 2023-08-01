@@ -16,6 +16,6 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     return HTTP_SUCCESS;
 }
 
-void HTTPCleanResponseBuffer(HttpResponse_t *response) {}
+void HTTPCleanResponseBuffer(HttpResponse_t **response) {}
 
 void HTTPSetReceiverFunction(void) {}
