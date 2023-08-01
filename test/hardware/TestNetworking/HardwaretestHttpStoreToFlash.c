@@ -177,6 +177,7 @@ void _Noreturn httpTask(void) {
             setFpgaLed(false);
             break;
         default:
+            break;
         }
     }
 }
