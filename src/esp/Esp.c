@@ -80,6 +80,7 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
             PRINT_DEBUG("Correct response received!")
             break;
         }
+        PRINT_DEBUG("No Response Received")
         freeRtosTaskWrapperTaskSleep(REFRESH_RESPOND_IN_MS);
     }
     // free command buffer of UART

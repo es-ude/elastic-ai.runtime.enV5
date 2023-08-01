@@ -31,6 +31,6 @@ void HTTPSetReceiverFunction(void);
  *
  * @param response buffer to be removed
  */
-void HTTPCleanResponseBuffer(HttpResponse_t *response);
+void HTTPCleanResponseBuffer(HttpResponse_t **response);
 
 #endif // ENV5_HTTP_H

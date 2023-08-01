@@ -7,6 +7,7 @@
 #include "MqttBroker.h"
 #include "Network.h"
 #include "NetworkConfiguration.h"
+
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
@@ -24,20 +25,20 @@ void initHardwareTest(void) {
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    // init usb, queue and watchdog
+    // init stdio and esp
     stdio_init_all();
     while ((!stdio_usb_connected())) {}
     espInit();
-    freeRtosQueueWrapperCreate();
-    watchdog_enable(2000, 1);
 }
 
 void _Noreturn enterBootModeTaskHardwareTest(void) {
+    watchdog_enable(5000000, 1); // max timeout ~8.3s
+    
     while (1) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
+        if (getchar_timeout_us(0) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }
         watchdog_update();
-        freeRtosTaskWrapperTaskSleep(1000);
+        freeRtosTaskWrapperTaskSleep(500);
     }
 }
