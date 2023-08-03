@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "AtCommands.h"
+#include "CException.h"
 #include "Common.h"
 #include "Esp.h"
 #include "MqttBroker.h"
@@ -35,7 +36,7 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t 
         PRINT("MQTT Broker already connected! Disconnect first")
         return MQTT_ALREADY_CONNECTED;
     }
-
+    
     while (espStatus.MQTTStatus == NOT_CONNECTED) {
         mqttBrokerErrorCode_t mqttErrorCode =
             mqttBrokerConnectToBroker(mqttHost, brokerDomain, clientID);

@@ -94,7 +94,8 @@ target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/src/uart
         ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c/src
         ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_mqtt unity m)
+target_link_libraries(unit-test_mqtt unity m
+        CException)
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
 ##############################################
