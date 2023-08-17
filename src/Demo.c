@@ -422,15 +422,14 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, blockNo);
 
     HttpResponse_t *response = NULL;
-    CEXCEPTION_T e;
+    CEXCEPTION_T httpException;
     Try {
-        uint8_t code = HTTPGet(URL, &response);
-        PRINT_DEBUG("HTTP Get returns with %u", code);
-        PRINT_DEBUG("Response Length: %li", response->length);
+        HTTPGet(URL, &response);
     }
-    Catch(e){
+    Catch(httpException){
         PRINT_DEBUG("CException in HTTPGet");
     };
+    PRINT_DEBUG("Response Length: %li", response->length);
     
     free(blockNo);
     free(URL);

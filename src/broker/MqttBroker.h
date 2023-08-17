@@ -16,15 +16,14 @@ struct mqttHost {
 };
 typedef struct mqttHost mqttBrokerHost_t;
 
-enum {
-    MQTT_NO_ERROR = 0x00,
+typedef enum MQTTExceptions {
     MQTT_ESP_CHIP_FAILED = 0x01,
     MQTT_WIFI_FAILED = 0x02,
     MQTT_CONNECTION_FAILED = 0x03,
     MQTT_ESP_WRONG_ANSWER = 0x04,
-    MQTT_ALREADY_CONNECTED = 0x05
-};
-typedef uint8_t mqttBrokerErrorCode_t;
+    MQTT_ALREADY_CONNECTED = 0x05,
+    MQTT_COULD_NOT_DISCONNECT_BROKER = 0x06
+} MQTTExceptions_t;
 
 /*! \brief tries to connect to Broker until successful
  *
@@ -36,7 +35,7 @@ typedef uint8_t mqttBrokerErrorCode_t;
  * \param clientID getDomain of this client, used to Identify to the Broker and added
  * after the Domain in every message
  */
-mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost,
+void mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost,
                                                                char *brokerDomain, char *clientID);
 
 /*! \brief tries to connect to Broker
@@ -49,7 +48,7 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t 
  * \param clientID getID of this client, used to Identify to the Broker and added after the Domain
  * in every message \return true if connection successful or already connected, otherwise false
  */
-mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
+void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
                                                 char *clientID);
 
 void publishLong(posting_t posting);

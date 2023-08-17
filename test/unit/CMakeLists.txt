@@ -111,7 +111,7 @@ target_include_directories(unit-test_configuration PUBLIC
         ${CMAKE_SOURCE_DIR}/src/flash
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig
         ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_configuration unity m)
+target_link_libraries(unit-test_configuration unity m CException)
 add_test(unit-test_configuration unit-test_configuration)
 ## endregion
 ##############################################
