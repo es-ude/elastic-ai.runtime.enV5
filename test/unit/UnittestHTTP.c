@@ -46,7 +46,7 @@ void test_HTTPCleanResponseBufferShouldThrowException(void) {
         TEST_FAIL_MESSAGE("Should have thrown RESPONSE_IS_NULL!");
     }
     Catch(e) {
-        TEST_ASSERT_EQUAL(RESPONSE_IS_NULL, e);
+        TEST_ASSERT_EQUAL(HTTP_RESPONSE_IS_NULL, e);
     }
 }
 
