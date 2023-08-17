@@ -3,9 +3,10 @@
 
 #include <stdint.h>
 
-typedef enum HTTPStatus { HTTP_SUCCESS = 1, HTTP_CONNECTION_FAILED = 2 } HTTPStatus;
-
-enum Exceptions {RESPONSE_IS_NULL = 1};
+typedef enum HttpExceptions {
+    HTTP_RESPONSE_IS_NULL = 0x01,
+    HTTP_CONNECTION_FAILED = 0x02
+} HttpExceptions_t;
 
 struct httpResponse {
     uint32_t length;
@@ -18,7 +19,7 @@ typedef struct httpResponse HttpResponse_t;
  * \param url url to curl
  * \param data Pointer data is stored to
  */
-HTTPStatus HTTPGet(const char *url, HttpResponse_t **data);
+void HTTPGet(const char *url, HttpResponse_t **data);
 
 /*! \brief only for the Network library
  *

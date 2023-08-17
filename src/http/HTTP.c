@@ -1,10 +1,12 @@
 #define SOURCE_FILE "HTTP"
 
-#include "HTTP.h"
 #include "AtCommands.h"
-#include "CException.h"
 #include "Common.h"
 #include "Esp.h"
+#include "HTTP.h"
+
+#include "CException.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -24,7 +26,7 @@ void HTTPReceive(char *httpResponse) {
     memcpy(HTTPResponse->response, data, bytesOfData);
 }
 
-HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
+void HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
         Throw(HTTP_CONNECTION_FAILED);
@@ -49,12 +51,11 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
     *data = HTTPResponse;
     HTTPResponse = NULL;
     free(httpGet);
-    return HTTP_SUCCESS;
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t *response) {
     if (response == NULL) {
-        Throw(RESPONSE_IS_NULL);
+        Throw(HTTP_RESPONSE_IS_NULL);
     }
     free(response->response);
     free(response);
