@@ -1,7 +1,7 @@
 #include "HTTP.h"
+#include "CException.h"
 #include <stddef.h>
 #include <string.h>
-#include "CException.h"
 
 HttpResponse_t *HTTPResponse = NULL;
 

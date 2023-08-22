@@ -12,8 +12,7 @@ typedef struct mqttBrokerSubscription mqttBrokerSubscription_t;
 
 static void mqttBrokerInternalSetBrokerDomain(char *ID);
 
-static void mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
-                                                                    char *password);
+static void mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId, char *password);
 
 static void mqttBrokerInternalSetConnectionConfiguration(void);
 

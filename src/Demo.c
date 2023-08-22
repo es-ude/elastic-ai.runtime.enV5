@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Env5Hw.h"
 #include "Esp.h"
@@ -15,7 +16,6 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "Adxl345b.h"
 #include "middleware.h"
 
 // pico-sdk headers
@@ -26,9 +26,9 @@
 #include <pico/stdlib.h>
 
 // external headers
+#include "CException.h"
 #include <malloc.h>
 #include <string.h>
-#include "CException.h"
 
 /* region VARIABLES/DEFINES */
 
@@ -200,13 +200,13 @@ void init(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
         sleep_ms(500);
     }
-    
+
     errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode == ADXL345B_NO_ERROR)
         PRINT("Initialised ADXL345B.")
     else
         PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
-    
+
     env5HwInit();
     setCommunication(getResponse);
 
@@ -286,13 +286,13 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue,.frequency=1});
+        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 1});
     addDataRequestReceiver(
-        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency=3});
+        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
     publishAliveStatusMessage("wifi,sram");
 
     PRINT("Ready ...")
-    
+
     uint32_t seconds;
     bool hasTwin = false;
     while (true) {
@@ -409,7 +409,7 @@ void getAndPublishWifiValue(char *dataID) {
 
 void getAndPublishGValue(char *dataID) {
     float xAxis, yAxis, zAxis;
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis,  &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT("ERROR in Measuring G Value!")
         return;
@@ -456,11 +456,11 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     Try {
         HTTPGet(URL, &response);
     }
-    Catch(httpException){
+    Catch(httpException) {
         PRINT_DEBUG("CException in HTTPGet");
     };
     PRINT_DEBUG("Response Length: %li", response->length);
-    
+
     free(blockNo);
     free(URL);
     return response;

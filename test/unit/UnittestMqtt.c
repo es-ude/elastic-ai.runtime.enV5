@@ -1,7 +1,7 @@
 #include "CException.h"
 #include "Esp.h"
-#include "esp/EspUnitTest.h"
 #include "MqttBroker.h"
+#include "esp/EspUnitTest.h"
 #include <unity.h>
 
 mqttBrokerHost_t mqttHost = {
@@ -27,7 +27,7 @@ void test_ConnectToMqttBrokerSuccessful(void) {
         TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
         TEST_PASS();
     }
-    Catch(exception_mqttBrokerConnectToBroker){
+    Catch(exception_mqttBrokerConnectToBroker) {
         TEST_FAIL_MESSAGE("Some Error occurred which caused a CException");
     }
     TEST_FAIL_MESSAGE("Something went wrong");
@@ -51,7 +51,7 @@ void test_ConnectToMqttBrokerNoWifi(void) {
     espStatus.WIFIStatus = NOT_CONNECTED;
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
-    Try{
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_WIFI_FAILED");
     }
@@ -61,7 +61,6 @@ void test_ConnectToMqttBrokerNoWifi(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
 }
 
-
 void test_ConnectToMqttBrokerAlreadyConnected(void) {
     espStatus.MQTTStatus = CONNECTED;
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
@@ -70,7 +69,7 @@ void test_ConnectToMqttBrokerAlreadyConnected(void) {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_ALREADY_CONNECTED");
     }
-    Catch(exception_mqttBrokerConnectToBroker){
+    Catch(exception_mqttBrokerConnectToBroker) {
         TEST_ASSERT_EQUAL(MQTT_ALREADY_CONNECTED, exception_mqttBrokerConnectToBroker);
     }
 }
