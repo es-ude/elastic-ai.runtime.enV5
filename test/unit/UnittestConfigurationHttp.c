@@ -1,3 +1,4 @@
+#include "CException.h"
 #include "FlashTypedefs.h"
 #include "FpgaConfigurationHttp.h"
 #include "flash/Flash.h"
@@ -71,6 +72,7 @@ HttpResponse_t *dataReceive(uint32_t blockNum) {
     memcpy(block->response, data, blockSize);
     return block;
 }
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testWriteData);
