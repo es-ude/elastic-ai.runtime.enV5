@@ -45,7 +45,7 @@ else ()
                 spi_lib
                 sensor_lib_pac193x
                 sensor_lib_adxl345b
-                env5_lib)
+                env5_hal)
         make_to_output_file(demo)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")

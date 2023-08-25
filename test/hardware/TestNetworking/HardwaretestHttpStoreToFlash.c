@@ -7,7 +7,7 @@
 #include "HTTP.h"
 #include "HardwaretestHelper.h"
 #include "Spi.h"
-#include "env5/Env5Hw.h"
+#include "env5_hal/Env5Hw.h"
 #include "middleware/middleware.h"
 
 #include <hardware/spi.h>

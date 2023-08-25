@@ -1,7 +1,7 @@
 
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "env5/Env5Hw.h"
+#include "env5_hal/Env5Hw.h"
 #include "flash/Flash.h"
 #include "fpgaConfig/FpgaConfiguration.h"
 #include "hardware/watchdog.h"
