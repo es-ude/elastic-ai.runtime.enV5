@@ -1,7 +1,6 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
-#include "Adxl345b.h"
 #include "Common.h"
 #include "Env5Hw.h"
 #include "Esp.h"
@@ -16,6 +15,7 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
+#include "adxl345b/include/Adxl345b.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -147,14 +147,48 @@ HttpResponse_t *getResponse(uint32_t block_number);
 /* endregion MQTT */
 
 /* endregion HEADER */
+void batchTest() {
+
+    PRINT("TEST")
+    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_DURATION, 0b11111111);
+    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_LATENCY, 0b11111111);
+    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_DURATION, 0b11111111);
+
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
+
+    int count = 0;
+    float xAxis, yAxis, zAxis;
+    uint32_t seconds = (time_us_32()) / 1000000;
+    while (1) {
+        adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            PRINT("ERROR in Measuring G Value!")
+            return;
+        }
+        float gValue = xAxis + yAxis + zAxis;
+        char buffer[64];
+        snprintf(buffer, sizeof(buffer), "%f", gValue);
+//        count++;
+                PRINT("%s", buffer);
+//        if (count % 100 == 0) {
+//            PRINT("%s, %lu", buffer, count / (time_us_32() / 1000000 - seconds))
+//        }
+        freeRtosTaskWrapperTaskSleep(10);
+    }
+}
 
 int main() {
     init();
+    
+
+    
+
 
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
-    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
-    freeRtosTaskWrapperStartScheduler();
+    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest");
+//    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
+//    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
+//    freeRtosTaskWrapperStartScheduler();
 }
 
 /* region PROTOTYPE IMPLEMENTATIONS */
@@ -199,6 +233,7 @@ void init(void) {
         sleep_ms(500);
     }
 
+    i2c_set_baudrate(i2c1, 2000000);
     errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode == ADXL345B_NO_ERROR)
         PRINT("Initialised ADXL345B.")
