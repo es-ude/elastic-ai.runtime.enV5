@@ -65,7 +65,7 @@ add_executable(unit-test_network
 target_include_directories(unit-test_network PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
-        ${CMAKE_SOURCE_DIR}/src/http
+        ${CMAKE_SOURCE_DIR}/src/http/include
         ${CMAKE_SOURCE_DIR}/src/gpio/include
         ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
@@ -91,7 +91,7 @@ add_executable(unit-test_mqtt
 target_include_directories(unit-test_mqtt PUBLIC
         ${CMAKE_SOURCE_DIR}/test/unit/dummies
         ${CMAKE_SOURCE_DIR}/test/unit/dummies/hardware
-        ${CMAKE_SOURCE_DIR}/src/http
+        ${CMAKE_SOURCE_DIR}/src/http/include
         ${CMAKE_SOURCE_DIR}/src/gpio/include
         ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src/esp
@@ -135,7 +135,7 @@ target_include_directories(unit-test_configurationHttp PUBLIC
         ${CMAKE_SOURCE_DIR}/src/flash
         ${CMAKE_SOURCE_DIR}/src/fpgaConfig
         ${CMAKE_SOURCE_DIR}/src/network
-        ${CMAKE_SOURCE_DIR}/src/http
+        ${CMAKE_SOURCE_DIR}/src/http/include
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_configurationHttp unity m CException)
 add_test(unit-test_configurationHttp unit-test_configurationHttp)
@@ -147,10 +147,10 @@ add_executable(unit-test_Http
         ${CMAKE_SOURCE_DIR}/src/http/HTTP.c
         ${CMAKE_CURRENT_LIST_DIR}/dummies/esp/Esp.c)
 target_include_directories(unit-test_Http PUBLIC
-        ${CMAKE_SOURCE_DIR}/src/http
+        ${CMAKE_SOURCE_DIR}/src/http/include
         ${CMAKE_SOURCE_DIR}/src/esp
         ${CMAKE_CURRENT_LIST_DIR}/dummies/esp
-        ${CMAKE_SOURCE_DIR}/src/atCommands
+        ${CMAKE_SOURCE_DIR}/src/atCommands/include
         ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(unit-test_Http unity m CException)
 add_test(unit-test_Http unit-test_Http)

@@ -12,7 +12,7 @@ void setUp() {
 
 void tearDown() {}
 
-char *generateString(int lengthOfString) {
+static char *generateString(int lengthOfString) {
     char *generatedString = malloc(sizeof('a') * lengthOfString);
     for (int i = 0; i < lengthOfString; i++) {
         generatedString[i] = 'a';
@@ -20,37 +20,16 @@ char *generateString(int lengthOfString) {
     return generatedString;
 }
 
-void test_generateString1(void) {
-    TEST_ASSERT_EQUAL(1, strlen(generateString(1)));
-}
-
-void test_generateString10(void) {
-    TEST_ASSERT_EQUAL(10, strlen(generateString(10)));
-}
-
-void test_generateString100(void) {
-    TEST_ASSERT_EQUAL(100, strlen(generateString(100)));
-}
-
-void test_generateString1000(void) {
-    TEST_ASSERT_EQUAL(1000, strlen(generateString(1000)));
-}
-
-void test_HTTPCleanResponseBufferShouldThrowException(void) {
-    HttpResponse_t *response = NULL;
-    CEXCEPTION_T e;
-    Try {
-        HTTPCleanResponseBuffer(response);
-        TEST_FAIL_MESSAGE("Should have thrown RESPONSE_IS_NULL!");
-    }
-    Catch(e) {
-        TEST_ASSERT_EQUAL(HTTP_RESPONSE_IS_NULL, e);
-    }
+void test_HttpEmptyBufferReturnsOnNullInput(void) {
+    HttpResponse_t *testResponse = NULL;
+    HTTPCleanResponseBuffer(&testResponse);
+    TEST_ABORT();
 }
 
 void test_HTTPConnectionFailedThrowsException(void) {
     espStatus.ChipStatus = ESP_CHIP_NOT_OK;
     espStatus.WIFIStatus = NOT_CONNECTED;
+
     CEXCEPTION_T e;
     Try {
         HTTPGet(NULL, NULL);
@@ -95,11 +74,7 @@ void test_HTTPwrongCommand(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(test_generateString1);
-    RUN_TEST(test_generateString10);
-    RUN_TEST(test_generateString100);
-    RUN_TEST(test_generateString1000);
-    RUN_TEST(test_HTTPCleanResponseBufferShouldThrowException);
+    RUN_TEST(test_HttpEmptyBufferReturnsOnNullInput);
     RUN_TEST(test_HTTPConnectionFailedThrowsException);
     RUN_TEST(test_HTTPURLtoLongThrowsException);
     RUN_TEST(test_HTTPwrongCommand);

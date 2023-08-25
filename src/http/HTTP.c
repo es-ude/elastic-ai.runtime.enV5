@@ -1,6 +1,6 @@
 #define SOURCE_FILE "HTTP"
 
-#include "HTTP.h"
+#include "include/HTTP.h"
 #include "AtCommands.h"
 #include "Common.h"
 #include "Esp.h"
@@ -54,6 +54,10 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t **response) {
+    if ((*response) == NULL) {
+        return;
+    }
+
     free((*response)->response);
     free(*response);
     *response = NULL;
