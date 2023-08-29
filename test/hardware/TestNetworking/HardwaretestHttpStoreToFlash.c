@@ -1,5 +1,6 @@
 #define SOURCE_FILE "HTTP-FLASH-TEST"
 
+#include "CException.h"
 #include "Common.h"
 #include "Flash.h"
 #include "FpgaConfigurationHttp.h"
@@ -23,7 +24,7 @@ static const uint8_t miso_pin = 0;
 static const uint8_t mosi_pin = 3;
 static const uint8_t cs_pin = 1;
 static const uint32_t baudrate = 5000 * 1000;
-volatile char *baseUrl = NULL;
+char *baseUrl = NULL;
 static char baseUrlSlow[] = "http://192.168.178.24:5000/getslow/%u";
 static char baseUrlFast[] = "http://192.168.178.24:5000/getfast/%u";
 
@@ -116,9 +117,12 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     char *URL = malloc(strlen(baseUrl) + block_number);
     sprintf(URL, baseUrl, block_number);
 
-    uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with 0x%02X", code);
-    PRINT_DEBUG("Response Length: %li", response->length)
+    CEXCEPTION_T exception;
+    Try {
+        HTTPGet(URL, &response);
+        PRINT_DEBUG("HTTPGet Success! Response Length: %li", response->length);
+    }
+    Catch(exception) {}
 
     free(URL);
     PRINT("done")

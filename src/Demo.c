@@ -16,6 +16,7 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
+#include "middleware.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -25,6 +26,7 @@
 #include <pico/stdlib.h>
 
 // external headers
+#include "CException.h"
 #include <malloc.h>
 #include <string.h>
 
@@ -284,12 +286,10 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
+        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 1});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
-    addDataRequestReceiver(
-        (receiver_t){.dataID = "g-value", .whenSubscribed = getAndPublishGValue, .frequency = 1});
-    publishAliveStatusMessage("wifi,sram,g-value");
+    publishAliveStatusMessage("wifi,sram");
 
     PRINT("Ready ...")
 
@@ -451,10 +451,15 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, "/");
     strcat(URL, blockNo);
 
-    HttpResponse_t *response;
-    uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with %u", code);
-    PRINT_DEBUG("Response Length: %li", response->length)
+    HttpResponse_t *response = NULL;
+    CEXCEPTION_T httpException;
+    Try {
+        HTTPGet(URL, &response);
+    }
+    Catch(httpException) {
+        PRINT_DEBUG("CException in HTTPGet");
+    };
+    PRINT_DEBUG("Response Length: %li", response->length);
 
     free(blockNo);
     free(URL);
