@@ -27,7 +27,6 @@
 // external headers
 #include <malloc.h>
 #include <string.h>
-
 /* region VARIABLES/DEFINES */
 
 /* region FLASH */
@@ -137,7 +136,7 @@ void receiveDataStartRequest(posting_t posting);
 void receiveDataStopRequest(posting_t posting);
 void getAndPublishSRamValue(char *dataID);
 void getAndPublishWifiValue(char *dataID);
-void getAndPublishGValue(char *dataID);
+void getAndPublishGValueBatch(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 void receiveFlashFpgaRequest(posting_t posting);
@@ -147,48 +146,64 @@ HttpResponse_t *getResponse(uint32_t block_number);
 /* endregion MQTT */
 
 /* endregion HEADER */
-void batchTest() {
+
+bool newBatch;
+char *gValueDataBatch;
+
+_Noreturn void batchTest() {
 
     PRINT("TEST")
-    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_DURATION, 0b11111111);
-    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_LATENCY, 0b11111111);
-    //    adxl345bWriteConfigurationToSensor(ADXL345B_TAB_DURATION, 0b11111111);
-
+    
+    uint8_t batchSize = 100;
+    uint32_t interval = 1000000;
+    
+    
+    newBatch = false;
+    gValueDataBatch = malloc(11*batchSize+16);
+    
     adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
-
-    int count = 0;
-    float xAxis, yAxis, zAxis;
-    uint32_t seconds = (time_us_32()) / 1000000;
-    while (1) {
-        adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
-        if (errorCode != ADXL345B_NO_ERROR) {
-            PRINT("ERROR in Measuring G Value!")
-            return;
+    
+    while(1) {
+        char *data = malloc(11*batchSize+16);
+        
+        char timeBuffer[15];
+        snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64()/1000000);
+        strcpy(data, timeBuffer);
+        strcat(data, ",");
+//        PRINT("%s", data)
+        int count = 0;
+        
+        uint32_t currentTime = time_us_64();
+        uint32_t startTime = time_us_64();
+        while(startTime + interval >= currentTime) {
+            currentTime = time_us_64();
+            float xAxis, yAxis, zAxis;
+//            adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+//            if (errorCode != ADXL345B_NO_ERROR) {
+//                PRINT("ERROR in Measuring G Value!")
+//            }
+            char gValueBuffer[10];
+            snprintf(gValueBuffer, sizeof(gValueBuffer), "%.10f", 1.234567);
+            strcat(data, gValueBuffer);
+            strcat(data, ",");
+            count += 1;
+            freeRtosTaskWrapperTaskSleep(10);
         }
-        float gValue = xAxis + yAxis + zAxis;
-        char buffer[64];
-        snprintf(buffer, sizeof(buffer), "%f", gValue);
-//        count++;
-                PRINT("%s", buffer);
-//        if (count % 100 == 0) {
-//            PRINT("%s, %lu", buffer, count / (time_us_32() / 1000000 - seconds))
-//        }
-        freeRtosTaskWrapperTaskSleep(10);
+        newBatch = true;
+        strcpy(gValueDataBatch, data);
+//        PRINT("%i", count);
+        free(data);
     }
 }
 
 int main() {
     init();
-    
-
-    
-
 
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
     freeRtosTaskWrapperRegisterTask(batchTest, "batchTest");
 //    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
-//    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
-//    freeRtosTaskWrapperStartScheduler();
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
+    freeRtosTaskWrapperStartScheduler();
 }
 
 /* region PROTOTYPE IMPLEMENTATIONS */
@@ -322,8 +337,8 @@ _Noreturn void sensorTask(void) {
         (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
-    addDataRequestReceiver(
-        (receiver_t){.dataID = "g-value", .whenSubscribed = getAndPublishGValue, .frequency = 1});
+    addDataRequestReceiver((receiver_t){
+        .dataID = "g-value", .whenSubscribed = getAndPublishGValueBatch, .frequency = 0});
     publishAliveStatusMessage("wifi,sram,g-value");
 
     PRINT("Ready ...")
@@ -331,14 +346,15 @@ _Noreturn void sensorTask(void) {
     uint32_t seconds;
     bool hasTwin = false;
     while (true) {
-        seconds = (time_us_32()) / 1000000;
-        freeRtosTaskWrapperTaskSleep(250);
+        seconds = (time_us_64()) / 1000000;
+        freeRtosTaskWrapperTaskSleep(100);
 
         bool toSomeTopicIsSubscribed = false;
         for (int i = 0; i < receivers_count; ++i) {
             if (receivers[i].subscribed) {
                 if (seconds - receivers[i].lastPublished >= receivers[i].frequency) {
-                    PRINT("sec: %lu, data: %s", seconds, receivers[i].dataID)
+                    PRINT("Published Sensor Value (sec: %lu, data: %s)", seconds, receivers[i]
+                                                                                     .dataID)
                     receivers[i].whenSubscribed(receivers[i].dataID);
                     receivers[i].lastPublished = seconds;
                 }
@@ -442,17 +458,10 @@ void getAndPublishWifiValue(char *dataID) {
     protocolPublishData(dataID, buffer);
 }
 
-void getAndPublishGValue(char *dataID) {
-    float xAxis, yAxis, zAxis;
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT("ERROR in Measuring G Value!")
-        return;
+void getAndPublishGValueBatch(char *dataID) {
+    if (newBatch) {
+        protocolPublishData(dataID, gValueDataBatch);
     }
-    float gValue = xAxis + yAxis + zAxis;
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "%f", gValue);
-    protocolPublishData(dataID, buffer);
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
