@@ -163,7 +163,8 @@ _Noreturn void batchTest() {
     gValueDataBatch = malloc(seconds * 11 * batchSize * 3 + 16);
 
     adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
-
+    adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
+    
     uint32_t count;
     
     while (1) {
@@ -193,9 +194,9 @@ _Noreturn void batchTest() {
             char xBuffer[10];
             char yBuffer[10];
             char zBuffer[10];
-            snprintf(xBuffer, sizeof(xBuffer), "%.10f", xAxis);
-            snprintf(yBuffer, sizeof(yBuffer), "%.10f", yAxis);
-            snprintf(zBuffer, sizeof(zBuffer), "%.10f", zAxis);
+            snprintf(xBuffer, sizeof(xBuffer), "%.10f", xAxis / 8);
+            snprintf(yBuffer, sizeof(yBuffer), "%.10f", yAxis / 8);
+            snprintf(zBuffer, sizeof(zBuffer), "%.10f", zAxis / 8);
 
             strcat(data, xBuffer);
             strcat(data, ",");
