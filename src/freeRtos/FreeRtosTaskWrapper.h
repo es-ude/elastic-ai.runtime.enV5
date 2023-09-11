@@ -10,7 +10,8 @@
 typedef void (*TaskCodeFunc)();
 
 // registers new Task to be executed
-void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName, uint8_t prio);
+void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName, uint8_t prio,
+                                     uint8_t core);
 
 /*! DO NOT USE sleep_ms() IN TASKS!!! */
 void freeRtosTaskWrapperTaskSleep(int timeInMs);

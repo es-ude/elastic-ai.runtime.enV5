@@ -28,8 +28,8 @@ void _Noreturn httpTask(void) {
 
 int main() {
     initHardwareTest();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(httpTask, "httpTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0, 0);
+    freeRtosTaskWrapperRegisterTask(httpTask, "httpTask", 0, 0);
     freeRtosTaskWrapperStartScheduler();
 
     return 0;

@@ -1,18 +1,28 @@
 set(PICO_SDK_FREERTOS_SOURCE Kernel)
 
-add_library(freertos
-    ${PICO_SDK_FREERTOS_SOURCE}/event_groups.c
-    ${PICO_SDK_FREERTOS_SOURCE}/list.c
-    ${PICO_SDK_FREERTOS_SOURCE}/queue.c
-    ${PICO_SDK_FREERTOS_SOURCE}/stream_buffer.c
-    ${PICO_SDK_FREERTOS_SOURCE}/tasks.c
-    ${PICO_SDK_FREERTOS_SOURCE}/timers.c
-    ${PICO_SDK_FREERTOS_SOURCE}/portable/MemMang/heap_3.c
-    ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0/port.c
-)
 
-target_include_directories(freertos PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PICO_SDK_FREERTOS_SOURCE}/include
-    ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0
-)
+#
+#add_library(freertos
+#    ${PICO_SDK_FREERTOS_SOURCE}/event_groups.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/list.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/queue.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/stream_buffer.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/tasks.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/timers.c
+#    ${PICO_SDK_FREERTOS_SOURCE}/portable/MemMang/heap_3.c
+##    ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0/port.c
+##    ${PICO_SDK_FREERTOS_SOURCE}/portable/ThirdParty/GCC/RP2040/include/portmacro.h
+##        ${CMAKE_SOURCE_DIR}/extern/pico-sdk/src/common/pico_base/include/pico.h
+#)
+#
+#target_include_directories(freertos PUBLIC
+#    ${CMAKE_CURRENT_LIST_DIR}
+##        ${CMAKE_SOURCE_DIR}/extern/pico-sdk
+#    ${PICO_SDK_FREERTOS_SOURCE}/include
+#        ${PICO_SDK_FREERTOS_SOURCE}/portable/ThirdParty/GCC/RP2040/include
+#        ${PICO_SDK_FREERTOS_SOURCE}/portable/ThirdParty/GCC/RP2040
+##    ${PICO_SDK_FREERTOS_SOURCE}/portable/GCC/ARM_CM0
+#)
+#
+#target_link_libraries(freertos INTERFACE
+#        _FreeRTOS_kernel_inclusion_marker)

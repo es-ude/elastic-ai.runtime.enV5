@@ -150,13 +150,29 @@ HttpResponse_t *getResponse(uint32_t block_number);
 bool newBatch;
 char *gValueDataBatch;
 receiver_t gValueReceiver;
+bool newSRAM;
+char *sramValue;
+receiver_t sramReceiver;
+
+_Noreturn void getSRAMVALUE() {
+    newSRAM = false;
+    sramValue = malloc(64);
+    while (1) {
+        if (!sramReceiver.subscribed) {
+            freeRtosTaskWrapperTaskSleep(500);
+            continue;
+        }
+        float channelSensorValue = measureValue(powersensor2, PAC193X_CHANNEL_FPGA_SRAM);
+        snprintf(sramValue, sizeof(sramValue), "%f", channelSensorValue);
+        newSRAM = true;
+        freeRtosTaskWrapperTaskSleep(3000);
+    }
+}
 
 _Noreturn void batchTest() {
-
-    PRINT("TEST")
-    
+    newBatch = false;
     uint16_t batchSize = 100;
-    uint8_t seconds = 5;
+    uint8_t seconds = 3;
     uint32_t interval = seconds * 1000000;
 
     newBatch = false;
@@ -205,20 +221,24 @@ _Noreturn void batchTest() {
             strcat(data, zBuffer);
             strcat(data, ";");
             count += 1;
+//            PRINT("%s", xBuffer)
         }
+        PRINT("%lu", count)
         newBatch = true;
         strcpy(gValueDataBatch, data);
         free(data);
+        freeRtosTaskWrapperTaskSleep(10);
     }
 }
 
 int main() {
     init();
-
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 5);
-    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest", 1);
-    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 1);
-    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 2);
+    
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 5, 0);
+    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest", 1, 1);
+    freeRtosTaskWrapperRegisterTask(getSRAMVALUE, "sramvalue", 2, 1);
+    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 1, 0);
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 1, 0);
     freeRtosTaskWrapperStartScheduler();
 }
 
@@ -273,7 +293,7 @@ void init(void) {
 
     env5HwInit();
     setCommunication(getResponse);
-
+    
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
 
@@ -305,7 +325,7 @@ _Noreturn void fpgaTask(void) {
      */
 
     setCommunication(getResponse);
-
+    
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
 
@@ -350,9 +370,10 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        &(receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
-    addDataRequestReceiver(
-        &(receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
+        &(receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 5});
+    sramReceiver = (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue,
+                                .frequency = 3};
+    addDataRequestReceiver(&sramReceiver);
     gValueReceiver = (receiver_t){
         .dataID = "g-value", .whenSubscribed = getAndPublishGValueBatch, .frequency = 1};
     addDataRequestReceiver(&gValueReceiver);
@@ -374,6 +395,9 @@ _Noreturn void sensorTask(void) {
                         PRINT("Published Sensor Value (sec: %llu, data: %s)", seconds,
                               receivers[i]->dataID)
                         receivers[i]->lastPublished = seconds;
+                    } else {
+//                        PRINT("NO new data for (sec: %llu, data: %s)", seconds,
+//                              receivers[i]->dataID)
                     }
                 }
                 toSomeTopicIsSubscribed = true;
@@ -463,10 +487,10 @@ void addDataRequestReceiver(receiver_t *receiver) {
 }
 
 bool getAndPublishSRamValue(char *dataID) {
-    char buffer[64];
-    float channelSensorValue = measureValue(powersensor2, PAC193X_CHANNEL_FPGA_SRAM);
-    snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
-    protocolPublishData(dataID, buffer);
+    if (!newSRAM)
+        return false;
+    protocolPublishData(dataID, sramValue);
+    newSRAM = false;
     return true;
 }
 

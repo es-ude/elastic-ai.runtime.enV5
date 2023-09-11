@@ -46,7 +46,7 @@ _Noreturn void mqttTask(void) {
 int main() {
     initHardwareTest();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0, 0);
+    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, 0);
     freeRtosTaskWrapperStartScheduler();
 }

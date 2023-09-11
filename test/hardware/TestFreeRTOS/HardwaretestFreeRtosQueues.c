@@ -94,7 +94,7 @@ int main(void) {
 
     // test async
     PRINT("===== START TEST: asynchronous messages =====")
-    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage");
-    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask");
+    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage", 0, 0);
+    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask", 0, 0);
     freeRtosTaskWrapperStartScheduler();
 }
