@@ -16,3 +16,11 @@ prototype resides).
 
 Don't push directly to the `main` branch. Push your modification to a new branch and open a pull request to `main`, so
 that the maintainer of this repository can merge your modifications.
+
+## Recommendation
+
+We commit messages conventional. To ensure our guidelines we use Commitlint.
+Go to the repository and run:
+```bash
+nmp install
+```
