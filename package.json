@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "@semantic-release/github": "^8.0.7"
+  },
+  "scripts": {
+    "prepare": "husky install"
   }
 }
