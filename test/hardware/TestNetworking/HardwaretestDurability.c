@@ -226,8 +226,8 @@ void init(void) {
 
 int main() {
     init();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0);
+    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask", 0);
 
     // Starts FreeRTOS tasks
     freeRtosTaskWrapperStartScheduler();

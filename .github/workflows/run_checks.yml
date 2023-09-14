@@ -6,7 +6,7 @@ name: "Tests"
 on:
   workflow_dispatch:
   pull_request:
-    branches:
+    branches:q
       - 'main'
 
 jobs:

@@ -1,9 +1,12 @@
 #define SOURCE_FILE "HTTP"
 
-#include "HTTP.h"
+#include "include/HTTP.h"
 #include "AtCommands.h"
 #include "Common.h"
 #include "Esp.h"
+
+#include "CException.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,15 +26,15 @@ void HTTPReceive(char *httpResponse) {
     memcpy(HTTPResponse->response, data, bytesOfData);
 }
 
-HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
+void HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT_DEBUG("HTTP ERROR - No connection")
-        return HTTP_HARDWARE_NOT_READY;
+        Throw(HTTP_CONNECTION_FAILED);
     }
 
     if (strlen(url) > 256) {
-        PRINT_DEBUG("HTTP ERROR - URL to long")
-        return HTTP_URL_TO_LONG;
+        PRINT_DEBUG("HTTP ERROR - URL to long");
+        Throw(HTTP_CONNECTION_FAILED);
     }
 
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
@@ -42,17 +45,19 @@ HTTPStatus HTTPGet(const char *url, HttpResponse_t **data) {
         if (HTTPResponse != NULL) {
             HTTPCleanResponseBuffer(&HTTPResponse);
         }
-        free(httpGet);
-        return HTTP_CONNECTION_FAILED;
+        Throw(HTTP_CONNECTION_FAILED);
     }
 
     *data = HTTPResponse;
     HTTPResponse = NULL;
     free(httpGet);
-    return HTTP_SUCCESS;
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t **response) {
+    if ((*response) == NULL) {
+        return;
+    }
+
     free((*response)->response);
     free(*response);
     *response = NULL;

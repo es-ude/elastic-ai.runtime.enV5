@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Env5Hw.h"
 #include "Esp.h"
@@ -15,7 +16,6 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "adxl345b/include/Adxl345b.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -25,6 +25,7 @@
 #include <pico/stdlib.h>
 
 // external headers
+#include "CException.h"
 #include <malloc.h>
 #include <string.h>
 /* region VARIABLES/DEFINES */
@@ -215,10 +216,10 @@ _Noreturn void batchTest() {
 int main() {
     init();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 5);
-    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest", 1);
-    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 1);
-    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 2);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0);
+    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest", 0);
+    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 0);
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 0);
     freeRtosTaskWrapperStartScheduler();
 }
 
@@ -348,6 +349,7 @@ _Noreturn void fpgaTask(void) {
     }
 }
 
+
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
         &(receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
@@ -357,6 +359,8 @@ _Noreturn void sensorTask(void) {
         .dataID = "g-value", .whenSubscribed = getAndPublishGValueBatch, .frequency = 1};
     addDataRequestReceiver(&gValueReceiver);
     publishAliveStatusMessage("wifi,sram,g-value");
+
+
 
     PRINT("Ready ...")
 
@@ -517,10 +521,15 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, "/");
     strcat(URL, blockNo);
 
-    HttpResponse_t *response;
-    uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with %u", code);
-    PRINT_DEBUG("Response Length: %li", response->length)
+    HttpResponse_t *response = NULL;
+    CEXCEPTION_T httpException;
+    Try {
+        HTTPGet(URL, &response);
+    }
+    Catch(httpException) {
+        PRINT_DEBUG("CException in HTTPGet");
+    };
+    PRINT_DEBUG("Response Length: %li", response->length);
 
     free(blockNo);
     free(URL);

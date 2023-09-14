@@ -1,5 +1,6 @@
 #define SOURCE_FILE "HTTP-TEST"
 
+#include "CException.h"
 #include "Common.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HTTP.h"
@@ -11,16 +12,17 @@ void _Noreturn httpTask(void) {
     PRINT("=== STARTING TEST ===")
 
     HttpResponse_t *response = NULL;
+    CEXCEPTION_T exception;
 
     while (1) {
-        uint8_t code = HTTPGet("http://192.168.178.24:5000/check", &response);
 
-        PRINT("HTTP Get returns with %u", code);
-        if (code == HTTP_SUCCESS) {
-            PRINT("Response Length: %li", response->length);
-            PRINT("Response: %s", response->response)
+        Try {
+            HTTPGet("http://192.168.178.24:5000/check", &response);
+            PRINT("HTPPGet Success!\n\tResponse Length: %li\n\tResponse: %s", response->length,
+                  response->response)
             HTTPCleanResponseBuffer(&response);
         }
+        Catch(exception){PRINT("HTTPGet failed!")}
 
         freeRtosTaskWrapperTaskSleep(3000);
     }
@@ -28,8 +30,8 @@ void _Noreturn httpTask(void) {
 
 int main() {
     initHardwareTest();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(httpTask, "httpTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0);
+    freeRtosTaskWrapperRegisterTask(httpTask, "httpTask", 0);
     freeRtosTaskWrapperStartScheduler();
 
     return 0;

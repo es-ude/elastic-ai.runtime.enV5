@@ -8,6 +8,7 @@
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/extern/cexception" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c/extern/unity" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel" vcs="Git" />

@@ -1,3 +1,4 @@
+#include "CException.h"
 #include "Esp.h"
 #include "MqttBroker.h"
 #include "esp/EspUnitTest.h"
@@ -18,43 +19,84 @@ void tearDown(void) {}
 
 /* region Test Functions */
 
-void testConnectToMqttBrokerSuccessful(void) {
+void test_ConnectToMqttBrokerSuccessful(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
-    mqttBrokerErrorCode_t mqttErrorCode =
+    CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
-    TEST_ASSERT_EQUAL(MQTT_NO_ERROR, mqttErrorCode);
-    TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
+        TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
+        TEST_PASS();
+    }
+    Catch(exception_mqttBrokerConnectToBroker) {
+        TEST_FAIL_MESSAGE("Some Error occurred which caused a CException");
+    }
+    TEST_FAIL_MESSAGE("Something went wrong");
 }
-void testConnectToMqttBrokerEspFailed(void) {
+
+void test_ConnectToMqttBrokerEspFailed(void) {
     espStatus.ChipStatus = ESP_CHIP_NOT_OK;
     TEST_ASSERT_EQUAL(ESP_CHIP_NOT_OK, espStatus.ChipStatus);
-    mqttBrokerErrorCode_t mqttErrorCode =
+    CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
-    TEST_ASSERT_EQUAL(MQTT_ESP_CHIP_FAILED, mqttErrorCode);
+        TEST_FAIL_MESSAGE("Should have thrown MQTT_ESP_CHIP_FAILED");
+    }
+    Catch(exception_mqttBrokerConnectToBroker) {
+        TEST_ASSERT_EQUAL(MQTT_ESP_CHIP_FAILED, exception_mqttBrokerConnectToBroker);
+    }
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
 }
-void testConnectToMqttBrokerNoWifi(void) {
+
+void test_ConnectToMqttBrokerNoWifi(void) {
     espStatus.WIFIStatus = NOT_CONNECTED;
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
-    mqttBrokerErrorCode_t mqttErrorCode =
+    CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
-    TEST_ASSERT_EQUAL(MQTT_WIFI_FAILED, mqttErrorCode);
+        TEST_FAIL_MESSAGE("Should have thrown MQTT_WIFI_FAILED");
+    }
+    Catch(exception_mqttBrokerConnectToBroker) {
+        TEST_ASSERT_EQUAL(MQTT_WIFI_FAILED, exception_mqttBrokerConnectToBroker);
+    }
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
 }
-void testConnectToMqttBrokerAlreadyConnected(void) {
+
+void test_ConnectToMqttBrokerAlreadyConnected(void) {
     espStatus.MQTTStatus = CONNECTED;
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
-    mqttBrokerErrorCode_t mqttErrorCode =
+    CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
-    TEST_ASSERT_EQUAL(MQTT_ALREADY_CONNECTED, mqttErrorCode);
-    TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
+        TEST_FAIL_MESSAGE("Should have thrown MQTT_ALREADY_CONNECTED");
+    }
+    Catch(exception_mqttBrokerConnectToBroker) {
+        TEST_ASSERT_EQUAL(MQTT_ALREADY_CONNECTED, exception_mqttBrokerConnectToBroker);
+    }
 }
-void testConnectToMqttBrokerSendCommandFailed(void) {
+
+void test_ConnectToMqttBrokerSendCommandFailed(void) {
     ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
-    mqttBrokerErrorCode_t mqttErrorCode =
+    CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+    Try {
         mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
-    TEST_ASSERT_EQUAL(MQTT_ESP_WRONG_ANSWER, mqttErrorCode);
+        TEST_FAIL_MESSAGE("Should have thrown MQTT_ESP_WRONG_ANSWER");
+    }
+    Catch(exception_mqttBrokerConnectToBroker) {
+        TEST_ASSERT_EQUAL(MQTT_ESP_WRONG_ANSWER, exception_mqttBrokerConnectToBroker);
+    }
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
+}
+
+void test_DisconnectMqttBroker() {
+    espStatus.MQTTStatus = CONNECTED;
+    TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
+    CEXCEPTION_T exception_mqttBrokerDisconnect;
+    Try {
+        mqttBrokerDisconnect(espStatus.MQTTStatus == CONNECTED);
+    }
+    Catch(exception_mqttBrokerDisconnect) {
+        TEST_FAIL_MESSAGE("Test did not work");
+    }
 }
 
 /* endregion */
@@ -62,11 +104,12 @@ void testConnectToMqttBrokerSendCommandFailed(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(testConnectToMqttBrokerSuccessful);
-    RUN_TEST(testConnectToMqttBrokerEspFailed);
-    RUN_TEST(testConnectToMqttBrokerNoWifi);
-    RUN_TEST(testConnectToMqttBrokerAlreadyConnected);
-    RUN_TEST(testConnectToMqttBrokerSendCommandFailed);
+    RUN_TEST(test_ConnectToMqttBrokerSuccessful);
+    RUN_TEST(test_ConnectToMqttBrokerEspFailed);
+    RUN_TEST(test_ConnectToMqttBrokerNoWifi);
+    RUN_TEST(test_ConnectToMqttBrokerAlreadyConnected);
+    RUN_TEST(test_ConnectToMqttBrokerSendCommandFailed);
+    RUN_TEST(test_DisconnectMqttBroker);
 
     return UNITY_END();
 }

@@ -14,3 +14,6 @@
   path = extern/pico-sdk
   url = https://github.com/raspberrypi/pico-sdk.git
   branch = master
+[submodule "extern/cexception"]
+	path = extern/cexception
+	url = https://github.com/ThrowTheSwitch/CException.git
