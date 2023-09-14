@@ -62,11 +62,11 @@ int main(void) {
 
     PRINT("===== START TEST =====")
     // create Task1
-    freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task");
+    freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task", 0);
     // createTask2
-    freeRtosTaskWrapperRegisterTask(blinkLed2Task, "blinkLed2Task");
+    freeRtosTaskWrapperRegisterTask(blinkLed2Task, "blinkLed2Task", 0);
     // create boot mode task
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootMode");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootMode", 0);
     // start tasks
     freeRtosTaskWrapperStartScheduler();
 }

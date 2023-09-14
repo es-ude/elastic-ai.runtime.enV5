@@ -16,7 +16,6 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "middleware.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -29,7 +28,6 @@
 #include "CException.h"
 #include <malloc.h>
 #include <string.h>
-
 /* region VARIABLES/DEFINES */
 
 /* region FLASH */
@@ -83,12 +81,12 @@ char *twinID;
 
 typedef struct receiver {
     char *dataID;
-    void (*whenSubscribed)(char *dataID);
+    bool (*whenSubscribed)(char *dataID);
     bool subscribed;
     uint8_t frequency;
     uint32_t lastPublished;
 } receiver_t;
-receiver_t receivers[5];
+receiver_t *receivers[5];
 uint16_t receivers_count = 0;
 
 typedef struct downloadRequest {
@@ -132,14 +130,14 @@ _Noreturn void enterBootModeTask(void);
 
 void setTwinID(char *newTwinID);
 void offline(posting_t posting);
-void addDataRequestReceiver(receiver_t receiver);
+void addDataRequestReceiver(receiver_t *receiver);
 void addCommandRequestReceiver(receiver_t receiver);
 
 void receiveDataStartRequest(posting_t posting);
 void receiveDataStopRequest(posting_t posting);
-void getAndPublishSRamValue(char *dataID);
-void getAndPublishWifiValue(char *dataID);
-void getAndPublishGValue(char *dataID);
+bool getAndPublishSRamValue(char *dataID);
+bool getAndPublishWifiValue(char *dataID);
+bool getAndPublishGValueBatch(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 void receiveFlashFpgaRequest(posting_t posting);
@@ -150,12 +148,78 @@ HttpResponse_t *getResponse(uint32_t block_number);
 
 /* endregion HEADER */
 
+bool newBatch;
+char *gValueDataBatch;
+receiver_t gValueReceiver;
+
+_Noreturn void batchTest() {
+
+    PRINT("TEST")
+
+    uint16_t batchSize = 100;
+    uint8_t seconds = 5;
+    uint32_t interval = seconds * 1000000;
+
+    newBatch = false;
+    gValueDataBatch = malloc(seconds * 11 * batchSize * 3 + 16);
+
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
+    adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
+
+    uint32_t count;
+
+    while (1) {
+        if (!gValueReceiver.subscribed) {
+            freeRtosTaskWrapperTaskSleep(500);
+            continue;
+        }
+        char *data = malloc(seconds * 11 * batchSize * 3 + 16);
+        char timeBuffer[15];
+        snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
+        strcpy(data, timeBuffer);
+        strcat(data, ",");
+        count = 0;
+
+        uint32_t currentTime = time_us_64();
+        uint32_t startTime = time_us_64();
+        while (startTime + interval >= currentTime) {
+            currentTime = time_us_64();
+            if (count >= batchSize * seconds)
+                continue;
+            float xAxis, yAxis, zAxis;
+            adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+            if (errorCode != ADXL345B_NO_ERROR) {
+                PRINT("ERROR in Measuring G Value!")
+            }
+
+            char xBuffer[10];
+            char yBuffer[10];
+            char zBuffer[10];
+            snprintf(xBuffer, sizeof(xBuffer), "%.10f", xAxis / 8);
+            snprintf(yBuffer, sizeof(yBuffer), "%.10f", yAxis / 8);
+            snprintf(zBuffer, sizeof(zBuffer), "%.10f", zAxis / 8);
+
+            strcat(data, xBuffer);
+            strcat(data, ",");
+            strcat(data, yBuffer);
+            strcat(data, ",");
+            strcat(data, zBuffer);
+            strcat(data, ";");
+            count += 1;
+        }
+        newBatch = true;
+        strcpy(gValueDataBatch, data);
+        free(data);
+    }
+}
+
 int main() {
     init();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask");
-    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask");
-    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0);
+    freeRtosTaskWrapperRegisterTask(batchTest, "batchTest", 0);
+    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 0);
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 0);
     freeRtosTaskWrapperStartScheduler();
 }
 
@@ -201,6 +265,7 @@ void init(void) {
         sleep_ms(500);
     }
 
+    i2c_set_baudrate(i2c1, 2000000);
     errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode == ADXL345B_NO_ERROR)
         PRINT("Initialised ADXL345B.")
@@ -286,26 +351,31 @@ _Noreturn void fpgaTask(void) {
 
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 1});
+        &(receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
     addDataRequestReceiver(
-        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
-    publishAliveStatusMessage("wifi,sram");
+        &(receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3});
+    gValueReceiver = (receiver_t){
+        .dataID = "g-value", .whenSubscribed = getAndPublishGValueBatch, .frequency = 1};
+    addDataRequestReceiver(&gValueReceiver);
+    publishAliveStatusMessage("wifi,sram,g-value");
 
     PRINT("Ready ...")
 
-    uint32_t seconds;
+    uint64_t seconds;
     bool hasTwin = false;
     while (true) {
-        seconds = (time_us_32()) / 1000000;
-        freeRtosTaskWrapperTaskSleep(250);
+        seconds = (time_us_64()) / 1000000;
+        freeRtosTaskWrapperTaskSleep(100);
 
         bool toSomeTopicIsSubscribed = false;
         for (int i = 0; i < receivers_count; ++i) {
-            if (receivers[i].subscribed) {
-                if (seconds - receivers[i].lastPublished >= receivers[i].frequency) {
-                    PRINT("sec: %lu, data: %s", seconds, receivers[i].dataID)
-                    receivers[i].whenSubscribed(receivers[i].dataID);
-                    receivers[i].lastPublished = seconds;
+            if (receivers[i]->subscribed) {
+                if (seconds - receivers[i]->lastPublished >= receivers[i]->frequency) {
+                    if (receivers[i]->whenSubscribed(receivers[i]->dataID)) {
+                        PRINT("Published Sensor Value (sec: %llu, data: %s)", seconds,
+                              receivers[i]->dataID)
+                        receivers[i]->lastPublished = seconds;
+                    }
                 }
                 toSomeTopicIsSubscribed = true;
             }
@@ -355,7 +425,7 @@ void offline(posting_t posting) {
     PRINT("Twin offline")
 
     for (int i = 0; i < receivers_count; ++i) {
-        receivers[i].subscribed = false;
+        receivers[i]->subscribed = false;
     }
 }
 
@@ -363,8 +433,8 @@ void receiveDataStartRequest(posting_t posting) {
     setTwinID(posting.data);
 
     for (int i = 0; i < receivers_count; ++i) {
-        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
-            receivers[i].subscribed = true;
+        if (strstr(posting.topic, receivers[i]->dataID) != NULL) {
+            receivers[i]->subscribed = true;
             break;
         }
     }
@@ -374,50 +444,47 @@ void receiveDataStopRequest(posting_t posting) {
     setTwinID(posting.data);
 
     for (int i = 0; i < receivers_count; ++i) {
-        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
-            receivers[i].subscribed = false;
+        if (strstr(posting.topic, receivers[i]->dataID) != NULL) {
+            receivers[i]->subscribed = false;
             break;
         }
     }
 }
 
-void addDataRequestReceiver(receiver_t receiver) {
-    receiver.subscribed = false;
+void addDataRequestReceiver(receiver_t *receiver) {
+    receiver->subscribed = false;
 
-    protocolSubscribeForDataStartRequest(receiver.dataID,
+    protocolSubscribeForDataStartRequest(receiver->dataID,
                                          (subscriber_t){.deliver = receiveDataStartRequest});
-    protocolSubscribeForDataStopRequest(receiver.dataID,
+    protocolSubscribeForDataStopRequest(receiver->dataID,
                                         (subscriber_t){.deliver = receiveDataStopRequest});
 
     receivers[receivers_count] = receiver;
     receivers_count++;
 }
 
-void getAndPublishSRamValue(char *dataID) {
+bool getAndPublishSRamValue(char *dataID) {
     char buffer[64];
     float channelSensorValue = measureValue(powersensor2, PAC193X_CHANNEL_FPGA_SRAM);
     snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
     protocolPublishData(dataID, buffer);
+    return true;
 }
 
-void getAndPublishWifiValue(char *dataID) {
+bool getAndPublishWifiValue(char *dataID) {
     char buffer[64];
     float channelWifiValue = measureValue(powersensor1, PAC193X_CHANNEL_WIFI);
     snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
     protocolPublishData(dataID, buffer);
+    return true;
 }
 
-void getAndPublishGValue(char *dataID) {
-    float xAxis, yAxis, zAxis;
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT("ERROR in Measuring G Value!")
-        return;
-    }
-    float gValue = xAxis + yAxis + zAxis;
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "%f", gValue);
-    protocolPublishData(dataID, buffer);
+bool getAndPublishGValueBatch(char *dataID) {
+    if (!newBatch)
+        return false;
+    protocolPublishData(dataID, gValueDataBatch);
+    newBatch = false;
+    return true;
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
