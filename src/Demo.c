@@ -155,7 +155,7 @@ receiver_t gValueReceiver;
 _Noreturn void batchTest() {
 
     PRINT("TEST")
-    
+
     uint16_t batchSize = 100;
     uint8_t seconds = 5;
     uint32_t interval = seconds * 1000000;
@@ -165,9 +165,9 @@ _Noreturn void batchTest() {
 
     adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
     adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
-    
+
     uint32_t count;
-    
+
     while (1) {
         if (!gValueReceiver.subscribed) {
             freeRtosTaskWrapperTaskSleep(500);
@@ -349,7 +349,6 @@ _Noreturn void fpgaTask(void) {
     }
 }
 
-
 _Noreturn void sensorTask(void) {
     addDataRequestReceiver(
         &(receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue, .frequency = 3});
@@ -359,8 +358,6 @@ _Noreturn void sensorTask(void) {
         .dataID = "g-value", .whenSubscribed = getAndPublishGValueBatch, .frequency = 1};
     addDataRequestReceiver(&gValueReceiver);
     publishAliveStatusMessage("wifi,sram,g-value");
-
-
 
     PRINT("Ready ...")
 

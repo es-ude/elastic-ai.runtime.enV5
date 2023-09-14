@@ -230,7 +230,7 @@ void publishLong(posting_t posting) {
         snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
                  (unsigned long)strlen(posting.data), "0");
     }
- 
+
     espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 0);
     espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 0);
 
