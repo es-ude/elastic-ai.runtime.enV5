@@ -6,7 +6,6 @@
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
-#include <pico/time.h>
 #include <stdlib.h>
 
 _Noreturn void SenderTask() {

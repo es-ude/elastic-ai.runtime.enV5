@@ -17,27 +17,24 @@ if (UNIT_TEST)
 else ()
     set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+    # add submodule libraries
     include(extern/pico-sdk/pico_sdk_init.cmake)
-
+    add_subdirectory(extern/freeRTOS/Kernel/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
     add_subdirectory(extern/elastic-ai.runtime.c)
 
-    set(FREERTOS_KERNEL_PATH "${CMAKE_SOURCE_DIR}/extern/freeRTOS/Kernel")
-#    include(FreeRTOS_Kernel_import.cmake)
-
     project(enV5 C CXX ASM)
-    add_subdirectory(extern/freeRTOS/Kernel)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/freeRTOS/Kernel/portable/ThirdParty/GCC/RP2040/)
-    pico_sdk_init()
-#    add_subdirectory(Standard_smp)
 
-    include_src()
+    pico_sdk_init()
 
     if (TARGET tinyusb_device)
+
+        include_src()
+
         add_subdirectory(test/hardware)
 
-        add_executable(demo src/Demo.c) # creates executable
-        target_include_directories(demo PUBLIC ${CMAKE_SOURCE_DIR}/src)
-        target_link_libraries(demo
+        add_executable(wrist src/Wrist.c) # creates executable
+        target_include_directories(wrist PUBLIC ${CMAKE_SOURCE_DIR}/src)
+        target_link_libraries(wrist
                 pico_stdlib
                 http_lib
                 freeRtosUtils
@@ -46,13 +43,10 @@ else ()
                 fpga_config_lib
                 flash_lib
                 middleware_lib
-                hardware_spi
                 spi_lib
-                sensor_lib_pac193x
                 sensor_lib_adxl345b
-                env5_lib
-                FreeRTOS-Kernel-Heap3)
-        make_to_output_file(demo)
+                env5_lib)
+        make_to_output_file(wrist)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
     endif ()

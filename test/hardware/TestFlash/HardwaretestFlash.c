@@ -6,7 +6,6 @@
 #include "pico/stdlib.h"
 #include "spi/Spi.h"
 #include <hardware/spi.h>
-#include <malloc.h>
 #include <pico/bootrom.h>
 #include <pico/stdio.h>
 #include <stdio.h>

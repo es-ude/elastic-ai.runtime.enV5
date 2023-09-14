@@ -1,25 +1,18 @@
 #define SOURCE_FILE "SMP"
 
 #include "Common.h"
+#include "FreeRTOS.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "pico/stdio.h"
 #include "pico/stdio_usb.h"
+#include "task.h"
 
-void task0() {
-
+_Noreturn void task() {
     for(;;) {
-        PRINT("0")
-//        freeRtosTaskWrapperTaskSleep(100);
+        PRINT("This task is running on core: %lu", vTaskCoreAffinityGet(NULL) & ( 1 << 0 ))
+        freeRtosTaskWrapperTaskSleep(1000);
     }
-}
-
-void task1() {
-    for (;;) {
-        PRINT("1")
-//        freeRtosTaskWrapperTaskSleep(100);
-    }
-
 }
 
 int main() {
@@ -28,12 +21,9 @@ int main() {
     while ((!stdio_usb_connected())) {}
     PRINT("")
     // create FreeRTOS task queue
-    // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
 
-    freeRtosTaskWrapperRegisterTask(task0, "task0", 0, 0);
-    freeRtosTaskWrapperRegisterTask(task1, "task1", 0, 0);
+    freeRtosTaskWrapperRegisterTask(task, "task0", 0, 0);
+    freeRtosTaskWrapperRegisterTask(task, "task1", 0, 1);
     freeRtosTaskWrapperStartScheduler();
 }
-
-

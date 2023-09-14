@@ -1,5 +1,5 @@
-#include "FreeRtosSMP.h"
-
+#include "FreeRTOS.h"
+#include "task.h"
 
 void vApplicationMallocFailedHook( void )
 {

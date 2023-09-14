@@ -1,4 +1,3 @@
-
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "flash/Flash.h"

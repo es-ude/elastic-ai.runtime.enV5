@@ -25,7 +25,7 @@ void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName
                     &handle) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
         PRINT("%s: !freeRtosTaskWrapperRegisterTask fail!: Not enough Memory available", taskName)
     } else {
-        vTaskCoreAffinitySet(handle, (1<<core));
+        vTaskCoreAffinitySet(handle, (1 << core));
         PRINT("%s registered successfully.", taskName)
     }
 }

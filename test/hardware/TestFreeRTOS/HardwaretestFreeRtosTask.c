@@ -2,7 +2,6 @@
 #include "FreeRtosTaskWrapper.h"
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
-#include <stdint.h>
 
 uint8_t led1Pin = 22;
 uint8_t led2Pin = 24;

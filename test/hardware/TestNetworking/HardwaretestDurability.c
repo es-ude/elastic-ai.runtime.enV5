@@ -75,10 +75,10 @@ void setTwinID(char *newTwinID) {
     strcpy(twinID, newTwinID);
 }
 
-void offline(posting_t posting) {
+void twinsIsOffline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
-    PRINT("Twin offline")
+    PRINT("Twin twinsIsOffline")
 
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i].subscribed = false;
@@ -183,11 +183,11 @@ _Noreturn void mainTask(void) {
 
         if (!hasTwin && (toSomeTopicIsSubscribed)) {
             hasTwin = true;
-            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = offline});
+            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
         }
         if (hasTwin && (!toSomeTopicIsSubscribed)) {
             hasTwin = false;
-            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = offline});
+            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
         }
     }
 }
