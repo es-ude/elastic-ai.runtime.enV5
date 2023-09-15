@@ -9,8 +9,8 @@
 #include "task.h"
 
 _Noreturn void task() {
-    for(;;) {
-        PRINT("This task is running on core: %lu", vTaskCoreAffinityGet(NULL) & ( 1 << 0 ))
+    for (;;) {
+        PRINT("This task is running on core: %lu", vTaskCoreAffinityGet(NULL) & (1 << 0))
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }

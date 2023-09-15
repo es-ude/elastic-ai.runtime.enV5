@@ -74,7 +74,6 @@ typedef struct receiver {
 receiver_t *receivers[5];
 uint16_t receivers_count = 0;
 
-
 receiver_t sramReceiver;
 receiver_t wifiReceiver;
 
@@ -138,7 +137,7 @@ void setTwinID(char *newTwinID) {
     if (newTwinID == twinID) {
         return;
     }
-    
+
     if (newTwinID != NULL) {
         free(twinID);
     }
@@ -202,7 +201,7 @@ void twinsIsOffline(posting_t posting) {
         return;
     }
     PRINT("Twin is Offline")
-    
+
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i]->subscribed = false;
     }
@@ -272,7 +271,7 @@ _Noreturn void getSRAMValue() {
             continue;
         }
         float channelSensorValue = measureValue(powersensor2, PAC193X_CHANNEL_FPGA_SRAM);
-        snprintf(sramReceiver.value , sizeof(sramReceiver.value ), "%.02f", channelSensorValue);
+        snprintf(sramReceiver.value, sizeof(sramReceiver.value), "%.02f", channelSensorValue);
         sramReceiver.newValue = true;
         freeRtosTaskWrapperTaskSleep(3000);
     }
@@ -293,14 +292,13 @@ _Noreturn void getWifiValue() {
     }
 }
 
-
 _Noreturn void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
             // enter boot mode if 'r' was received
             reset_usb_boot(0, 0);
         }
-        
+
         // watchdog update needs to be performed frequent, otherwise the device will crash
         watchdog_update();
         freeRtosTaskWrapperTaskSleep(1000);
@@ -313,8 +311,9 @@ int main() {
     freeRtosTaskWrapperRegisterTask(getSRAMValue, "getSRAMValue", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(getWifiValue, "getWifiValue", 0, FREERTOS_CORE_0);
 
-    freeRtosTaskWrapperRegisterTask(publishValueBatchesTask, "publishValueBatchesTask", 1, FREERTOS_CORE_1);
+    freeRtosTaskWrapperRegisterTask(publishValueBatchesTask, "publishValueBatchesTask", 1,
+                                    FREERTOS_CORE_1);
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 1, FREERTOS_CORE_1);
-    
+
     freeRtosTaskWrapperStartScheduler();
 }

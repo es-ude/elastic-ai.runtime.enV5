@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Env5Hw.h"
 #include "Esp.h"
@@ -14,7 +15,6 @@
 #include "NetworkConfiguration.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "Adxl345b.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -127,10 +127,10 @@ void init(void) {
     // waits for usb connection, REMOVE to continue without waiting for connection
     while ((!stdio_usb_connected())) {}
     PRINT("")
-    
+
     // initialize ESP over UART
     espInit();
-    
+
     // initialize WiFi and MQTT broker
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
     mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
@@ -141,7 +141,7 @@ void init(void) {
         PRINT("Initialised ADXL345B.")
     else
         PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
-    
+
     env5HwInit();
     setCommunication(getResponse);
 
