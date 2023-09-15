@@ -75,7 +75,7 @@ void setTwinID(char *newTwinID) {
     strcpy(twinID, newTwinID);
 }
 
-void offline(posting_t posting) {
+void twinsIsOffline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
     PRINT("Twin offline")
@@ -183,11 +183,11 @@ _Noreturn void mainTask(void) {
 
         if (!hasTwin && (toSomeTopicIsSubscribed)) {
             hasTwin = true;
-            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = offline});
+            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
         }
         if (hasTwin && (!toSomeTopicIsSubscribed)) {
             hasTwin = false;
-            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = offline});
+            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
         }
     }
 }
@@ -226,8 +226,8 @@ void init(void) {
 
 int main() {
     init();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0);
-    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask", 0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask", 0, FREERTOS_CORE_0);
 
     // Starts FreeRTOS tasks
     freeRtosTaskWrapperStartScheduler();

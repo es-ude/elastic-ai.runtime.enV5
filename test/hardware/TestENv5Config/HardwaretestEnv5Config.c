@@ -140,7 +140,8 @@ void configTask() {
 }
 int main() {
     initHardwareTest();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0);
-    freeRtosTaskWrapperRegisterTask(configTask, "configTask", 0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
+                                    FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(configTask, "configTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();
 }
