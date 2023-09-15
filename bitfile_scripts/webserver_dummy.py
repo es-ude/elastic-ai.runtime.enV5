@@ -18,7 +18,7 @@ def get_file_fast(position: str):
     Using positional arguments as parameter did not work!
     """
     buffer = BytesIO()
-    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/blink_fast/led_test.bin"))
+    buffer.write(read_slice(int(position), "bitfiles/env5_bitfiles/blink_fast/led_test.bin"))
     buffer.seek(0)
     return send_file(
         buffer,
@@ -33,7 +33,7 @@ def get_file_slow(position: str):
     Using positional arguments as parameter did not work!
     """
     buffer = BytesIO()
-    buffer.write(read_slice(int(position), "bitfile_scripts/bitfiles/env5_bitfiles/blink_slow/led_test.bin"))
+    buffer.write(read_slice(int(position), "bitfiles/env5_bitfiles/blink_slow/led_test.bin"))
     buffer.seek(0)
     return send_file(
         buffer,

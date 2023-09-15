@@ -78,7 +78,7 @@ void setTwinID(char *newTwinID) {
 void twinsIsOffline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
-    PRINT("Twin twinsIsOffline")
+    PRINT("Twin offline")
 
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i].subscribed = false;

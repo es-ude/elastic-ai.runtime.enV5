@@ -5,6 +5,7 @@ target_include_directories(espBroker_lib INTERFACE
         ${CMAKE_SOURCE_DIR}/extern/elastic-ai.runtime.c)
 target_link_libraries(espBroker_lib INTERFACE
         at_commands
+        CException
         elastic-ai.runtime.c
         uart_lib
         esp_lib

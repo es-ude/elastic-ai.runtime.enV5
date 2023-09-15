@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "AtCommands.h"
+#include "CException.h"
 #include "Common.h"
 #include "Esp.h"
 #include "MqttBroker.h"
@@ -29,62 +30,54 @@ bool mqttUserConfigSet = false;
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-mqttBrokerErrorCode_t mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost,
-                                                               char *brokerDomain, char *clientID) {
-    if (espStatus.MQTTStatus == CONNECTED) {
-        PRINT("MQTT Broker already connected! Disconnect first")
-        return MQTT_ALREADY_CONNECTED;
-    }
+void mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost, char *brokerDomain,
+                                              char *clientID) {
+
+    // check if connected to some broker
+    mqttBrokerDisconnect(espStatus.MQTTStatus == CONNECTED);
 
     while (espStatus.MQTTStatus == NOT_CONNECTED) {
-        mqttBrokerErrorCode_t mqttErrorCode =
+        CEXCEPTION_T exception_mqttBrokerConnectToBroker;
+        Try {
             mqttBrokerConnectToBroker(mqttHost, brokerDomain, clientID);
-        if (mqttErrorCode == MQTT_WIFI_FAILED) {
-            PRINT("Could not connect to MQTT broker! No Wifi connection.")
-            return MQTT_WIFI_FAILED;
-        } else if (mqttErrorCode == MQTT_ESP_CHIP_FAILED) {
-            PRINT("Could not connect to MQTT broker! Chip problem.")
-            return MQTT_ESP_CHIP_FAILED;
-        } else if (mqttErrorCode != MQTT_NO_ERROR) {
-            PRINT_DEBUG("Connection failed. Trying again now!")
+            PRINT_DEBUG("Connected")
+        }
+        Catch(exception_mqttBrokerConnectToBroker) {
+            if (exception_mqttBrokerConnectToBroker == MQTT_CONNECTION_FAILED ||
+                exception_mqttBrokerConnectToBroker == MQTT_ESP_WRONG_ANSWER) {
+                PRINT_DEBUG("Connection failed. Trying again now!")
+            } else {
+                Throw(exception_mqttBrokerConnectToBroker);
+            }
         }
     }
-
-    return MQTT_NO_ERROR;
 }
 
-mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
-                                                char *clientID) {
+void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID) {
+
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker! Chip problem.")
-        return MQTT_ESP_CHIP_FAILED;
+        Throw(MQTT_ESP_CHIP_FAILED);
     }
     if (espStatus.WIFIStatus == NOT_CONNECTED) {
         PRINT("Could not connect to MQTT broker! No Wifi connection.")
-        return MQTT_WIFI_FAILED;
+        Throw(MQTT_WIFI_FAILED);
     }
     if (espStatus.MQTTStatus == CONNECTED) {
         PRINT("MQTT Broker already connected! Disconnect first")
-        return MQTT_ALREADY_CONNECTED;
+        Throw(MQTT_ALREADY_CONNECTED);
     }
 
     if (!mqttUserConfigSet) {
         // store mqtt client/domain
-        mqttBrokerErrorCode_t userConfigError = mqttBrokerInternalSetUserConfiguration(
-            clientID, credentials.userID, credentials.password);
-        if (userConfigError != MQTT_NO_ERROR)
-            return userConfigError;
-        else
-            mqttUserConfigSet = true;
+        mqttBrokerInternalSetUserConfiguration(clientID, credentials.userID, credentials.password);
+        mqttUserConfigSet = true;
     }
 
     mqttBrokerInternalSetBrokerDomain(brokerDomain);
 
     // store connection configuration
-    mqttBrokerErrorCode_t connectionConfigError = mqttBrokerInternalSetConnectionConfiguration();
-    if (connectionConfigError != MQTT_NO_ERROR) {
-        return connectionConfigError;
-    }
+    mqttBrokerInternalSetConnectionConfiguration();
 
     // generate connect command with ip and port
     size_t commandLength =
@@ -105,16 +98,15 @@ mqttBrokerErrorCode_t mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, ch
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
-        return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
-        return MQTT_ESP_WRONG_ANSWER;
+        Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
         PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port)
-        return MQTT_ESP_CHIP_FAILED;
+        Throw(MQTT_ESP_CHIP_FAILED);
     } else {
         PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
-        return MQTT_CONNECTION_FAILED;
+        Throw(MQTT_CONNECTION_FAILED);
     }
 }
 
@@ -128,6 +120,8 @@ void mqttBrokerDisconnect(bool force) {
             }
         }
     }
+
+    PRINT_DEBUG("connected to some broker, disconnecting now");
 
     // generate disconnect string
     char *disconnect = malloc(AT_MQTT_DISCONNECT_FROM_BROKER_LENGTH);
@@ -146,10 +140,10 @@ void mqttBrokerDisconnect(bool force) {
         free(mqttBrokerClientId);
         mqttBrokerClientId = NULL;
 
-        PRINT_DEBUG("MQTT Broker disconnected!")
-    } else {
-        PRINT("Could not disconnect MQTT broker.")
+        PRINT_DEBUG("MQTT Broker disconnected!");
+        return;
     }
+    Throw(MQTT_COULD_NOT_DISCONNECT_BROKER);
 }
 
 void mqttBrokerReceive(char *response) {
@@ -236,7 +230,7 @@ void publishLong(posting_t posting) {
         snprintf(publishData, commandLength, AT_MQTT_PUBLISH_LONG, posting.topic,
                  (unsigned long)strlen(posting.data), "0");
     }
- 
+
     espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 0);
     espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 0);
 
@@ -373,8 +367,7 @@ static void mqttBrokerInternalSetBrokerDomain(char *ID) {
     strcpy(mqttBrokerBrokerId, ID);
 }
 
-static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
-                                                                    char *password) {
+static void mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId, char *password) {
     // delete previous ID if needed
     if (mqttBrokerClientId != NULL) {
         free(mqttBrokerClientId);
@@ -399,17 +392,18 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetUserConfiguration(char *client
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Set client id to %s", clientId)
-        return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Could not set client id to %s, aborting...", clientId)
-        return MQTT_ESP_WRONG_ANSWER;
+        Throw(MQTT_ESP_WRONG_ANSWER);
     } else {
         PRINT("Could not set client id to %s, aborting...", clientId)
-        return MQTT_ESP_CHIP_FAILED;
+        // sind die nötig? konnte vorher keine anderen frees finden:
+        // free(mqttBrokerClientId);
+        Throw(MQTT_ESP_CHIP_FAILED);
     }
 }
 
-static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) {
+static void mqttBrokerInternalSetConnectionConfiguration(void) {
     // generate LWT topic
     char *lwt_topic = mqttBrokerInternalConcatDomainAndClientWithTopic(STATUS);
     size_t lwt_topic_length = strlen(lwt_topic);
@@ -433,16 +427,15 @@ static mqttBrokerErrorCode_t mqttBrokerInternalSetConnectionConfiguration(void) 
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Set connection configuration successful.")
-        return MQTT_NO_ERROR;
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
         PRINT("Failed to store Connection settings! Wrong answer!")
-        return MQTT_ESP_WRONG_ANSWER;
+        Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
         PRINT("Failed to store Connection settings! UART busy!")
-        return MQTT_ESP_CHIP_FAILED;
+        Throw(MQTT_ESP_CHIP_FAILED);
     } else {
         PRINT("Failed to store Connection settings!")
-        return MQTT_CONNECTION_FAILED;
+        Throw(MQTT_CONNECTION_FAILED);
     }
 }
 

@@ -24,6 +24,7 @@
 #include <pico/stdlib.h>
 
 // external headers
+#include "CException.h"
 #include <malloc.h>
 #include <string.h>
 /* region VARIABLES/DEFINES */
@@ -386,10 +387,15 @@ HttpResponse_t *getResponse(uint32_t block_number) {
     strcat(URL, "/");
     strcat(URL, blockNo);
 
-    HttpResponse_t *response;
-    uint8_t code = HTTPGet(URL, &response);
-    PRINT_DEBUG("HTTP Get returns with %u", code)
-    PRINT_DEBUG("Response Length: %li", response->length)
+    HttpResponse_t *response = NULL;
+    CEXCEPTION_T httpException;
+    Try {
+        HTTPGet(URL, &response);
+    }
+    Catch(httpException) {
+        PRINT_DEBUG("CException in HTTPGet");
+    };
+    PRINT_DEBUG("Response Length: %li", response->length);
 
     free(blockNo);
     free(URL);
