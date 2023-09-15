@@ -2,7 +2,7 @@
 
 #include "FreeRtosQueueWrapper.h"
 #include "Common.h"
-#include <FreeRTOS.h>
+#include "FreeRTOS.h"
 #include <queue.h>
 
 #define FREERTOS_QUEUE_WRAPPER_ITEM_SIZE sizeof(freeRtosQueueWrapperMessage_t)

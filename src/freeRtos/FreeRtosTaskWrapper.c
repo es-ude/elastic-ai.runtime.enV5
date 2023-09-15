@@ -17,12 +17,14 @@ static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     vTaskDelete(NULL);
 }
 
-void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName, uint8_t prio) {
+void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName, uint8_t prio,
+                                     uint8_t core) {
     TaskHandle_t handle;
     if (xTaskCreate(freeRtosTaskWrapperInternalInvokeTaskCode, taskName, 10000, (void *)taskCode,
                     prio, &handle) == errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY) {
         PRINT("%s: !freeRtosTaskWrapperRegisterTask fail!: Not enough Memory available", taskName)
     } else {
+        vTaskCoreAffinitySet(handle, core);
         PRINT("%s registered successfully.", taskName)
     }
 }

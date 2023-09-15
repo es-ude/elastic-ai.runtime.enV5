@@ -6,7 +6,6 @@
 #include <hardware/watchdog.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
-#include <pico/time.h>
 #include <stdlib.h>
 
 _Noreturn void SenderTask() {
@@ -94,7 +93,7 @@ int main(void) {
 
     // test async
     PRINT("===== START TEST: asynchronous messages =====")
-    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage", 0);
-    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask", 0);
+    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();
 }

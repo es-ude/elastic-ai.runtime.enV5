@@ -26,7 +26,8 @@ _Noreturn void networkTask() {
 int main() {
     initHardwareTest();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0);
-    freeRtosTaskWrapperRegisterTask(networkTask, "networkTask", 0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
+                                    FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(networkTask, "networkTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();
 }

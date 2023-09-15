@@ -7,6 +7,8 @@ target_link_libraries(hardware-test_config
         spi_lib
         flash_lib
         fpga_config_lib)
+target_include_directories(hardware-test_freeRTOSTask PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/freeRtos)
 target_compile_definitions(hardware-test_config PRIVATE DEBUG)
 make_to_output_file(hardware-test_config)
 
