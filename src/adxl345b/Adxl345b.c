@@ -24,7 +24,8 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
     adxl345bI2cSensorConfiguration.i2c_slave_address = i2cAddress;
 
     i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
-
+    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 6, 7);
+    
     /* sleep to make sure the sensor is fully initialized */
     sleep_for_ms(2);
 
