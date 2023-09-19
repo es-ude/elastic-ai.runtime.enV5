@@ -43,7 +43,10 @@
 /* region MQTT */
 
 #define G_VALUE_BATCH_SECONDS 3
-bool newBatch;
+#define G_VALUE_PAUSE_SECONDS 5
+
+bool newBatchAvailable;
+bool newBatchRequested = false;
 char *gValueDataBatch;
 bool subscribed = false;
 char *twinID;
@@ -91,7 +94,7 @@ void receiveDataStartRequest(posting_t posting);
 
 void receiveDataStopRequest(posting_t posting);
 
-bool getAndPublishGValueBatch(char *dataID);
+void publishGValueBatch(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 
@@ -126,7 +129,6 @@ void init(void) {
     stdio_init_all();
     // waits for usb connection, REMOVE to continue without waiting for connection
     while ((!stdio_usb_connected())) {}
-    PRINT("")
 
     // initialize ESP over UART
     espInit();
@@ -135,12 +137,12 @@ void init(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
     mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 
-    i2c_set_baudrate(i2c0, 1000000);
-    adxl345bErrorCode_t errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ADDRESS);
-    if (errorCode == ADXL345B_NO_ERROR)
+    adxl345bErrorCode_t errorADXL = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    i2c_set_baudrate(i2c1, 2000000);
+    if (errorADXL == ADXL345B_NO_ERROR)
         PRINT("Initialised ADXL345B.")
     else
-        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorADXL)
 
     env5HwInit();
     setCommunication(getResponse);
@@ -153,24 +155,24 @@ void init(void) {
 }
 
 _Noreturn void getGValueTask(void) {
-    newBatch = false;
-    uint16_t batchSize = 100;
+    newBatchAvailable = false;
+    uint16_t batchSize = 400;
     uint32_t interval = G_VALUE_BATCH_SECONDS * 1000000;
 
-    newBatch = false;
     gValueDataBatch = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char *data = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char timeBuffer[15];
-    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001010);
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001100);
     adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
 
     uint32_t count;
 
     while (1) {
-        if (!subscribed) {
+        if (!newBatchRequested) {
             freeRtosTaskWrapperTaskSleep(500);
             continue;
         }
+        newBatchRequested = false;
 
         snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
         strcpy(data, timeBuffer);
@@ -206,10 +208,9 @@ _Noreturn void getGValueTask(void) {
             count += 1;
         }
         if (count > 0) {
-            newBatch = true;
+            newBatchAvailable = true;
             strcpy(gValueDataBatch, data);
         }
-        freeRtosTaskWrapperTaskSleep(10);
     }
 }
 
@@ -286,30 +287,22 @@ _Noreturn void publishValueBatchesTask(void) {
     PRINT("Ready ...")
 
     uint64_t seconds;
-    bool hasTwin = false;
     uint64_t lastPublished = 0;
+    subscribed = false;
     while (true) {
-        seconds = (time_us_64()) / 1000000;
         freeRtosTaskWrapperTaskSleep(100);
-
-        bool twinIsSubscribed = false;
         if (subscribed) {
-            if (seconds - lastPublished >= G_VALUE_BATCH_SECONDS) {
-                if (getAndPublishGValueBatch("g-value")) {
-                    PRINT("Published G-Values (sec: %llu)", seconds)
-                    lastPublished = seconds;
+            seconds = (time_us_64()) / 1000000;
+            if (seconds - lastPublished >= G_VALUE_PAUSE_SECONDS) {
+                newBatchRequested = true;
+                while (!newBatchAvailable) {
+                    freeRtosTaskWrapperTaskSleep(100);
                 }
+                newBatchAvailable = false;
+                lastPublished = (time_us_64()) / 1000000;
+                publishGValueBatch("g-value");
+                PRINT("Published G-Values (sec: %llu)", lastPublished)
             }
-            twinIsSubscribed = true;
-        }
-
-        if (!hasTwin && (twinIsSubscribed)) {
-            hasTwin = true;
-            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
-        }
-        if (hasTwin && (!twinIsSubscribed)) {
-            hasTwin = false;
-            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
         }
     }
 }
@@ -349,12 +342,8 @@ void twinsIsOffline(posting_t posting) {
     subscribed = false;
 }
 
-bool getAndPublishGValueBatch(char *dataID) {
-    if (!newBatch)
-        return false;
+void publishGValueBatch(char *dataID) {
     protocolPublishData(dataID, gValueDataBatch);
-    newBatch = false;
-    return true;
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
