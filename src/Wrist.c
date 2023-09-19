@@ -307,7 +307,6 @@ _Noreturn void publishValueBatchesTask(void) {
     }
 }
 
-
 _Noreturn void enterBootModeTask(void) {
     while (true) {
         if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
