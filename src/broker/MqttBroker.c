@@ -231,11 +231,13 @@ void publishLong(posting_t posting) {
                  (unsigned long)strlen(posting.data), "0");
     }
 
-    espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 0);
-    espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 0);
-
-    PRINT("Should have published to %s.", posting.topic)
-
+    if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 0) == ESP_NO_ERROR) {
+        PRINT("Could not publish to topic: %s.", posting.topic)
+    } else if (espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 0) == ESP_NO_ERROR) {
+        PRINT("Problems when publishing: %s.", posting.topic)
+    } else {
+        PRINT("Published to %s.", posting.topic)
+    }
     free(publishData);
     free(posting.topic);
 }
