@@ -116,12 +116,12 @@ fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t startAddress) {
         uint16_t fragmentLength =
             (uint16_t)fragmentLengthBytes[0] << 8 | (uint16_t)fragmentLengthBytes[1];
         printf("ack");
-        
+
         // delete page if not all bytes are overwritten
         if (fragmentLength < FLASH_BYTES_PER_PAGE) {
             flashErasePage(startAddress + (page * FLASH_BYTES_PER_PAGE));
         }
-        
+
         // receive data of fragment
         uint8_t data[fragmentLength];
         for (size_t index = 0; index < fragmentLength; index++) {
