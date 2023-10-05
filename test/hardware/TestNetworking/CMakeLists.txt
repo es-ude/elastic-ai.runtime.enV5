@@ -2,7 +2,6 @@
 add_library(hardware-testHelper HardwaretestHelper.c)
 target_link_libraries(hardware-testHelper
         pico_stdlib
-        esp_lib
         espBroker_lib
         network_lib
         freeRtosUtils)
@@ -133,3 +132,15 @@ target_link_libraries(hardware-test_checknetwork
         hardware-testHelper)
 target_compile_definitions(hardware-test_checknetwork PRIVATE DEBUG)
 make_to_output_file(hardware-test_checknetwork)
+
+################## test_networkStrength ##################
+add_executable(hardware-test_publishSensor HardwaretestPublishSensor.c)
+target_link_libraries(hardware-test_publishSensor
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper
+        sensor_lib_pac193x
+        spi_lib
+        sensor_lib_adxl345b)
+target_compile_definitions(hardware-test_publishSensor PRIVATE DEBUG)
+make_to_output_file(hardware-test_publishSensor)

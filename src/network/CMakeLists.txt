@@ -6,5 +6,4 @@ target_link_libraries(network_lib INTERFACE
         freeRtosUtils
         uart_lib
         esp_lib
-        http_lib
-        )
+        http_lib)
