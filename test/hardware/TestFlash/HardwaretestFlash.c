@@ -1,132 +1,126 @@
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
-#include "env5_hal/Env5Hw.h"
-#include "flash/Flash.h"
-#include "hardware/watchdog.h"
-#include "pico/stdlib.h"
-#include "spi/Spi.h"
-#include <hardware/spi.h>
+#define SOURCE_FILE "FLASH-HWTEST"
+
 #include <malloc.h>
-#include <pico/bootrom.h>
-#include <pico/stdio.h>
+#include <math.h>
 #include <stdio.h>
 
-static const uint8_t REG_DEVID = 0x00;
-static const uint8_t sck_pin = 2;
-static const uint8_t miso_pin = 0;
-static const uint8_t mosi_pin = 3;
-static const uint8_t cs_pin = 1;
+#include "hardware/spi.h"
+#include "pico/bootrom.h"
+#include "pico/stdio.h"
+#include "pico/stdlib.h"
 
-void initHardwareTest(void) {
-    // Did we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot()) {
-        reset_usb_boot(0, 0);
-    }
+#include "Common.h"
+#include "Flash.h"
+#include "Spi.h"
+
+spi_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spi = spi0};
+static const uint32_t startAddress = 0x00000000;
+const uint32_t pageLimit = 10;
+static const uint8_t csPin = 1;
+
+void initializeConsoleOutput(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {}
-    freeRtosQueueWrapperCreate();
-    watchdog_enable(2000, 1);
-}
-
-void _Noreturn enterBootModeTaskHardwareTest(void) {
-    while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            reset_usb_boot(0, 0);
-        }
-        watchdog_update();
-        freeRtosTaskWrapperTaskSleep(1000);
+    while ((!stdio_usb_connected())) {
+        // wait for serial console to connect
     }
 }
 
-void init_helper(spi_inst_t *spi, uint32_t baudrate) {
-    spiInit(spi, baudrate, cs_pin, sck_pin, mosi_pin, miso_pin);
-    flashInit(cs_pin, spi);
+void initializeHardware(void) {
+    spiInit(&spiConfig, csPin);
+    flashInit(&spiConfig, csPin);
 }
-
-// 256Mb flash, 4kb + 64 kb sector
 void readDeviceID() {
-    uint8_t *id[6];
-    flashReadId(id, 6);
-    printf("Device ID is: ");
-    printf("%02X%02X%02X%02X%02X", id[0], id[1], id[2], id[3], id[4]);
-    printf("\n");
+    data_t idBuffer = {.data = calloc(6, sizeof(uint8_t)), .length = 6};
+    int bytesRead = flashReadId(&idBuffer);
+    PRINT_DEBUG("Bytes read: %i", bytesRead)
+    PRINT("Device ID is: 0x%02X%02X%02X%02X%02X", idBuffer.data[0], idBuffer.data[1],
+          idBuffer.data[2], idBuffer.data[3], idBuffer.data[4])
+    free(idBuffer.data);
 }
-void writeSPI() {
-    uint16_t page_length = 256;
-    uint8_t data[page_length];
-    for (uint16_t i = 0; i < page_length; i++) {
-        data[i] = i;
+void writeToFlash() {
+    // create test double data
+    uint8_t data[FLASH_BYTES_PER_PAGE];
+    for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
+        data[index] = (uint8_t)index;
     }
-    for (uint32_t i = 0; i < 2000; i++) {
-        flashWritePage(REG_DEVID + i * 256, data, page_length);
+    data[1] = 0xFF;
+
+    // write test double data to flash
+    uint8_t pageCounter = 0;
+    for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
+         pageOffset += FLASH_BYTES_PER_PAGE) {
+        data[0] = pageCounter;
+        pageCounter++;
+        int successfulWrittenBytes =
+            flashWritePage(startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
+        PRINT("Address 0x%02lX: %i Bytes Written", startAddress + pageOffset,
+              successfulWrittenBytes)
     }
-    printf(" bytes written\n");
+}
+void readFromFlash() {
+    for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
+         pageOffset += FLASH_BYTES_PER_PAGE) {
+        uint8_t data_read[FLASH_BYTES_PER_PAGE];
+        data_t readBuffer = {.data = data_read, .length = FLASH_BYTES_PER_PAGE};
+
+        int bytesRead = flashReadData(startAddress + pageOffset, &readBuffer);
+        PRINT("Address 0x%06lX: %u Bytes read", startAddress + pageOffset, bytesRead)
+        PRINT_BYTE_ARRAY_DEBUG("Data: ", readBuffer.data, readBuffer.length)
+    }
+}
+void eraseSectorFromFlash() {
+    int sectorsToErase =
+        (int)ceilf((float)(pageLimit * FLASH_BYTES_PER_PAGE) / FLASH_BYTES_PER_SECTOR);
+
+    for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * FLASH_BYTES_PER_SECTOR;
+         sectorOffset += FLASH_BYTES_PER_SECTOR) {
+        flashErrorCode_t eraseError = flashEraseSector(FLASH_BYTES_PER_SECTOR * sectorOffset);
+        PRINT("Sector starting from Address %lu erased. (0x%02X)", startAddress + sectorOffset,
+              eraseError);
+
+        // create read buffer
+        uint8_t dataRead[FLASH_BYTES_PER_PAGE];
+        data_t readBuffer = {.data = dataRead, .length = FLASH_BYTES_PER_PAGE};
+        for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
+             pageOffset += FLASH_BYTES_PER_PAGE) {
+            flashReadData(startAddress + pageOffset, &readBuffer);
+            for (size_t byteIndex = 0; byteIndex < FLASH_BYTES_PER_PAGE; byteIndex++) {
+                if (dataRead[byteIndex] != 0xFF) {
+                    PRINT("Erase Failed")
+                    return;
+                }
+            }
+        }
+    }
+    PRINT("Erase Successful")
 }
 
-void eraseSPISector() {
-    for (uint32_t i = 0; i < 9; i++) {
-        printf("round %u\n", i);
-        int erased_sector = flashEraseData(65536 * i);
-        if (erased_sector == 0) {
-            printf("erased sector == 0\n");
-        } else {
-            printf("erased sector != 0\n");
-        }
-
-        uint8_t data_read[256];
-        for (uint32_t k = 0; k < 256; k = k + 4) {
-            data_read[k] = 0xD;
-            data_read[k + 1] = 0xE;
-            data_read[k + 2] = 0xA;
-            data_read[k + 3] = 0xD;
-        }
-        flashReadData(65535 * i, data_read, 256);
-        for (uint32_t j = 0; j < 256; j++) {
-            printf("%u", data_read[j]);
-        }
-    }
-}
-void readSPI() {
-    uint16_t page_length = 256;
-    uint8_t data_read[(page_length)];
-    for (uint32_t i = 0; i < 2000; i++) {
-        int page_read = flashReadData(i * page_length, data_read, (page_length));
-        printf("%u", page_read);
-    }
-    printf(" bytes read \n");
-    printf("\n");
-}
-void spiTask() {
-
-    spi_inst_t *spi = spi0;
-    init_helper(spi, 1000 * 1000);
+int main() {
+    initializeConsoleOutput();
+    initializeHardware();
 
     while (1) {
-        char input = getchar_timeout_us(10000);
+        char input = getchar_timeout_us(UINT32_MAX);
 
         switch (input) {
         case 'i':
             readDeviceID();
             break;
         case 'e':
-            eraseSPISector();
+            eraseSectorFromFlash();
             break;
         case 'w':
-            writeSPI();
+            writeToFlash();
             break;
-        case 'o':
-            readSPI();
+        case 'r':
+            readFromFlash();
+            break;
+        case 'b':
+            flashEraseAll();
             break;
         default:
+            PRINT("Waiting ...")
             break;
         }
     }
-}
-int main() {
-    stdio_init_all();
-    // initHardwareTest();
-    // freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask");
-    // freeRtosTaskWrapperRegisterTask(spiTask, "spiTask");
-    // freeRtosTaskWrapperStartScheduler();
-    spiTask();
 }

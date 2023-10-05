@@ -3,10 +3,9 @@
 // internal headers
 #include "Adxl345b.h"
 #include "Common.h"
-#include "Env5Hw.h"
 #include "Esp.h"
 #include "Flash.h"
-#include "FpgaConfigurationHttp.h"
+#include "FpgaConfigurationHandler.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HTTP.h"
@@ -16,6 +15,7 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
+#include "enV5HwController.h"
 #include "middleware.h"
 
 // pico-sdk headers
@@ -34,12 +34,9 @@
 
 /* region FLASH */
 
-#define FLASH_SPI spi0
-#define FLASH_SCK 2
-#define FLASH_MISO 0
-#define FLASH_MOSI 3
-#define FLASH_CS 1
-#define FLASH_BAUDRATE 5000000
+spi_t spiConfigurationForFlash = {
+    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+uint8_t csPinForFlash = 1;
 
 /* endregion FLASH */
 
@@ -207,8 +204,10 @@ void init(void) {
     else
         PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
 
-    env5HwInit();
-    setCommunication(getResponse);
+    // initialize flash and FPGA
+    flashInit(&spiConfigurationForFlash, csPinForFlash);
+    env5HwFpgaInit();
+    fpgaConfigurationHandlerInitialize();
 
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
@@ -231,7 +230,7 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
 }
 
 _Noreturn void fpgaTask(void) {
-    /* NOTES:
+    /* NOTE:
      *   1. add listener for download start command (MQTT)
      *      uart handle should only set flag -> download handled at task
      *   2. download data from server and stored to flash
@@ -240,12 +239,10 @@ _Noreturn void fpgaTask(void) {
      *      handled in UART interrupt
      */
 
-    setCommunication(getResponse);
-
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
 
-    PRINT("Ready ...")
+    PRINT("FPGA Ready ...")
 
     while (1) {
         if (downloadRequest == NULL) {
@@ -255,28 +252,24 @@ _Noreturn void fpgaTask(void) {
 
         env5HwFpgaPowersOff();
 
-        // initialize SPI, flash and FPGA
-        spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
-        flashInit(FLASH_CS, FLASH_SPI);
-
-        // download bitfile from server
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
                     downloadRequest->startAddress, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
-        if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
-            CONFIG_ERASE_ERROR) {
+        if (fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+                downloadRequest->url, downloadRequest->fileSizeInBytes,
+                downloadRequest->startAddress) == FPGA_RECONFIG_ERASE_ERROR) {
             PRINT("ERASE ERROR")
             protocolPublishCommandResponse("FLASH", false);
         }
+        
+        // clean artifacts
         free(downloadRequest->url);
         free(downloadRequest);
         downloadRequest = NULL;
+        
         PRINT("Download finished!")
-
-        // reset FPGA
         freeRtosTaskWrapperTaskSleep(10);
-        spiDeinit(FLASH_SPI, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
-        // load bitfile to FPGA
+        
         env5HwFpgaPowersOn();
         PRINT("FPGA reconfigured")
 
@@ -440,30 +433,6 @@ void receiveDownloadBinRequest(posting_t posting) {
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
     downloadRequest->startAddress = position;
-}
-
-HttpResponse_t *getResponse(uint32_t block_number) {
-    char *blockNo = malloc(10 * sizeof(char));
-    sprintf(blockNo, "%li", block_number);
-
-    char *URL = malloc(strlen(downloadRequest->url) + 1 + strlen(blockNo));
-    strcpy(URL, downloadRequest->url);
-    strcat(URL, "/");
-    strcat(URL, blockNo);
-
-    HttpResponse_t *response = NULL;
-    CEXCEPTION_T httpException;
-    Try {
-        HTTPGet(URL, &response);
-    }
-    Catch(httpException) {
-        PRINT_DEBUG("CException in HTTPGet");
-    };
-    PRINT_DEBUG("Response Length: %li", response->length);
-
-    free(blockNo);
-    free(URL);
-    return response;
 }
 
 /* endregion PROTOTYPE IMPLEMENTATIONS */

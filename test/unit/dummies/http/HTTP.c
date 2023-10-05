@@ -1,20 +1,30 @@
 #include "HTTP.h"
 #include "CException.h"
+#include "httpDummy.h"
 #include <stddef.h>
 #include <string.h>
 
 HttpResponse_t *HTTPResponse = NULL;
 
-void HTTPReceive(char *httpResponse) {}
-
-void HTTPGet(const char *url, HttpResponse_t **data) {
-
+void HttpGetSuccessful(const char *url, HttpResponse_t **data) {
     char response[] = "Success";
     HTTPResponse->response = (uint8_t *)response;
     HTTPResponse->length = strlen(response);
     data = &HTTPResponse;
 }
+void HttpGetConnectionFails(const char *url, HttpResponse_t **data) {
+    Throw(HTTP_CONNECTION_FAILED);
+}
+void HttpGetResponseNull(const char *url, HttpResponse_t **data) {
+    Throw(HTTP_WRONG_RESPONSE);
+}
+httpGetFunction httpGetFunctionToUse = HttpGetSuccessful;
 
-void HTTPCleanResponseBuffer(HttpResponse_t **response) {}
+void HTTPGet(const char *url, HttpResponse_t **data) {
+    httpGetFunctionToUse(url, data);
+}
 
+void HTTPCleanResponseBuffer(HttpResponse_t *response) {}
+
+void HTTPReceive(char *httpResponse) {}
 void HTTPSetReceiverFunction(void) {}

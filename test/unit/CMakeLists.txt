@@ -1,3 +1,5 @@
+add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/dummies/flash)
+
 ##############################################
 ## region UNIT-TEST: unit-test_sht3
 add_executable(unit-test_sht3x
@@ -105,42 +107,6 @@ target_link_libraries(unit-test_mqtt unity m
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
 ##############################################
-## region UNIT-TEST: unit-test_configuration
-add_executable(unit-test_configuration
-        ${CMAKE_CURRENT_LIST_DIR}/UnittestConfiguration.c
-        ${CMAKE_SOURCE_DIR}/src/fpgaConfig/FpgaConfiguration.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/Flash.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/FpgaConfigDatahandler.c)
-target_include_directories(unit-test_configuration PUBLIC
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies/flash
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/src/flash
-        ${CMAKE_SOURCE_DIR}/src/fpgaConfig
-        ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_configuration unity m CException)
-add_test(unit-test_configuration unit-test_configuration)
-## endregion
-##############################################
-## region UNIT-TEST: unit-test_configurationHttp
-add_executable(unit-test_configurationHttp
-        ${CMAKE_CURRENT_LIST_DIR}/UnittestConfigurationHttp.c
-        ${CMAKE_SOURCE_DIR}/src/fpgaConfig/FpgaConfigurationHttp.c
-        ${CMAKE_SOURCE_DIR}/src/fpgaConfig/FpgaConfiguration.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/Flash.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/http/HTTP.c
-        ${CMAKE_CURRENT_LIST_DIR}/dummies/flash/FpgaConfigDatahandler.c)
-target_include_directories(unit-test_configurationHttp PUBLIC
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies
-        ${CMAKE_SOURCE_DIR}/test/unit/dummies/flash
-        ${CMAKE_SOURCE_DIR}/src/flash
-        ${CMAKE_SOURCE_DIR}/src/fpgaConfig
-        ${CMAKE_SOURCE_DIR}/src/network
-        ${CMAKE_SOURCE_DIR}/src/http/include
-        ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(unit-test_configurationHttp unity m CException)
-add_test(unit-test_configurationHttp unit-test_configurationHttp)
-## endregion
-##############################################
 ## region UNIT-TEST: unit-test_http
 add_executable(unit-test_Http
         ${CMAKE_CURRENT_LIST_DIR}/UnittestHTTP.c
@@ -155,3 +121,19 @@ target_include_directories(unit-test_Http PUBLIC
 target_link_libraries(unit-test_Http unity m CException)
 add_test(unit-test_Http unit-test_Http)
 ## endregion
+##############################################
+### region UNIT-TEST: unit-test_fpgaConfigurationHandler
+#add_executable(unit-test_fpgaConfigurationHandler
+#        ${CMAKE_CURRENT_LIST_DIR}/UnittestFpgaConfigurationHandler.c
+#        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http/HTTP.c)
+#target_include_directories(unit-test_fpgaConfigurationHandler PUBLIC
+#        ${CMAKE_SOURCE_DIR}/src/http/include
+#        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http)
+#target_link_libraries(unit-test_fpgaConfigurationHandler
+#        unity
+#        m
+#        CException
+#        flash_lib
+#        fpga_configuration_handler)
+#add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
+### endregion

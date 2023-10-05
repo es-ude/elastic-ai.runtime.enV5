@@ -22,7 +22,7 @@ static char *generateString(int lengthOfString) {
 
 void test_HttpEmptyBufferReturnsOnNullInput(void) {
     HttpResponse_t *testResponse = NULL;
-    HTTPCleanResponseBuffer(&testResponse);
+    HTTPCleanResponseBuffer(testResponse);
     TEST_ABORT();
 }
 
@@ -51,7 +51,7 @@ void test_HTTPURLtoLongThrowsException(void) {
         TEST_FAIL_MESSAGE("Should have thrown HTTP_CONNECTION_FAILED!");
     }
     Catch(e) {
-        TEST_ASSERT_EQUAL(HTTP_CONNECTION_FAILED, e);
+        TEST_ASSERT_EQUAL(HTTP_URL_TO_LONG, e);
     }
 }
 void test_HTTPwrongCommand(void) {
@@ -67,7 +67,7 @@ void test_HTTPwrongCommand(void) {
         TEST_FAIL_MESSAGE("Should have thrown HTTP_CONNECTION_FAILED!");
     }
     Catch(e) {
-        TEST_ASSERT_EQUAL(HTTP_CONNECTION_FAILED, e);
+        TEST_ASSERT_EQUAL(HTTP_WRONG_RESPONSE, e);
     }
 }
 
