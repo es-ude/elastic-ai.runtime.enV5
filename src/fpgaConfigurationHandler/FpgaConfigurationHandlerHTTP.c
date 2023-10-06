@@ -31,11 +31,11 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
             PRINT_DEBUG("URL: %s", url)
 
             HTTPGet(url, &httpResponse);
-            
+
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
             flashWritePage(startAddress + (page * FLASH_BYTES_PER_PAGE), bitfileChunk, chunkLength);
-            
+
             fpgaConfigurationHandlerFreeUrl(url);
             HTTPCleanResponseBuffer(httpResponse);
             page++;
