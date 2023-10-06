@@ -1,4 +1,5 @@
 #include "Flash.h"
+#include "Common.h"
 #include "FlashTypedefs.h"
 
 #include <malloc.h>
@@ -58,7 +59,7 @@ flashErrorCode_t flashErasePage(uint32_t address) {
 }
 
 int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
-    for (size_t offset = 0; offset < startAddress + bytesToWrite; offset++) {
+    for (size_t offset = 0; offset < bytesToWrite; offset++) {
         flashStorage[startAddress + offset] = data[offset];
     }
 

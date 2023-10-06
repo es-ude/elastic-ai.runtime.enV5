@@ -27,14 +27,15 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
     size_t page = 0;
     do {
         Try {
-            url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page); // TODO: check URL is correct
+            url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
             PRINT_DEBUG("URL: %s", url)
 
             HTTPGet(url, &httpResponse);
+            
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
-            flashWritePage(startAddress + (page * FLASH_BYTES_PER_PAGE), bitfileChunk,
-                           chunkLength); // TODO: check address iteration is correct
+            flashWritePage(startAddress + (page * FLASH_BYTES_PER_PAGE), bitfileChunk, chunkLength);
+            
             fpgaConfigurationHandlerFreeUrl(url);
             HTTPCleanResponseBuffer(httpResponse);
             page++;
@@ -58,7 +59,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
 
 static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page) {
     char *url = malloc(strlen(baseUrl) + 11 * sizeof(char));
-    sprintf(url, "%s/%i", baseUrl, page);
+    sprintf(url, "%s/%zu", baseUrl, page);
     return url;
 }
 

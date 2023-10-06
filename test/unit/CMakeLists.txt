@@ -122,18 +122,20 @@ target_link_libraries(unit-test_Http unity m CException)
 add_test(unit-test_Http unit-test_Http)
 ## endregion
 ##############################################
-### region UNIT-TEST: unit-test_fpgaConfigurationHandler
-#add_executable(unit-test_fpgaConfigurationHandler
-#        ${CMAKE_CURRENT_LIST_DIR}/UnittestFpgaConfigurationHandler.c
-#        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http/HTTP.c)
-#target_include_directories(unit-test_fpgaConfigurationHandler PUBLIC
-#        ${CMAKE_SOURCE_DIR}/src/http/include
-#        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http)
-#target_link_libraries(unit-test_fpgaConfigurationHandler
-#        unity
-#        m
-#        CException
-#        flash_lib
-#        fpga_configuration_handler)
-#add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
-### endregion
+## region UNIT-TEST: unit-test_fpgaConfigurationHandler
+add_executable(unit-test_fpgaConfigurationHandler
+        ${CMAKE_CURRENT_LIST_DIR}/UnittestFpgaConfigurationHandler.c
+        ${CMAKE_SOURCE_DIR}/src/fpgaConfigurationHandler/FpgaConfigurationHandlerHTTP.c
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http/HTTP.c)
+target_include_directories(unit-test_fpgaConfigurationHandler PUBLIC
+        ${CMAKE_SOURCE_DIR}/src/fpgaConfigurationHandler/include
+        ${CMAKE_SOURCE_DIR}/src/http/include
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/test/unit/dummies/http)
+target_link_libraries(unit-test_fpgaConfigurationHandler
+        unity
+        m
+        CException
+        flash_lib)
+add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
+## endregion
