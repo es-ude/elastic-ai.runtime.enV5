@@ -25,6 +25,8 @@
 
 // external headers
 #include "CException.h"
+#include "CommunicationEndpoint.h"
+#include "Uart.h"
 #include <malloc.h>
 #include <string.h>
 /* region VARIABLES/DEFINES */
@@ -109,7 +111,8 @@ HttpResponse_t *getResponse(uint32_t block_number);
 int main() {
     init();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 5, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(uartReceiverTask, "uartReceiverTask", 5, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 10, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 1, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(publishValueBatchesTask, "publishValueBatchesTask", 1,
                                     FREERTOS_CORE_0);
@@ -130,6 +133,9 @@ void init(void) {
     // waits for usb connection, REMOVE to continue without waiting for connection
     while ((!stdio_usb_connected())) {}
 
+    sleep_ms(1000);
+    PRINT("CONNECTED")
+    
     // initialize ESP over UART
     espInit();
 
@@ -269,17 +275,23 @@ _Noreturn void fpgaTask(void) {
 }
 
 void receiveDataStartRequest(posting_t posting) {
+    PRINT("START")
     setTwinID(posting.data);
     subscribed = true;
 }
 
 void receiveDataStopRequest(posting_t posting) {
+    PRINT("STOP")
     subscribed = false;
 }
 
 _Noreturn void publishValueBatchesTask(void) {
     publishAliveStatusMessage("g-value");
 
+    communicationEndpointSubscribeRaw("START/g-value", (subscriber_t){.deliver = receiveDataStartRequest});
+    communicationEndpointSubscribeRaw("STOP/g-value", (subscriber_t){.deliver =
+                                                                      receiveDataStopRequest});
+    
     protocolSubscribeForDataStartRequest("g-value",
                                          (subscriber_t){.deliver = receiveDataStartRequest});
     protocolSubscribeForDataStopRequest("g-value",
