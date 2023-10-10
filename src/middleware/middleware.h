@@ -3,6 +3,7 @@
 
 #include "qxi.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #define ADDR_LEDS 0x0003
 #define ADDR_USER_LOGIC_RESET 0x04
@@ -20,5 +21,6 @@ void middleware_userlogic_disable(void);
 uint8_t middleware_get_design_id(void);
 void middleware_write_blocking(uint32_t address, uint8_t *data, uint16_t len);
 uint8_t middleware_read_blocking(uint32_t address, uint8_t *data, uint16_t len);
+bool middleware_userlogic_get_busy_status(void);
 
 #endif // MY_PROJECT_MIDDLEWARE_H
