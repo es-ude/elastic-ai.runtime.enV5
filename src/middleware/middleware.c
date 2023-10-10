@@ -3,6 +3,7 @@
 #include "middleware.h"
 #include "qxi.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 void middleware_init() {
     qxi_init();
@@ -66,4 +67,8 @@ void middleware_write_blocking(uint32_t address, uint8_t *data, uint16_t len) {
 
 uint8_t middleware_read_blocking(uint32_t address, uint8_t *data, uint16_t len) {
     qxi_read_blocking(ADDR_USER_LOGIC_OFFSET + address, data, len);
+}
+
+bool middleware_userlogic_get_busy_status(void) {
+    return false;
 }
