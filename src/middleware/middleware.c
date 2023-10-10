@@ -36,6 +36,22 @@ uint8_t middleware_get_leds(void) {
     return (0x0f & read_data[0]);
 }
 
+void middleware_userlogic_enable(void)
+{
+    uint8_t addr_arr[1];
+    addr_arr[0] = 0x00; // set user_logic_reset to 0 => enable
+
+    qxi_write_blocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
+}
+
+void middleware_userlogic_disable(void)
+{
+    uint8_t addr_arr[1];
+    addr_arr[0] = 0x01; // keep reseting the userlogic
+
+    qxi_write_blocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
+}
+
 uint8_t middleware_get_design_id(void) {
     uint8_t read_data[1];
 
