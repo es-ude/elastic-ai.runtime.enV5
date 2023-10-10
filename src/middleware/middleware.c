@@ -70,5 +70,5 @@ uint8_t middleware_read_blocking(uint32_t address, uint8_t *data, uint16_t len) 
 }
 
 bool middleware_userlogic_get_busy_status(void) {
-    return false;
+    return false; //TODO: fix this
 }
