@@ -2,8 +2,8 @@
 
 #include "middleware.h"
 #include "qxi.h"
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 void middleware_init() {
     qxi_init();
@@ -37,16 +37,14 @@ uint8_t middleware_get_leds(void) {
     return (0x0f & read_data[0]);
 }
 
-void middleware_userlogic_enable(void)
-{
+void middleware_userlogic_enable(void) {
     uint8_t addr_arr[1];
     addr_arr[0] = 0x00; // set user_logic_reset to 0 => enable
 
     qxi_write_blocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
 }
 
-void middleware_userlogic_disable(void)
-{
+void middleware_userlogic_disable(void) {
     uint8_t addr_arr[1];
     addr_arr[0] = 0x01; // keep reseting the userlogic
 
@@ -70,5 +68,5 @@ uint8_t middleware_read_blocking(uint32_t address, uint8_t *data, uint16_t len) 
 }
 
 bool middleware_userlogic_get_busy_status(void) {
-    return false; //TODO: fix this
+    return false; // TODO: fix this
 }

@@ -2,8 +2,8 @@
 #define MY_PROJECT_MIDDLEWARE_H
 
 #include "qxi.h"
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define ADDR_LEDS 0x0003
 #define ADDR_USER_LOGIC_RESET 0x04
