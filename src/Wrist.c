@@ -173,7 +173,7 @@ _Noreturn void getGValueTask(void) {
             continue;
         }
         newBatchRequested = false;
-        
+
         env5HwLedsInit();
         gpio_put(LED0_PIN, 1);
         freeRtosTaskWrapperTaskSleep(1000);
@@ -186,7 +186,6 @@ _Noreturn void getGValueTask(void) {
         env5HwLedsAllOn();
         freeRtosTaskWrapperTaskSleep(250);
         env5HwLedsAllOff();
-        
 
         snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
         strcpy(data, timeBuffer);
