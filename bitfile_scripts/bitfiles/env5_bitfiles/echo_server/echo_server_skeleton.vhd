@@ -32,7 +32,7 @@ architecture rtl of echo_server_skeleton is
     type buf_t is array (0 to 15) of std_logic_vector(7 downto 0);
     signal data_buf : buf_t := (x"ee", x"dd", x"cc", x"bb", x"aa", x"99", x"88", x"77", x"66", x"55", x"44", x"33", x"22", x"11", others=>(x"00"));
 
-    signal skeleten_id_str : buf_t := (x"32", x"33", x"31", x"30", x"30", x"39", x"65", x"63", x"68", x"6F", x"73", x"65", x"72", x"76", x"65", x"72");
+    signal skeleten_id_str : buf_t := (0 => x"32");
 
 begin
 
