@@ -198,6 +198,6 @@ if __name__ == "__main__":
         "bitfile_scripts/bitfiles/" + arguments.source_file,
         int(arguments.destination_address, 16),
     )
-    # sendConfig(ser, config)
+    send_config(ser, config)
     verify_bitfile(ser, config)
     ser.close()
