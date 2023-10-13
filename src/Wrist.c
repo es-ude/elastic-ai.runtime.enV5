@@ -157,7 +157,7 @@ _Noreturn void getGValueTask(void) {
     gValueDataBatch = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char *data = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char timeBuffer[15];
-    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001100);
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_400);
     adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
 
     uint32_t count;
@@ -282,8 +282,18 @@ void receiveDataStopRequest(__attribute__((unused)) posting_t posting) {
     subscribed = false;
 }
 
+void receiveSetSensorFrequency(posting_t posting) {
+    int buf = strtol(posting.data, NULL, 10);
+    buf = buf / 25;
+    buf = (unsigned char) buf;
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, buf);
+}
+
 _Noreturn void publishValueBatchesTask(void) {
     publishAliveStatusMessage("g-value");
+
+    protocolSubscribeForCommand("setFrequency", (subscriber_t){.deliver =
+                                                                  receiveSetSensorFrequency});
 
     protocolSubscribeForDataStartRequest("g-value",
                                          (subscriber_t){.deliver = receiveDataStartRequest});

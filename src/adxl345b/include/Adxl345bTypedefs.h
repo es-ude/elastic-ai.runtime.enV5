@@ -6,6 +6,27 @@
 /* abstraction to avoid dependencies to pico libraries */
 typedef struct i2c_inst i2c_inst_t;
 
+/* Available register values for the ADXL345B_REGISTER_BW_RATE setting specific Hz rates for the
+ * sensor.
+ * LPM for Low Power Mode.
+ */
+enum {
+    ADXL345B_BW_RATE_LPM_25 = 0b00011000,
+    ADXL345B_BW_RATE_LPM_50 = 0b00011001,
+    ADXL345B_BW_RATE_LPM_100 = 0b00011010,
+    ADXL345B_BW_RATE_LPM_200 = 0b00011011,
+    ADXL345B_BW_RATE_LPM_400 = 0b00011100,
+    
+    ADXL345B_BW_RATE_25 = 0b00001000,
+    ADXL345B_BW_RATE_50 = 0b00001001,
+    ADXL345B_BW_RATE_100 = 0b00001010,
+    ADXL345B_BW_RATE_200 = 0b00001011,
+    ADXL345B_BW_RATE_400 = 0b00001100,
+    ADXL345B_BW_RATE_800 = 0b00001101,
+    ADXL345B_BW_RATE_1600 = 0b00001110,
+    ADXL345B_BW_RATE_3200 = 0b00001111,
+};
+
 /* i2c address of the sensor
  *
  * defines the possible i2c addresses of the sensor:
