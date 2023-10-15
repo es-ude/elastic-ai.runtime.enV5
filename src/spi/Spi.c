@@ -1,35 +1,89 @@
-#include "Spi.h"
-#include "SpiHardwareAdapter.h"
+/* standard SPI uses the Chip-Select pin negated
+ * => 3,3V/HIGH -> Disable
+ *      GND/LOW -> Enable
+ */
+
+#define SOURCE_FILE "SPI"
+
 #include <stdint.h>
 
-void spiInit(spi_inst_t *spi, uint32_t baudrate, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin,
-             uint8_t misoPin) {
-    spiHardwareAdapterInit(spi, baudrate, csPin, sckPin, mosiPin, misoPin);
+#include "hardware/spi.h"
+
+#include "Common.h"
+#include "Gpio.h"
+#include "SpiInternal.h"
+#include "include/Spi.h"
+#include "include/SpiTypedefs.h"
+
+/* region PUBLIC HEADER FUNCTIONS */
+
+void spiInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
+    uint32_t actualBaudrate = spi_init(spiConfiguration->spi, spiConfiguration->baudrate);
+    PRINT_DEBUG("Actual Baudrate: %lu", actualBaudrate)
+
+    gpioSetPinFunction(spiConfiguration->sckPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(spiConfiguration->mosiPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(spiConfiguration->misoPin, GPIO_FUNCTION_SPI);
+    gpioSetPinFunction(chipSelectPin, GPIO_FUNCTION_SPI);
+
+    gpioInitPin(chipSelectPin);
+    spiDisableDevice(chipSelectPin);
+}
+void spiDeinit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
+    spi_deinit(spiConfiguration->spi);
+
+    gpioSetPinFunction(spiConfiguration->sckPin, GPIO_FUNCTION_NULL);
+    gpioSetPinFunction(spiConfiguration->mosiPin, GPIO_FUNCTION_NULL);
+    gpioSetPinFunction(spiConfiguration->misoPin, GPIO_FUNCTION_NULL);
+    gpioSetPinFunction(chipSelectPin, GPIO_FUNCTION_NULL);
+
+    gpioDisablePin(spiConfiguration->sckPin);
+    gpioDisablePin(spiConfiguration->mosiPin);
+    gpioDisablePin(spiConfiguration->misoPin);
+    gpioDisablePin(chipSelectPin);
 }
 
-void spiDeinit(spi_inst_t *spi, uint8_t csPin, uint8_t sckPin, uint8_t mosiPin, uint8_t misoPin) {
-    spiHardwareAdapterDeinit(spi, csPin, sckPin, mosiPin, misoPin);
-}
-int spiWriteBlocking(spi_inst_t *spi, uint8_t csPin, uint8_t *cmd, uint8_t cmd_length,
-                     uint8_t *data, uint16_t len) {
-    spiHardwareAdapterEnable(csPin);
-    spiHardwareAdapterWriteBlocking(spi, cmd, cmd_length);
-    int numBytesWritten = spiHardwareAdapterWriteBlocking(spi, data, len);
-    spiHardwareAdapterDisable(csPin);
-    return numBytesWritten;
-}
+int spiWriteCommandBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command) {
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
 
-int spiReadBlocking(spi_inst_t *spi, uint8_t csPin, uint8_t *cmd, uint8_t cmd_length,
-                    uint8_t *dataRead, uint16_t lengthRead) {
-    spiHardwareAdapterEnable(csPin);
-    spiHardwareAdapterWriteBlocking(spi, cmd, cmd_length);
-    int numberOfBlocksRead = spiHardwareAdapterReadBlocking(spi, dataRead, lengthRead);
-    spiHardwareAdapterDisable(csPin);
+    spiEnableDevice(chipSelectPin);
+    int numberOfBytesWritten =
+        spi_write_blocking(spiConfiguration->spi, command->data, command->length);
+    spiDisableDevice(chipSelectPin);
+    return numberOfBytesWritten;
+}
+int spiWriteCommandAndDataBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+                                   data_t *data) {
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
+    PRINT_BYTE_ARRAY_DEBUG("Data: ", data->data, data->length)
+
+    spiEnableDevice(chipSelectPin);
+    spi_write_blocking(spiConfiguration->spi, command->data, command->length);
+    int numberOfBytesWritten = spi_write_blocking(spiConfiguration->spi, data->data, data->length);
+    spiDisableDevice(chipSelectPin);
+    return numberOfBytesWritten;
+}
+int spiWriteCommandAndReadBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+                                   data_t *data) {
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
+
+    spiEnableDevice(chipSelectPin);
+    spi_write_blocking(spiConfiguration->spi, command->data, command->length);
+    int numberOfBlocksRead = spi_read_blocking(spiConfiguration->spi, 0, data->data, data->length);
+    spiDisableDevice(chipSelectPin);
     return numberOfBlocksRead;
 }
 
-void spiWriteSingleCmd(spi_inst_t *spi, uint8_t csPin, uint8_t *cmd, uint8_t cmd_length) {
-    spiHardwareAdapterEnable(csPin);
-    spiHardwareAdapterWriteBlocking(spi, cmd, cmd_length);
-    spiHardwareAdapterDisable(csPin);
+/* endregion PUBLIC HEADER FUNCTIONS */
+
+/* region INTERNAL HEADER FUNCTIONS */
+
+static inline void spiEnableDevice(uint8_t chipSelectPin) {
+    gpioSetPin(chipSelectPin, GPIO_PIN_LOW);
 }
+
+static inline void spiDisableDevice(uint8_t chipSelectPin) {
+    gpioSetPin(chipSelectPin, GPIO_PIN_HIGH);
+}
+
+/* endregion INTERNAL HEADER FUNCTIONS */

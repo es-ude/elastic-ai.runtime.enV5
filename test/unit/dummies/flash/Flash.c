@@ -1,40 +1,68 @@
 #include "Flash.h"
+#include "Common.h"
+#include "FlashTypedefs.h"
+
+#include <malloc.h>
+#include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 
-uint32_t addressSectorErase = 0;
-uint32_t addressWrite[12];
-uint32_t numSectorErase = 0;
-uint8_t dataComplete[FLASH_SECTOR_SIZE * 4];
-uint32_t numWriteBlocks;
+uint8_t *flashStorage;
+size_t flashStorageLength;
+bool flashInitCalled = false;
 
-uint8_t *flash;
-uint8_t flashLength;
+/* region UNIT TEST SETUP */
+void flashSetUpDummyStorage(size_t lengthInBytes) {
+    flashStorage = calloc(1, lengthInBytes);
+    flashStorageLength = lengthInBytes;
+}
+void flashRemoveDummyStorage(void) {
+    free(flashStorage);
+    flashStorageLength = 0;
+}
+/* endregion UNIT TEST SETUP */
 
-void flashSetData(uint8_t *flashData, uint32_t sizeFlashData) {
-    flash = flashData;
-    flashLength = sizeFlashData;
+/* region PUBLIC HEADER FUNCTIONS */
+void flashInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
+    flashInitCalled = true;
 }
 
-uint8_t flashEraseData(uint32_t address) {
-    numSectorErase++;
-    addressSectorErase = address;
-    return 0;
-}
-
-int flashReadData(uint32_t address, uint8_t *data_buffer, uint16_t length) {
-    for (uint16_t i = 0; i < length; i++) {
-        data_buffer[i] = flash[i + address];
-    }
-
+int flashReadId(data_t *dataBuffer) {
+    dataBuffer->data[0] = 0x01;
+    dataBuffer->data[1] = 0x17;
     return 2;
 }
-int flashWritePage(uint32_t address, uint8_t *data, uint16_t page_size) {
-    addressWrite[numWriteBlocks] = address;
-    for (uint16_t i = 0; i < page_size; i++) {
-        dataComplete[address + i] = data[i];
+int flashReadData(uint32_t startAddress, data_t *dataBuffer) {
+    for (size_t offset = 0; offset < dataBuffer->length; offset++) {
+        dataBuffer->data[offset] = flashStorage[startAddress + offset];
     }
-    numWriteBlocks++;
 
-    return 0;
+    return (int)dataBuffer->length;
 }
+
+flashErrorCode_t flashEraseAll(void) {
+    for (size_t index = 0; index < flashStorageLength; index++) {
+        flashStorage[index] = 0xFF;
+    }
+    return FLASH_NO_ERROR;
+}
+flashErrorCode_t flashEraseSector(uint32_t address) {
+    for (size_t index = 0; index < address + FLASH_BYTES_PER_SECTOR; index++) {
+        flashStorage[index] = 0xFF;
+    }
+    return FLASH_NO_ERROR;
+}
+flashErrorCode_t flashErasePage(uint32_t address) {
+    for (size_t index = 0; index < address + FLASH_BYTES_PER_PAGE; index++) {
+        flashStorage[index] = 0xFF;
+    }
+    return FLASH_NO_ERROR;
+}
+
+int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
+    for (size_t offset = 0; offset < bytesToWrite; offset++) {
+        flashStorage[startAddress + offset] = data[offset];
+    }
+
+    return (int)bytesToWrite;
+}
+/* region PUBLIC HEADER FUNCTIONS */
