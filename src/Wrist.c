@@ -169,6 +169,19 @@ _Noreturn void getGValueTask(void) {
         }
         newBatchRequested = false;
 
+        env5HwLedsInit();
+        gpio_put(LED0_PIN, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        gpio_put(LED1_PIN, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        gpio_put(LED2_PIN, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        env5HwLedsAllOff();
+        freeRtosTaskWrapperTaskSleep(250);
+        env5HwLedsAllOn();
+        freeRtosTaskWrapperTaskSleep(250);
+        env5HwLedsAllOff();
+
         snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
         strcpy(data, timeBuffer);
         strcat(data, ",");
@@ -201,6 +214,7 @@ _Noreturn void getGValueTask(void) {
             strcat(data, zBuffer);
             strcat(data, ";");
             count += 1;
+            printf("%lu", count);
         }
         if (count > 0) {
             newBatchAvailable = true;
