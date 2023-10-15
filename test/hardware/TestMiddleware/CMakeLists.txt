@@ -24,6 +24,9 @@ add_executable(hardware-test_stub HardwaretestStub.c)
 target_link_libraries(hardware-test_stub
         pico_stdlib
         hardware_spi
+        flash_lib
+        enV5_hwc
+        fpga_configuration_handler
         middleware_lib
         echoserver_lib)
 target_compile_definitions(hardware-test_stub PRIVATE DEBUG)
