@@ -72,6 +72,14 @@ static uint32_t fpgaConfigurationHandlerGetFileLength() {
 }
 
 static void fpgaConfigurationHandlerGetChunks(uint32_t totalLength, uint32_t startAddress) {
+    size_t numberOfSectors = (size_t)ceilf((float)totalLength / FLASH_BYTES_PER_SECTOR);
+    size_t sector = 0;
+    do {
+        uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
+        flashEraseSector(sectorStartAddress);
+        sector++;
+    } while (sector < numberOfSectors);
+
     size_t numberOfPages = (size_t)ceilf((float)totalLength / FLASH_BYTES_PER_PAGE);
     size_t page = 0;
     while (page < numberOfPages) {
@@ -86,11 +94,6 @@ static void fpgaConfigurationHandlerGetChunks(uint32_t totalLength, uint32_t sta
         uint16_t fragmentLength =
             (uint16_t)fragmentLengthBytes[0] << 8 | (uint16_t)fragmentLengthBytes[1];
         printf("ack");
-
-        // delete page if not all bytes are overwritten
-        if (fragmentLength < FLASH_BYTES_PER_PAGE) {
-            flashErasePage(startAddress + (page * FLASH_BYTES_PER_PAGE));
-        }
 
         // receive data of fragment
         uint8_t data[fragmentLength];

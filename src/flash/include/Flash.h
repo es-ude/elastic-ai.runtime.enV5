@@ -30,13 +30,6 @@ flashErrorCode_t flashEraseAll(void);
  */
 flashErrorCode_t flashEraseSector(uint32_t address);
 
-/*! \brief erases one page from the flash
- *
- * @param address address of the page
- * @return 0 if no error occurred
- */
-flashErrorCode_t flashErasePage(uint32_t address);
-
 int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite);
 
 #endif /* ENV5_FLASH_HEADER */

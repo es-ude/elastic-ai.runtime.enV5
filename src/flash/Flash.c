@@ -75,16 +75,6 @@ flashErrorCode_t flashEraseSector(uint32_t address) {
 
     return eraseError;
 }
-flashErrorCode_t flashErasePage(uint32_t address) {
-    // prepare data for override (set all bits to 1)
-    uint8_t data[FLASH_BYTES_PER_PAGE];
-    for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
-        data[index] = 0xFF;
-    }
-
-    // override old data
-    flashWritePage(address, data, FLASH_BYTES_PER_PAGE);
-}
 
 int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_PAGE, startAddress >> 16 & 0xFF, startAddress >> 8 & 0xFF,
