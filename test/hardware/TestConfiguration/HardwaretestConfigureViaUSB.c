@@ -1,5 +1,5 @@
-//TODO: Improve stability
-//      -> when generating a lot of output between downloads of config files it works!!
+// TODO: Improve stability
+//       -> when generating a lot of output between downloads of config files it works!!
 
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 
