@@ -1,12 +1,14 @@
-#ifndef ENV5_FLASH_INTERNAL_H
-#define ENV5_FLASH_INTERNAL_H
+#ifndef ENV5_FLASH_INTERNAL_HEADER
+#define ENV5_FLASH_INTERNAL_HEADER
 
-void flashWriteEnable(void);
+#include "include/FlashTypedefs.h"
 
-uint8_t flashReadStatusReg(void);
+static void flashEnableWrite(void);
 
-flashEraseErrorCode_t flashEraseErrorOccurred(void);
+static uint8_t flashReadStatusRegister(void);
 
-void flashWaitForDone(void);
+static flashErrorCode_t flashEraseErrorOccurred(void);
 
-#endif /* ENV5_FLASH_INTERNAL_H */
+static void flashWaitForDone(void);
+
+#endif /* ENV5_FLASH_INTERNAL_HEADER */

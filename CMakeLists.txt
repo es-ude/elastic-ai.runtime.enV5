@@ -44,12 +44,12 @@ else ()
                 freeRtosUtils
                 network_lib
                 espBroker_lib
-                fpga_config_lib
+                fpga_configuration_handler
                 flash_lib
                 middleware_lib
                 spi_lib
                 sensor_lib_adxl345b
-                env5_lib)
+                enV5_hwc)
         make_to_output_file(wrist)
     elseif (PICO_ON_DEVICE)
         message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")

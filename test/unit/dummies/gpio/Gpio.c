@@ -4,12 +4,27 @@
 
 #include "Gpio.h"
 
-gpioErrorCode_t gpioEnablePin(gpioPin_t pin, gpioPowerMode_t powerMode) {
+gpioErrorCode_t gpioInitPin(gpioPin_t pin) {
+    /* Just here to satisfy the compiler */
+    return GPIO_NO_ERROR;
+}
+
+gpioErrorCode_t gpioDisablePin(gpioPin_t pin) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }
 
 gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function) {
+    /* Just here to satisfy the compiler */
+    return GPIO_NO_ERROR;
+}
+
+gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin) {
+    /* Just here to satisfy the compiler */
+    return GPIO_NO_ERROR;
+}
+
+gpioErrorCode_t gpioSetPin(gpioPin_t pin, gpioPinMode_t mode) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }
