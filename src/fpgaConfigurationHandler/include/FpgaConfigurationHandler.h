@@ -25,6 +25,7 @@ void fpgaConfigurationHandlerInitialize();
  * @param baseUrl url that represents the base for the download url
  * @param length length of the configuration in Bytes
  * @param startAddress address of the byte where the configuration starts
+ *                     -> this address must be the start address of a sector
  * @return 0 if no error occurred
  */
 fpgaConfigurationHandlerError_t
@@ -34,6 +35,8 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
 /*! \brief download configuration to flash (USB)
  *  \ingroup FPGA
  *
+ * @param startAddress address of the byte where the configuration starts
+ *                     -> this address must be the start address of a sector
  * @return 0 if no error occurred
  */
 fpgaConfigurationHandlerError_t
@@ -45,7 +48,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t startAddress);
 /*! \brief reconfigures the FPGA with the given configuration
  *  \ingroup FPGA
  *
- * @param configId ID of the configuration to be used for reconfiguration
+ * @param startAddress address of the byte where the configuration starts
  * @return 0 if no error occurred
  */
 fpgaConfigurationHandlerError_t fpgaConfigurationFlashFpga(uint32_t startAddress);

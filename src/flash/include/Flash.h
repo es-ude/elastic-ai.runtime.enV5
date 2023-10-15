@@ -23,13 +23,21 @@ int flashReadData(uint32_t startAddress, data_t *dataBuffer);
  */
 flashErrorCode_t flashEraseAll(void);
 
-/*! \brief erases 64kB sector of the flash
+/*! \brief erases sector of the flash
  *
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
 flashErrorCode_t flashEraseSector(uint32_t address);
 
+/*! \brief writes up to one page of bytes to the flash
+ *
+ * @param startAddress address where the page starts
+ *                     -> least significant 9 bits are always zero
+ * @param data pointer to the buffer where the data is stored
+ * @param bytesToWrite length of the data buffer
+ * @return number of bytes written to the flash
+ */
 int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite);
 
 #endif /* ENV5_FLASH_HEADER */
