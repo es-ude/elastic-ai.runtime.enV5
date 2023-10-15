@@ -1,15 +1,21 @@
 from io import BytesIO
-from flask import Flask, send_file, make_response
+from flask import Flask, send_file
 
 bytes_per_request = 512  # should be matching with the page size of the flash
 
 app = Flask(__name__)
 
 
+def print_bytearray(arr: bytes):
+    print("0x" + " 0x".join("%02X" % b for b in arr))
+
+
 def read_slice(position: int, filename: str) -> bytes:
     with open(filename, "rb") as file:
-        file.seek(position * bytes_per_request)
+        file.seek(position * bytes_per_request, 0)
         chunk: bytes = file.read(bytes_per_request)
+        print(f"Chunk {position}:")
+        print_bytearray(chunk)
     return chunk
 
 

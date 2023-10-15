@@ -3,11 +3,6 @@
 
 #include <stdint.h>
 
-#define ADDR_MULTI_BOOT 0x0005
-#define ADDR_LEDS 0x0003
-#define ADDR_DESIGN_ID 2256
-#define ADDR_USER_LOGIC_OFFSET 0x0100
-
 void middlewareInit();
 void middlewareDeinit();
 

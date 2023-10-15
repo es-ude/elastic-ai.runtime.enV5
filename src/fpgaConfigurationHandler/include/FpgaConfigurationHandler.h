@@ -23,8 +23,8 @@ void fpgaConfigurationHandlerInitialize();
  *  \ingroup FPGA
  *
  * @param baseUrl url that represents the base for the download url
- * @param id id of the configuration
  * @param length length of the configuration in Bytes
+ * @param startAddress address of the byte where the configuration starts
  * @return 0 if no error occurred
  */
 fpgaConfigurationHandlerError_t

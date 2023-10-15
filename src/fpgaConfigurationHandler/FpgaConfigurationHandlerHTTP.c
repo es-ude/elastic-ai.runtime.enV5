@@ -23,6 +23,14 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
     HttpResponse_t *httpResponse = NULL;
     char *url = NULL;
 
+    size_t numberOfSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
+    size_t sector = 0;
+    do {
+        uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
+        flashEraseSector(sectorStartAddress);
+        sector++;
+    } while (sector < numberOfSectors);
+
     size_t numberOfPages = (size_t)ceilf((float)length / FLASH_BYTES_PER_PAGE);
     size_t page = 0;
     do {
@@ -34,7 +42,10 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
 
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
-            flashWritePage(startAddress + (page * FLASH_BYTES_PER_PAGE), bitfileChunk, chunkLength);
+            uint32_t pageStartAddress = startAddress + (page * FLASH_BYTES_PER_PAGE);
+            if (flashWritePage(pageStartAddress, bitfileChunk, chunkLength) != chunkLength) {
+                Throw(FLASH_ERASE_ERROR);
+            }
 
             fpgaConfigurationHandlerFreeUrl(url);
             HTTPCleanResponseBuffer(httpResponse);

@@ -15,7 +15,7 @@
 
 spi_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spi = spi0};
 static const uint32_t startAddress = 0x00000000;
-const uint32_t pageLimit = 10;
+const uint32_t pageLimit = 5;
 static const uint8_t csPin = 1;
 
 void initializeConsoleOutput(void) {
@@ -65,7 +65,7 @@ void readFromFlash() {
 
         int bytesRead = flashReadData(startAddress + pageOffset, &readBuffer);
         PRINT("Address 0x%06lX: %u Bytes read", startAddress + pageOffset, bytesRead)
-        PRINT_BYTE_ARRAY_DEBUG("Data: ", readBuffer.data, readBuffer.length)
+        PRINT_BYTE_ARRAY("Data: ", readBuffer.data, readBuffer.length)
     }
 }
 void eraseSectorFromFlash() {
@@ -120,7 +120,6 @@ int main() {
             break;
         default:
             PRINT("Waiting ...")
-            break;
         }
     }
 }

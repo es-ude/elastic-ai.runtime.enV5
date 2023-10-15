@@ -18,14 +18,19 @@
 #include "Spi.h"
 #include "enV5HwController.h"
 
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
+networkCredentials_t networkCredentials = {.ssid = "FRITZ!Box_Cable_Federl",
+                                           .password = "oLJ\\\"xhhF5j_$#8}z+ST{"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
+
 const char *baseUrl = "http://192.168.178.24:5000";
-uint32_t startAddressConfiguration1 = 0x00000000;
-uint32_t startAddressConfiguration2 = 0x00015201;
+uint32_t blinkFast = 0x00000000;
+size_t blinkFastLength = 86116;
+// uint32_t blinkSlow = 0x00045200;
+uint32_t blinkSlow = 0x00000000;
+size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
     // initialize the serial output
@@ -40,21 +45,21 @@ void initHardwareTest(void) {
 
     // initialize the Flash and FPGA
     flashInit(&spiConfiguration, csPin);
-    env5HwFpgaInit();
+    env5HwInit();
     fpgaConfigurationHandlerInitialize();
 }
 
-void downloadConfiguration(uint32_t startAddress) {
+void downloadConfiguration(bool useFast) {
     fpgaConfigurationHandlerError_t error;
     char url[125];
     strcpy(url, baseUrl);
 
-    if (startAddress == startAddressConfiguration1) {
+    if (useFast) {
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url)
 
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, 86116,
-                                                                     startAddressConfiguration1);
+        error =
+            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkFastLength, blinkFast);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error)
             return;
@@ -63,21 +68,24 @@ void downloadConfiguration(uint32_t startAddress) {
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url)
 
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, 85540,
-                                                                     startAddressConfiguration2);
+        error =
+            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkSlowLength, blinkSlow);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error)
             return;
         }
     }
-    PRINT_DEBUG("Download Successful!")
+    PRINT("Download Successful!")
 }
-void readConfiguration(uint32_t startAddress) {
-    size_t numberOfPages = 1, page = 0;
-    if (startAddress == startAddressConfiguration1) {
-        numberOfPages = (size_t)ceilf((float)86116 / FLASH_BYTES_PER_PAGE);
-    } else if (startAddress == startAddressConfiguration2) {
-        numberOfPages = (size_t)ceilf((float)85540 / FLASH_BYTES_PER_PAGE);
+void readConfiguration(bool useFast) {
+    size_t numberOfPages, page = 0;
+    uint32_t startAddress;
+    if (useFast) {
+        startAddress = blinkFast;
+        numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
+    } else {
+        startAddress = blinkSlow;
+        numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
     }
 
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
@@ -85,6 +93,37 @@ void readConfiguration(uint32_t startAddress) {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
         flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length)
+        free(pageBuffer.data);
+        page++;
+    } while (page < numberOfPages);
+}
+void verifyConfiguration(bool useFast) {
+    size_t numberOfPages, page = 0;
+    uint32_t startAddress;
+    if (useFast) {
+        startAddress = blinkFast;
+        numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
+    } else {
+        startAddress = blinkSlow;
+        numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
+    }
+
+    data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
+    stdio_flush();
+
+    do {
+        int input = getchar_timeout_us(UINT32_MAX);
+        if (input == PICO_ERROR_TIMEOUT) {
+            continue;
+        }
+
+        pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
+        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+
+        for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
+            printf("%02X", pageBuffer.data[index]);
+        }
+
         free(pageBuffer.data);
         page++;
     } while (page < numberOfPages);
@@ -104,31 +143,41 @@ _Noreturn void configurationTest(void) {
         char input = getchar_timeout_us(UINT32_MAX);
 
         switch (input) {
+        case 'E':
+            flashEraseAll();
+            PRINT("ERASED")
+            break;
         case 'P':
             env5HwFpgaPowersOn();
             PRINT("FPGA Power: ON")
             break;
         case 'p':
             env5HwFpgaPowersOff();
-            PRINT("FPGA Power:OFF")
+            PRINT("FPGA Power: OFF")
             break;
         case 'd':
-            downloadConfiguration(startAddressConfiguration1);
+            downloadConfiguration(true);
             break;
         case 'r':
-            readConfiguration(startAddressConfiguration1);
+            readConfiguration(true);
+            break;
+        case 'v':
+            verifyConfiguration(true);
             break;
         case 'f':
-            configureFpga(startAddressConfiguration1);
+            configureFpga(blinkFast);
             break;
         case 'D':
-            downloadConfiguration(startAddressConfiguration2);
+            downloadConfiguration(false);
             break;
         case 'R':
-            readConfiguration(startAddressConfiguration2);
+            readConfiguration(false);
+            break;
+        case 'V':
+            verifyConfiguration(false);
             break;
         case 'F':
-            configureFpga(startAddressConfiguration2);
+            configureFpga(blinkSlow);
             break;
         default:
             PRINT("Waiting ...")

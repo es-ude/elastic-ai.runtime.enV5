@@ -55,9 +55,9 @@ void HTTPReceive(char *httpResponse) {
 
     char *data = strstr(startSize, ",") + 1;
 
-    HTTPResponse = malloc(sizeof(HttpResponse_t));
+    HTTPResponse = calloc(1, sizeof(HttpResponse_t));
     HTTPResponse->length = bytesOfData;
-    HTTPResponse->response = malloc(sizeof(uint8_t) * bytesOfData);
+    HTTPResponse->response = calloc(bytesOfData, sizeof(uint8_t));
     memcpy(HTTPResponse->response, data, bytesOfData);
 }
 void HTTPSetReceiverFunction(void) {
