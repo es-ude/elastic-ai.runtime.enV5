@@ -3,6 +3,10 @@
 
 #include <stdbool.h>
 
+#define LED0_PIN 22
+#define LED1_PIN 24
+#define LED2_PIN 25
+
 void env5HwInit();
 
 void env5HwLedsInit();

@@ -2,6 +2,7 @@
 #define ENV5_MIDDLEWARE_HEADER
 
 #include <stdint.h>
+#include <stdbool.h>
 
 void middlewareInit();
 void middlewareDeinit();
@@ -31,8 +32,12 @@ void middlewareWriteBlocking(uint32_t address, uint8_t *data, uint16_t length);
  */
 uint8_t middlewareReadBlocking(uint32_t address, uint8_t *data, uint16_t length);
 
-void middleware_set_fpga_leds(uint8_t leds);
-uint8_t middleware_get_leds(void);
+void middlewareSetFpgaLeds(uint8_t leds);
+uint8_t middlewareGetLeds(void);
 uint8_t middlewareGetDesignId(void);
+
+void middlewareUserlogicEnable(void);
+void middlewareUserlogicDisable(void);
+bool middlewareUserlogicGetBusyStatus(void);
 
 #endif // ENV5_MIDDLEWARE_HEADER
