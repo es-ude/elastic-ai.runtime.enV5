@@ -24,6 +24,7 @@
 
 // external headers
 #include <malloc.h>
+#include <math.h>
 #include <string.h>
 
 /* region VARIABLES/DEFINES */
@@ -185,7 +186,6 @@ _Noreturn void getGValueTask(void) {
         snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
         strcpy(data, timeBuffer);
         strcat(data, ",");
-
         count = 0;
         uint32_t currentTime = time_us_64();
         uint32_t startTime = time_us_64();
@@ -217,6 +217,7 @@ _Noreturn void getGValueTask(void) {
             printf("%lu", count);
         }
         if (count > 0) {
+            PRINT("COUNT: %lu", count)
             newBatchAvailable = true;
             strcpy(gValueDataBatch, data);
         }
@@ -284,16 +285,23 @@ void receiveDataStopRequest(__attribute__((unused)) posting_t posting) {
 
 void receiveSetSensorFrequency(posting_t posting) {
     int buf = strtol(posting.data, NULL, 10);
-    buf = buf / 25;
-    buf = (unsigned char) buf;
-    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, buf);
+    PRINT("Setting Frequency to: %i", buf)
+    uint8_t rate = (uint8_t)(log(buf) / log(2) + 4);
+    if (rate > ADXL345B_BW_RATE_400) {
+        PRINT("Frequency exceeds maximum allowed frequency")
+        return;
+    }
+    if (adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, rate) == ADXL345B_NO_ERROR)
+        PRINT("Set Frequency successfully")
+    else
+        PRINT("ERROR setting Frequency")
 }
 
 _Noreturn void publishValueBatchesTask(void) {
     publishAliveStatusMessage("g-value");
 
-    protocolSubscribeForCommand("setFrequency", (subscriber_t){.deliver =
-                                                                  receiveSetSensorFrequency});
+    protocolSubscribeForCommand("setFrequency",
+                                (subscriber_t){.deliver = receiveSetSensorFrequency});
 
     protocolSubscribeForDataStartRequest("g-value",
                                          (subscriber_t){.deliver = receiveDataStartRequest});
