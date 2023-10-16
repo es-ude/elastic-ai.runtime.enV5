@@ -170,11 +170,11 @@ _Noreturn void getGValueTask(void) {
         newBatchRequested = false;
 
         env5HwLedsInit();
-        gpio_put(LED0_PIN, 1);
+        gpio_put(GPIO_LED0, 1);
         freeRtosTaskWrapperTaskSleep(1000);
-        gpio_put(LED1_PIN, 1);
+        gpio_put(GPIO_LED1, 1);
         freeRtosTaskWrapperTaskSleep(1000);
-        gpio_put(LED2_PIN, 1);
+        gpio_put(GPIO_LED2, 1);
         freeRtosTaskWrapperTaskSleep(1000);
         env5HwLedsAllOff();
         freeRtosTaskWrapperTaskSleep(250);

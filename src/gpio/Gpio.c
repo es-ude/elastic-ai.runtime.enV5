@@ -3,9 +3,9 @@
 #include "include/Gpio.h"
 #include <hardware/gpio.h>
 
-gpioErrorCode_t gpioInitPin(gpioPin_t pin) {
+gpioErrorCode_t gpioInitPin(gpioPin_t pin, gpioDirection_t direction) {
     gpio_init(pin);
-    gpio_set_dir(pin, GPIO_OUT);
+    gpio_set_dir(pin, direction);
 
     return GPIO_NO_ERROR;
 }
@@ -28,6 +28,10 @@ gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin) {
     return GPIO_NO_ERROR;
 }
 
-gpioErrorCode_t gpioSetPin(gpioPin_t pin, gpioPinMode_t mode) {
+void gpioSetPin(gpioPin_t pin, gpioPinMode_t mode) {
     gpio_put(pin, mode);
+}
+
+bool gpioGetPin(gpioPin_t pin) {
+    return gpio_get(pin);
 }
