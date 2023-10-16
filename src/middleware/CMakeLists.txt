@@ -8,4 +8,5 @@ target_link_libraries(middleware_lib INTERFACE
         pico_stdlib
         hardware_spi
         gpio_interface
+        enV5_hwc
         spi_lib)

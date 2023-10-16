@@ -46,10 +46,7 @@ pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    gpioErrorCode = gpioSetPin(sensor.powerPin, GPIO_PIN_LOW);
-    if (gpioErrorCode != GPIO_NO_ERROR) {
-        return PAC193X_INIT_ERROR;
-    }
+    gpioSetPin(sensor.powerPin, GPIO_PIN_LOW);
 
     /* sleep to make sure the sensor is idle  */
     sleep_for_ms(10);
@@ -63,10 +60,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    gpioErrorCode = gpioSetPin(sensor.powerPin, GPIO_PIN_HIGH);
-    if (gpioErrorCode != GPIO_NO_ERROR) {
-        return PAC193X_INIT_ERROR;
-    }
+    gpioSetPin(sensor.powerPin, GPIO_PIN_HIGH);
 
     return PAC193X_NO_ERROR;
 }
