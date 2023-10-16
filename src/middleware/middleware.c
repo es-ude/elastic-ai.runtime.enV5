@@ -1,7 +1,10 @@
 #define SOURCE_FILE "MIDDLEWARE"
 
 #include "include/middleware.h"
+#include "Gpio.h"
+#include "enV5HwController.h"
 #include "qxi.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -74,5 +77,5 @@ uint8_t middlewareReadBlocking(uint32_t address, uint8_t *data, uint16_t len) {
 }
 
 bool middlewareUserlogicGetBusyStatus(void) {
-    return false; // TODO: fix this
+    return gpioGetPin(FPGA_BUSY_PIN);
 }

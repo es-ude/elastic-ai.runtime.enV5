@@ -8,14 +8,6 @@
 #include "Gpio.h"
 #include "include/enV5HwController.h"
 
-#define GPIO_LED0 22
-#define GPIO_LED1 24
-#define GPIO_LED2 25
-
-#define FPGA_VOL_REGULATOR_EN_PIN 23 //! HIGH -> on, LOW -> off
-#define FPGA_MOS_EN_PIN 21           //! LOW -> on, HIGH -> off
-#define FPGA_RESET_CTRL_PIN 12       //! LOW -> on, HIGH -> off
-
 void env5HwInit() {
     env5HwLedsInit();
     env5HwFpgaInit();
@@ -25,15 +17,15 @@ void env5HwInit() {
 /* region LED */
 
 void env5HwLedsInit(void) {
-    gpioInitPin(GPIO_LED0);
+    gpioInitPin(GPIO_LED0, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED0, GPIO_PIN_LOW);
     PRINT_DEBUG("LED0 initialized.")
 
-    gpioInitPin(GPIO_LED1);
+    gpioInitPin(GPIO_LED1, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED1, GPIO_PIN_LOW);
     PRINT_DEBUG("LED1 initialized.")
 
-    gpioInitPin(GPIO_LED2);
+    gpioInitPin(GPIO_LED2, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED2, GPIO_PIN_LOW);
     PRINT_DEBUG("LED2 initialized.")
 }
@@ -59,16 +51,19 @@ void env5HwLedsAllOff() {
 // PAC1934 is using pio6 and pio7 which is connected to I2C1
 void env5HwFpgaInit() {
     // setup FPGA reset control pin
-    gpioInitPin(FPGA_RESET_CTRL_PIN);
+    gpioInitPin(FPGA_RESET_CTRL_PIN, GPIO_OUTPUT);
     gpioSetPin(FPGA_RESET_CTRL_PIN, GPIO_PIN_HIGH);
 
     // turn the voltage regulator off
-    gpioInitPin(FPGA_VOL_REGULATOR_EN_PIN);
+    gpioInitPin(FPGA_VOL_REGULATOR_EN_PIN, GPIO_OUTPUT);
     gpioSetPin(FPGA_VOL_REGULATOR_EN_PIN, GPIO_PIN_LOW);
 
     // turn the MOS-FETS off
-    gpioInitPin(FPGA_MOS_EN_PIN);
+    gpioInitPin(FPGA_MOS_EN_PIN, GPIO_OUTPUT);
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_LOW);
+
+    // setup FPGA busy wait pin
+    gpioInitPin(FPGA_BUSY_PIN, GPIO_INPUT);
 }
 
 void env5HwFpgaPowersOn() {
