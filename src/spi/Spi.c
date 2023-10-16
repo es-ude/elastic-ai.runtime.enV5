@@ -26,7 +26,7 @@ void spiInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
     gpioSetPinFunction(spiConfiguration->misoPin, GPIO_FUNCTION_SPI);
     gpioSetPinFunction(chipSelectPin, GPIO_FUNCTION_SPI);
 
-    gpioInitPin(chipSelectPin);
+    gpioInitPin(chipSelectPin, GPIO_OUTPUT);
     spiDisableDevice(chipSelectPin);
 }
 void spiDeinit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
