@@ -9,9 +9,9 @@
 #include <stdint.h>
 
 #define ADDR_LEDS 0x0003
-#define ADDR_USER_LOGIC_RESET 0x04
+#define ADDR_USER_LOGIC_RESET 0x0004
 #define ADDR_MULTI_BOOT 0x0005
-#define ADDR_DESIGN_ID 2256
+#define ADDR_DESIGN_ID 0x08D0
 #define ADDR_USER_LOGIC_OFFSET 0x0100
 
 void middlewareInit() {

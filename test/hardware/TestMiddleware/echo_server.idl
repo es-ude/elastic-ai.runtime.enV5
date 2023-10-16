@@ -1,6 +1,6 @@
 stub echo_server
 
-path ../../../src/middleware
-deploy 50 4000
+path ./middleware
+deploy 50 0
 
-sync echo ( int8[1] inputs ) : int8
+sync echo ( int8 inputs ) : int8
