@@ -32,6 +32,6 @@ void gpioSetPin(gpioPin_t pin, gpioPinMode_t mode) {
     gpio_put(pin, mode);
 }
 
-gpioErrorCode_t gpioGetPin(gpioPin_t pin) {
+bool gpioGetPin(gpioPin_t pin) {
     return gpio_get(pin);
 }
