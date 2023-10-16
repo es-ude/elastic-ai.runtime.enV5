@@ -61,7 +61,7 @@ void env5HwFpgaInit() {
     // turn the MOS-FETS off
     gpioInitPin(FPGA_MOS_EN_PIN, GPIO_OUTPUT);
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_LOW);
-    
+
     // setup FPGA busy wait pin
     gpioInitPin(FPGA_BUSY_PIN, GPIO_INPUT);
 }
