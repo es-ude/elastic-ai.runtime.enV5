@@ -4,7 +4,7 @@
 
 #include "Gpio.h"
 
-gpioErrorCode_t gpioInitPin(gpioPin_t pin) {
+gpioErrorCode_t gpioInitPin(gpioPin_t pin, gpioDirection_t direction) {
     /* Just here to satisfy the compiler */
     return GPIO_NO_ERROR;
 }

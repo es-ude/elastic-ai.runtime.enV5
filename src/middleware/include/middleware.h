@@ -38,6 +38,12 @@ uint8_t middlewareGetDesignId(void);
 
 void middlewareUserlogicEnable(void);
 void middlewareUserlogicDisable(void);
+/*! \ingroup FPGA
+ *
+ * requires the enV5HWController function `env5HwFpgaInit()` to be called beforehand
+ *
+ * @return returns true if the computation is done
+ */
 bool middlewareUserlogicGetBusyStatus(void);
 
 #endif // ENV5_MIDDLEWARE_HEADER

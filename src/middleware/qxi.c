@@ -19,7 +19,7 @@ void qxiInit(void) {
     gpioSetPinFunction(QXI_SPI_TX_PIN, GPIO_FUNCTION_SPI);
     gpioSetPinFunction(QXI_SPI_SCK_PIN, GPIO_FUNCTION_SPI);
 
-    gpioInitPin(QXI_SPI_CS_PIN);
+    gpioInitPin(QXI_SPI_CS_PIN, GPIO_OUTPUT);
 }
 
 void qxiDeinit(void) {
