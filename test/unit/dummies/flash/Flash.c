@@ -2,9 +2,9 @@
 #include "Common.h"
 #include "FlashTypedefs.h"
 
-#include <malloc.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 uint8_t *flashStorage;
 size_t flashStorageLength;
