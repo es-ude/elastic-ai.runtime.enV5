@@ -1,6 +1,6 @@
 #define SOURCE_FILE "FPGA-CONFIG-UTEST"
 
-#include "malloc.h"
+#include <stdlib.h>
 
 #include "unity.h"
 

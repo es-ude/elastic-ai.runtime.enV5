@@ -11,7 +11,7 @@
 void env5HwInit() {
     env5HwLedsInit();
     env5HwFpgaInit();
-    env5HwFpgaReset(true);
+    env5HwFpgaPowersOff();
 }
 
 /* region LED */
