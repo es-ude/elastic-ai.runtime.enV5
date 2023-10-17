@@ -22,54 +22,63 @@
 #include "Network.h"
 #include "echo_server.h"
 #include "enV5HwController.h"
-#include "middleware.h"
 
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PASSWD"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-char baseUrl[] = "http://192.168.203.99:5000/getfast";
-size_t configSize = 86116;
+char baseUrl[] = "http://192.168.203.22:5000/getecho";
+size_t configSize = 219412;
 uint32_t configStartAddress = 0x00000000;
 
+static void connectToWifi() {
+    PRINT("connecting to wi-fi...")
+    espInit();
+    static networkCredentials_t networkCredentials = {.ssid = "ES-Stud", .password = "curjeq343j"};
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    PRINT("done.")
+}
+
 static void initHardware() {
+    env5HwInit(); // should always be called first thing in your main to prevent weird behaviour,
+                  // like current leakage
+    
+    // configure the Flash and FPGA
+    flashInit(&spiConfiguration, csPin); // Always release flash after use,FPGA and MCU share the
+    //    bus to
+    //    flash memory, make sure
+    // this is only enabled while FPGA does not use it and release after use before powering on
+    // ,resetting or changing the configuration of the FPGA. FPGA needs that bus during
+    // reconfiguration and only during reconfiguration.
+    
     // initialize the serial output
     stdio_init_all();
     while ((!stdio_usb_connected())) {
         // wait for serial connection
     }
-
-    // connect to Wi-Fi network
-    espInit();
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-
-    // enable QXI interface to the FPGA
-    middlewareInit();
-
-    // initialize the Flash and FPGA
-    flashInit(&spiConfiguration, csPin);
-    env5HwInit();
-    fpgaConfigurationHandlerInitialize();
-    env5HwFpgaPowersOff();
 }
+
 static void loadConfigToFlash() {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        baseUrl, configSize, configStartAddress);
+    PRINT("Downloading HW configuration...")
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaUsb(
+        configStartAddress);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!")
             sleep_ms(3000);
         }
     }
+    PRINT("done.")
 }
+
 static void deployConfig() {
     env5HwFpgaPowersOn();
     if (!echo_server_deploy()) {
@@ -79,27 +88,33 @@ static void deployConfig() {
         }
     }
 }
-_Noreturn static void runTest() {
-    env5HwLedsAllOn();
-    int8_t counter = 0;
-    while (true) {
-        uint8_t return_val = (uint8_t)echo_server_echo(counter);
 
-        if (return_val == counter + 1) {
+static void runTest() {
+    env5HwLedsAllOn();
+    env5HwFpgaPowersOn();
+    sleep_ms(1000);
+    echo_server_deploy();
+    for(int8_t counter = 0; counter < 10; counter++) {
+        int32_t in_value = 1 << 18;
+        in_value = counter + in_value;
+        PRINT("calling HW function with 0x%02lx, %li", in_value, in_value)
+        int32_t return_val = echo_server_echo(in_value);
+        PRINT("HW function returned 0x%02lx, %li", return_val, return_val)
+
+        if (in_value == counter) {
             env5HwLedsAllOff();
             sleep_ms(500);
         }
 
         env5HwLedsAllOn();
         sleep_ms(500);
-
-        counter++;
     }
 }
 
 int main() {
     initHardware();
-    loadConfigToFlash();
-    deployConfig();
+//    loadConfigToFlash();
+//    deployConfig();
     runTest();
+    while (true) {};
 }
