@@ -283,7 +283,7 @@ void receiveDataStopRequest(__attribute__((unused)) posting_t posting) {
 }
 
 _Noreturn void publishValueBatchesTask(void) {
-    publishAliveStatusMessage("None");
+    publishAliveStatusMessage("g-value");
 
     protocolSubscribeForDataStartRequest("g-value",
                                          (subscriber_t){.deliver = receiveDataStartRequest});

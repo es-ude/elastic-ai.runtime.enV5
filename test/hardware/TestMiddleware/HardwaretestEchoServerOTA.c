@@ -31,142 +31,153 @@ downloadRequest_t *downloadRequest = NULL;
 bool flashing = false;
 
 spi_t spiConfiguration = {
-   .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 uint32_t configStartAddress = 0x00000000;
 
 static void initHardware() {
-   // initialize the serial output
-   stdio_init_all();
-   while ((!stdio_usb_connected())) {
-       // wait for serial connection
-   }
+    // initialize the serial output
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
 
-   // connect to Wi-Fi network
-   espInit();
-   networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-   mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
-   
-   // enable QXI interface to the FPGA
-   middlewareInit();
+    // connect to Wi-Fi network
+    espInit();
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
 
-   // initialize the Flash and FPGA
-   flashInit(&spiConfiguration, csPin);
-   env5HwInit();
-   fpgaConfigurationHandlerInitialize();
-   env5HwFpgaPowersOff();
+    // enable QXI interface to the FPGA
+    middlewareInit();
+
+    // initialize the Flash and FPGA
+    flashInit(&spiConfiguration, csPin);
+    env5HwInit();
+    fpgaConfigurationHandlerInitialize();
+    env5HwFpgaPowersOff();
 }
 
 _Noreturn static void runTest() {
-   freeRtosTaskWrapperTaskSleep(7500);
-   env5HwLedsAllOn();
-   int8_t counter = 0;
-   while (true) {
+    freeRtosTaskWrapperTaskSleep(7500);
+    env5HwLedsAllOn();
+    int8_t counter = 0;
 
-       if (flashing) {
-           freeRtosTaskWrapperTaskSleep(500);
-           continue;
-       }
-       
-       uint8_t return_val = (uint8_t)echo_server_echo(counter);
+    env5HwFpgaPowersOn();
+    freeRtosTaskWrapperTaskSleep(500);
+    if (!echo_server_deploy()) {
+        PRINT("Deploy failed!")
+    }
 
-       PRINT("%i, %i", return_val, counter)
-       
-       if (return_val == counter + 1) {
-           env5HwLedsAllOff();
-           sleep_ms(500);
-       }
+    while (true) {
 
-       env5HwLedsAllOn();
-       sleep_ms(500);
+        if (flashing) {
+            freeRtosTaskWrapperTaskSleep(500);
+            continue;
+        }
 
-       counter++;
-   }
+        uint8_t return_val = (uint8_t)echo_server_echo(counter);
+
+        PRINT("%i, %i", return_val, counter)
+
+        if (return_val == counter + 1) {
+            env5HwLedsAllOff();
+            sleep_ms(500);
+        }
+
+        env5HwLedsAllOn();
+        sleep_ms(500);
+
+        counter++;
+    }
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
-   PRINT("RECEIVED FLASH REQUEST")
-   // get download request
-   char *urlStart = strstr(posting.data, "URL:") + 4;
-   char *urlEnd = strstr(urlStart, ";") - 1;
-   size_t urlLength = urlEnd - urlStart + 1;
-   char *url = malloc(urlLength);
-   memcpy(url, urlStart, urlLength);
-   url[urlLength - 1] = '\0';
-   char *sizeStart = strstr(posting.data, "SIZE:") + 5;
-   char *endSize = strstr(sizeStart, ";") - 1;
-   size_t length = strtol(sizeStart, &endSize, 10);
-   
-   char *positionStart = strstr(posting.data, "POSITION:") + 9;
-   char *positionEnd = strstr(positionStart, ";") - 1;
-   size_t position = strtol(positionStart, &positionEnd, 10);
+    PRINT("RECEIVED FLASH REQUEST")
+    // get download request
+    char *urlStart = strstr(posting.data, "URL:") + 4;
+    char *urlEnd = strstr(urlStart, ";") - 1;
+    size_t urlLength = urlEnd - urlStart + 1;
+    char *url = malloc(urlLength);
+    memcpy(url, urlStart, urlLength);
+    url[urlLength - 1] = '\0';
+    char *sizeStart = strstr(posting.data, "SIZE:") + 5;
+    char *endSize = strstr(sizeStart, ";") - 1;
+    size_t length = strtol(sizeStart, &endSize, 10);
 
-   downloadRequest = malloc(sizeof(downloadRequest_t));
-   downloadRequest->url = url;
-   downloadRequest->fileSizeInBytes = length;
-   downloadRequest->startAddress = position;
+    char *positionStart = strstr(posting.data, "POSITION:") + 9;
+    char *positionEnd = strstr(positionStart, ";") - 1;
+    size_t position = strtol(positionStart, &positionEnd, 10);
+
+    downloadRequest = malloc(sizeof(downloadRequest_t));
+    downloadRequest->url = url;
+    downloadRequest->fileSizeInBytes = length;
+    downloadRequest->startAddress = position;
 }
 
 _Noreturn void fpgaTask(void) {
-   /* What this function does:
+    /* What this function does:
      *   - add listener for download start command (MQTT)
      *      uart handle should only set flag -> download handled at task
      *   - download data from server and stored to flash
      *   - add listener for FPGA flashing command
      *   - trigger flash of FPGA
      *      handled in UART interrupt
-    */
-   
-   freeRtosTaskWrapperTaskSleep(5000);
-   protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
+     */
 
-   PRINT("FPGA Ready ...")
+    freeRtosTaskWrapperTaskSleep(5000);
+    protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
+    publishAliveStatusMessage("");
+    PRINT("FPGA Ready ...")
 
-   while (1) {
-       if (downloadRequest == NULL) {
-           freeRtosTaskWrapperTaskSleep(1000);
-           continue;
-       }
-       flashing = true;
-       
-       PRINT("Starting to download bitfile...")
-       
-       env5HwFpgaPowersOff();
+    while (1) {
+        if (downloadRequest == NULL) {
+            freeRtosTaskWrapperTaskSleep(1000);
+            continue;
+        }
+        flashing = true;
 
-       PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
-                   downloadRequest->startAddress, downloadRequest->url,
-                   downloadRequest->fileSizeInBytes)
+        PRINT("Starting to download bitfile...")
 
-       fpgaConfigurationHandlerError_t configError =
-           fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
-                                                                downloadRequest->fileSizeInBytes,
-                                                                downloadRequest->startAddress);
+        env5HwFpgaPowersOff();
 
-       // clean artifacts
-       free(downloadRequest->url);
-       free(downloadRequest);
-       downloadRequest = NULL;
-       PRINT("Download finished!")
+        PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
+                    downloadRequest->startAddress, downloadRequest->url,
+                    downloadRequest->fileSizeInBytes)
 
-       if (configError != FPGA_RECONFIG_NO_ERROR) {
-           protocolPublishCommandResponse("FLASH", false);
-           PRINT("ERASE ERROR")
-       } else {
-           freeRtosTaskWrapperTaskSleep(10);
-           env5HwFpgaPowersOn();
-           PRINT("FPGA reconfigured")
-           protocolPublishCommandResponse("FLASH", true);
-       }
-       flashing = false;
-   }
+        fpgaConfigurationHandlerError_t configError =
+            fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
+                                                                 downloadRequest->fileSizeInBytes,
+                                                                 downloadRequest->startAddress);
+
+        // clean artifacts
+        free(downloadRequest->url);
+        free(downloadRequest);
+        downloadRequest = NULL;
+        PRINT("Download finished!")
+
+        if (configError != FPGA_RECONFIG_NO_ERROR) {
+            protocolPublishCommandResponse("FLASH", false);
+            PRINT("ERASE ERROR")
+        } else {
+            freeRtosTaskWrapperTaskSleep(10);
+            env5HwFpgaPowersOn();
+            freeRtosTaskWrapperTaskSleep(500);
+            if (!echo_server_deploy()) {
+                    PRINT("Deploy failed!")
+            }
+            flashing = false;
+            PRINT("FPGA reconfigured")
+            protocolPublishCommandResponse("FLASH", true);
+        }
+    }
 }
 
 int main() {
-   initHardware();
-   
-   freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 0, FREERTOS_CORE_0);
-   freeRtosTaskWrapperRegisterTask(runTest, "runTest", 0, FREERTOS_CORE_1);
-   
-   freeRtosTaskWrapperStartScheduler();
+    initHardware();
+
+    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(runTest, "runTest", 0, FREERTOS_CORE_1);
+
+    freeRtosTaskWrapperStartScheduler();
 }
