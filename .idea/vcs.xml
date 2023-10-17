@@ -12,8 +12,6 @@
     <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/elastic-ai.runtime.c/extern/unity" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Community-Supported-Ports" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/extern/freeRTOS/Kernel/portable/ThirdParty/Partner-Supported-Ports" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/btstack" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/extern/pico-sdk/lib/cyw43-driver" vcs="Git" />
