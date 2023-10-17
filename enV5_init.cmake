@@ -9,7 +9,7 @@ function(enV5_init)
     target_sources(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib/CException.c)
     target_include_directories(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib)
 
-
+    include_directories(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src)
     # libraries from the elastic-ai.runtime.enV5 repo
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/adxl345b)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/atCommands)
