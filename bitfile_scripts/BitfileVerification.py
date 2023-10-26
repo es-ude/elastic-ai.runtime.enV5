@@ -61,7 +61,7 @@ def get_total_fragment_size(filename: str) -> int:
 
 def verify(source: str, trigger: str, page_length: int) -> None:
     global error_occurred
-    with open(source, "rb") as file:
+    with open(source, "rb") as file, open("test.bin", "wb") as sc:
         total_config_size: int = get_total_fragment_size(source)
         page_limit: int = math.ceil(total_config_size / page_length)
         page_counter: int = 0
@@ -72,6 +72,7 @@ def verify(source: str, trigger: str, page_length: int) -> None:
             serial.reset_input_buffer()
             serial.write("n".encode("utf-8"))
             actual = bytes.fromhex(serial.read(2 * len(expected)).decode("utf-8"))
+            sc.write(actual)
             if expected != actual:
                 error_occurred = True
                 print(f"Error on page {page_counter+1}")
