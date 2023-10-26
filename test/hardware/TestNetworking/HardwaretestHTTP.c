@@ -20,7 +20,7 @@ void _Noreturn httpTask(void) {
             HTTPGet("http://192.168.178.24:5000/check", &response);
             PRINT("HTPPGet Success!\n\tResponse Length: %li\n\tResponse: %s", response->length,
                   response->response)
-            HTTPCleanResponseBuffer(&response);
+            HTTPCleanResponseBuffer(response);
         }
         Catch(exception){PRINT("HTTPGet failed!")}
 

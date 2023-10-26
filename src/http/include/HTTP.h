@@ -4,8 +4,10 @@
 #include <stdint.h>
 
 typedef enum HttpExceptions {
-    HTTP_RESPONSE_IS_NULL = 0x01,
-    HTTP_CONNECTION_FAILED = 0x02
+    HTTP_NO_ERROR = 0x00,
+    HTTP_CONNECTION_FAILED,
+    HTTP_URL_TO_LONG,
+    HTTP_WRONG_RESPONSE,
 } HttpExceptions_t;
 
 struct httpResponse {
@@ -31,6 +33,6 @@ void HTTPSetReceiverFunction(void);
  *
  * @param response buffer to be removed
  */
-void HTTPCleanResponseBuffer(HttpResponse_t **response);
+void HTTPCleanResponseBuffer(HttpResponse_t *response);
 
 #endif // ENV5_HTTP_H

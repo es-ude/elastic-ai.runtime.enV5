@@ -3,18 +3,17 @@
 // internal headers
 #include "Adxl345b.h"
 #include "Common.h"
-#include "Env5Hw.h"
 #include "Esp.h"
 #include "Flash.h"
-#include "FpgaConfigurationHttp.h"
+#include "FpgaConfigurationHandler.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HTTP.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "NetworkConfiguration.h"
 #include "Protocol.h"
 #include "Spi.h"
+#include "enV5HwController.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -24,21 +23,16 @@
 #include <pico/stdlib.h>
 
 // external headers
-#include "CException.h"
-#include "CommunicationEndpoint.h"
-#include "Uart.h"
 #include <malloc.h>
+#include <math.h>
 #include <string.h>
+
 /* region VARIABLES/DEFINES */
 
 /* region FLASH */
 
-#define FLASH_SPI spi0
-#define FLASH_SCK 2
-#define FLASH_MISO 0
-#define FLASH_MOSI 3
-#define FLASH_CS 1
-#define FLASH_BAUDRATE 5000000
+spi_t spiToFlash = {.spi = spi0, .baudrate = 5000000, .sckPin = 2, .mosiPin = 3, .misoPin = 0};
+uint8_t flashChipSelectPin = 1;
 
 /* endregion FLASH */
 
@@ -94,15 +88,13 @@ void twinsIsOffline(posting_t posting);
 
 void receiveDataStartRequest(posting_t posting);
 
-void receiveDataStopRequest(posting_t posting);
+void receiveDataStopRequest(__attribute__((unused)) posting_t posting);
 
 void publishGValueBatch(char *dataID);
 
 void receiveDownloadBinRequest(posting_t posting);
 
 /* endregion MQTT */
-
-HttpResponse_t *getResponse(uint32_t block_number);
 
 /* endregion HEADER */
 
@@ -111,8 +103,7 @@ HttpResponse_t *getResponse(uint32_t block_number);
 int main() {
     init();
 
-    freeRtosTaskWrapperRegisterTask(uartReceiverTask, "uartReceiverTask", 5, FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 10, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 5, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 1, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(publishValueBatchesTask, "publishValueBatchesTask", 1,
                                     FREERTOS_CORE_0);
@@ -133,9 +124,6 @@ void init(void) {
     // waits for usb connection, REMOVE to continue without waiting for connection
     while ((!stdio_usb_connected())) {}
 
-    sleep_ms(1000);
-    PRINT("CONNECTED")
-    
     // initialize ESP over UART
     espInit();
 
@@ -150,8 +138,10 @@ void init(void) {
     else
         PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorADXL)
 
+    // initialize FPGA and flash
+    flashInit(&spiToFlash, flashChipSelectPin);
     env5HwInit();
-    setCommunication(getResponse);
+    fpgaConfigurationHandlerInitialize();
 
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
@@ -168,7 +158,7 @@ _Noreturn void getGValueTask(void) {
     gValueDataBatch = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char *data = malloc(G_VALUE_BATCH_SECONDS * 11 * batchSize * 3 + 16);
     char timeBuffer[15];
-    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00001100);
+    adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_400);
     adxl345bChangeMeasurementRange(ADXL345B_16G_RANGE);
 
     uint32_t count;
@@ -180,10 +170,22 @@ _Noreturn void getGValueTask(void) {
         }
         newBatchRequested = false;
 
+        env5HwLedsInit();
+        gpio_put(GPIO_LED0, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        gpio_put(GPIO_LED1, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        gpio_put(GPIO_LED2, 1);
+        freeRtosTaskWrapperTaskSleep(1000);
+        env5HwLedsAllOff();
+        freeRtosTaskWrapperTaskSleep(250);
+        env5HwLedsAllOn();
+        freeRtosTaskWrapperTaskSleep(250);
+        env5HwLedsAllOff();
+
         snprintf(timeBuffer, sizeof(timeBuffer), "%llu", time_us_64() / 1000000);
         strcpy(data, timeBuffer);
         strcat(data, ",");
-
         count = 0;
         uint32_t currentTime = time_us_64();
         uint32_t startTime = time_us_64();
@@ -212,8 +214,10 @@ _Noreturn void getGValueTask(void) {
             strcat(data, zBuffer);
             strcat(data, ";");
             count += 1;
+            printf("%lu", count);
         }
         if (count > 0) {
+            PRINT("COUNT: %lu", count)
             newBatchAvailable = true;
             strcpy(gValueDataBatch, data);
         }
@@ -221,7 +225,7 @@ _Noreturn void getGValueTask(void) {
 }
 
 _Noreturn void fpgaTask(void) {
-    /* NOTES:
+    /* NOTE:
      *   1. add listener for download start command (MQTT)
      *      uart handle should only set flag -> download handled at task
      *   2. download data from server and stored to flash
@@ -230,12 +234,10 @@ _Noreturn void fpgaTask(void) {
      *      handled in UART interrupt
      */
 
-    setCommunication(getResponse);
-
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
 
-    PRINT("Ready ...")
+    PRINT("FPGA Ready ...")
 
     while (1) {
         if (downloadRequest == NULL) {
@@ -245,53 +247,62 @@ _Noreturn void fpgaTask(void) {
 
         env5HwFpgaPowersOff();
 
-        // initialize SPI, flash and FPGA
-        spiInit(FLASH_SPI, FLASH_BAUDRATE, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
-        flashInit(FLASH_CS, FLASH_SPI);
-
-        // download bitfile from server
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
                     downloadRequest->startAddress, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
-        if (configure(downloadRequest->startAddress, downloadRequest->fileSizeInBytes) ==
-            CONFIG_ERASE_ERROR) {
-            PRINT("ERASE ERROR")
-            protocolPublishCommandResponse("FLASH", false);
-        }
+
+        fpgaConfigurationHandlerError_t configError =
+            fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
+                                                                 downloadRequest->fileSizeInBytes,
+                                                                 downloadRequest->startAddress);
+
+        // clean artifacts
         free(downloadRequest->url);
         free(downloadRequest);
         downloadRequest = NULL;
         PRINT("Download finished!")
 
-        // reset FPGA
-        freeRtosTaskWrapperTaskSleep(10);
-        spiDeinit(FLASH_SPI, FLASH_CS, FLASH_SCK, FLASH_MOSI, FLASH_MISO);
-        // load bitfile to FPGA
-        env5HwFpgaPowersOn();
-        PRINT("FPGA reconfigured")
-
-        protocolPublishCommandResponse("FLASH", true);
+        if (configError != FPGA_RECONFIG_NO_ERROR) {
+            protocolPublishCommandResponse("FLASH", false);
+            PRINT("ERASE ERROR")
+        } else {
+            freeRtosTaskWrapperTaskSleep(10);
+            env5HwFpgaPowersOn();
+            PRINT("FPGA reconfigured")
+            protocolPublishCommandResponse("FLASH", true);
+        }
     }
 }
 
 void receiveDataStartRequest(posting_t posting) {
-    PRINT("START")
     setTwinID(posting.data);
     subscribed = true;
 }
 
-void receiveDataStopRequest(posting_t posting) {
-    PRINT("STOP")
+void receiveDataStopRequest(__attribute__((unused)) posting_t posting) {
     subscribed = false;
+}
+
+void receiveSetSensorFrequency(posting_t posting) {
+    int buf = strtol(posting.data, NULL, 10);
+    PRINT("Setting Frequency to: %i", buf)
+    uint8_t rate = (uint8_t)(log(buf) / log(2) + 4);
+    if (rate > ADXL345B_BW_RATE_400) {
+        PRINT("Frequency exceeds maximum allowed frequency")
+        return;
+    }
+    if (adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, rate) == ADXL345B_NO_ERROR)
+        PRINT("Set Frequency successfully")
+    else
+        PRINT("ERROR setting Frequency")
 }
 
 _Noreturn void publishValueBatchesTask(void) {
     publishAliveStatusMessage("g-value");
 
-    communicationEndpointSubscribeRaw("START/g-value", (subscriber_t){.deliver = receiveDataStartRequest});
-    communicationEndpointSubscribeRaw("STOP/g-value", (subscriber_t){.deliver =
-                                                                      receiveDataStopRequest});
-    
+    protocolSubscribeForCommand("setFrequency",
+                                (subscriber_t){.deliver = receiveSetSensorFrequency});
+
     protocolSubscribeForDataStartRequest("g-value",
                                          (subscriber_t){.deliver = receiveDataStartRequest});
     protocolSubscribeForDataStopRequest("g-value",
@@ -378,30 +389,6 @@ void receiveDownloadBinRequest(posting_t posting) {
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
     downloadRequest->startAddress = position;
-}
-
-HttpResponse_t *getResponse(uint32_t block_number) {
-    char *blockNo = malloc(10 * sizeof(char));
-    sprintf(blockNo, "%li", block_number);
-
-    char *URL = malloc(strlen(downloadRequest->url) + 1 + strlen(blockNo));
-    strcpy(URL, downloadRequest->url);
-    strcat(URL, "/");
-    strcat(URL, blockNo);
-
-    HttpResponse_t *response = NULL;
-    CEXCEPTION_T httpException;
-    Try {
-        HTTPGet(URL, &response);
-    }
-    Catch(httpException) {
-        PRINT_DEBUG("CException in HTTPGet");
-    };
-    PRINT_DEBUG("Response Length: %li", response->length);
-
-    free(blockNo);
-    free(URL);
-    return response;
 }
 
 /* endregion PROTOTYPE IMPLEMENTATIONS */

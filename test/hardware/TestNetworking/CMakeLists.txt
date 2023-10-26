@@ -113,23 +113,6 @@ target_link_libraries(hardware-test_HTTP
 target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
 make_to_output_file(hardware-test_HTTP)
 
-################## test_HTTP-Flash ##################
-add_executable(hardware-test_HTTP-Flash HardwaretestHttpStoreToFlash.c)
-target_link_libraries(hardware-test_HTTP-Flash
-        pico_stdlib
-        freeRtosUtils
-        network_lib
-        http_lib
-        fpga_config_lib
-        hardware-testHelper
-        hardware_spi
-        spi_lib
-        flash_lib
-        middleware_lib
-        env5_lib)
-target_compile_definitions(hardware-test_HTTP-Flash PRIVATE DEBUG)
-make_to_output_file(hardware-test_HTTP-Flash)
-
 ################## test_Durability ##################
 add_executable(hardware-test_Durability HardwaretestDurability.c)
 target_link_libraries(hardware-test_Durability
