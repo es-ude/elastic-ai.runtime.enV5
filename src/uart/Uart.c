@@ -122,7 +122,7 @@ void uartFreeCommandBuffer(void) {
 
 _Noreturn void uartReceiverTask(void) {
     uartInternalCallbackUartRxInterrupt = setNewUARTInterrupt;
-    
+
     while (true) {
         if (newUARTInterrupt) {
             newUARTInterrupt = false;
