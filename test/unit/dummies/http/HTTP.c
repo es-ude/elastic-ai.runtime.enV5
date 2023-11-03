@@ -1,8 +1,8 @@
 #include "HTTP.h"
 #include "CException.h"
 #include "httpDummy.h"
-#include "malloc.h"
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 HttpResponse_t *HTTPResponse = NULL;
