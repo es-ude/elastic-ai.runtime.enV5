@@ -58,14 +58,12 @@ void tearDown(void) {
 void test_downloadViaHttpUrlCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetCheckUrl;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE,
-                                                         0x00);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE, 1);
 }
 void test_downloadViaHttpOrderCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE,
-                                                         0x00);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE, 1);
     checkFlashData(pages);
 }
 

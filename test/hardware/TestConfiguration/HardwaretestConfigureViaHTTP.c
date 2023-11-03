@@ -39,10 +39,9 @@ spi_t spiConfiguration = {
 uint8_t csPin = 1;
 
 const char *baseUrl = "http://127.0.0.1:5000";
-uint32_t blinkFast = 0x00000000;
+uint32_t blinkFast = 1;
 size_t blinkFastLength = 86116;
-// uint32_t blinkSlow = 0x00045200;
-uint32_t blinkSlow = 0x00000000;
+uint32_t blinkSlow = 1;
 size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
@@ -94,10 +93,10 @@ void readConfiguration(bool useFast) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = blinkFast;
+        startAddress = (blinkFast - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
     } else {
-        startAddress = blinkSlow;
+        startAddress = (blinkSlow - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
     }
 
@@ -114,10 +113,10 @@ void verifyConfiguration(bool useFast) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = blinkFast;
+        startAddress = (blinkFast - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
     } else {
-        startAddress = blinkSlow;
+        startAddress = (blinkSlow - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
     }
 
@@ -141,8 +140,8 @@ void verifyConfiguration(bool useFast) {
         page++;
     } while (page < numberOfPages);
 }
-void configureFpga(uint32_t startAddress) {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationFlashFpga(startAddress);
+void configureFpga(uint32_t sectorID) {
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationFlashFpga(sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Reconfiguration failed! (0x%02X)", error)
         return;

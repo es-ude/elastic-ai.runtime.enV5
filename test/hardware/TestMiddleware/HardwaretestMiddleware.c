@@ -38,8 +38,7 @@ spi_t spiConfiguration = {
 uint8_t csPin = 1;
 
 char baseUrl[] = "http://127.0.0.1:5000/getecho";
-size_t configSize = 219412;
-uint32_t configStartAddress = 0x00000000;
+uint32_t sectorIdForConfig = 1;
 
 static void initHardware(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
@@ -66,7 +65,7 @@ static void downloadBinFile(void) {
 
     PRINT("Downloading HW configuration...")
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(configStartAddress);
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!")
