@@ -18,14 +18,14 @@
 #include "Spi.h"
 #include "enV5HwController.h"
 
-networkCredentials_t networkCredentials = {.ssid = "FRITZ!Box_Cable_Federl",
-                                           .password = "oLJ\\\"xhhF5j_$#8}z+ST{"};
+/* ES-Stud config */
+networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-const char *baseUrl = "http://192.168.178.24:5000";
+const char *baseUrl = "http://127.0.0.27:5000";
 uint32_t blinkFast = 0x00000000;
 size_t blinkFastLength = 86116;
 // uint32_t blinkSlow = 0x00045200;
