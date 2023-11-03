@@ -31,47 +31,49 @@
 #include "enV5HwController.h"
 #include "middleware.h"
 
-static networkCredentials_t networkCredentials = {.ssid = "ES-Stud", .password = "curjeq343j"};
+static networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-char baseUrl[] = "http://192.168.203.99:5000/getecho";
+char baseUrl[] = "http://127.0.0.1:5000/getecho";
 size_t configSize = 219412;
 uint32_t configStartAddress = 0x00000000;
 
+static void initHardware(void) {
+    // Should always be called first thing to prevent unique behavior, like current leakage
+    env5HwInit();
+
+    /* Always release flash after use:
+     *   -> FPGA and MCU share the bus to flash-memory.
+     * Make sure this is only enabled while FPGA does not use it and release after use before
+     * powering on, resetting or changing the configuration of the FPGA.
+     * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
+     */
+    flashInit(&spiConfiguration, csPin);
+
+    // initialize the serial output
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
+}
 static void downloadBinFile(void) {
     espInit();
+    PRINT("Try Connecting to WiFi")
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
 
     PRINT("Downloading HW configuration...")
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        baseUrl, configSize, configStartAddress);
+    fpgaConfigurationHandlerError_t error =
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(configStartAddress);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!")
             sleep_for_ms(3000);
         }
     }
-}
-static void initHardware(void) {
-    // should always be called first thing to prevent unique behavior, like current leakage
-    env5HwInit();
-
-    // Always release flash after use.
-    // FPGA and MCU share the bus to flash-memory.
-    // Make sure this is only enabled while FPGA does not use it and
-    // release after use before powering on,
-    // resetting or changing the configuration of the FPGA.
-    // FPGA needs that bus during reconfiguration and only during reconfiguration.
-    flashInit(&spiConfiguration, csPin);
-
-    // initialize the serial output
-    stdio_init_all();
-    // wait for serial connection
-    while ((!stdio_usb_connected())) {}
-    sleep_for_ms(500);
+    PRINT("Download Successful.")
 }
 
 static void getId(void) {
@@ -79,10 +81,7 @@ static void getId(void) {
     PRINT("ID: 0x%02X", id)
 }
 
-int main() {
-    initHardware();
-    //    downloadBinFile();
-
+_Noreturn static void runTest() {
     PRINT("===== START TEST =====")
     while (1) {
         char c = getchar_timeout_us(UINT32_MAX);
@@ -112,10 +111,10 @@ int main() {
             middlewareUserlogicDisable();
             PRINT("Userlogic disabled")
         case 'L':
-            middlewareSetFpgaLeds(0xFF);
+            middlewareSetFpgaLeds(0xFF); // ON
             break;
         case 'l':
-            middlewareSetFpgaLeds(0x00);
+            middlewareSetFpgaLeds(0x00); // OFF
             break;
         case 'd':
             getId();
@@ -130,4 +129,10 @@ int main() {
             PRINT("Waiting ...")
         }
     }
+}
+
+int main() {
+    initHardware();
+    downloadBinFile();
+    runTest();
 }

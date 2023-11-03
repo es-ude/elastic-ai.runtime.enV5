@@ -1,5 +1,15 @@
-// TODO: Improve stability
-//       -> when generating a lot of output between downloads of config files it works!!
+/* IMPORTANT: This script is for test-purposes only, because it lacks reliability!
+ *
+ * NOTE: To run this test, a python script, that transmits the requested binary file is required.
+ *       This script can be started by running the `BinfileFlasher.py` script
+ *       in the `bitfile_scripts` folder.
+ *       To run this script all other serial connections (USB) to the enV5 device have to be
+ *       closed.
+ *
+ * NOTE: If you update the binary files used in this test, you have to update the `configSize` field
+ *       with the correct size of the file in bytes.
+ *       This size can be determined by running `du -b <path_to_file>`.
+ */
 
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 

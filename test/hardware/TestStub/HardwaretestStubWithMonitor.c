@@ -1,4 +1,11 @@
-#define SOURCE_FILE "HWTEST-MIDDLEWARE"
+/* IMPORTANT: This program only works with the logic design with middleware!
+ *
+ * IMPORTANT: To reach access the wifi-network the network credentials have to be updated!
+ *
+ * NOTE: To run this test, the monitor is required!
+ */
+
+#define SOURCE_FILE "HWTEST-STUB"
 
 #include "Common.h"
 #include "Esp.h"
@@ -37,25 +44,29 @@ uint8_t csPin = 1;
 uint32_t configStartAddress = 0x00000000;
 
 static void initHardware() {
+    // Should always be called first thing to prevent unique behavior, like current leakage
+    env5HwInit();
+
+    // Connect to Wi-Fi network and MQTT Broker
+    espInit();
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
+
+    /* Always release flash after use:
+     *   -> FPGA and MCU share the bus to flash-memory.
+     * Make sure this is only enabled while FPGA does not use it and release after use before
+     * powering on, resetting or changing the configuration of the FPGA.
+     * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
+     */
+    flashInit(&spiConfiguration, csPin);
+    fpgaConfigurationHandlerInitialize();
+    env5HwFpgaPowersOff();
+
     // initialize the serial output
     stdio_init_all();
     while ((!stdio_usb_connected())) {
         // wait for serial connection
     }
-
-    // connect to Wi-Fi network
-    espInit();
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
-
-    // enable QXI interface to the FPGA
-    middlewareInit();
-
-    // initialize the Flash and FPGA
-    flashInit(&spiConfiguration, csPin);
-    env5HwInit();
-    fpgaConfigurationHandlerInitialize();
-    env5HwFpgaPowersOff();
 }
 
 _Noreturn static void runTest() {
@@ -70,7 +81,6 @@ _Noreturn static void runTest() {
     }
 
     while (true) {
-
         if (flashing) {
             freeRtosTaskWrapperTaskSleep(500);
             continue;
@@ -115,22 +125,21 @@ void receiveDownloadBinRequest(posting_t posting) {
     downloadRequest->startAddress = position;
 }
 
+/* What this function does:
+ *   - add listener for download start command (MQTT)
+ *      uart handle should only set flag -> download handled at task
+ *   - download data from server and stored to flash
+ *   - add listener for FPGA flashing command
+ *   - trigger flash of FPGA
+ *      handled in UART interrupt
+ */
 _Noreturn void fpgaTask(void) {
-    /* What this function does:
-     *   - add listener for download start command (MQTT)
-     *      uart handle should only set flag -> download handled at task
-     *   - download data from server and stored to flash
-     *   - add listener for FPGA flashing command
-     *   - trigger flash of FPGA
-     *      handled in UART interrupt
-     */
-
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
     publishAliveStatusMessage("");
-    PRINT("FPGA Ready ...")
 
-    while (1) {
+    PRINT("FPGA Ready ...")
+    while (true) {
         if (downloadRequest == NULL) {
             freeRtosTaskWrapperTaskSleep(1000);
             continue;
@@ -156,6 +165,7 @@ _Noreturn void fpgaTask(void) {
         downloadRequest = NULL;
         PRINT("Download finished!")
 
+        PRINT("Try reconfigure FPGA")
         if (configError != FPGA_RECONFIG_NO_ERROR) {
             protocolPublishCommandResponse("FLASH", false);
             PRINT("ERASE ERROR")
@@ -164,7 +174,7 @@ _Noreturn void fpgaTask(void) {
             env5HwFpgaPowersOn();
             freeRtosTaskWrapperTaskSleep(500);
             if (!echo_server_deploy()) {
-                    PRINT("Deploy failed!")
+                PRINT("Deploy failed!")
             }
             flashing = false;
             PRINT("FPGA reconfigured")

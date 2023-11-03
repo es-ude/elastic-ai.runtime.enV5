@@ -1,3 +1,16 @@
+/* IMPORTANT: To reach access the wifi-network the network credentials have to be updated!
+ *
+ * NOTE: To run this test, a server that serves the HTTPGet request is required.
+ *       This server can be started by running the `HW-Test_Webserver.py` script
+ *       in the `bitfile_scripts` folder.
+ *       After starting the server, it shows an IP-address where it can be reached.
+ *       This IP address needs to be used for the `baseUrl` field.
+ *
+ * NOTE: If you update the binary files used in this test, you have to update the `configSize` field
+ *       with the correct size of the file in bytes.
+ *       This size can be determined by running `du -b <path_to_file>`.
+ */
+
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 
 #include <malloc.h>
@@ -25,7 +38,7 @@ spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-const char *baseUrl = "http://127.0.0.27:5000";
+const char *baseUrl = "http://127.0.0.1:5000";
 uint32_t blinkFast = 0x00000000;
 size_t blinkFastLength = 86116;
 // uint32_t blinkSlow = 0x00045200;

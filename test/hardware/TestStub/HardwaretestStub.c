@@ -13,7 +13,7 @@
  *       This size can be determined by running `du -b <path_to_file>`.
  */
 
-#define SOURCE_FILE "HWTEST-MIDDLEWARE"
+#define SOURCE_FILE "HWTEST-STUB"
 
 #include "Common.h"
 #include "Esp.h"
@@ -23,7 +23,6 @@
 #include "Sleep.h"
 #include "echo_server.h"
 #include "enV5HwController.h"
-#include "middleware.h"
 
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
@@ -32,41 +31,40 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static networkCredentials_t networkCredentials = {.ssid = "ES-Stud", .password = "curjeq343j"};
+static networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-char baseUrl[] = "http://192.168.203.99:5000/getecho";
-size_t configSize = 219412;
+char baseUrl[] = "http://127.0.0.1:5000/getecho";
 uint32_t configStartAddress = 0x00000000;
+size_t configSize = 219412;
 
 static void initHardware() {
-    // should always be called first thing to prevent unique behavior, like current leakage
+    // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
 
-    // Always release flash after use.
-    // FPGA and MCU share the bus to flash-memory.
-    // Make sure this is only enabled while FPGA does not use it and
-    // release after use before powering on,
-    // resetting or changing the configuration of the FPGA.
-    // FPGA needs that bus during reconfiguration and only during reconfiguration.
+    /* Always release flash after use:
+     *   -> FPGA and MCU share the bus to flash-memory.
+     * Make sure this is only enabled while FPGA does not use it and release after use before
+     * powering on, resetting or changing the configuration of the FPGA.
+     * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
+     */
     flashInit(&spiConfiguration, csPin);
 
     // initialize the serial output
     stdio_init_all();
-    // wait for serial connection
-    while ((!stdio_usb_connected())) {}
-}
-
-static void connectToWifi() {
-    espInit();
-    PRINT("Try Connecting to WiFi")
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
 }
 
 static void loadConfigToFlashViaUSB() {
+    espInit();
+    PRINT("Try Connecting to WiFi")
+    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+
     PRINT("Downloading HW configuration...")
     fpgaConfigurationHandlerError_t error =
         fpgaConfigurationHandlerDownloadConfigurationViaUsb(configStartAddress);
@@ -76,7 +74,7 @@ static void loadConfigToFlashViaUSB() {
             sleep_ms(3000);
         }
     }
-    PRINT("done.")
+    PRINT("Download Successful.")
 }
 static void loadConfigToFlashViaHttp() {
     PRINT("Downloading HW configuration...")
@@ -88,47 +86,42 @@ static void loadConfigToFlashViaHttp() {
             sleep_for_ms(3000);
         }
     }
-    PRINT("done.")
+    PRINT("Download Successful.")
 }
 
 static void deployConfig() {
+    // triggers automatic reconfiguration from address 0x00000000
     env5HwFpgaPowersOn();
     sleep_ms(1000);
-    //    bool deploySuccessful = echo_server_deploy();
-    //    if (!deploySuccessful) {
-    //        while (true) {
-    //            PRINT("Deploy failed!")
-    //            sleep_for_ms(3000);
-    //        }
-    //    }
 }
 
-static void runTest() {
+_Noreturn static void runTest() {
     env5HwLedsAllOn();
-    for (int8_t counter = 0; counter < 10; counter++) {
-        int32_t in_value = 1 << 18;
-        in_value = counter + in_value;
-        PRINT("Calling HW function with 0x%08lX, %li", in_value, in_value)
-        int32_t return_val = echo_server_echo(in_value);
-        PRINT("HW function returned 0x%08lX, %li", return_val, return_val)
+    while (true) {
+        for (int8_t counter = 0; counter < 10; counter++) {
+            int32_t in_value = 1 << 18;
+            in_value = counter + in_value;
+            PRINT("Calling HW function with 0x%08lX, %li", in_value, in_value)
+            int32_t return_val = echo_server_echo(in_value);
+            PRINT("HW function returned 0x%08lX, %li", return_val, return_val)
 
-        if (return_val == in_value + counter) {
-            env5HwLedsAllOff();
+            if (return_val == in_value + counter) {
+                env5HwLedsAllOff();
+                sleep_for_ms(500);
+            }
+            env5HwLedsAllOn();
             sleep_for_ms(500);
         }
-        env5HwLedsAllOn();
-        sleep_for_ms(500);
     }
 }
 
 int main() {
     initHardware();
-    //    connectToWifi();
-    //    loadConfigToFlashViaHttp();
+
+    // either use WiFi or USB!!
+    loadConfigToFlashViaHttp();
     //    loadConfigToFlashViaUSB();
+
     deployConfig();
-
     runTest();
-
-    while (true) {}
 }
