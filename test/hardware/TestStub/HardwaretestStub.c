@@ -13,13 +13,7 @@
  *       This size can be determined by running `du -b <path_to_file>`.
  */
 
-#define SOURCE_FILE "MIDDLEWARE-HWTEST"
-
-#include <stdint.h>
-
-#include "hardware/spi.h"
-#include "pico/stdio.h"
-#include "pico/stdio_usb.h"
+#define SOURCE_FILE "HWTEST-STUB"
 
 #include "Common.h"
 #include "Esp.h"
@@ -27,9 +21,15 @@
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
 #include "Sleep.h"
-#include "Spi.h"
+#include "echo_server.h"
 #include "enV5HwController.h"
-#include "middleware.h"
+
+#include <hardware/spi.h>
+#include <pico/stdlib.h>
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 static networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
 
@@ -38,10 +38,10 @@ spi_t spiConfiguration = {
 uint8_t csPin = 1;
 
 char baseUrl[] = "http://127.0.0.1:5000/getecho";
-size_t configSize = 219412;
 uint32_t configStartAddress = 0x00000000;
+size_t configSize = 219412;
 
-static void initHardware(void) {
+static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
 
@@ -59,7 +59,8 @@ static void initHardware(void) {
         // wait for serial connection
     }
 }
-static void downloadBinFile(void) {
+
+static void loadConfigToFlashViaUSB() {
     espInit();
     PRINT("Try Connecting to WiFi")
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
@@ -70,69 +71,57 @@ static void downloadBinFile(void) {
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!")
+            sleep_ms(3000);
+        }
+    }
+    PRINT("Download Successful.")
+}
+static void loadConfigToFlashViaHttp() {
+    PRINT("Downloading HW configuration...")
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        baseUrl, configSize, configStartAddress);
+    if (error != FPGA_RECONFIG_NO_ERROR) {
+        while (true) {
+            PRINT("Download failed!")
             sleep_for_ms(3000);
         }
     }
     PRINT("Download Successful.")
 }
 
-static void getId(void) {
-    uint8_t id = middlewareGetDesignId();
-    PRINT("ID: 0x%02X", id)
+static void deployConfig() {
+    // triggers automatic reconfiguration from address 0x00000000
+    env5HwFpgaPowersOn();
+    sleep_ms(1000);
 }
 
 _Noreturn static void runTest() {
-    PRINT("===== START TEST =====")
-    while (1) {
-        char c = getchar_timeout_us(UINT32_MAX);
+    env5HwLedsAllOn();
+    while (true) {
+        for (int8_t counter = 0; counter < 10; counter++) {
+            int32_t in_value = 1 << 18;
+            in_value = counter + in_value;
+            PRINT("Calling HW function with 0x%08lX, %li", in_value, in_value)
+            int32_t return_val = echo_server_echo(in_value);
+            PRINT("HW function returned 0x%08lX, %li", return_val, return_val)
 
-        switch (c) {
-        case 'P':
-            env5HwFpgaPowersOn();
-            PRINT("FPGA powered ON")
-            break;
-        case 'p':
-            env5HwFpgaPowersOff();
-            PRINT("FPGA powered OFF")
-            break;
-        case 'I':
-            middlewareInit();
-            PRINT("INIT")
-            break;
-        case 'i':
-            middlewareDeinit();
-            PRINT("DEINIT")
-            break;
-        case 'U':
-            middlewareUserlogicEnable();
-            PRINT("Userlogic enabled")
-            break;
-        case 'u':
-            middlewareUserlogicDisable();
-            PRINT("Userlogic disabled")
-        case 'L':
-            middlewareSetFpgaLeds(0xFF); // ON
-            break;
-        case 'l':
-            middlewareSetFpgaLeds(0x00); // OFF
-            break;
-        case 'd':
-            getId();
-            break;
-        case 'r':
-            // TODO: run reconfigure test
-            break;
-        case 't':
-            // TODO: run receive data test
-            break;
-        default:
-            PRINT("Waiting ...")
+            if (return_val == in_value + counter) {
+                env5HwLedsAllOff();
+                sleep_for_ms(500);
+            }
+            env5HwLedsAllOn();
+            sleep_for_ms(500);
         }
     }
 }
 
 int main() {
     initHardware();
-    downloadBinFile();
+
+    // either use WiFi or USB!!
+    loadConfigToFlashViaHttp();
+    //    loadConfigToFlashViaUSB();
+
+    deployConfig();
     runTest();
 }

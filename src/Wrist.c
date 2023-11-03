@@ -225,12 +225,12 @@ _Noreturn void getGValueTask(void) {
 }
 
 _Noreturn void fpgaTask(void) {
-    /* NOTE:
-     *   1. add listener for download start command (MQTT)
+    /* What this function does:
+     *   - add listener for download start command (MQTT)
      *      uart handle should only set flag -> download handled at task
-     *   2. download data from server and stored to flash
-     *   4. add listener for FPGA flashing command
-     *   5. trigger flash of FPGA
+     *   - download data from server and stored to flash
+     *   - add listener for FPGA flashing command
+     *   - trigger flash of FPGA
      *      handled in UART interrupt
      */
 
@@ -370,6 +370,7 @@ void publishGValueBatch(char *dataID) {
 }
 
 void receiveDownloadBinRequest(posting_t posting) {
+    PRINT("RECEIVED FLASH REQUEST")
     // get download request
     char *urlStart = strstr(posting.data, "URL:") + 4;
     char *urlEnd = strstr(urlStart, ";") - 1;

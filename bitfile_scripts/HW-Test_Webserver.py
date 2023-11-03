@@ -14,8 +14,8 @@ def read_slice(position: int, filename: str) -> bytes:
     with open(filename, "rb") as file:
         file.seek(position * bytes_per_request, 0)
         chunk: bytes = file.read(bytes_per_request)
-        print(f"Chunk {position}:")
-        print_bytearray(chunk)
+        # print(f"Chunk {position}:")
+        # print_bytearray(chunk)
     return chunk
 
 
@@ -26,7 +26,7 @@ def get_file_fast(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/blink_fast/led_test.bin")
+        read_slice(int(position), "bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin")
     )
     buffer.seek(0)
     return send_file(
@@ -44,7 +44,25 @@ def get_file_slow(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/blink_slow/led_test.bin")
+        read_slice(int(position), "bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin")
+    )
+    buffer.seek(0)
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="bitfile.bin",
+        mimetype="application/octet-stream",
+    )
+
+
+@app.route("/getecho/<position>")
+def get_file_echo(position: str):
+    """
+    Using positional arguments as parameter did not work!
+    """
+    buffer = BytesIO()
+    buffer.write(
+        read_slice(int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_echoserver.bin")
     )
     buffer.seek(0)
     return send_file(
