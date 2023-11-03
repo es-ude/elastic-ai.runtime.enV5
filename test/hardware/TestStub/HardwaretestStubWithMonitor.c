@@ -31,7 +31,7 @@
 typedef struct downloadRequest {
     char *url;
     size_t fileSizeInBytes;
-    size_t startAddress;
+    size_t startSectorId;
 } downloadRequest_t;
 downloadRequest_t *downloadRequest = NULL;
 
@@ -41,7 +41,7 @@ spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-uint32_t configStartAddress = 0x00000000;
+uint32_t sectorIdForConfig = 1;
 
 static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
@@ -122,7 +122,7 @@ void receiveDownloadBinRequest(posting_t posting) {
     downloadRequest = malloc(sizeof(downloadRequest_t));
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
-    downloadRequest->startAddress = position;
+    downloadRequest->startSectorId = position;
 }
 
 /* What this function does:
@@ -151,13 +151,13 @@ _Noreturn void fpgaTask(void) {
         env5HwFpgaPowersOff();
 
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
-                    downloadRequest->startAddress, downloadRequest->url,
+                    downloadRequest->startSectorId, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
 
         fpgaConfigurationHandlerError_t configError =
             fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
                                                                  downloadRequest->fileSizeInBytes,
-                                                                 downloadRequest->startAddress);
+                                                                 downloadRequest->startSectorId);
 
         // clean artifacts
         free(downloadRequest->url);

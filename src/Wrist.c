@@ -50,7 +50,7 @@ char *twinID;
 typedef struct downloadRequest {
     char *url;
     size_t fileSizeInBytes;
-    size_t startAddress;
+    size_t startSectorId;
 } downloadRequest_t;
 downloadRequest_t *downloadRequest = NULL;
 
@@ -248,13 +248,13 @@ _Noreturn void fpgaTask(void) {
         env5HwFpgaPowersOff();
 
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
-                    downloadRequest->startAddress, downloadRequest->url,
+                    downloadRequest->startSectorId, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
 
         fpgaConfigurationHandlerError_t configError =
             fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
                                                                  downloadRequest->fileSizeInBytes,
-                                                                 downloadRequest->startAddress);
+                                                                 downloadRequest->startSectorId);
 
         // clean artifacts
         free(downloadRequest->url);
@@ -389,7 +389,7 @@ void receiveDownloadBinRequest(posting_t posting) {
     downloadRequest = malloc(sizeof(downloadRequest_t));
     downloadRequest->url = url;
     downloadRequest->fileSizeInBytes = length;
-    downloadRequest->startAddress = position;
+    downloadRequest->startSectorId = position;
 }
 
 /* endregion PROTOTYPE IMPLEMENTATIONS */

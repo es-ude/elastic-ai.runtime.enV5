@@ -38,7 +38,7 @@ uint8_t csPin = 1;
 
 char baseUrl[] = "http://192.168.203.99:5000/getfast";
 size_t configSize = 86116;
-uint32_t configStartAddress = 0x00000000;
+uint32_t sectorIdForConfig = 0x00000000;
 
 static void initHardware() {
     // initialize the serial output
@@ -58,7 +58,7 @@ static void initHardware() {
 }
 static void loadConfigToFlash() {
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        baseUrl, configSize, configStartAddress);
+        baseUrl, configSize, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!")
