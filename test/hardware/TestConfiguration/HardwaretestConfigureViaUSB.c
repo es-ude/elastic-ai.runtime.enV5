@@ -32,10 +32,9 @@ spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-uint32_t blinkFast = 0x00000000;
+uint32_t blinkFast = 1;
 size_t blinkFastLength = 86116;
-// uint32_t blinkSlow = 0x00045200;
-uint32_t blinkSlow = 0x00000000;
+uint32_t blinkSlow = 1;
 size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
@@ -52,15 +51,15 @@ void initHardwareTest(void) {
 }
 
 void downloadConfiguration(bool useFast) {
-    uint32_t startAddress;
+    uint32_t sectorID;
     if (useFast) {
-        startAddress = blinkFast;
+        sectorID = blinkFast;
     } else {
-        startAddress = blinkSlow;
+        sectorID = blinkSlow;
     }
 
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(startAddress);
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Error 0x%02X occurred during download.", error)
         return;
@@ -71,10 +70,10 @@ void readConfiguration(bool useFast) {
     size_t numberOfPages = 1, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = blinkFast;
+        startAddress = (blinkFast - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
     } else {
-        startAddress = blinkSlow;
+        startAddress = (blinkSlow - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
     }
 
@@ -92,10 +91,10 @@ void verifyConfiguration(bool useFast) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = blinkFast;
+        startAddress = (blinkFast - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkFastLength / FLASH_BYTES_PER_PAGE);
     } else {
-        startAddress = blinkSlow;
+        startAddress = (blinkSlow - 1) * FLASH_BYTES_PER_SECTOR;
         numberOfPages = (size_t)ceilf((float)blinkSlowLength / FLASH_BYTES_PER_PAGE);
     }
 
@@ -119,8 +118,8 @@ void verifyConfiguration(bool useFast) {
         page++;
     } while (page < numberOfPages);
 }
-void configureFpga(uint32_t startAddress) {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationFlashFpga(startAddress);
+void configureFpga(uint32_t sectorID) {
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationFlashFpga(sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Reconfiguration failed! (0x%02X)", error)
         return;

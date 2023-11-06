@@ -17,11 +17,13 @@
 
 fpgaConfigurationHandlerError_t
 fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t length,
-                                                     uint32_t startAddress) {
+                                                     uint32_t sectorID) {
     CEXCEPTION_T exception;
 
     HttpResponse_t *httpResponse = NULL;
     char *url = NULL;
+
+    uint32_t startAddress = (sectorID - 1) * FLASH_BYTES_PER_SECTOR;
 
     size_t numberOfSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
     size_t sector = 0;

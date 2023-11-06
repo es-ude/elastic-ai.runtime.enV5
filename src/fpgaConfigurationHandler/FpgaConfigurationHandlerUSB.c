@@ -36,13 +36,13 @@
 /* region PUBLIC FUNCTION IMPLEMENTATIONS */
 
 fpgaConfigurationHandlerError_t
-fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t startAddress) {
+fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t sectorID) {
     stdio_usb_init();
     while (!stdio_usb_connected()) {}
 
     fpgaConfigurationHandlerWaitForStartRequest();
     uint32_t totalLength = fpgaConfigurationHandlerGetFileLength();
-    fpgaConfigurationHandlerGetChunks(totalLength, startAddress);
+    fpgaConfigurationHandlerGetChunks(totalLength, (sectorID - 1) * FLASH_BYTES_PER_SECTOR);
 
     printf("o");
     return FPGA_RECONFIG_NO_ERROR;
