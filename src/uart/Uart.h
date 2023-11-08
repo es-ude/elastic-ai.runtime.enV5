@@ -74,4 +74,11 @@ bool uartCorrectResponseArrived(void);
  */
 void uartFreeCommandBuffer(void);
 
+/*! \brief FreeRTOS task to handle UART Rx
+ *
+ *  IMPORTANT: Has to be registered as a FreeRTOS TASK
+ *  After the initialization, this task handles the UART receive logic outside of the interrupt.
+ */
+_Noreturn void uartReceiverTask(void);
+
 #endif /* ENV5_UART_HEADER */

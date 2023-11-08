@@ -1,8 +1,9 @@
+#include <sys/cdefs.h>
 #define SOURCE_FILE "UART-TO-ESP"
 
-#include "Uart.h"
 #include "Common.h"
 #include "Gpio.h"
+#include "Uart.h"
 #include "UartInternal.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
@@ -24,6 +25,9 @@ static char *uartExpectedResponseFromEsp = "\0";
 
 void (*uartMqttBrokerReceive)(char *) = NULL;
 void (*uartHTTPReceive)(char *) = NULL;
+
+void (*uartInternalCallbackUartRxInterrupt)(void);
+bool newUARTInterrupt = false;
 
 /* endregion  VARIABLES*/
 
@@ -58,6 +62,7 @@ void uartInit(uartDevice_t *device) {
     // Turn off FIFO's - we want to do this character by character
     uart_set_fifo_enabled((uart_inst_t *)uartDevice->uartInstance, false);
 
+    uartInternalCallbackUartRxInterrupt = checkAndHandleNewChar;
     // And set up and enable the interrupt handlers
     irq_set_exclusive_handler(UART1_IRQ, uartInternalCallbackUartRxInterrupt);
     irq_set_enabled(UART1_IRQ, true);
@@ -115,9 +120,24 @@ void uartFreeCommandBuffer(void) {
     uartCommandToSend = "\0";
 }
 
+_Noreturn void uartReceiverTask(void) {
+    uartInternalCallbackUartRxInterrupt = setNewUARTInterrupt;
+
+    while (true) {
+        if (newUARTInterrupt) {
+            newUARTInterrupt = false;
+            uartInternalCallbackUartRxInterrupt();
+        }
+    }
+}
+
 /* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
+
+void setNewUARTInterrupt(void) {
+    newUARTInterrupt = true;
+}
 
 /*! IMPORTANT: Don't use print statements for debugging!!
  *             Print statements will cause timing/buffer issues
@@ -127,7 +147,6 @@ void uartInternalHandleNewLine(void) {
         PRINT_DEBUG("Empty Buffer")
         return;
     }
-
     if (strncmp("+MQTTSUBRECV", uartDevice->receiveBuffer, 12) == 0) {
         // handle Received MQTT message -> pass to correct subscriber
         if (uartMqttBrokerReceive != NULL) {
@@ -153,7 +172,7 @@ void uartInternalHandleNewLine(void) {
 /*! IMPORTANT: Don't use print statements for debugging!!
  *             Print statements will cause timing/buffer issues
  */
-void uartInternalCallbackUartRxInterrupt() {
+void checkAndHandleNewChar(void) {
     while (uart_is_readable((uart_inst_t *)uartDevice->uartInstance)) {
         char receivedCharacter = uart_getc((uart_inst_t *)uartDevice->uartInstance);
 
@@ -167,7 +186,7 @@ void uartInternalCallbackUartRxInterrupt() {
             uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
 
             uartHttpResponseLength--;
-            continue;
+            return;
         }
         if (!uartCurrentMessageIsHttpResponse && uartAwaitingHttpGet > 0 &&
             receivedCharacter == ',') {
@@ -190,7 +209,7 @@ void uartInternalCallbackUartRxInterrupt() {
             // reset response buffer
             uartDevice->receivedCharacter_count = 0;
             uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = '\0';
-            continue;
+            return;
         } else if (receivedCharacter == '\r') {
             uartLastReceivedCharacterWasReturn = true;
         } else {
