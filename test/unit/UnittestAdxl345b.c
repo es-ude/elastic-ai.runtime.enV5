@@ -1,5 +1,5 @@
 #include "Adxl345b.h"
-#include "i2c/I2cUnitTest.h"
+#include "I2cUnitTest.h"
 #include <unity.h>
 
 void setUp(void) {

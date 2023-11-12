@@ -2,7 +2,7 @@
 // Created by David P. Federl
 //
 
-#include "Gpio.h"
+#include "include/Gpio.h"
 
 gpioErrorCode_t gpioInitPin(gpioPin_t pin, gpioDirection_t direction) {
     /* Just here to satisfy the compiler */

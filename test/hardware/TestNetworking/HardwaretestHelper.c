@@ -6,11 +6,13 @@
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
-#include "NetworkConfiguration.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "password"};
+mqttBrokerHost_t mqttHost = {.ip = "0.0.0.0", .port = "1883", .userID = "", .password = ""};
 
 void connectToNetwork(void) {
     networkTryToConnectToNetworkUntilSuccessful(networkCredentials);

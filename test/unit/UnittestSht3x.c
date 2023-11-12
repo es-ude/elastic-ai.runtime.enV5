@@ -1,5 +1,5 @@
 #include "Sht3x.h"
-#include "i2c/I2cUnitTest.h"
+#include "I2cUnitTest.h"
 #include "unity.h"
 
 void setUp(void) {

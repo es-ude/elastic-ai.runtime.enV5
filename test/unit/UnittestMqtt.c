@@ -1,8 +1,9 @@
 #include "CException.h"
 #include "Esp.h"
 #include "MqttBroker.h"
-#include "esp/EspUnitTest.h"
-#include <unity.h>
+#include "EspUnitTest.h"
+
+#include "unity.h"
 
 mqttBrokerHost_t mqttHost = {
     .ip = "127.0.0.1", .port = "1883", .userID = "user", .password = "password"};

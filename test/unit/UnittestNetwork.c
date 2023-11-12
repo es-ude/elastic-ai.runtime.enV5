@@ -1,6 +1,7 @@
 #include "Esp.h"
+#include "EspUnitTest.h"
 #include "Network.h"
-#include "esp/EspUnitTest.h"
+
 #include "unity.h"
 
 networkCredentials_t credentials = {.ssid = "SSID", .password = "password"};

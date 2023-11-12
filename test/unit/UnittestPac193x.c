@@ -1,5 +1,6 @@
 #include "Pac193x.h"
-#include "i2c/I2cUnitTest.h"
+#include "I2cUnitTest.h"
+
 #include <stdint.h>
 #include <string.h>
 #include <unity.h>
