@@ -3,7 +3,6 @@
 #include "include/Spi.h"
 #include "include/SpiTypedefs.h"
 
-
 void spiInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
     // Just here to satisfy the compiler
 }

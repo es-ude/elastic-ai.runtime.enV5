@@ -2,8 +2,8 @@
 
 #include "include/middleware.h"
 #include "Gpio.h"
-#include "enV5HwController.h"
 #include "Qxi.h"
+#include "enV5HwController.h"
 
 #include <stdbool.h>
 #include <stdint.h>

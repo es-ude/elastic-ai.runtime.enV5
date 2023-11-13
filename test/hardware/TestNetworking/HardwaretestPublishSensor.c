@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
@@ -11,7 +12,6 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "Adxl345b.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
