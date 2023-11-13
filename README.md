@@ -7,24 +7,29 @@ Elastic AI implementation for the Elastic Node version 5 (enV5).
 
 ## Setup
 
-For compiling the project the tools are:
+For compiling the project, the required tools are:
 
-- required:
-  - gcc (local C compiler)
-  - arm-non-eabi-gcc (C compiler for Target device)
-  - CMake (Build Script Generator)
-  - Ninja (Build Tool)
-- recommended:
-  - pre-commit
+- gcc (local C compiler)
+- arm-non-eabi-gcc (C compiler for RP2040)
+- CMake (Build Script Generator)
+- Ninja (Build Tool)
+
+We recommended pre-commit to check that the commit message align with the conventional commit mesage standard.
 
 > You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script
 > in the project [root directory](.).
 
-First you need to load CMake once, if you use the CLion IDE as recommended, the IDE does that for you.
-If you want to do this by yourself please refer to [CMake Profiles](#cmake-profiles).
+After pulling the repository, you are required to download all submodules (see [Submodules](#submodules)).
+This can be archived by executing 
+```bash
+git submodule update --init --recursive
+```
 
-To run the FPGA related flash scripts it is recommended to create a local virtual Python environment and install the
-tool from the [requirements.txt](bitfile_scripts/requirements.txt).
+First you need to load CMake once, if you use the CLion IDE as recommended, the IDE does that for you.
+If you want to do this by yourself, please refer to [CMake Profiles](#cmake-profiles).
+
+To run the FPGA related flash scripts, it is recommended to create a local virtual Python environment and install the
+tools from the [requirements.txt](bitfile_scripts/requirements.txt) file.
 
 ### CMake Profiles
 
@@ -47,17 +52,7 @@ cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OF
 ```
 
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
-If this flag is not passed CMake will use the default build tool on your machine (mostly Makefiles).
-
-### Configuration
-
-In the [NetworkConfiguration.h](src/NetworkConfiguration.h) file the Network and MQTT connection settings are stored.
-You have to change these values to allow the system to work with your environment.
-To stop changes in these files to be staged and accidentally pushing your secrets to GitHub you should exclude them:
-
-```bash
-git update-index --assume-unchanged src/NetworkConfiguration.h
-```
+If this flag is not passed, CMake will use the default build tool on your machine (mostly Makefiles).
 
 ## Target local machine
 
@@ -93,16 +88,6 @@ cmake --build build/release -j 4
 
 The `*.uf2` files to flash the pico can than be found under the [out](./out) folder.
 
-### Build Demo
-
-The main executable ([demo.c](src/Demo.c)) can be built with:
-
-```bash
-cmake --build build/release -j 4 --target demo
-```
-
-The resulting `demo.uf2` file to flash the pico can be found under the [out](./out) folder.
-
 ### Hardware Tests
 
 The hardware tests can be build using
@@ -115,7 +100,7 @@ replacing `<test_name>` with the name of the test.
 
 The resulting `<test_name>.u2f` files to flash the pico can be found under the [out](./out) folder.
 
-### Flashing the Elastic Node V5
+### Flashing the Elastic Node version 5 (enV5)
 
 1. Press and hold 'MCU BOOT' on the Elastic Node
 2. Press 'MCU RST' on the Elastic Node
@@ -125,11 +110,10 @@ The resulting `<test_name>.u2f` files to flash the pico can be found under the [
 ### CMD line output
 
 If the pico is connected to the local machine the `printf()` statements inside the code will be redirected to the USB
-and is available as serial port output.
-This output can be read via a serial port reader like screen, minicom
-or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
+and are available as serial port output.
+This output can be read via a serial port reader like screen, minicom or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
-The following example shows how to use minicom on a Unix based system:
+The following example shows how to use minicom on a Unix-based system:
 
 ```bash
 minicom -b 115200 -o -D /dev/ttyACM0
@@ -137,8 +121,8 @@ minicom -b 115200 -o -D /dev/ttyACM0
 
 - `-b 115200` -> baud rate for connection
 - `-D /dev/ttyACM0` -> serial port
-  - differs depending on the host machine
-  - can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux / macOS)
+    - differs depending on the host machine
+    - can be found via `ls /dev/tty*` or `ls /dev/tty.*` (Linux / macOS)
 - `-o` -> disable modem initialisation
 
 ### Debug Output
@@ -147,195 +131,15 @@ To enable enhanced Debug output add the flag `-D DEBUG_OUTPUT:BOOL=ON` to the cm
 add it in the CLion CMake options).
 This enables the `PRINT_DEBUG(...)` from common.h in all targets.
 
-## MQTT Stress behavior
-
-When MQTT messages are sent to fast to the device, some message will be dropped.
-
-## FPGA Configuration
-
-### Via Elastic-ai.runtime
-
-Coming soon...
-
-### Via Python Script (deprecated)
-
-The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
-To write a file to the flash, the enV5 needs to be flashed with the hardware test `hardware-test_fpga_config` in
-[build/debug/test/hardware/TestEnv5Config](build/debug/test/hardware/TestENv5Config).
-**The Test only works on the enV5, not the SensorBoard.**
-Put the Bit- or Binfile you want to send to the Device in the
-directory [bitfile_scripts/bitfiles](bitfile_scripts/bitfiles) and execute the python
-script [BitfileFlasher.py](bitfile_scripts/BitfileFlasher.py) with the required arguments:
-
-```
-python BitfileFlasher.py --port <device_serial_port> [--baudrate <serial_baudrate>] <path_to_bitfile> <start_flash_address>
-```
-
-- `--port` [required] serial port of the device
-- `--baudrate` [optional] baudrate of serial connection
-- `$1` [required] path to bitfile
-- `$2` [required] start address of the flash, where the bitfile should be written to
-
-The python script will send the Bitfile via serial to the enV5 and verifies that it has been written correctly.
-To configure the FPGA with the new Bitfile, the FPGA has to be resetted (currently the FPGA will always reconfigure with
-the config that starts at address 0x00).
-The hardware test `hardware-test_fpga_config` can be used for this by sending the character `r` via serial to the
-device.
-
-If your board does not contain an FPGA, use the hardware test `hardware-test_config`
-in [test/hardware/TestConfiguration](test/hardware/TestConfiguration) instead to test if the Bitfile flashing is working
-correctly.
-
-### Known Problems
-
-If the script fails repeatedly it's possible that the Bitfile currently in the flash memory is defect and the FPGA
-repeatedly tries to reconfigure without success.
-The FPGA then blocks the flash until it is put into JTAG mode by shorting the 1x2 pin-header on the board, seen in the
-picture below.
-
-![](./pics/jtag_header.jpg)
-
-## Provided Sensor Libraries
-
-### Power Sensor
-
-- Type: **PAC193X**
-- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
-- Usage:
-  - Measure Power consumption of the FPGA/Flash
-  - Measure Power consumption of the Wi-Fi module
-- Provided Functionality can be found in [Pac193x.h](src/pac193x/Pac193x.h)
-
-#### Basic Usage Example
-
-```C
-#include "pac193x/Pac193x.h"
-#include "hardware/i2c.h"
-
-pac193xSensorConfiguration_t sensor = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00000011},
-    .rSense = {0.82f, 0.82f, 0, 0},
-};
-
-
-int main(void) {
-    // Initialize Sensor (ALWAYS REQUIRED)
-    pac193xErrorCode_t errorCode = pac193xInit(sensor);
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode;
-    }
-
-    // DO STUFF
-
-    // Example: Read Values from Channel
-    pac193xMeasurements_t measurements;
-    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode;
-    }
-    // ...
-
-    return 0;
-}
-```
-
-More detailed examples, on how to use this sensor, can be found
-in [HardwaretestPac193x.c](test/hardware/Sensors/HardwaretestPac193x.c).
-
-### Temperature Sensor
-
-- Type: **SHT3X**
-- [Datasheet](https://www.sensirion.com/fileadmin/user_upload/customers/sensirion/Dokumente/2_Humidity_Sensors/Datasheets/Sensirion_Humidity_Sensors_SHT3x_Datasheet_digital.pdf)
-- Usage:
-  - Measure the current temperature
-  - Measure the current humidity
-- Provided functionality can be found in [Sht3x.h](src/sht3x/Sht3x.h)
-
-#### Basic Usage Example
-
-```C
-#include "sht3x/Sht3x.h"
-#include "hardware/i2c.h"
-
-int main(void) {
-    // Initialize Sensor (ALWAYS REQUIRED)
-    sht3xErrorCode_t errorCode = sht3xInit(i2c0);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    // DO STUFF
-
-    // Example: Read Temperature and Humidity
-    float temperature, humidity;
-    errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    // ...
-
-    return 0;
-}
-
-```
-
-More detailed examples, on how to use this sensor, can be found
-in [HardwaretestSht3x.c](test/hardware/Sensors/HardwaretestSht3x.c).
-
-### Acceleration Sensor
-
-- Type: **ADXL345B**
-- [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
-- Usage:
-  - Measure the acceleration in x,y,z direction
-- Provided functionality can be found in [Adxl345b.h](src/adxl345b/Adxl345b.h)
-
-#### Basic Usage Example
-
-```C
-#include "adxl345b/Adxl345b.h"
-#include "hardware/i2c.h"
-
-int main(void) {
-    // Initialize Sensor (ALWAYS REQUIRED)
-    adxl345bErrorCode_t errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-
-    // DO STUFF
-
-    // Example: Read G value in x, y and z direction
-    float xAxis, yAxis, zAxis;
-    errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);;
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-
-    // ...
-
-    return 0;
-}
-```
-
-More detailed examples, on how to use this sensor, can be found
-in [HardwaretestADXL345b.c](test/hardware/Sensors/HardwaretestAdxl345b.c).
-
 ## Submodules
 
 Following submodules are being used
 
-[es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
-
-[FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
-
-[raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
-
-[ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
+- [es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
+- [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
+- [FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
+- [ThrowTheSwitch/CExcpetion](https://github.com/ThrowTheSwitch/CException)
+- [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
 
 ## Troubleshooting
 

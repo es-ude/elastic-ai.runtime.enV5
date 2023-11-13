@@ -2,12 +2,12 @@
 
 ## Naming Scheme
 
-|        Scope | Scheme               |                          |
-| -----------: |:---------------------|:-------------------------|
-|        Files | PascalScheme         |                          |
-|    Functions | camelCase            |                          |
-|    Variables | camelCase            | suffix: typedef => `_t`  |
-| Preprocessor | SCREAMING_SNAKE_CASE |                          |
+|        Scope | Scheme               |                         |
+|-------------:|:---------------------|:------------------------|
+|        Files | PascalScheme         |                         |
+|    Functions | camelCase            |                         |
+|    Variables | camelCase            | suffix: typedef => `_t` |
+| Preprocessor | SCREAMING_SNAKE_CASE |                         |
 
 Functions and global variables should be prefixed with a consistent identifier (e.g. the file name where the function
 prototype resides).
