@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "hardware/spi.h"
-#include "pico/stdlib.h"
 
 /*! Below are the PIOs to the FPGA, depends on the hardware design of the ENv5:
  *

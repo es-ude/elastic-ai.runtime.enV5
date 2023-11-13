@@ -1,8 +1,9 @@
 add_library(sensor_lib_pac193x INTERFACE)
-target_sources(sensor_lib_pac193x INTERFACE ${CMAKE_CURRENT_LIST_DIR}/Pac193x.c)
 target_include_directories(sensor_lib_pac193x INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_sources(sensor_lib_pac193x INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/Pac193x.c)
 target_link_libraries(sensor_lib_pac193x INTERFACE
         common_lib
-        i2c_interface
+        sleep_interface
         gpio_interface
-        sleep_interface)
+        i2c_interface)

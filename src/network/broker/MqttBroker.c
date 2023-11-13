@@ -86,7 +86,7 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
     snprintf(connectToBroker, commandLength, AT_MQTT_CONNECT_TO_BROKER, credentials.ip,
              credentials.port);
 
-    // send connect to broker command
+    // send connect request to broker
     espErrorCode_t espErrorCode =
         espSendCommand(connectToBroker, AT_MQTT_CONNECT_TO_BROKER_RESPONSE, 60000);
     free(connectToBroker);

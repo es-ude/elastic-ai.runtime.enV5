@@ -1,9 +1,11 @@
 #define SOURCE_FILE "SEMAPHORE-WRAPPER"
 
-#include "FreeRtosSemaphoreWrapper.h"
+#include <stdbool.h>
+
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include <stdbool.h>
+
+#include "FreeRtosSemaphoreWrapper.h"
 
 Semaphore SemaphoreCreateBinary(void) {
     return xSemaphoreCreateBinary();

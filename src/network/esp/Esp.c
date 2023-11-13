@@ -1,12 +1,13 @@
 #define SOURCE_FILE "ESP"
 
-#include "Esp.h"
+#include <stdbool.h>
+
 #include "AtCommands.h"
 #include "Common.h"
+#include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include <stdbool.h>
 
 /* region VARIABLES */
 

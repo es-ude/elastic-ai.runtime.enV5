@@ -2,10 +2,9 @@
 
 #include <stdbool.h>
 
-#include "pico/stdlib.h"
-
 #include "Common.h"
 #include "Gpio.h"
+#include "Sleep.h"
 #include "include/enV5HwController.h"
 
 void env5HwInit() {
@@ -68,7 +67,7 @@ void env5HwFpgaInit() {
 
 void env5HwFpgaPowersOn() {
     gpioSetPin(FPGA_VOL_REGULATOR_EN_PIN, GPIO_PIN_HIGH); // turn the voltage regulator on
-    sleep_ms(10);                                         // wait until the FPGA is powered up
+    sleep_for_ms(10);                                     // wait until the FPGA is powered up
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_LOW);            // turn the MOS-FETS on
 
     PRINT_DEBUG("FPGA Powered On.")

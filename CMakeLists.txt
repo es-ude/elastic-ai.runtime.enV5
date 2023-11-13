@@ -13,13 +13,15 @@ if (UNIT_TEST)
 
     project(enV5 C CXX ASM)
 
-    # include external libraries (git submodules)
-    include_cexception()
-    add_subdirectory(extern/unity)
-    add_subdirectory(extern/elastic-ai.runtime.c)
+    # enable test execution via CMake
     include(CTest)
 
+    # include unit-test framework
+    add_unity()
+
     # include required standard libs for testing
+    add_cexception()
+    add_subdirectory(extern/elastic-ai.runtime.c)
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
 
@@ -35,34 +37,27 @@ if (UNIT_TEST)
     add_subdirectory(src/network/broker)
     add_subdirectory(src/fpga/fpgaConfigurationHandler)
 
-    # include unit tests
+    # include unit-tests
     add_subdirectory(test/unit)
 else ()
-    message(NOTICE "INFO: Building for enV5 hardware")
+    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
 
-    # include external libraries (git submodules)
+    # include pico-sdk
     include(extern/pico-sdk/pico_sdk_init.cmake)
-    add_subdirectory(extern/freeRTOS/Kernel/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
-    add_subdirectory(extern/elastic-ai.runtime.c)
 
     project(enV5 C CXX ASM)
 
     pico_sdk_init()
 
     if (TARGET tinyusb_device)
-        # include our own libraries
-        include_cexception()
-        add_subdirectory(src/common)
-        add_subdirectory(src/hal)
-        add_subdirectory(src/rtos)
-        add_subdirectory(src/network)
-        add_subdirectory(src/flash)
-        add_subdirectory(src/fpga)
-        add_subdirectory(src/sensor)
+        # include required libraries
+        add_basic_functionality()
+        add_rp2040_hal()
+        add_sensor_libraries()
 
-        # load hardware tests
+        # include hardware tests
         add_subdirectory(test/hardware)
     elseif (PICO_ON_DEVICE)
-        message(WARNING "not building Project because TinyUSB submodule is not initialized in the SDK")
+        message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
     endif ()
 endif ()

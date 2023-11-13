@@ -1,13 +1,14 @@
 #define SOURCE_FILE "NETWORK"
 
-#include "Network.h"
+#include <stdlib.h>
+#include <string.h>
+
 #include "AtCommands.h"
 #include "Common.h"
 #include "Esp.h"
-#include "HTTP.h"
 #include "FreeRtosTaskWrapper.h"
-#include <stdlib.h>
-#include <string.h>
+#include "HTTP.h"
+#include "Network.h"
 
 networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredentials_t credentials) {
     if (espStatus.WIFIStatus == CONNECTED) {
@@ -43,14 +44,14 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
 
-    // generate connect command with SSID and Password  from configuration.h
+    // generate connect command with SSID and Password from configuration.h
     size_t lengthOfString =
         AT_CONNECT_TO_NETWORK_LENGTH + strlen(credentials.ssid) + strlen(credentials.password);
     char *connectToNetwork = malloc(lengthOfString);
     snprintf(connectToNetwork, lengthOfString, AT_CONNECT_TO_NETWORK, credentials.ssid,
              credentials.password);
 
-    // send connect to network command
+    // send connect request to ESP32
     espErrorCode_t espErrorCode =
         espSendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 120000);
     free(connectToNetwork);
@@ -58,7 +59,7 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Connected to Network: %s", credentials.ssid)
         espStatus.WIFIStatus = CONNECTED;
-        HTTPSetReceiverFunction();
+        HTTPSetReceiverFunction(); // TODO: should this be called here??
         return NETWORK_NO_ERROR;
     } else {
         PRINT("Failed to connect to Network: %s", credentials.ssid)

@@ -1,11 +1,12 @@
 #define SOURCE_FILE "TASK-WRAPPER"
 
-#include "FreeRtosTaskWrapper.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "Common.h"
+#include "FreeRtosTaskWrapper.h"
 #include "FreeRtosTaskWrapperInternal.h"
 #include "Sleep.h"
-#include <FreeRTOS.h>
-#include <task.h>
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;

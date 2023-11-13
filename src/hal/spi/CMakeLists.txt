@@ -1,7 +1,8 @@
 add_library(spi_interface INTERFACE)
 target_include_directories(spi_interface INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(spi_interface INTERFACE ${CMAKE_CURRENT_LIST_DIR}/Spi.c)
+target_sources(spi_interface INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/Spi.c)
 target_link_libraries(spi_interface INTERFACE
         common_lib
-        hardware_spi
-        gpio_interface)
+        gpio_interface
+        hardware_spi)

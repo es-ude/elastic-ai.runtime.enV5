@@ -1,14 +1,15 @@
 #define SOURCE_FILE "src/pac193x/pac193x.c"
 
-#include "Pac193x.h"
+#include <stdbool.h>
+#include <stdlib.h>
+
 #include "Common.h"
 #include "Gpio.h"
 #include "I2c.h"
+#include "Pac193x.h"
 #include "Sleep.h"
 #include "include/Pac193x.h"
 #include "include/Pac193xTypedefs.h"
-#include <stdbool.h>
-#include <stdlib.h>
 
 /* Datasheet:
  * https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf

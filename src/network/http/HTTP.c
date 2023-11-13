@@ -1,14 +1,14 @@
 #define SOURCE_FILE "HTTP"
 
-#include "include/HTTP.h"
-#include "AtCommands.h"
-#include "Common.h"
-#include "Esp.h"
+#include <stdlib.h>
+#include <string.h>
 
 #include "CException.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "AtCommands.h"
+#include "Common.h"
+#include "Esp.h"
+#include "include/HTTP.h"
 
 HttpResponse_t *HTTPResponse = NULL;
 volatile uint32_t httpCount = 0;
@@ -32,7 +32,7 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
         HTTPCleanResponseBuffer(HTTPResponse);
         Throw(HTTP_WRONG_RESPONSE);
     }
-    
+
     *data = HTTPResponse;
     HTTPResponse = NULL;
     free(httpGet);

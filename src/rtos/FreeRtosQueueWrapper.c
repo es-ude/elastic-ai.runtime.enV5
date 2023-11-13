@@ -1,9 +1,10 @@
 #define SOURCE_FILE "QUEUE-WRAPPER"
 
-#include "FreeRtosQueueWrapper.h"
-#include "Common.h"
 #include "FreeRTOS.h"
-#include <queue.h>
+#include "queue.h"
+
+#include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 
 #define FREERTOS_QUEUE_WRAPPER_ITEM_SIZE sizeof(freeRtosQueueWrapperMessage_t)
 

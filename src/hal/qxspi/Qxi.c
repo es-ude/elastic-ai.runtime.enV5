@@ -2,7 +2,7 @@
 
 #include "Gpio.h"
 #include "Spi.h"
-#include "qxi.h"
+#include "include/Qxi.h"
 
 static spi_t spiConfiguration = {.spi = QXI_SPI,
                                  .baudrate = QXI_BAUD_RATE,
