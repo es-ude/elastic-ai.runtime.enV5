@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#include "HTTP.h"
 #include "FpgaConfigurationHandler.h"
+#include "HTTP.h"
 
 /* region HTTP */
 

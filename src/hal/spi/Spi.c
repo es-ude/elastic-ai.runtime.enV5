@@ -11,8 +11,8 @@
 
 #include "Common.h"
 #include "Gpio.h"
-#include "SpiInternal.h"
 #include "Spi.h"
+#include "SpiInternal.h"
 #include "SpiTypedefs.h"
 
 /* region PUBLIC HEADER FUNCTIONS */

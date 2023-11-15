@@ -7,12 +7,12 @@
 #include <stdint.h>
 
 #include "Common.h"
+#include "Flash.h"
 #include "FlashInternal.h"
+#include "FlashTypedefs.h"
 #include "Sleep.h"
 #include "Spi.h"
 #include "SpiTypedefs.h"
-#include "Flash.h"
-#include "FlashTypedefs.h"
 
 static spi_t *flashSpi;
 static uint8_t flashChipSelectPin;

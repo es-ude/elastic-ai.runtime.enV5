@@ -2,10 +2,10 @@
 
 #include "Adxl345b.h"
 #include "Adxl345bInternal.h"
+#include "Adxl345bTypedefs.h"
 #include "Common.h"
 #include "I2c.h"
 #include "Sleep.h"
-#include "Adxl345bTypedefs.h"
 
 /* region CONSTANTS */
 

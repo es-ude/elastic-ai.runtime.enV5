@@ -7,8 +7,8 @@
 #include "pico/stdio_usb.h"
 
 #include "Flash.h"
-#include "FpgaConfigurationHandlerInternal.h"
 #include "FpgaConfigurationHandler.h"
+#include "FpgaConfigurationHandlerInternal.h"
 
 /* ```mermaid
  *  sequenceDiagram
