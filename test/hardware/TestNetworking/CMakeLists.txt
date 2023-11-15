@@ -18,7 +18,7 @@ target_link_libraries(hardware-test_MQTTPublish
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTPublish PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTPublish)
+create_enV5_executable(hardware-test_MQTTPublish)
 
 ################## test_MQTTPublishSubscribe ##################
 add_executable(hardware-test_MQTTPublishSubscribe HardwaretestMqttPublishSubscribe.c)
@@ -29,7 +29,7 @@ target_link_libraries(hardware-test_MQTTPublishSubscribe
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTPublishSubscribe PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTPublishSubscribe)
+create_enV5_executable(hardware-test_MQTTPublishSubscribe)
 
 ################## test_MQTTSubscribe ##################
 # creates executable
@@ -41,7 +41,7 @@ target_link_libraries(hardware-test_MQTTSubscribe
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTSubscribe PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTSubscribe)
+create_enV5_executable(hardware-test_MQTTSubscribe)
 
 ################## test_StressTestSubscribe ##################
 add_executable(hardware-test_MQTTSubscribeUnsubscribe HardwaretestMqttSubscribeUnsubscribe.c)
@@ -51,7 +51,7 @@ target_link_libraries(hardware-test_MQTTSubscribeUnsubscribe
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTSubscribeUnsubscribe PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTSubscribeUnsubscribe)
+create_enV5_executable(hardware-test_MQTTSubscribeUnsubscribe)
 
 ################## test_network ##################
 add_executable(hardware-test_network HardwaretestNetwork.c)
@@ -61,7 +61,7 @@ target_link_libraries(hardware-test_network
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_network PRIVATE DEBUG)
-make_to_output_file(hardware-test_network)
+create_enV5_executable(hardware-test_network)
 
 ################## test_StressTestPublish ##################
 add_executable(hardware-test_StressTestPublish StresstestPublish.c)
@@ -71,7 +71,7 @@ target_link_libraries(hardware-test_StressTestPublish
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestPublish PRIVATE DEBUG)
-make_to_output_file(hardware-test_StressTestPublish)
+create_enV5_executable(hardware-test_StressTestPublish)
 
 ################## test_StressTestSubscribe ##################
 add_executable(hardware-test_StressTestPublishSubscribe StresstestPublishSubscribe.c)
@@ -81,7 +81,7 @@ target_link_libraries(hardware-test_StressTestPublishSubscribe
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestPublishSubscribe PRIVATE DEBUG)
-make_to_output_file(hardware-test_StressTestPublishSubscribe)
+create_enV5_executable(hardware-test_StressTestPublishSubscribe)
 
 ################## test_StressTestSubscribe ##################
 add_executable(hardware-test_StressTestSubscribe StresstestSubscribe.c)
@@ -91,7 +91,7 @@ target_link_libraries(hardware-test_StressTestSubscribe
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_StressTestSubscribe PRIVATE DEBUG)
-make_to_output_file(hardware-test_StressTestSubscribe)
+create_enV5_executable(hardware-test_StressTestSubscribe)
 
 ################## test_MqttKeepAlive ##################
 add_executable(hardware-test_MQTTKeepalive HardwaretestMqttKeepAlive.c)
@@ -101,7 +101,7 @@ target_link_libraries(hardware-test_MQTTKeepalive
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTKeepalive PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTKeepalive)
+create_enV5_executable(hardware-test_MQTTKeepalive)
 
 ################## test_MQTTPublish ##################
 add_executable(hardware-test_MQTTPublishRuntime HardwaretestPublishValuesToRuntime.c)
@@ -111,7 +111,7 @@ target_link_libraries(hardware-test_MQTTPublishRuntime
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_MQTTPublishRuntime PRIVATE DEBUG)
-make_to_output_file(hardware-test_MQTTPublishRuntime)
+create_enV5_executable(hardware-test_MQTTPublishRuntime)
 
 ################## test_HTTP ##################
 add_executable(hardware-test_HTTP HardwaretestHTTP.c)
@@ -123,7 +123,7 @@ target_link_libraries(hardware-test_HTTP
         http_lib
         hardware-testHelper)
 target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
-make_to_output_file(hardware-test_HTTP)
+create_enV5_executable(hardware-test_HTTP)
 
 ################## test_Durability ##################
 add_executable(hardware-test_Durability HardwaretestDurability.c)
@@ -135,7 +135,7 @@ target_link_libraries(hardware-test_Durability
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_Durability PRIVATE DEBUG)
-make_to_output_file(hardware-test_Durability)
+create_enV5_executable(hardware-test_Durability)
 
 ################## test_networkStrength ##################
 add_executable(hardware-test_checknetwork HardwaretestCheckNetwork.c)
@@ -145,7 +145,7 @@ target_link_libraries(hardware-test_checknetwork
         freeRtosUtils
         hardware-testHelper)
 target_compile_definitions(hardware-test_checknetwork PRIVATE DEBUG)
-make_to_output_file(hardware-test_checknetwork)
+create_enV5_executable(hardware-test_checknetwork)
 
 ################## test_networkStrength ##################
 add_executable(hardware-test_publishSensor HardwaretestPublishSensor.c)
@@ -158,4 +158,4 @@ target_link_libraries(hardware-test_publishSensor
         spi_interface
         sensor_lib_adxl345b)
 target_compile_definitions(hardware-test_publishSensor PRIVATE DEBUG)
-make_to_output_file(hardware-test_publishSensor)
+create_enV5_executable(hardware-test_publishSensor)

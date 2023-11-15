@@ -28,7 +28,7 @@ endfunction()
 
 
 
-function(make_to_output_file target)
+function(create_enV5_executable target)
     # enable usb output
     pico_enable_stdio_usb(${target} 1)
     # disable uart output
