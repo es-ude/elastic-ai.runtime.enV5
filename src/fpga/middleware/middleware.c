@@ -1,6 +1,6 @@
 #define SOURCE_FILE "MIDDLEWARE"
 
-#include "include/middleware.h"
+#include "middleware.h"
 #include "Gpio.h"
 #include "Qxi.h"
 #include "enV5HwController.h"

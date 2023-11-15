@@ -3,9 +3,9 @@
 #include "Sht3x.h"
 #include "Common.h"
 #include "I2c.h"
+#include "Sht3xInternal.h"
+#include "Sht3xTypedefs.h"
 #include "Sleep.h"
-#include "include/Sht3x.h"
-#include "include/Sht3xTypedefs.h"
 
 /* region VARIABLES */
 

@@ -11,8 +11,8 @@
 #include "Sleep.h"
 #include "Spi.h"
 #include "SpiTypedefs.h"
-#include "include/Flash.h"
-#include "include/FlashTypedefs.h"
+#include "Flash.h"
+#include "FlashTypedefs.h"
 
 static spi_t *flashSpi;
 static uint8_t flashChipSelectPin;

@@ -1,6 +1,6 @@
 #define SOURCE_FILE "FPGA-CONFIGRATION-HANDLER-BASE"
 
-#include "include/FpgaConfigurationHandler.h"
+#include "FpgaConfigurationHandler.h"
 #include "Flash.h"
 #include "middleware.h"
 

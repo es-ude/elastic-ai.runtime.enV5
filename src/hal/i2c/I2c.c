@@ -1,6 +1,7 @@
-#include "include/I2c.h"
-#include "Gpio.h"
 #include "I2c.h"
+#include "Gpio.h"
+#include "I2cInternal.h"
+
 #include <hardware/i2c.h>
 
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/

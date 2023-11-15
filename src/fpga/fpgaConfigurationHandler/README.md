@@ -6,7 +6,7 @@ Coming soon...
 
 <!-- TODO: add fpga config flashing via monitor -->
 
-### Via Python Script (deprecated)
+### Via Python Script (**BROKEN**)
 
 The FPGA on the ENv5 can be configured by writing a Bit- or Binfile to the flash.
 To write a file to the flash, the enV5 needs to be flashed with the hardware test `hardware-test_configUSB.uf2` in

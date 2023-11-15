@@ -1,7 +1,7 @@
 #define SOURCE_FILE "SPI"
 
-#include "include/Spi.h"
-#include "include/SpiTypedefs.h"
+#include "Spi.h"
+#include "SpiTypedefs.h"
 
 void spiInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
     // Just here to satisfy the compiler

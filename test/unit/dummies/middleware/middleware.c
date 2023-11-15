@@ -1,6 +1,6 @@
 #define SOURCE_FILE "MIDDLEWARE"
 
-#include "include/middleware.h"
+#include "middleware.h"
 
 #include <stdbool.h>
 #include <stdint.h>

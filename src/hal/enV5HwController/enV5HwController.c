@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Gpio.h"
 #include "Sleep.h"
-#include "include/enV5HwController.h"
+#include "enV5HwController.h"
 
 void env5HwInit() {
     env5HwLedsInit();

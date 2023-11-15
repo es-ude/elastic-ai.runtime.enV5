@@ -1,7 +1,7 @@
 #ifndef ENV5_FLASH_INTERNAL_HEADER
 #define ENV5_FLASH_INTERNAL_HEADER
 
-#include "include/FlashTypedefs.h"
+#include "FlashTypedefs.h"
 
 static void flashEnableWrite(void);
 

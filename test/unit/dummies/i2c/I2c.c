@@ -1,5 +1,5 @@
-#include "include/I2c.h"
-#include "include/I2cUnitTest.h"
+#include "I2c.h"
+#include "I2cUnitTest.h"
 
 #include <stdint.h>
 

@@ -8,7 +8,7 @@
 
 #include "Flash.h"
 #include "FpgaConfigurationHandlerInternal.h"
-#include "include/FpgaConfigurationHandler.h"
+#include "FpgaConfigurationHandler.h"
 
 /* ```mermaid
  *  sequenceDiagram

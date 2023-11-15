@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #include "HTTP.h"
-#include "include/FpgaConfigurationHandler.h"
+#include "FpgaConfigurationHandler.h"
 
 /* region HTTP */
 
