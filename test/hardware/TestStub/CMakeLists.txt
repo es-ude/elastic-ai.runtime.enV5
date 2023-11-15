@@ -7,6 +7,7 @@ target_link_libraries(echoserver_lib INTERFACE middleware_lib)
 ## Test with HTTP Dummy Server
 add_executable(hardware-test_stub HardwaretestStub.c)
 target_link_libraries(hardware-test_stub
+        common_lib
         pico_stdlib
         hardware_spi
         flash_lib
@@ -21,6 +22,7 @@ make_to_output_file(hardware-test_stub)
 ## Test in combination with Monitor
 add_executable(hardware-test_echoServerOTA HardwaretestStubWithMonitor.c)
 target_link_libraries(hardware-test_echoServerOTA
+        common_lib
         pico_stdlib
         hardware_spi
         flash_lib

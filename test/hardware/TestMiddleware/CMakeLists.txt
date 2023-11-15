@@ -1,5 +1,6 @@
 add_executable(hardware-test_middleware HardwaretestMiddleware.c)
 target_link_libraries(hardware-test_middleware
+        common_lib
         pico_stdlib
         hardware_spi
         network_lib

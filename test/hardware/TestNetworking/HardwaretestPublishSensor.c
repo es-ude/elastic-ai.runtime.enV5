@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
+#include "Adxl345b.h"
 #include "Common.h"
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
@@ -8,11 +9,9 @@
 #include "HTTP.h"
 #include "MqttBroker.h"
 #include "Network.h"
-#include "NetworkConfiguration.h"
 #include "Pac193x.h"
 #include "Protocol.h"
 #include "Spi.h"
-#include "adxl345b/include/Adxl345b.h"
 
 // pico-sdk headers
 #include <hardware/i2c.h>
@@ -24,6 +23,9 @@
 // external headers
 #include <malloc.h>
 #include <string.h>
+
+networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "password"};
+mqttBrokerHost_t mqttHost = {.ip = "0.0.0.0", .port = "1883", .userID = "", .password = ""};
 
 /* region POWER-SENSOR 1 */
 

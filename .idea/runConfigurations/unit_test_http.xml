@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="unit-test_http" type="CMakeRunConfiguration" factoryName="Application" folderName="unit tests" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="enV5" TARGET_NAME="unit-test_http" CONFIG_NAME="UnitTests" RUN_TARGET_PROJECT_NAME="enV5" RUN_TARGET_NAME="unit-test_http">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
