@@ -8,7 +8,7 @@ target_link_libraries(hardware-test_configUSB
         sleep_interface
         enV5_hwc
         fpga_configuration_handler)
-make_to_output_file(hardware-test_configUSB)
+create_enV5_executable(hardware-test_configUSB)
 
 add_executable(hardware-test_configHTTP HardwaretestConfigureViaHTTP.c)
 target_link_libraries(hardware-test_configHTTP
@@ -19,4 +19,4 @@ target_link_libraries(hardware-test_configHTTP
         flash_lib
         enV5_hwc
         fpga_configuration_handler)
-make_to_output_file(hardware-test_configHTTP)
+create_enV5_executable(hardware-test_configHTTP)

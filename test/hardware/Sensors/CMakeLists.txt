@@ -9,7 +9,7 @@ target_link_libraries(hardware-test_sht3
         pico_time
         hardware_i2c
         sensor_lib_sht3x)
-make_to_output_file(hardware-test_sht3)
+create_enV5_executable(hardware-test_sht3)
 ##############################################
 ## region hardware-test_adxl345b
 add_executable(hardware-test_adxl345b HardwaretestAdxl345b.c)
@@ -21,7 +21,7 @@ target_link_libraries(hardware-test_adxl345b
         pico_time
         hardware_i2c
         sensor_lib_adxl345b)
-make_to_output_file(hardware-test_adxl345b)
+create_enV5_executable(hardware-test_adxl345b)
 ## endregion hardware-test_adxl345b
 ##############################################
 ## hardware-test_pac193x
@@ -34,7 +34,7 @@ target_link_libraries(hardware-test_pac193x
         pico_time
         hardware_i2c
         sensor_lib_pac193x)
-make_to_output_file(hardware-test_pac193x)
+create_enV5_executable(hardware-test_pac193x)
 ##############################################
 ## hardware-test_dualpac193x
 add_executable(hardware-test_dualpac193x HardwaretestDualPac193x.c)
@@ -46,7 +46,7 @@ target_link_libraries(hardware-test_dualpac193x
         pico_time
         hardware_i2c
         sensor_lib_pac193x)
-make_to_output_file(hardware-test_dualpac193x)
+create_enV5_executable(hardware-test_dualpac193x)
 ##############################################
 ## hardware-test_pac193xbuffer
 add_executable(hardware-test_pac193xbuffer HardwaretestPac193xBuffer.c)
@@ -58,5 +58,5 @@ target_link_libraries(hardware-test_pac193xbuffer
         pico_time
         hardware_i2c
         sensor_lib_pac193x)
-make_to_output_file(hardware-test_pac193xbuffer)
+create_enV5_executable(hardware-test_pac193xbuffer)
 ##############################################

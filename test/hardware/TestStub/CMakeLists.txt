@@ -16,7 +16,7 @@ target_link_libraries(hardware-test_stub
         middleware_lib
         echoserver_lib)
 target_compile_definitions(hardware-test_stub PRIVATE DEBUG)
-make_to_output_file(hardware-test_stub)
+create_enV5_executable(hardware-test_stub)
 
 
 ## Test in combination with Monitor
@@ -32,4 +32,4 @@ target_link_libraries(hardware-test_echoServerOTA
         espBroker_lib
         echoserver_lib)
 target_compile_definitions(hardware-test_echoServerOTA PRIVATE DEBUG)
-make_to_output_file(hardware-test_echoServerOTA)
+create_enV5_executable(hardware-test_echoServerOTA)

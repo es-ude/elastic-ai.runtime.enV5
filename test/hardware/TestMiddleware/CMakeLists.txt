@@ -10,4 +10,4 @@ target_link_libraries(hardware-test_middleware
         flash_lib
         middleware_lib)
 target_compile_definitions(hardware-test_middleware PRIVATE DEBUG)
-make_to_output_file(hardware-test_middleware)
+create_enV5_executable(hardware-test_middleware)

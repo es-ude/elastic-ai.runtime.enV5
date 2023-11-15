@@ -7,4 +7,4 @@ target_link_libraries(hardware-test_flash
         hardware_spi
         spi_interface
         flash_lib)
-make_to_output_file(hardware-test_flash)
+create_enV5_executable(hardware-test_flash)

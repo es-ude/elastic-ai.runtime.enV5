@@ -14,5 +14,5 @@ target_link_libraries(hardware-test_flow_prediction
         fpga_configuration_handler
         middleware_lib
         flow_prediction_lib)
-make_to_output_file(hardware-test_flow_prediction)
+create_enV5_executable(hardware-test_flow_prediction)
 
