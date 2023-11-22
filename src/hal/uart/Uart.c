@@ -28,8 +28,6 @@ void (*uartMqttBrokerReceive)(char *) = NULL;
 void (*uartHTTPReceive)(char *) = NULL;
 
 void (*uartInternalCallbackUartRxInterrupt)(void);
-bool newUARTInterrupt = false;
-
 /* endregion  VARIABLES*/
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -121,24 +119,9 @@ void uartFreeCommandBuffer(void) {
     uartCommandToSend = "\0";
 }
 
-_Noreturn void uartReceiverTask(void) {
-    uartInternalCallbackUartRxInterrupt = setNewUARTInterrupt;
-
-    while (true) {
-        if (newUARTInterrupt) {
-            newUARTInterrupt = false;
-            uartInternalCallbackUartRxInterrupt();
-        }
-    }
-}
-
 /* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
-
-void setNewUARTInterrupt(void) {
-    newUARTInterrupt = true;
-}
 
 /*! IMPORTANT: Don't use print statements for debugging!!
  *             Print statements will cause timing/buffer issues
@@ -161,7 +144,7 @@ void uartInternalHandleNewLine(void) {
             uartHTTPReceive(uartDevice->receiveBuffer);
         }
     } else if (strncmp("+CWJAP", uartDevice->receiveBuffer, 6) == 0) {
-        PRINT_DEBUG("Message: %s", uartDevice->receiveBuffer);
+        PRINT_DEBUG("Message: %s", uartDevice->receiveBuffer)
         uartCorrectResponseReceived = true;
     }
     if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,
