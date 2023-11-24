@@ -3,7 +3,6 @@
 .venv
 networks.txt
 node_modules/
-.husky/
 *.json
 **/__pycache__/
 
