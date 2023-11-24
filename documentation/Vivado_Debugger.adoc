@@ -1,0 +1,114 @@
+= Vivado (FPGA IDE)
+
+== Starting Vivado
+
+. Go to Vivado installation directory (`cd ...`)
+. Run `source settings64.sh`
+. Run `vivado`
+
+== enV5 Flash
+
+All necessary files are in `experiment`
+
+Connect Debugger::
+. Connect both USB cables (FPGA JTAG and USB-C enV5)
+. Power on FPGA (type "P" in minicom)
+. Open Vivado Hardwaremanager and connect Debugger
+.. Open Vivado
+.. Click "Open Hardwaremanager"
+.. Click "Open Target" > "Autoconnect"
+. Right-click on Device > "Add Configuration Memory Device"
+. Search for "fl128" and select "s25fl128sxxxxxx1-spi-x1_x2_x4"
+
+CAUTION: JTAG cable for FPGA required
+
+.XVC-Pico
+[NOTE]
+====
+Instead of a https://digilent.com/shop/jtag-hs2-programming-cable/[Digilent JTAG Debugger] you can also use a Raspberry Pico in combination with https://github.com/kholia/xvc-pico[XVC-Pico]
+
+image::pics/XVC_Pico.png[title="XVC-Pico Pin Association", 200]
+image::pics/enV5_extension_board_top.png[title="Pin Associations", 200]
+====
+
+Write to Flash::
+. Right-click the memory configuration Device >> "Program Memory Configuration Device"
+. Select the `.bin` file to upload
+. Click the "MCU RST" Button on the device to power on the MCU
+
+Read from Flash::
+. Right-click memory configuration Device >> "Readback from Memory Configuration Device"
+. Choose "BIN" as file format
+. When unticking the "Address" Box you can
+** Apply an Offset to start the read back (hex encoded)
+** Specify the number of bytes you want to read back (hex encoded)
+
+[TIP]
+====
+To get the length of your file, use:
+
+[source,bash]
+----
+du -b <yourFile.bin>
+----
+
+Convert the output into a hexdecimal number, so you can use it for the "Datacount" field
+====
+
+=== How To verify the read-out data
+
+. Use the `xxd` program to convert `.bin` files into `.hex` files.
+. Use the `diff` program to compare the `.hex` files with each other
+
+NOTE: The `.bin` against which the read-out is compared must also be converted!
+
+.enV5_top_reconfig.bin
+[example]
+====
+. Flash via HTTP or USB
+. Readback from device
+** The file is about 0x2AD10 Bytes Large.
+Put this number into the "Datacount" field
+** Choose "BIN" file as output format
+. Convert source `.bin` file and the  `readback.bin` file into hex files using `xxd`
+. Compare them using `diff <source.bin> <readback.bin>`
+
+There shouldn't be any diff shown.
+If so, the writing is correct; otherwise there the write to file inside the flash is corrupted!
+====
+
+== TCL Commands
+
+* TCL Commands can be used to write a script that automates e.g. the readback process.
+These TCL Commands can be found in the TCL Console in Vivado, after reading back a file.
+
+== FAQ
+
+How to install drivers for JTAG cables (if missing)::
+
+--
+https://support.xilinx.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US[Download Drivers]
+
+.Install Drivers
+[source,bash]
+----
+$ cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
+$ sudo /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
+$ sudo chmod 644 /etc/udev/rules.d/52-xilinx-digilent-usb.rules
+----
+--
+
+ERROR: [Labtools 27-2269]::
+
+--
+* Make sure the MCU is powered on
+* Make sure FPGA is powered on
+=> "P" in minicom
+
+[source,bash]
+----
+$ cd .../tools/Xilinx/Vitis_HLS/2023.2
+$ sudo apt update && sudo apt install -y libtinfo-dev
+$ sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
+----
+--
