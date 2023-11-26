@@ -1,0 +1,34 @@
+== Contribution Guidelines
+:hardbreaks:
+
+=== Naming Scheme
+
+[cols=">,<,<",options="header",]
+|===
+|Scope |Scheme | Remarks
+
+|Files
+|PascalScheme
+|
+
+|Functions
+|camelCase
+|
+
+|Variables
+|camelCase
+|suffix: typedef => `_t`
+
+|Preprocessor
+|SCREAMING_SNAKE_CASE
+|
+|===
+
+Functions and global variables should be prefixed with a consistent identifier, e.g.the file name where the function prototype resides.
+
+=== Code Contributions
+
+Don’t push directly to the `main` branch::
+- Push your modification to a new branch
+- Open a pull request to `main`
+- The maintainer of the repository can then merge your modifications into the existing codebase
