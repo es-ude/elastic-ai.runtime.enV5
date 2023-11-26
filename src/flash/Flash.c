@@ -1,5 +1,9 @@
-/*! Datasheet:
+/* Datasheet:
  *    https://www.mouser.de/datasheet/2/196/Infineon_S25FL128SS25FL256S_128_Mb__16_MB_256_Mb__-3166946.pdf
+ *
+ *  IMPORTANT:
+ *    Because the QXSPI-library uses the same SPI module,
+ *    before every operation the module has to be initialized!
  */
 
 #define SOURCE_FILE "FLASH"

@@ -1,0 +1,28 @@
+= Flash
+:toc: top
+:tests_dir: ../../test
+
+== Provided Functionality
+
+.Flash.h
+[source,C]
+----
+include::include/Flash.h[tags=prototypes]
+----
+
+IMPORTANT: An Example on how to use the library can be found under link:{tests_dir}/hardware/TestFlash/HardwaretestFlash.c[HardwaretestFlash.c]
+
+== Remarks
+
+Write to Flash::
+- Write can't be more than **one** page
+- Write performs **wrap around** when it reaches the end of a page
+- Before performing a writing operation erasing the according sector is required
+
+Erase Flash::
+- The Lowest unit of erasing is one sector
+
+Wear Level::
+When performing write/erase operations, it will wear down the flash.
+This leads to malfunctioning blocks of the flash.
+Distributing the write/erase operations over the flash decreases the occurrence of defect cells!
