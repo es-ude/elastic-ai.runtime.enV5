@@ -1,0 +1,59 @@
+= FPGA Configuration
+:toc: auto
+:src-dir: ../../..
+
+== Via Serial Connection (USB)
+
+WARNING: The script is currently not maintained and must be considered *BROKEN*!
+
+CAUTION: The implementation only works on the enV5, **not** the SensorBoard.
+
+The FPGA on the enV5 can be configured by writing a Bit- or Binfile to the flash.
+To write a file to the flash, the enV5 needs to be flashed with the correct hardware test link:{src-dir}/test/hardware/TestConfiguration/HardwaretestConfigureViaUSB.c[hardware-test_configUSB].
+Place the Binfile you want to send to the enV5 under link:{src-dir}/bitfile_scripts/bitfiles/[bitfile_scripts/bitfiles] and
+execute the link:{src-dir}/bitfile_scripts/BitfileFlasher.py[BitfileFlasher.py] python script with the required arguments:
+
+[source, bash]
+----
+$ python BitfileFlasher.py \
+    --port <device_serial_port> \ # <1>
+    [--baudrate <serial_baudrate>] \ # <2>
+    <path_to_bitfile> \ # <3>
+    <start_flash_address> # <4>
+----
+<1> Serial-Port of the device
+<2> Baudrate of serial connection
+<3> Path to bitfile
+<4> Start address of the flash, where the bitfile should be written to
+
+The python script will send the Bitfile over the serial connection to the enV5.
+To configure the FPGA with the new Bitfile, the FPGA has to be resetted.
+
+[IMPORTANT]
+====
+The FPGA will always reconfigure from address 0x000000 of the flash.
+The hardware test executable can be used for this by sending the character `f`/`F` via minicom to the device.
+This will trigger a restart of the FPGA.
+====
+
+== Via HTTPGet
+
+The FPGA on the enV5 can be configured by writing a Binfile to the flash.
+This can be archived by utilizing the ESP32 WiFi-module on the extension board.
+If you want to use the WiFi-module, you have to flash the link:{src-dir}/test/hardware/TestConfiguration/HardwaretestConfigureViaHTTP.c[hardware-test_configHTTP] to the MCU.
+
+TIP: You have to adjust the SSID and Password according to your Network credentials!
+
+Afterward, you must start the corresponding webserver stat provides the server.
+For test purposes, a simple webserver can be started by executing link:{src-dir}/bitfile_scripts/HW-Test_Webserver.py[HW-Test_Webserver.py].
+
+[IMPORTANT]
+====
+The FPGA will always reconfigure from address 0x000000 of the flash.
+The hardware test executable can be used for this by sending the character `f`/`F` via minicom to the device.
+This will trigger a restart of the FPGA.
+====
+
+== Via Elastic-ai.runtime
+
+Coming soon…

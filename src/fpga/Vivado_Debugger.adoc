@@ -1,4 +1,7 @@
 = Vivado (FPGA IDE)
+:toc: top
+:imagesdir: ../../documentation/pics
+
 
 == Starting Vivado
 
@@ -6,11 +9,10 @@
 . Run `source settings64.sh`
 . Run `vivado`
 
-== enV5 Flash
+== Connect Debugger
 
-All necessary files are in `experiment`
+=== Setup
 
-Connect Debugger::
 . Connect both USB cables (FPGA JTAG and USB-C enV5)
 . Power on FPGA (type "P" in minicom)
 . Open Vivado Hardwaremanager and connect Debugger
@@ -27,16 +29,18 @@ CAUTION: JTAG cable for FPGA required
 ====
 Instead of a https://digilent.com/shop/jtag-hs2-programming-cable/[Digilent JTAG Debugger] you can also use a Raspberry Pico in combination with https://github.com/kholia/xvc-pico[XVC-Pico]
 
-image::pics/XVC_Pico.png[title="XVC-Pico Pin Association", 200]
-image::pics/enV5_extension_board_top.png[title="Pin Associations", 200]
+image::XVC_Pico.png[title="XVC-Pico Pin Association",200]
+image::enV5_extension_board_top.png[title="Pin Associations",200]
 ====
 
-Write to Flash::
+=== Write to Flash
+
 . Right-click the memory configuration Device >> "Program Memory Configuration Device"
 . Select the `.bin` file to upload
 . Click the "MCU RST" Button on the device to power on the MCU
 
-Read from Flash::
+=== Read from Flash
+
 . Right-click memory configuration Device >> "Readback from Memory Configuration Device"
 . Choose "BIN" as file format
 . When unticking the "Address" Box you can
@@ -85,22 +89,16 @@ These TCL Commands can be found in the TCL Console in Vivado, after reading back
 == FAQ
 
 How to install drivers for JTAG cables (if missing)::
-
---
 https://support.xilinx.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US[Download Drivers]
 
-.Install Drivers
 [source,bash]
 ----
 $ cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
 $ sudo /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
 $ sudo chmod 644 /etc/udev/rules.d/52-xilinx-digilent-usb.rules
 ----
---
 
 ERROR: [Labtools 27-2269]::
-
---
 * Make sure the MCU is powered on
 * Make sure FPGA is powered on
 => "P" in minicom
@@ -111,4 +109,3 @@ $ cd .../tools/Xilinx/Vitis_HLS/2023.2
 $ sudo apt update && sudo apt install -y libtinfo-dev
 $ sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 ----
---
