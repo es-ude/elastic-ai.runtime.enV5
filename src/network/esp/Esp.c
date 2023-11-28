@@ -14,20 +14,22 @@
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
+// FIXME: pass this from the outside, because it changes with the hardware?
 static uartDevice_t uartDevice = {
-    // Below depends on the hardware connection
-    // you should modify it according to your hardware
     .name = "uart_to_esp32",
+    // region HARDWARE CONFIGURATION
+    // IMPORTANT: Should be modified according to the hardware
     .uartId = 1,
     .txPin = 4,
     .rxPin = 5,
-
-    // Below depends on the firmware on the esp32 module
+    // endregion HARDWARE CONFIGURATION
+    // region ESP32 FIRMWARE
     .baudrateSet = 115200,
     .baudrateActual = 0,
     .dataBits = 8,
     .stopBits = 1,
-    .parity = NoneParity,
+    .parity = NoneParity
+    // endregion ESP32 FIRMWARE
 };
 
 /* endregion */
@@ -35,6 +37,14 @@ static uartDevice_t uartDevice = {
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 void espInit(void) {
+    /* 1. Initializes UART connection
+     * 2. resets the ESP
+     * 3. check if the connection is working (by waiting for response)
+     * 4. echo-command is disabled
+     * 5. single connection mode is enabled
+     * 6. ChipStatus of `espStatus` is set to `ESP_CHIP_OK`.
+     */
+
     // initialize uart interface for AT commands
     uartInit(&uartDevice);
 

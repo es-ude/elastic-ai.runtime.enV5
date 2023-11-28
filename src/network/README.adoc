@@ -1,0 +1,139 @@
+= Network Stack
+:toc: top
+:src-dir: ../..
+
+== Hardware
+
+Based on [.underline]#espressif ESP32-C3-WROOM-02# wifi-module
+The module is placed on the extension board and connected to the MCU via SPI.
+
+The module currently operates based on the standard espressif binary, which based communication with MCU on the <<_esp_protocol,ESP Protocol>>.
+
+TIP: https://www.espressif.com/sites/default/files/documentation/esp32-c3-wroom-02_datasheet_en.pdf[Datasheet]
+
+[#_esp_protocol]
+== ESP Protocol
+
+The ESP protocol is a String-based protocol utilizing the <<_at_commands,AT-Command-Set>> to send and receive data.
+
+[#_at_commands]
+=== AT-Commands
+
+The https://docs.espressif.com/projects/esp-at/en/release-v2.2.0.0_esp8266/AT_Command_Set/index.html[AT-Commands] are the core ot the ESP protocol and a small subset used by this network stack can be found under link:atCommands/include/AtCommands.h[AtCommands.h].
+
+[#_wifi_lib]
+== Wi-Fi Connection
+
+The wifi library provided under link:wifi/[wifi] provides all required functions to connect to a local wifi network.
+
+To connect to a network, the SSID and Password has to be passed to the library.
+The recommended way to this is to add `extern` variables to your entrypoint and a separate file `Credentials.c` to your CMake target sources, that provides the required informations.
+
+.Example
+[%collapsible]
+====
+.main.c
+[source,C]
+----
+#include "Network.h"
+
+extern networkCredentials_t networkCredentials;
+
+int main (void) {
+    //...
+    networkConnectToNetwork(networkCredentials);
+    //...
+}
+----
+
+.Credentials.c
+[source,C]
+----
+#include "Network.h"
+
+networkCredentials_t networkCredentials = {
+    .ssid = "SSID",
+    .password = "PASSWORD"
+};
+----
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-network-app
+    main.c
+    Credentials.c)
+target_link_libraries(my-network-app
+        ...
+        network_lib)
+create_enV5_executable(my-network-app)
+----
+====
+
+== HTTP Get
+
+The http library provided under link:http/[http] provides all required functions to execute HTTP-GET requests.
+
+To properly handle the received answer, it is required to register a handle that processes the received HTTP-GET messages from the ESP32 module.
+This handler is automatically set when the esp connects to a wifi network via the <<_wifi_lib,wifi library>>.
+
+== MQTT
+
+The mqtt library provided under link:broker/[broker] provides all required functions for a mqtt client that can connect to a Broker.
+
+To properly handle the received answer from the ESP32 module it is required to register a handle that processes the received messages.
+This handler is automatically set when the broker connection was successful.
+
+To connect to a broker, the required credentials have to be passed to the library.
+The recommended way to this is to add `extern` variables to your entrypoint and a separate file `Credentials.c` to your CMake target sources, that provides the required information.
+
+IMPORTANT: The `clientId` of every device has to be different
+
+.Example
+[%collapsible]
+====
+.main.c
+[source,C]
+----
+#include "MQTTBroker.h"
+
+extern mqttHost_t broker;
+extern char* brokerDomain;
+extern char* clientId;
+
+int main (void) {
+    //...
+    mqttBrokerConnectToBroker(broker, brokerDomain, clientId);
+    //...
+}
+----
+
+.Credentials.c
+[source,C]
+----
+#include "MQTTBroker.h"
+
+mqttHost_t broker = {
+    .ip = "127.0.0.1",
+    .port = 1883,
+    .userId = "USER",
+    .password = "PASSWORD"
+};
+char[] brokerDomain = "eip://uni-due.de/es";
+char[] clientId = "enV5";
+----
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-network-app
+    main.c
+    Credentials.c)
+target_link_libraries(my-network-app
+        ...
+        espBroker_lib)
+create_enV5_executable(my-network-app)
+----
+====
+
+CAUTION: When MQTT messages are sent to fast to the device, some messages will be dropped!
