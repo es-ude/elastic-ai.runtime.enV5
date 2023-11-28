@@ -1,4 +1,5 @@
 = Middleware
+:toc: top
 :src-dir: ../../..
 :imagesdir: {src-dir}/documentation/pics
 
@@ -20,7 +21,12 @@ An application can call a small set of C functions (stub) to interact with a giv
 This stub is specific to its corresponding HWFunction.
 In our case, the HWFunction corresponds to the neural network accelerator.
 
+ifdef::env-github[]
+[source,mermaid]
+endif::[]
+ifndef::env-github[]
 [mermaid]
+endif::[]
 ....
 flowchart LR
 
@@ -152,7 +158,7 @@ WARNING: Other message types (`0x08-0xFF`) are reserved for future uses!
 The supported address range for the neural network skeleton ranges from 0 to 99.
 The skeleton we use for neural networks uses its memory mapped IO as follows:
 
-[cols="3*,10",options="header",]
+[cols="1,5,5,10",options="header",]
 |===
 |mode |address (bytewise) |value (byte) |meaning
 

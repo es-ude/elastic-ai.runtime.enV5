@@ -1,10 +1,11 @@
 = Flash
 :toc: top
-:tests_dir: ../../test
+:src-dir: ../..
+:tests_dir: {src-dir}/test
 
 == Provided Functionality
 
-.Flash.h
+.link:include/Flash.h[Flash.h]
 [source,C]
 ----
 include::include/Flash.h[tags=prototypes]

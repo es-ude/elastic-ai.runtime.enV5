@@ -1,5 +1,5 @@
 = FPGA Configuration
-:toc: auto
+:toc: top
 :src-dir: ../../..
 
 == Via Serial Connection (USB)
@@ -15,7 +15,7 @@ execute the link:{src-dir}/bitfile_scripts/BitfileFlasher.py[BitfileFlasher.py] 
 
 [source, bash]
 ----
-$ python BitfileFlasher.py \
+python BitfileFlasher.py \
     --port <device_serial_port> \ # <1>
     [--baudrate <serial_baudrate>] \ # <2>
     <path_to_bitfile> \ # <3>

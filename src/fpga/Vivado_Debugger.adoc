@@ -1,6 +1,7 @@
 = Vivado (FPGA IDE)
 :toc: top
-:imagesdir: ../../documentation/pics
+:src-dir: ../..
+:imagesdir: {src-dir}/documentation/pics
 
 
 == Starting Vivado
@@ -93,9 +94,9 @@ https://support.xilinx.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-worki
 
 [source,bash]
 ----
-$ cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
-$ sudo /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
-$ sudo chmod 644 /etc/udev/rules.d/52-xilinx-digilent-usb.rules
+cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
+sudo /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
+sudo chmod 644 /etc/udev/rules.d/52-xilinx-digilent-usb.rules
 ----
 
 ERROR: [Labtools 27-2269]::
@@ -105,7 +106,7 @@ ERROR: [Labtools 27-2269]::
 
 [source,bash]
 ----
-$ cd .../tools/Xilinx/Vitis_HLS/2023.2
-$ sudo apt update && sudo apt install -y libtinfo-dev
-$ sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
+cd .../tools/Xilinx/Vitis_HLS/2023.2
+sudo apt update && sudo apt install -y libtinfo-dev
+sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 ----
