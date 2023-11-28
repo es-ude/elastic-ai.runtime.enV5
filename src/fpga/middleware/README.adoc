@@ -1,5 +1,4 @@
 = Middleware
-:toc: top
 :src-dir: ../../..
 :imagesdir: {src-dir}/documentation/pics
 

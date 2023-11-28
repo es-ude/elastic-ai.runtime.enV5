@@ -1,5 +1,4 @@
 = FPGA Configuration
-:toc: top
 :src-dir: ../../..
 
 == Via Serial Connection (USB)
@@ -10,10 +9,9 @@ CAUTION: The implementation only works on the enV5, **not** the SensorBoard.
 
 The FPGA on the enV5 can be configured by writing a Bit- or Binfile to the flash.
 To write a file to the flash, the enV5 needs to be flashed with the correct hardware test link:{src-dir}/test/hardware/TestConfiguration/HardwaretestConfigureViaUSB.c[hardware-test_configUSB].
-Place the Binfile you want to send to the enV5 under link:{src-dir}/bitfile_scripts/bitfiles/[bitfile_scripts/bitfiles] and
-execute the link:{src-dir}/bitfile_scripts/BitfileFlasher.py[BitfileFlasher.py] python script with the required arguments:
+Place the Binfile you want to send to the enV5 under link:{src-dir}/bitfile_scripts/bitfiles/[bitfile_scripts/bitfiles] and execute the link:{src-dir}/bitfile_scripts/BitfileFlasher.py[BitfileFlasher.py] python script with the required arguments:
 
-[source, bash]
+[source,bash]
 ----
 python BitfileFlasher.py \
     --port <device_serial_port> \ # <1>
@@ -21,6 +19,7 @@ python BitfileFlasher.py \
     <path_to_bitfile> \ # <3>
     <start_flash_address> # <4>
 ----
+
 <1> Serial-Port of the device
 <2> Baudrate of serial connection
 <3> Path to bitfile

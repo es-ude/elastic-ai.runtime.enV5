@@ -1,7 +1,5 @@
 = Flash
-:toc: top
 :src-dir: ../..
-:tests_dir: {src-dir}/test
 
 == Provided Functionality
 
@@ -11,7 +9,7 @@
 include::include/Flash.h[tags=prototypes]
 ----
 
-IMPORTANT: An Example on how to use the library can be found under link:{tests_dir}/hardware/TestFlash/HardwaretestFlash.c[HardwaretestFlash.c]
+IMPORTANT: An Example on how to use the library can be found under link:{src-dir}/test/hardware/TestFlash/HardwaretestFlash.c[HardwaretestFlash.c]
 
 == Remarks
 
