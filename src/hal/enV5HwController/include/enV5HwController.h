@@ -12,15 +12,40 @@
 #define FPGA_RESET_CTRL_PIN 12       //! LOW -> on, HIGH -> off
 #define FPGA_BUSY_PIN 15
 
-void env5HwInit();
+/*!
+ * @brief Initialize LEDs and FPGA
+ */
+void env5HwInit(void);
 
-void env5HwLedsInit();
-void env5HwLedsAllOff();
-void env5HwLedsAllOn();
+/*!
+ * @brief Initialize GPIOs for LEDs
+ */
+void env5HwLedsInit(void);
+/*!
+ * @brief Turn ON all LEDs
+ */
+void env5HwLedsAllOff(void);
+/*!
+ * @brief Turn OFF all LEDs
+ */
+void env5HwLedsAllOn(void);
 
-void env5HwFpgaInit();
-void env5HwFpgaPowersOn();
-void env5HwFpgaPowersOff();
+/*!
+ * @brief Initialize FPGA GPIOs and turn it OFF
+ */
+void env5HwFpgaInit(void);
+/*!
+ * @brief Power ON FPGA
+ */
+void env5HwFpgaPowersOn(void);
+/*!
+ * @brief Power OFF FPGA
+ */
+void env5HwFpgaPowersOff(void);
+/*!
+ * @brief Enable/Disable Reset of the FPGA
+ * @param enable true=enable reset, false=disable reset
+ */
 void env5HwFpgaReset(bool enable);
 
 #endif // ENV5_HARDWARE_CONTROLLER_HEADER
