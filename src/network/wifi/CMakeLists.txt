@@ -8,4 +8,5 @@ target_link_libraries(network_lib INTERFACE
         uart_interface
         at_commands
         esp_lib
-        http_lib)
+        http_lib
+        network_config)

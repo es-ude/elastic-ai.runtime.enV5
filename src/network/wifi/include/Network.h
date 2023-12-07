@@ -31,7 +31,7 @@ typedef uint8_t networkErrorCode_t;
  *
  * \param credentials network credentials (SSID, password)
  */
-networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredentials_t credentials);
+networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful();
 
 /*! \brief tries to connect to network
  *

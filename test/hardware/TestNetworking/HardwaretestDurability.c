@@ -5,6 +5,7 @@
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
+#include "HardwaretestHelper.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "Pac193x.h"
@@ -17,9 +18,6 @@
 #include <pico/bootrom.h>
 #include <pico/stdlib.h>
 #include <string.h>
-
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "password"};
-mqttBrokerHost_t mqttHost = {.ip = "0.0.0.0", .port = "1883", .userID = "", .password = ""};
 
 char *twinID;
 
@@ -135,9 +133,9 @@ void getAndPublishWifiValue(char *dataID) {
 }
 
 _Noreturn void mainTask(void) {
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
-
+    connectToNetwork();
+    connectToMQTT();
+    
     PRINT("===== INIT SENSOR 1 =====")
     pac193xErrorCode_t errorCode;
     while (1) {
