@@ -57,30 +57,9 @@ else ()
 
         # include hardware tests
         add_subdirectory(test/hardware)
+
+        add_dependency_graph()
     elseif (PICO_ON_DEVICE)
         message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
     endif ()
-
-    file(WRITE "${CMAKE_BINARY_DIR}/test.sh" "
-            perl -i -0pe 's/digraph[^}]*/START_REPLACEMENT/' enV5.dot
-            perl -pi -e 's/.*\"[^\\\/\\\/\\n]*//g' enV5.dot
-            perl -pi -e 's/\\\/\\\/ //g' enV5.dot
-            perl -pi -e 's/[^ ]*(pico|hardware_|tinyusb)[^ \\n]*/pico_stdlib/g' enV5.dot
-            perl -pi -e 's/FreeRTOS-Kernel[^ \\n]*/FreeRTOS_Kernel/g' enV5.dot
-            perl -pi -e 's/\\\./_/g' enV5.dot
-            perl -pi -e 's/->/ARROW_REPLECEMNT/g' enV5.dot
-            perl -pi -e 's/-/_/g' enV5.dot
-            perl -pi -e 's/ARROW_REPLECEMNT/->/g' enV5.dot
-            perl -pi -e 's/node \\\[/digraph \"enV5\" {node [/g' enV5.dot
-            perl -pi -e 's/pico_stdlib -> pico_stdlib//' enV5.dot
-            perl -pi -e 's/FreeRTOS_Kernel -> FreeRTOS_Kernel//' enV5.dot
-            perl -pi -e 's/START_REPLACEMENT}/strict digraph \"enV5\" {/' enV5.dot"
-    )
-    add_custom_target(graphviz ALL
-            COMMAND ${CMAKE_COMMAND} "--graphviz=enV5.dot" .
-            COMMAND bash test.sh
-            COMMAND dot -T png enV5.dot -o "${CMAKE_SOURCE_DIR}/documentation/pics/dependencies.png"
-            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    )
-
 endif ()
