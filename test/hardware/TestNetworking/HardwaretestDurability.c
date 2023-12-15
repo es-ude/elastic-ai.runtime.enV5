@@ -135,7 +135,7 @@ void getAndPublishWifiValue(char *dataID) {
 _Noreturn void mainTask(void) {
     connectToNetwork();
     connectToMQTT();
-    
+
     PRINT("===== INIT SENSOR 1 =====")
     pac193xErrorCode_t errorCode;
     while (1) {

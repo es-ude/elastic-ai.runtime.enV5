@@ -95,7 +95,7 @@ void init(void) {
     // initialize WiFi and MQTT broker
     connectToNetwork();
     connectToMQTT();
-    
+
     // initialize power sensors
     pac193xErrorCode_t errorCode;
     while (1) {
