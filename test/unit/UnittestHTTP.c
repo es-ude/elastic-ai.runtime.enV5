@@ -6,7 +6,6 @@
 #include "unity.h"
 
 #include <stdlib.h>
-#include <string.h>
 
 void setUp() {
     ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;

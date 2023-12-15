@@ -27,6 +27,7 @@ if (UNIT_TEST)
 
     # include dummies for local machine
     add_subdirectory(test/unit/dummies)
+    add_subdirectory(test)
 
     # include our own libraries to test
     add_subdirectory(src/sensor/sht3x)
@@ -56,6 +57,7 @@ else ()
         add_sensor_libraries()
 
         # include hardware tests
+        add_subdirectory(test)
         add_subdirectory(test/hardware)
     elseif (PICO_ON_DEVICE)
         message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
