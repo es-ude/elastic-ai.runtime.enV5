@@ -10,7 +10,7 @@ Elastic AI implementation for the Elastic Node version 5 (enV5).
 For compiling the project, the required tools are:
 
 - gcc (local C compiler)
-- arm-non-eabi-gcc (C compiler for RP2040)
+- arm-non-eabi-gcc (C compiler for RP2040) [macOS (brew): gcc-arm-embedded]
 - CMake (Build Script Generator)
 - Ninja (Build Tool)
 
