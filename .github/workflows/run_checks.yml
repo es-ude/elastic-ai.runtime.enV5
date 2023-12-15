@@ -92,6 +92,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ needs.clang-format.outputs.new_sha }}
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
       - name: Fetch Git Submodules
         run: |
           git submodule update --init --recursive

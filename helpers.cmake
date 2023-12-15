@@ -42,7 +42,7 @@ function(create_enV5_executable target)
 endfunction()
 
 function(add_dependency_graph)
-    file(WRITE "${CMAKE_BINARY_DIR}/CMakeGraphVizOptions.cmake" "set(GRAPHVIZ_IGNORE_TARGETS \"Pioasm;ELF2UF2;cyw43.*;cybt.*;cmsis.*;boot_.*;bs2_default.*;.*marker.*;hardware-test_*\")")
+    file(WRITE "${CMAKE_BINARY_DIR}/CMakeGraphVizOptions.cmake" "set(GRAPHVIZ_IGNORE_TARGETS \"Pioasm;ELF2UF2;cyw43.*;m;cybt.*;cmsis.*;boot_.*;bs2_default.*;.*marker.*;hardware-test_*\")")
     file(WRITE "${CMAKE_BINARY_DIR}/test.sh" "
             perl -i -0pe 's/digraph[^}]*/START_REPLACEMENT/' enV5.dot
             perl -pi -e 's/.*\"[^\\\/\\\/\\n]*//g' enV5.dot
