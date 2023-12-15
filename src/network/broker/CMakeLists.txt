@@ -12,4 +12,5 @@ target_link_libraries(espBroker_lib INTERFACE
         at_commands
         esp_lib
         network_lib
+        m
         network_config)
