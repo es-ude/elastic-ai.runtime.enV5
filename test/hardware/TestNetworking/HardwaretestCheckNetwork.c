@@ -6,7 +6,7 @@
 #include "Network.h"
 
 /*!
- * Tries to connect to the network which is specified in NetworkSettings.h. When successful the
+ * Tries to connect to the network which is specified in NetworkConfig.c. When successful the
  * connection is closed and the process repeats.
  */
 

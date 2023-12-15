@@ -2,7 +2,6 @@
 
 #include "HardwaretestHelper.h"
 #include "Esp.h"
-#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
@@ -11,15 +10,12 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "password"};
-mqttBrokerHost_t mqttHost = {.ip = "0.0.0.0", .port = "1883", .userID = "", .password = ""};
-
 void connectToNetwork(void) {
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    networkTryToConnectToNetworkUntilSuccessful();
 }
 
 void connectToMQTT(void) {
-    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
+    mqttBrokerConnectToBrokerUntilSuccessful("enV5", NULL);
 }
 
 void initHardwareTest(void) {

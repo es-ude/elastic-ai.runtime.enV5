@@ -31,7 +31,7 @@
 #include "enV5HwController.h"
 #include "middleware.h"
 
-static networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
+extern networkCredentials_t networkCredentials;
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
@@ -61,7 +61,7 @@ static void initHardware(void) {
 static void downloadBinFile(void) {
     espInit();
     PRINT("Try Connecting to WiFi")
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    networkTryToConnectToNetworkUntilSuccessful();
 
     PRINT("Downloading HW configuration...")
     fpgaConfigurationHandlerError_t error =
