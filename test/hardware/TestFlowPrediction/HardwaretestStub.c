@@ -16,10 +16,8 @@
 #define SOURCE_FILE "HWTEST-MIDDLEWARE"
 
 #include "Common.h"
-#include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
-#include "Network.h"
 #include "enV5HwController.h"
 #include "flow_prediction.h"
 #include "middleware.h"
@@ -29,8 +27,6 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PASSWD"};
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};

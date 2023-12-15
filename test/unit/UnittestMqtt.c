@@ -5,8 +5,7 @@
 
 #include "unity.h"
 
-mqttBrokerHost_t mqttHost = {
-    .ip = "127.0.0.1", .port = "1883", .userID = "user", .password = "password"};
+extern mqttBrokerHost_t mqttHost;
 
 void setUp(void) {
     espStatus.ChipStatus = ESP_CHIP_OK;

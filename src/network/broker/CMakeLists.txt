@@ -11,4 +11,5 @@ target_link_libraries(espBroker_lib INTERFACE
         uart_interface
         at_commands
         esp_lib
-        network_lib)
+        network_lib
+        network_config)

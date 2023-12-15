@@ -32,8 +32,6 @@
 #include "enV5HwController.h"
 
 /* ES-Stud config */
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "PWD"};
-
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
@@ -53,7 +51,7 @@ void initHardwareTest(void) {
 
     // connect to Wi-Fi network
     espInit();
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
+    networkTryToConnectToNetworkUntilSuccessful();
 
     // initialize the Flash and FPGA
     flashInit(&spiConfiguration, csPin);
