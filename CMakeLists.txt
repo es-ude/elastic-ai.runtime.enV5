@@ -59,6 +59,8 @@ else ()
         # include hardware tests
         add_subdirectory(test)
         add_subdirectory(test/hardware)
+
+        add_dependency_graph()
     elseif (PICO_ON_DEVICE)
         message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
     endif ()
