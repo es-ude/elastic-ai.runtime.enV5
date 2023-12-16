@@ -18,6 +18,8 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
