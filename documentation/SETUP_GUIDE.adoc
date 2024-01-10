@@ -1,0 +1,137 @@
+= Setup Guide
+:toc:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+This guide aims to provide a detailed description on how to setup your development environment and contribute to this code base.
+
+IMPORTANT: This Guide assumes you are using a UNIX-like System and have `git` already installed!
+
+== Get the Source Code
+
+At first, you have to download the source code from GitHub and the required submodules.
+This can be archived by running
+
+[source,bash]
+----
+git clone https://github.com/es-ude/elastic-ai.runtime.enV5.git enV5 #<1>
+cd enV5 #<2>
+git submodule update --init --recursive #<3>
+----
+
+in your terminal.
+
+<1> Download the Repository
+<2> Move inside the repository
+<3> Download all Submodules
+
+== System Requirements
+
+To determine if all required tools are installed, it is recommended to run
+
+[source,bash]
+----
+./test_setup.sh
+----
+
+in your terminal.
+If you have missing dependencies, this script will show which are missing.
+
+=== Dependencies
+
+https://gcc.gnu.org/[GCC]::
+-> C Compiler +
+Can be installed via your local package manager like dnf, apt or brew.
+
+
+https://developer.arm.com/downloads/-/gnu-rm[ARM-None-EABI GCC]::
+-> C Cross Compiler for ARM +
+Can be installed via your local package manager like dnf, apt or brew.
+
+
+https://cmake.org[CMake]::
+-> Build System +
+Can be installed via your local package manager like dnf, apt or brew.
+
+https://ninja-build.org/[Ninja]::
+-> Build Tool +
+Can be installed via your local package manager like dnf, apt or brew.
+
+== IDE
+
+We recommend using CLion as your IDE, because this is our standard IDE and all necessary configurations are distributed with this repository.
+
+Start Clion and import the repository folder as a new project.
+When CLion has opened the folder and all <<System Requirements,required tools>> are installed, the IDE will now initialize the build folder, which holds all cmake generated build files.
+
+To build and execute the unit tests, it is recommended to run the 'Unit Tests` target with the 'UnitTests' profile!
+
+To build targets for the enV5 platform, you have to change the profile to either 'Debug' or 'Release'.
+Then you are able to build all targets from 'enV5 Targets' folder.
+The `*.uf2` files to flash the pico can be found under the link:out[out] folder in the root of the project.
+
+== Flash the enV5
+
+. Press and hold `MCU BOOT` on the Elastic Node
+. Press `MCU RST` on the Elastic Node
+. Release `MCU BOOT`
+. Copy the `*.uf2` File to the RPI-RP2 device
+** Via the USB device through your file manager
+** Via the command line by executing `sudo cp out/<file>.uf2 /dev/ttyACM0`
+
+== Get Debug Output from the enV5
+
+To receive output from the enV5 you have to connect the enV5 to your local machine.
+This can be accomplished by connecting the USB-C port of the enV5 with a USB port of your local machine.
+
+Once the enV5 is connected to your computer, you can read the debug output from the device with a serial port reader like screen, minicom or
+https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html[putty].
+
+We recommend using minicom as it is the most versatile of the aforementioned tools.
+You can receive the output of the device by executing
+
+[source,bash]
+----
+minicom \
+-o \ #<1>
+-w \ #<2>
+-b 115200  \ #<3>
+-D /dev/ttyACM0 #<4>
+----
+
+in your terminal.
+
+<1> Disable modem initialisation
+<2> Enable line wrap
+<3> Set the baud rate to 115200
+<4> Define the serial port to read
+
+
+[TIP]
+====
+If you can't receive output from your device, it may be connected to another serial port.
+You can get a list of all available connections by executing
+
+[source,bash]
+----
+# for Linux
+ls /dev/ttyACM*
+
+# for macOS
+ls /dev/tty.*
+----
+in your terminal.
+
+If you still can't receive any output from the enV5 the problem is possibly caused by a bug in the source code.
+If the serial output is not initialized properly (see integration tests), the enV5 is not able to send the output to your device!
+====
+
+== Further Reading
+
+* link:../README.adoc[README]
+* link:../src/fpga/Vivado_Debugger.adoc[Debugging the FPGA]

@@ -10,8 +10,8 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml/badge.svg[Checks.svg]]
-link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[Create
+link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml/badge.svg[Checks]]
+link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
 Release]]
 
 toc::[]
@@ -50,6 +50,8 @@ If you want to do this by yourself, please refer to <<CMake>>.
 
 To run the FPGA related flash scripts, it is recommended to create a local virtual Python environment and install the tools from the
 link:bitfile_scripts/requirements.txt[requirements.txt] file.
+
+TIP: link:documentation/SETUP_GUIDE.adoc[Setup Guide]
 
 == CMake
 
