@@ -17,7 +17,6 @@
 #include "Protocol.h"
 #include "echo_server.h"
 #include "enV5HwController.h"
-#include "middleware.h"
 #include "pico/bootrom.h"
 
 #include <hardware/spi.h>
@@ -27,8 +26,8 @@
 #include <stdio.h>
 #include <string.h>
 
-networkCredentials_t networkCredentials = {.ssid = "SSID", .password = "password"};
-mqttBrokerHost_t mqttHost = {.ip = "0.0.0.0", .port = "1883", .userID = "", .password = ""};
+extern networkCredentials_t networkCredentials;
+extern mqttBrokerHost_t mqttHost;
 
 typedef struct downloadRequest {
     char *url;
@@ -51,8 +50,8 @@ static void initHardware() {
 
     // Connect to Wi-Fi network and MQTT Broker
     espInit();
-    networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
+    networkTryToConnectToNetworkUntilSuccessful();
+    mqttBrokerConnectToBrokerUntilSuccessful("eip://uni-due.de/es", "enV5");
 
     /* Always release flash after use:
      *   -> FPGA and MCU share the bus to flash-memory.

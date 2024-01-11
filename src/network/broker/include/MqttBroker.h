@@ -36,8 +36,7 @@ typedef enum MQTTExceptions {
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
  */
-void mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost, char *brokerDomain,
-                                              char *clientID);
+void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID);
 
 /*!
  * @brief tries to connect to Broker

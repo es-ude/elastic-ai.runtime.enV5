@@ -10,14 +10,16 @@
 #include "HTTP.h"
 #include "Network.h"
 
-networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful(networkCredentials_t credentials) {
+extern networkCredentials_t networkCredentials;
+
+networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
     if (espStatus.WIFIStatus == CONNECTED) {
         PRINT_DEBUG("Already connected to Network! Disconnect first.")
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
 
     while (espStatus.WIFIStatus == NOT_CONNECTED) {
-        networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
+        networkErrorCode_t networkErrorCode = networkConnectToNetwork(networkCredentials);
         if (networkErrorCode == NETWORK_NO_ERROR) {
             break;
         } else if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {

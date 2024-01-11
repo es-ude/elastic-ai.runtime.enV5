@@ -39,7 +39,6 @@ target_link_libraries(unit-test_mqtt
         esp_lib
         espBroker_lib
         unity
-        m
         CException)
 add_test(unit-test_mqtt unit-test_mqtt)
 ## endregion
@@ -50,7 +49,6 @@ target_link_libraries(unit-test_http
         esp_lib
         http_lib
         unity
-        m
         CException)
 add_test(unit-test_http unit-test_http)
 ## endregion
@@ -72,7 +70,6 @@ target_link_libraries(unit-test_fpgaConfigurationHandler
         http_lib_dummy
         flash_lib
         fpga_configuration_handler
-        m
         unity)
 add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
 ## endregion

@@ -26,12 +26,13 @@ mqttBrokerSubscription_t mqttBrokerSubscriptions[MAX_SUBSCRIBER];
 bool mqttBrokerReceiverFunctionSet = false;
 bool mqttUserConfigSet = false;
 
+extern mqttBrokerHost_t mqttHost;
+
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void mqttBrokerConnectToBrokerUntilSuccessful(mqttBrokerHost_t mqttHost, char *brokerDomain,
-                                              char *clientID) {
+void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID) {
 
     // check if connected to some broker
     mqttBrokerDisconnect(espStatus.MQTTStatus == CONNECTED);

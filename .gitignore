@@ -2,6 +2,7 @@
 .tool-versions
 .venv
 networks.txt
+NetworkConfig.c
 node_modules/
 .husky/
 *.json
@@ -43,12 +44,13 @@ _deps
 # Ignore all local history of files
 .history
 .ionide
-
 # End of https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
+
 cmake-build-*
 build/
 build_*/
 out/
+**/NetworkConfig.c
 
 ## IntelliJ IDEA
 .idea/workspace.xml
