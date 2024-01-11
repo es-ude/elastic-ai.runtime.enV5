@@ -1,0 +1,61 @@
+= Acceleration Sensor
+:src-dir: ../../..
+
+== Metrics
+
+[horizontal]
+Type:: ADXL345B
+Usage:: Measure the acceleration in x,y,z direction
+Info::
+https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf[Datasheet]
+
+== Provided Functionality
+
+.link:./include/Adxl345b.h[Adxl345b.h]
+[source,C]
+----
+include::include/Adxl345b.h[tags=prototypes]
+----
+
+== Basic Usage Example
+
+.main.c
+[source,C]
+----
+#include "adxl345b/Adxl345b.h"
+#include "hardware/i2c.h"
+
+int main(void) {
+    adxl345bErrorCode_t errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS); // <1>
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode; // <2>
+    }
+
+    float xAxis, yAxis, zAxis;
+    errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis); // <3>
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode; // <2>
+    }
+
+    return 0;
+}
+----
+
+<1> Initialize Sensor *ALWAYS REQUIRED*
+<2> Handle possible errors
+<3> Read G value in x, y and z direction
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-adxl345b-app main.c)
+target_link_libraries(my-adxl345b-app
+        hardware_i2c # <1>
+        sensor_lib_adxl345b) # <2>
+create_enV5_executable(my-adxl345b-app)
+----
+
+<1> Add the pico-sdk library for I2C support
+<2> Add the sensor library
+
+TIP: A more sophisticated example of how to use this sensor is provided with link:{src-dir}/test/hardware/Sensors/HardwaretestAdxl345b.c[HardwaretestADXL345b.c].

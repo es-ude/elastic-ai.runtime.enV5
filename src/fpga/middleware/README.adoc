@@ -1,0 +1,180 @@
+= Middleware
+:src-dir: ../../..
+:imagesdir: {src-dir}/documentation/pics
+
+== Using the neural network accelerator
+
+The FPGA and MCU are connected via SPI and four GPIO pins:
+
+[cols=",",options="header",]
+|===
+|MCU |FPGA
+|PIO13 |GPIO0
+|PIO14 |GPIO1
+|PIO15 |GPIO2
+|PIO20 |GPIO3
+|===
+
+To expose the network accelerator to an application, running on an MCU, we use a middleware.
+An application can call a small set of C functions (stub) to interact with a given HWFunction.
+This stub is specific to its corresponding HWFunction.
+In our case, the HWFunction corresponds to the neural network accelerator.
+
+ifdef::env-github[]
+[source,mermaid]
+endif::[]
+ifndef::env-github[]
+[mermaid]
+endif::[]
+....
+flowchart LR
+
+subgraph FPGA
+    direction TB
+    HWFunction
+    MWFPGA[Middleware]
+    Skeleton
+    MWFPGA --> Skeleton
+    Skeleton --> HWFunction
+end
+
+subgraph MCU
+    direction TB
+    MWMCU[Middleware]
+    Stub
+    App
+    Stub --> MWMCU
+    App --> Stub
+end
+
+MWMCU --> MWFPGA
+....
+
+App::
+User supplied application, calling stub to access neural network accelerator (HWFunction)
+
+Stub::
+* Passes data to the HWFunction and starts the computation
+* Returns results of computation
+* Allows *App* to check if HWFunction is loaded or not
+* Allows *App* to load HWFunction
+
+Middleware::
+* Load Binfiles from specific addresses in flash memory
+* Disable/enable skeleton, i.e. its corresponding HWFunction
+* Pass memory mapped io through to skeleton
+
+Skeleton::
+* Counterpart to stub
+* Specific to HWFunction
+
+HWFunction::
+* In general, an arbitrary function we want to execute on the FPGA
+* Here: The neural network accelerator
+
+== Middleware Memory Mapped IO via SPI
+
+We transmit data via SPI in the following format to interact with the FPGA.
+
+.The FPGA
+* The First two bytes determine the message type, transmitted low byte first
+* The rest of the transferred data is the payload
+* C code example of read/write:
+** `uint16_t write_command = command | 0x8000;`
+** `uint16_t read_command = command & 0x7FFF;`
+* The start of a message is marked by pulling down the SPI slave select pin, the end is marked by pulling the slave select pin up
+
+[cols="2*",options="header"]
+|===
+|bit 15 |bits 14-0
+a|r=0 +
+w=1
+|message type
+|===
+
+=== Timing diagram
+
+NOTE: SPI Master clock is left out.
+
+image:wavedrom.png[wavedrom.png]
+
+.The code to generate the diagram above using https://wavedrom.com/editor.html[wavedrom]:
+[source,wavedrom]
+----
+{signal: [
+  {name: 'byte', wave:                   '===...............===|====', data: ['', '', '0', '1', '2', '3', 'n', 'n+1']},
+  {name: 'chip_select', wave:            '1.0..................|..1.'},
+  {name: 'miso for write case', wave:        'x.34..............5..|..x.', data: ['w', 'start address', 'data byte wise']},
+  {name: 'mosi for write case', wave: 'x..........................'},
+  {name: 'miso for read case', wave:         'x.34..............x..|..x.', data: ['r', 'start address']},
+
+  {name: 'mosi for read case', wave:         'x.x...............5..|..x.', data: ['data byte wise']},
+]}
+----
+
+=== Message Types: `0x00-0xFF`
+
+LED: `0x03` (1 byte)::
+* each of the lowest four bits controls one of the LEDs
+* 0=OFF, 1=ON
+
+.Command to turn on first led:
+[source,C]
+----
+uint8_t command[] = {0x80, 0x03, 0x01};
+for (i=0; i < 2; i++) {
+    send_byte(command[i]);
+}
+----
+
+USERLOGIC_CONTROL: `0x04` (1 byte)::
+* Sets the reset pin of the skeleton
+
+Multiboot: `0x05-0x07` (3 bytes)::
+* Start address of the configuration to load from flash
+* Triggers reconfiguration after write to byte 0x07 is complete
+* Starting with the lowest byte of the address to 0x05
+* Always write all three bytes
+
+[source, C]
+----
+uint8_t input_data = {0x80, 0x05, 0xXX, 0xXX, 0xXX} // <1>
+for (i=0; i < 2; i++) {
+    send_byte(command[i]);
+}
+----
+<1> `0xXX` bytes specify the start address oth the configuration  in the flash
+
+WARNING: Other message types (`0x08-0xFF`) are reserved for future uses!
+
+=== User Logic Region: `0x100-0x??`
+
+* Passed through to skeleton
+* The offset `0x100` is transparent to stub and skeleton
+
+== Skeleton
+
+The supported address range for the neural network skeleton ranges from 0 to 99.
+The skeleton we use for neural networks uses its memory mapped IO as follows:
+
+[cols="1,5,5,10",options="header",]
+|===
+|mode |address (bytewise) |value (byte) |meaning
+
+|write |0x100             |0x01      |start computation
+|write |0x100             |0x00      |stop computation
+|write |0x00 to 0x99      |arbitrary |write up to 99 bytes of input data
+|read  |0x00 to 0x99      |result    |read up to 99 bytes of computation result
+|read  |0x2000 to 0x2015  |id        |id of the loaded hw function
+|===
+
+The byte for triggering computation start/stop is written to the address directly after the end of the input data.
+
+The skeleton provides a `busy` and a `done` signal that tell whether computation is still running or finished.
+The FPGA GPIO2 is connected to `busy`, the MCU can read that line to find out if the computation has finished.
+
+[IMPORTANT]
+====
+We assume that data is read byte by byte using a new read command per byte.
+You need to read each of these bytes two times and can only be sure that the second read produces a valid result.
+====

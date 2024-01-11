@@ -9,10 +9,11 @@
 
 /* region CONSTANTS */
 
-static adxl345bI2cSensorConfiguration_t adxl345bI2cSensorConfiguration; /*!< i2c configuration for
-                                                                         * the sensor */
+//! i2c configuration for the sensor
+static adxl345bI2cSensorConfiguration_t adxl345bI2cSensorConfiguration;
 
-static adxl345bRange_t adxl345bSelectedRange; /*!< measurement range configuration */
+//! measurement range configuration
+static adxl345bRange_t adxl345bSelectedRange;
 
 /* endregion */
 
@@ -29,8 +30,7 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
     /* sleep to make sure the sensor is fully initialized */
     sleep_for_ms(2);
 
-    /* Check if sensor ADXL345B is on Bus by requesting serial number without
-     * processing */
+    /* Check if sensor ADXL345B is on Bus by requesting serial number without processing */
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = ADXL345B_REGISTER_DEVICE_ID;
@@ -87,9 +87,8 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(uint8_t *serialNumber) {
 
     adxl345bErrorCode_t adxl345bErrorCode = adxl345bInternalReadDataFromSensor(
         ADXL345B_REGISTER_DEVICE_ID, responseBuffer, sizeOfResponseBuffer);
-    if (adxl345bErrorCode != ADXL345B_NO_ERROR) /* if i2c returns error -> sensor not available on
-                                                   bus */
-    {
+    // if i2c returns error -> sensor not available on bus
+    if (adxl345bErrorCode != ADXL345B_NO_ERROR) {
         return adxl345bErrorCode;
     }
 
@@ -104,14 +103,13 @@ adxl345bErrorCode_t adxl345bReadMeasurements(float *xAxis, float *yAxis, float *
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    /* check if data is ready */
     do {
         errorCode = adxl345bInternalReadDataFromSensor(ADXL345B_REGISTER_INTERRUPT_SOURCE,
                                                        &interruptSources, 1);
         if (errorCode != ADXL345B_NO_ERROR) {
             return errorCode;
         }
-    } while (!(interruptSources & 0b10000000));
+    } while (!(interruptSources & 0b10000000)); // check if data is ready
 
     errorCode = adxl345bInternalReadDataFromSensor(ADXL345B_REGISTER_DATA_X, responseBuffer,
                                                    sizeOfResponseBuffer);

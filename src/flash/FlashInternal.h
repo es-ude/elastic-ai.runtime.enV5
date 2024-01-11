@@ -3,6 +3,10 @@
 
 #include "FlashTypedefs.h"
 
+/*!
+ * \brief flash enable write has to be sent before every write/erase operation
+ *        to enable modifications to the data
+ */
 static void flashEnableWrite(void);
 
 static uint8_t flashReadStatusRegister(void);

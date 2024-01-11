@@ -24,10 +24,10 @@ if (UNIT_TEST)
     add_subdirectory(extern/elastic-ai.runtime.c)
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
+    add_subdirectory(src/network/config)
 
     # include dummies for local machine
     add_subdirectory(test/unit/dummies)
-    add_subdirectory(test)
 
     # include our own libraries to test
     add_subdirectory(src/sensor/sht3x)
@@ -57,7 +57,6 @@ else ()
         add_sensor_libraries()
 
         # include hardware tests
-        add_subdirectory(test)
         add_subdirectory(test/hardware)
 
         add_dependency_graph()

@@ -1,0 +1,11 @@
+= Hardware Abstraction Layer
+
+The Hardware Abstraction Layer (HAL) libraries are meant to bundle all dependencies into the pico-sdk.
+This is done to archive independence from the used hardware in other libraries like sensor libraries.
+
+== Pico-SDK
+
+The https://github.com/raspberrypi/pico-sdk[pico-sdk] is included as an external dependency to enable sufficient usage of the RP2040 MCU.
+It provides simple to use interfaces for the hardware functions provided by the Raspberry MCU.
+
+NOTE: https://www.raspberrypi.com/documentation/pico-sdk/[Pico-SDK Documentation]

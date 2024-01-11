@@ -1,0 +1,193 @@
+= elastic-ai.runtime.enV5
+:toc:
+:toclevels: 3
+:toc-placement!:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml/badge.svg[Checks]]
+link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
+Release]]
+
+toc::[]
+
+This repository aims to provide the Elastic-AI implementation for the Elastic Node version 5 (enV5).
+Mor about this project can be found at the https://www.uni-due.de/es/elastic_ai.php[project homepage].
+
+== Setup
+
+For compiling the project, the required tools are:
+
+* gcc (local C compiler)
+* arm-non-eabi-gcc (C compiler for RP2040)
+* CMake (Build Script Generator)
+* Ninja (Build Tool)
+
+We recommended pre-commit to check that the commit messages align with the conventional commit message standard.
+
+TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:.[root
+directory].
+
+After pulling the repository, you are required to download all submodules (see <<Submodules>>).
+This can be archived by executing
+
+[source,bash]
+----
+git submodule update --init --recursive
+----
+
+After installing all dependencies, you are now able to build the software targets.
+First, you need to generate the build scripts with cmake and then execute them
+
+NOTE: If you use the CLion IDE as recommended, the build script generation is done by the IDE itself.
+
+If you want to do this by yourself, please refer to <<CMake>>.
+
+To run the FPGA related flash scripts, it is recommended to create a local virtual Python environment and install the tools from the
+link:bitfile_scripts/requirements.txt[requirements.txt] file.
+
+TIP: link:documentation/SETUP_GUIDE.adoc[Setup Guide]
+
+IMPORTANT: You have to adjust the network/mqtt broker credentials as mentioned in link:src/network/README.adoc#_wifi_lib[network README]!
+
+
+== CMake
+
+There are three CMake Profiles provided with the CLion settings:
+*Debug*, *Release*, and *UnitTests*.
+
+Only the _UnitTests_ profile allows you to compile source code for your local machine and therefore run the unit tests.
+The _Debug_ and _Release_ targets differ only in the amount of printed information when the software is executed on an enV5-device.
+
+.Profiles
+[source,bash]
+----
+# Unit-test profile
+cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
+
+# Debug profile
+cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
+
+# Release profile
+cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
+----
+
+The flag `-G Ninja` tells CMake to use Ninja as the build tool.
+If this flag is not passed, CMake will use the default build tool on your machine (mostly Makefiles).
+
+=== Target: Local Machine
+
+The local execution of the source code requires a different hal implementation, due to the fact that the hal implementation from the `src` folder is directly connected to the pico-sdk which forces the compiler to build for the RP2040 arm-based platform instead of your local machine.
+The hal dummies for the local machine can be found under link:test/unit/dummies/[test/unit/dummies].
+
+==== Unit Tests
+
+The unit-tests can be build and executed by running:
+
+[source,bash]
+----
+# build the unit-tests
+cmake --build build/unit-tests -j 4 --clean-first
+
+# execute the unit-tests
+ctest --test-dir build/unit-tests/test/unit --output-on-failure
+----
+
+The built unit-tests can then be found under
+link:build/unit-tests/test/unit[build/unit-tests/test/unit] as executables.
+
+=== Target Pico
+
+==== Build all Targets
+
+The debug targets can be built by executing:
+
+[source,bash]
+----
+cmake --build build/debug -j 4
+----
+
+The release targets can be built by executing:
+
+[source,bash]
+----
+cmake --build build/release -j 4
+----
+
+The `*.uf2` files to flash the pico can than be found under the
+link:out[out] folder.
+
+==== Hardware Tests
+
+The hardware tests can be build using
+
+[source,bash]
+----
+cmake --build build/debug -j 4 --target <test_name>
+----
+
+replacing `<test_name>` with the name of the test.
+
+The resulting `<test_name>.u2f` files to flash the pico can be found under the link:./out[out] folder.
+
+==== Flashing the Elastic Node version 5 (enV5)
+
+. Press and hold `MCU BOOT` on the Elastic Node
+. Press `MCU RST` on the Elastic Node
+. Release `MCU BOOT`
+. Copy the `*.uf2` File to the RPI-RP2 device
+
+==== CMD line output
+
+If the pico is connected to the local machine the `printf()` statements inside the code will be redirected to the USB and are available as serial port output.
+This output can be read via a serial port reader like screen, minicom or
+https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html[putty].
+
+The following example shows how to use minicom on a Unix-based system:
+
+[source,bash]
+----
+minicom \
+-b 115200  \ #<1>
+-o \ #<2>
+-D /dev/ttyACM0 #<3>
+----
+
+<1> `-b 115200` -> baud rate for connection
+<2> `-o` -> disable modem initialisation
+<3> `-D /dev/ttyACM0` -> serial port
+
+[IMPORTANT]
+====
+The serial port differs depending on the host machine!
+It can be found via `ls /dev/tty*` (Linux) or `ls /dev/tty.*` (macOS) from the terminal.
+====
+
+==== Debug Output
+
+To enable enhanced Debug output, add the flag `-D DEBUG_OUTPUT:BOOL=ON`
+to the <<_cmake,CMake Setup call>> (or add it in the CLion CMake options).
+This enables the `PRINT_DEBUG(...)` macro from link:src/common/include/Common.h[Common.h] in all targets.
+
+== Submodules
+
+Following submodules are being used
+
+* https://github.com/es-ude/elastic-ai.runtime.c[es-ude/elastic-ai.runtime.c]
+* https://github.com/raspberrypi/pico-sdk[raspberrypi/pico-sdk]
+* https://github.com/FreeRTOS/FreeRTOS-Kernel[FreeTROS/FreeRTOS-Kernel]
+* https://github.com/ThrowTheSwitch/CException[ThrowTheSwitch/CExcpetion]
+* https://github.com/ThrowTheSwitch/Unity[ThrowTheSwitch/Unity]
+
+== Troubleshooting
+
+* In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`.
+This will most likely fix the problem.
+** It is recommended to erase all submodules from your local machine with `git submodules deinit --all`
+* To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
+* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:src/network/config/NetworkConfig.c[NetworkConfig.c])

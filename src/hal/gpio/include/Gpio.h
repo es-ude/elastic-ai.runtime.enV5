@@ -36,16 +36,49 @@ typedef enum gpioDirection {
     GPIO_OUTPUT = 1,
 } gpioDirection_t;
 
+/*!
+ * @brief Initialize GPIO for input or output.
+ *        Has to be called before the GPIO can be used!
+ * @param pin GPIO
+ * @param direction input or output
+ * @return 0x00 if no error occurred
+ */
 gpioErrorCode_t gpioInitPin(gpioPin_t pin, gpioDirection_t direction);
 
+/*!
+ * @brief Disable GPIO
+ * @param pin GPIO
+ * @return 0x00 if no error occurred
+ */
 gpioErrorCode_t gpioDisablePin(gpioPin_t pin);
 
+/*!
+ * @brief Set the Function of the GPIO
+ * @param pin GPIO
+ * @param function Function to USE (I2C, SPI, ...)
+ * @return 0x00 if no error occurred
+ */
 gpioErrorCode_t gpioSetPinFunction(gpioPin_t pin, gpioPinFunction_t function);
 
+/*!
+ * @brief Enable pull-up resistor of GPIO
+ * @param pin GPIO
+ * @return 0x00 if no error occurred
+ */
 gpioErrorCode_t gpioEnablePullUp(gpioPin_t pin);
 
+/*!
+ * @brief Set GPIO output to HIGH/LOW
+ * @param pin GPIO
+ * @param mode 1=HIGH / 0=LOW
+ */
 void gpioSetPin(gpioPin_t pin, gpioPinMode_t mode);
 
+/*!
+ * @brief Get GPIO input value
+ * @param pin GPIO
+ * @return 0 if LOW / else High
+ */
 bool gpioGetPin(gpioPin_t pin);
 
 #endif /* ENV5_GPIO_HEADER */

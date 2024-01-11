@@ -25,45 +25,50 @@ typedef enum MQTTExceptions {
     MQTT_COULD_NOT_DISCONNECT_BROKER = 0x06
 } MQTTExceptions_t;
 
-/*! \brief tries to connect to Broker until successful
+/*!
+ * @brief tries to connect to Broker until successful
  *
- * Set the broker domain, client Id and then tries to connect to the host broker until successful.
- * Is successful if there is already any connection.
+ * Set the broker domain, client ID and then tries to connect to the host broker until successful.
+ * If there is already any connection, then it is also successful.
  *
- * \param mqttHost contains ip and port of MQTT host
- * \param brokerDomain domain of broker, added before every message
- * \param clientID getDomain of this client, used to Identify to the Broker and added
- * after the Domain in every message
+ * @param mqttHost contains ip and port of MQTT host
+ * @param brokerDomain domain of broker, added before every message
+ * @param clientID return value of `getDomain` for this client,
+ *                 used to Identify to the Broker and added after the Domain in every message
  */
 void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID);
 
-/*! \brief tries to connect to Broker
+/*!
+ * @brief tries to connect to Broker
  *
- * Set the broker domain, client Id and then tries to connect to the host broker. Is successful if
- * there is already any connection.
+ * Set the broker domain, client ID and then tries to connect to the host broker.
+ * If there is already any connection, then it is also successful
  *
- * \param mqttHost contains ip and port of MQTT host
- * \param brokerDomain domain of broker, added before every message
- * \param clientID getID of this client, used to Identify to the Broker and added after the Domain
- * in every message \return true if connection successful or already connected, otherwise false
+ * @param mqttHost contains ip and port of MQTT host
+ * @param brokerDomain domain of broker, added before every message
+ * @param clientID return value of `getDomain` for this client,
+ *                 used to Identify to the Broker and added after the Domain in every message
  */
 void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID);
 
 void publishLong(posting_t posting);
 
-/*! \brief disconnect from MQTT broker
- *
+/*!
+ * @brief disconnect from MQTT broker
  * @param force[bool] if set disconnect comment will force disconnect
  */
 void mqttBrokerDisconnect(bool force);
 
-/*! \brief called by uart when MQTT message is received
- *
- * \param response the MQTT message received
+/*!
+ * @brief called by uart when MQTT message is received
+ * @param response the MQTT message received
  */
 void mqttBrokerReceive(char *response);
 
-/*! \brief Published Online Status */
-void publishAliveStatusMessage(char *measurements);
+/*!
+ * @brief publish online status
+ * @param availableMeasurements topic IDs of the available measurements
+ */
+void publishAliveStatusMessage(char *availableMeasurements);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

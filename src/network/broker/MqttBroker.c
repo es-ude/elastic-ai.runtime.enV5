@@ -442,11 +442,11 @@ static void mqttBrokerInternalSetConnectionConfiguration(void) {
     }
 }
 
-void publishAliveStatusMessage(char *measurements) {
+void publishAliveStatusMessage(char *availableMeasurements) {
     protocolPublishStatus((status_t){.id = mqttBrokerClientId,
                                      .type = STATUS_TYPE_DEVICE,
                                      .state = STATUS_STATE_ONLINE,
-                                     .measurements = measurements});
+                                     .measurements = availableMeasurements});
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {

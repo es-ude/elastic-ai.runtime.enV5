@@ -3,10 +3,10 @@
 
 #include <stdbool.h>
 
-/*! \brief check if ESP responds to commands */
+/*! @brief check if ESP responds to commands */
 bool espInternalCheckIsResponding(void);
 
-/*! \brief sends reset command to ESP */
+/*! @brief sends reset command to ESP */
 bool espInternalSoftReset(void);
 
 #endif /* ENV5_ESP_INTERNAL_HEADER */

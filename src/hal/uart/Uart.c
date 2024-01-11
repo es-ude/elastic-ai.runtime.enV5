@@ -28,6 +28,7 @@ void (*uartMqttBrokerReceive)(char *) = NULL;
 void (*uartHTTPReceive)(char *) = NULL;
 
 void (*uartInternalCallbackUartRxInterrupt)(void);
+
 /* endregion  VARIABLES*/
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -46,8 +47,8 @@ void uartInit(uartDevice_t *device) {
     gpioSetPinFunction(uartDevice->rxPin, GPIO_FUNCTION_UART);
 
     // Set up our UART with requested baud rate.
-    // The call will return the actual baud rate selected, which will be as close as possible to
-    // that requested
+    // The call will return the actual baud rate selected,
+    // which will be as close as possible to that requested
     uartDevice->baudrateActual =
         uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrateSet);
 
@@ -123,10 +124,12 @@ void uartFreeCommandBuffer(void) {
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
 
-/*! IMPORTANT: Don't use print statements for debugging!!
- *             Print statements will cause timing/buffer issues
- */
 void uartInternalHandleNewLine(void) {
+    /* IMPORTANT:
+     *   Don't use print statements for debugging!!
+     *   Print statements will cause timing/buffer issues
+     */
+
     if (0 == strlen(uartDevice->receiveBuffer)) {
         PRINT_DEBUG("Empty Buffer")
         return;
@@ -153,14 +156,20 @@ void uartInternalHandleNewLine(void) {
     }
 }
 
-/*! IMPORTANT: Don't use print statements for debugging!!
- *             Print statements will cause timing/buffer issues
- */
 void checkAndHandleNewChar(void) {
+    /* IMPORTANT:
+     *   Don't use print statements for debugging!!
+     *   Print statements will cause timing/buffer issues
+     */
+
     while (uart_is_readable((uart_inst_t *)uartDevice->uartInstance)) {
         char receivedCharacter = uart_getc((uart_inst_t *)uartDevice->uartInstance);
 
-        // handle HTTP get
+        // handle HTTP-GET
+        /* IMPORTANT:
+         *   has to be done before others,
+         *   because binary data payload can contain CR/LF sequenc without!
+         */
         if (uartCurrentMessageIsHttpResponse && uartHttpResponseLength > 0) {
             // append new character to buffer
             uartDevice->receiveBuffer[uartDevice->receivedCharacter_count] = receivedCharacter;

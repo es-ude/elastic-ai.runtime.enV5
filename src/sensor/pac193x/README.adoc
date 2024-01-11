@@ -1,0 +1,72 @@
+= Power Sensor
+
+== Metrics
+
+[horizontal]
+Type:: PAC1934
+
+Usage::
+Measure Power consumption of the FPGA/Flash +
+Measure Power consumption of the Wi-Fi module
+INFO:: https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf[Datasheet]
+
+== Provided Functionality
+
+.link:./include/Pac193x.h[Pac193x.h]
+[source,C]
+----
+include::include/Pac193x.h[tags=prototypes]
+----
+
+== Basic Usage Example
+
+.main.c
+[source,c]
+----
+#include "pac193x/Pac193x.h"
+#include "hardware/i2c.h"
+
+pac193xSensorConfiguration_t sensor = {
+    .i2c_host = i2c1,
+    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .powerPin = -1,
+    .usedChannels = {.uint_channelsInUse = 0b00000011},
+    .rSense = {0.82f, 0.82f, 0, 0},
+}; // <1>
+
+int main(void) {
+    pac193xErrorCode_t errorCode = pac193xInit(sensor); // <2>
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode; // <3>
+    }
+
+    pac193xMeasurements_t measurements;
+    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements); // <4>
+    if (errordCode != PAC193X_NO_ERROR) {
+        return errorCode; // <3>
+    }
+
+    return 0;
+}
+----
+
+<1> Sensor Configuration *ALWAYS REQUIRED*
+<2> Initialize Sensor *ALWAYS REQUIRED*
+<3> Handle possible errors
+<4> Read Values from Channel
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-pac193x-app main.c)
+target_link_libraries(my-pac193x-app
+        hardware_i2c # <1>
+        sensor_lib_pac193x) # <2>
+create_enV5_executable(my-pac193x-app)
+----
+
+<1> Add the pico-sdk library for I2C support
+<2> Add the sensor library
+
+TIP: A more sophisticated example of how to use this sensor is provided with
+link:../../../test/hardware/Sensors/HardwaretestPac193x.c[HardwaretestPac193x.c].

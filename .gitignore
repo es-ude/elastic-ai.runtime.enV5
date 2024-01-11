@@ -2,6 +2,7 @@
 .tool-versions
 .venv
 networks.txt
+NetworkConfig.c
 node_modules/
 .husky/
 *.json

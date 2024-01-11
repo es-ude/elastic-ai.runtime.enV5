@@ -33,20 +33,18 @@ enum {
  * ADXL345B_I2C_ALTERNATE_ADDRESS should be chosen if the ALT ADDRESS pin (12)
  * is connected to GND ADXL345B_I2C_ADDRESS otherwise
  */
-enum {
+typedef enum adxl345bI2cSlaveAddress {
     ADXL345B_I2C_ADDRESS = 0x1D,
     ADXL345B_I2C_ALTERNATE_ADDRESS = 0x53,
-};
-typedef uint8_t adxl345bI2cSlaveAddress_t;
+} adxl345bI2cSlaveAddress_t;
 
-struct adxl345bI2cConfiguration {
+typedef struct adxl345bI2cConfiguration {
     adxl345bI2cSlaveAddress_t i2c_slave_address;
     i2c_inst_t *i2c_host;
-};
-typedef struct adxl345bI2cConfiguration adxl345bI2cSensorConfiguration_t;
+} adxl345bI2cSensorConfiguration_t;
 
 /* All Register + address of the ADXL345B */
-enum {
+typedef enum adxl345Register {
     ADXL345B_REGISTER_DEVICE_ID = 0x00,
     ADXL345B_TAP_THRESHOLD = 0x1D,
     ADXL345B_OFFSET_X = 0x1E,
@@ -74,22 +72,20 @@ enum {
     ADXL345B_REGISTER_DATA_Z = 0x36,
     ADXL345B_FIFO_CONTROL = 0x38,
     ADXL345B_FIFO_STATUS = 0x39
-};
-typedef uint8_t adxl345bRegister_t;
+} adxl345bRegister_t;
 typedef uint8_t adxl345bConfiguration_t;
 
 typedef uint8_t adxl345bMsbMask_t;
 typedef float adxl345bScaleFactor_t;
 typedef uint8_t adxl345bRangeSettings_t;
-struct adxl345bRange {
+typedef struct adxl345bRange {
     uint8_t maxRange;
     adxl345bRangeSettings_t settingForRange;
     adxl345bMsbMask_t msbMask;
     adxl345bScaleFactor_t scaleFactor;
-};
-typedef struct adxl345bRange adxl345bRange_t;
+} adxl345bRange_t;
 
-enum {
+typedef enum adxl345bErrorCode {
     ADXL345B_NO_ERROR = 0x00,
     ADXL345B_SEND_COMMAND_ERROR = 0x01,
     ADXL345B_RECEIVE_DATA_ERROR = 0x02,
@@ -101,7 +97,6 @@ enum {
     ADXL345B_SELF_TEST_FAILED_FOR_X = 0x31,
     ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,
     ADXL345B_SELF_TEST_FAILED_FOR_Z = 0x33,
-};
-typedef uint8_t adxl345bErrorCode_t;
+} adxl345bErrorCode_t;
 
 #endif /* ENV5_ADXL345B_TYPEDEFS */

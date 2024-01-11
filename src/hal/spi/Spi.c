@@ -3,6 +3,13 @@
  *      GND/LOW -> Enable
  */
 
+/* IMPORTANT:
+ *   spiEnableDevice has to be called before every function
+ *   spiDisableDevice has to be called after every function
+ *
+ * Because the QX-SPI library currently uses the same SPI module with other setup!
+ */
+
 #define SOURCE_FILE "SPI"
 
 #include <stdint.h>
