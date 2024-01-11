@@ -53,6 +53,9 @@ link:bitfile_scripts/requirements.txt[requirements.txt] file.
 
 TIP: link:documentation/SETUP_GUIDE.adoc[Setup Guide]
 
+IMPORTANT: You have to adjust the network/mqtt broker credentials as mentioned in link:src/network/README.adoc#_wifi_lib[network README]!
+
+
 == CMake
 
 There are three CMake Profiles provided with the CLion settings:
@@ -187,3 +190,4 @@ Following submodules are being used
 This will most likely fix the problem.
 ** It is recommended to erase all submodules from your local machine with `git submodules deinit --all`
 * To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
+* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:src/network/config/NetworkConfig.c[NetworkConfig.c])

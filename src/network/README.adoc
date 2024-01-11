@@ -4,8 +4,7 @@
 
 == Hardware
 
-Based on [.underline]#espressif ESP32-C3-WROOM-02# wifi-module
-The module is placed on the extension board and connected to the MCU via SPI.
+Based on [.underline]#espressif ESP32-C3-WROOM-02# wifi-module The module is placed on the extension board and connected to the MCU via SPI.
 
 The module currently operates based on the standard espressif binary, which based communication with MCU on the <<_esp_protocol,ESP Protocol>>.
 
@@ -27,7 +26,8 @@ The https://docs.espressif.com/projects/esp-at/en/release-v2.2.0.0_esp8266/AT_Co
 The wifi library provided under link:wifi/[wifi] provides all required functions to connect to a local wifi network.
 
 To connect to a network, the SSID and Password has to be passed to the library.
-The recommended way to this is to add `extern` variables to your entrypoint and a separate file `Credentials.c` to your CMake target sources, that provides the required informations.
+The CMake scripts will automatically create a `NetworkConfig.c` inside the link:./config/[config folder].
+When you want to use wifi capabilities you than have to add the `network_config` library to your source code.
 
 .Example
 [%collapsible]
@@ -37,19 +37,19 @@ The recommended way to this is to add `extern` variables to your entrypoint and 
 ----
 #include "Network.h"
 
-extern networkCredentials_t networkCredentials;
-
 int main (void) {
     //...
-    networkConnectToNetwork(networkCredentials);
+    networkConnectToNetwork();
     //...
 }
 ----
 
-.Credentials.c
+.NetworkConfig.c
 [source,C]
 ----
 #include "Network.h"
+
+// ...
 
 networkCredentials_t networkCredentials = {
     .ssid = "SSID",
@@ -61,10 +61,10 @@ networkCredentials_t networkCredentials = {
 [source,CMake]
 ----
 add_executable(my-network-app
-    main.c
-    Credentials.c)
+    main.c)
 target_link_libraries(my-network-app
         ...
+        network_config
         network_lib)
 create_enV5_executable(my-network-app)
 ----
@@ -85,7 +85,8 @@ To properly handle the received answer from the ESP32 module it is required to r
 This handler is automatically set when the broker connection was successful.
 
 To connect to a broker, the required credentials have to be passed to the library.
-The recommended way to this is to add `extern` variables to your entrypoint and a separate file `Credentials.c` to your CMake target sources, that provides the required information.
+The CMake scripts will automatically create a `NetworkConfig.c` inside the link:./config[config folder].
+When you want to use mqtt capabilities you than have to add the `network_config` library to your source code.
 
 IMPORTANT: The `clientId` of every device has to be different
 
@@ -97,21 +98,22 @@ IMPORTANT: The `clientId` of every device has to be different
 ----
 #include "MQTTBroker.h"
 
-extern mqttHost_t broker;
-extern char* brokerDomain;
-extern char* clientId;
+char[] brokerDomain = "eip://uni-due.de/es";
+char[] clientId = "enV5";
 
 int main (void) {
     //...
-    mqttBrokerConnectToBroker(broker, brokerDomain, clientId);
+    mqttBrokerConnectToBroker(brokerDomain, clientId);
     //...
 }
 ----
 
-.Credentials.c
+.NetworkConfig.c
 [source,C]
 ----
 #include "MQTTBroker.h"
+
+// ...
 
 mqttHost_t broker = {
     .ip = "127.0.0.1",
@@ -119,18 +121,16 @@ mqttHost_t broker = {
     .userId = "USER",
     .password = "PASSWORD"
 };
-char[] brokerDomain = "eip://uni-due.de/es";
-char[] clientId = "enV5";
 ----
 
 .CMakeLists.txt
 [source,CMake]
 ----
 add_executable(my-network-app
-    main.c
-    Credentials.c)
+    main.c)
 target_link_libraries(my-network-app
         ...
+        network_config
         espBroker_lib)
 create_enV5_executable(my-network-app)
 ----

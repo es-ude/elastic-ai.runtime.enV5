@@ -26,6 +26,7 @@ add_test(unit-test_pac193x unit-test_pac193x)
 ## region UNIT-TEST: unit-test_network
 add_executable(unit-test_network ${CMAKE_CURRENT_LIST_DIR}/UnittestNetwork.c)
 target_link_libraries(unit-test_network
+        network_config
         esp_lib
         network_lib
         unity
@@ -36,6 +37,7 @@ add_test(unit-test_network unit-test_network)
 ## region UNIT-TEST: unit-test_mqtt
 add_executable(unit-test_mqtt ${CMAKE_CURRENT_LIST_DIR}/UnittestMqtt.c)
 target_link_libraries(unit-test_mqtt
+        network_config
         esp_lib
         espBroker_lib
         unity
@@ -46,7 +48,6 @@ add_test(unit-test_mqtt unit-test_mqtt)
 ## region UNIT-TEST: unit-test_http
 add_executable(unit-test_http ${CMAKE_CURRENT_LIST_DIR}/UnittestHTTP.c)
 target_link_libraries(unit-test_http
-        esp_lib
         http_lib
         unity
         CException)
