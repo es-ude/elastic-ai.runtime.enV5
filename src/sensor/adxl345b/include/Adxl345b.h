@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #include "Adxl345bTypedefs.h"
-//tag::prototypes[]
+// tag::prototypes[]
 const static adxl345bRange_t ADXL345B_2G_RANGE = {2, 0b00001000, 0b00000011, 0.0043f};
 const static adxl345bRange_t ADXL345B_4G_RANGE = {4, 0b00001001, 0b00000111, 0.0087f};
 const static adxl345bRange_t ADXL345B_8G_RANGE = {8, 0b00001010, 0b00001111, 0.0175f};
@@ -71,5 +71,5 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(int *deltaX, int *deltaY, int *delta
  * @return return the error code (0 if self-calibration passed)
  */
 adxl345bErrorCode_t adxl345bRunSelfCalibration();
-//end::prototypes[]
+// end::prototypes[]
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-//tag::prototypes[]
+// tag::prototypes[]
 /* region GENERAL FUNCTIONS */
 
 /*!
@@ -131,5 +131,5 @@ pac193xErrorCode_t pac193xReadAllAverageMeasurementsForChannel(pac193xSensorConf
                                                                pac193xChannel_t channel,
                                                                pac193xMeasurements_t *measurements);
 /* endregion CONTINUOUS MEASUREMENTS */
-//end::prototypes[]
+// end::prototypes[]
 #endif /* ENV5_PAC193X_HEADER */

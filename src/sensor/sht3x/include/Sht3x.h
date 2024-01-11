@@ -4,7 +4,7 @@
 #include "Sht3xTypedefs.h"
 #include <stdint.h>
 
-//tag::prototypes[]
+// tag::prototypes[]
 /*!
  * @brief initializes the temperature sensor
  * @IMPORTANT
@@ -84,5 +84,5 @@ sht3xErrorCode_t sht3xDisableHeater(void);
  * @return return the error code (0 if everything passed)
  */
 sht3xErrorCode_t sht3xSoftReset(void);
-//end::prototypes[]
+// end::prototypes[]
 #endif /*ENV5_SHT3X_HEADER */

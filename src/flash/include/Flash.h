@@ -6,7 +6,7 @@
 #include "FlashTypedefs.h"
 #include "SpiTypedefs.h"
 
-//tag::prototypes[]
+// tag::prototypes[]
 //! depends on part number
 #define FLASH_BYTES_PER_PAGE 512
 
@@ -56,5 +56,5 @@ flashErrorCode_t flashEraseSector(uint32_t address);
  * @return number of bytes written to the flash
  */
 int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite);
-//end::prototypes[]
+// end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */
