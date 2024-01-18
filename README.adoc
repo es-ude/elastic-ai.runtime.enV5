@@ -181,7 +181,7 @@ Following submodules are being used
 * https://github.com/es-ude/elastic-ai.runtime.c[es-ude/elastic-ai.runtime.c]
 * https://github.com/raspberrypi/pico-sdk[raspberrypi/pico-sdk]
 * https://github.com/FreeRTOS/FreeRTOS-Kernel[FreeTROS/FreeRTOS-Kernel]
-* https://github.com/ThrowTheSwitch/CException[ThrowTheSwitch/CExcpetion]
+* https://github.com/ThrowTheSwitch/CException[ThrowTheSwitch/CException]
 * https://github.com/ThrowTheSwitch/Unity[ThrowTheSwitch/Unity]
 
 == Troubleshooting
