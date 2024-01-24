@@ -1,2 +1,2 @@
 add_subdirectory(fpgaConfigurationHandler)
-add_subdirectory(middleware_v1)
+add_subdirectory(middleware)

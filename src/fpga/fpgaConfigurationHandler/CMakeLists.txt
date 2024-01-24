@@ -7,7 +7,7 @@ target_sources(fpga_configuration_handler INTERFACE
 target_link_libraries(fpga_configuration_handler INTERFACE
         common_lib
         flash_lib
-        middleware_v1_lib
+        middleware_lib
         network_lib
         http_lib
         pico_stdio)

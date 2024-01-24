@@ -55,7 +55,8 @@ static void modelCompute(bool enable) {
 
 static uint8_t get_id(void) {
     middlewareUserlogicEnable();
-    uint8_t id = middlewareGetDesignId();
+    uint8_t id[1];
+    middlewareReadBlocking(2000, id, 1);
     middlewareUserlogicDisable();
-    return id;
+    return id[0];
 }

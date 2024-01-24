@@ -7,7 +7,7 @@ node_modules/
 .husky/
 *.json
 **/__pycache__/
-
+config.bin
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode

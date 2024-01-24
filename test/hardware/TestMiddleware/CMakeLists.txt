@@ -8,6 +8,6 @@ target_link_libraries(hardware-test_middleware
         fpga_configuration_handler
         sleep_interface
         flash_lib
-        middleware_v1_lib)
+        middleware_lib)
 target_compile_definitions(hardware-test_middleware PRIVATE DEBUG)
 create_enV5_executable(hardware-test_middleware)

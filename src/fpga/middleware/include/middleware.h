@@ -3,13 +3,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 void middlewareInit();
 void middlewareDeinit();
 
 /* region MIDDLEWARE */
 
-/*! \brief configure FPGA
+/*! \brief reconfigure the FPGA with the Middleware Multi-Boot featuer
  *  \ingroup FPGA
  *
  * @param address address where the binary file starts in the flash
@@ -26,8 +27,6 @@ void middlewareUserlogicDisable(void);
 
 /* region USER LOGIC / SKELETON */
 
-uint8_t middlewareGetDesignId(void);
-
 /*! \brief send data to the FPGA
  *  \ingroup FPGA
  *
@@ -43,12 +42,8 @@ void middlewareWriteBlocking(uint32_t address, uint8_t *data, size_t length);
  * @param address address where the data should be read from
  * @param data    data that is read from the FPGA
  * @param length  size of the data to read in bytes
- * @return
  */
-uint8_t middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length);
-
-void middlewareStartComputation(void);
-void middlewareStopComputation(void);
+void middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length);
 
 /*! \ingroup FPGA
  *

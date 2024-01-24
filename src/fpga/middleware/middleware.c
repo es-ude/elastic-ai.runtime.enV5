@@ -1,4 +1,4 @@
-#define SOURCE_FILE "MIDDLEWARE-V1"
+#define SOURCE_FILE "MIDDLEWARE"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -63,39 +63,17 @@ void middlewareUserlogicDisable(void) {
 /* region USER LOGIC */
 
 //! has to be added to user logic address (see documentation)
-#define ADDR_USER_LOGIC_OFFSET 0x0100
-#define ADDR_DESIGN_ID 0x07D0
-#define ADDR_CONTROL_COMPUTATION 0x0064
+#define USER_LOGIC_OFFSET 0x0100
 #ifndef FPGA_BUSY_PIN
 #define FPGA_BUSY_PIN 15
 #endif
 
-uint8_t middlewareGetDesignId(void) {
-    uint8_t read_data[1];
-
-    qxiReadBlocking(ADDR_DESIGN_ID + ADDR_USER_LOGIC_OFFSET, read_data, 1);
-
-    return read_data[0];
-}
-
 void middlewareWriteBlocking(uint32_t address, uint8_t *data, size_t length) {
-    qxiWriteBlocking(address + ADDR_USER_LOGIC_OFFSET, data, length);
+    qxiWriteBlocking(address + USER_LOGIC_OFFSET, data, length);
 }
 
-uint8_t middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length) {
-    qxiReadBlocking(address + ADDR_USER_LOGIC_OFFSET, data, length);
-}
-
-void middlewareStartComputation(void) {
-    uint8_t cmd[1] = {0x01};
-
-    qxiWriteBlocking(ADDR_CONTROL_COMPUTATION + ADDR_USER_LOGIC_OFFSET, cmd, 1);
-}
-
-void middlewareStopComputation(void) {
-    uint8_t cmd[1] = {0x00};
-
-    qxiWriteBlocking(ADDR_CONTROL_COMPUTATION + ADDR_USER_LOGIC_OFFSET, cmd, 1);
+void middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length) {
+    qxiReadBlocking(address + USER_LOGIC_OFFSET, data, length);
 }
 
 bool middlewareUserlogicGetBusyStatus(void) {
