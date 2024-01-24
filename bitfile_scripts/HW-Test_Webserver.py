@@ -62,7 +62,7 @@ def get_file_echo(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_echoserver.bin")
+        read_slice(int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig.bin")
     )
     buffer.seek(0)
     return send_file(

@@ -2,7 +2,7 @@
 add_library(echoserver_lib INTERFACE)
 target_sources(echoserver_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR}/echo_server.c)
 target_include_directories(echoserver_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(echoserver_lib INTERFACE middleware_lib)
+target_link_libraries(echoserver_lib INTERFACE middleware_v1_lib)
 
 ## Test with HTTP Dummy Server
 add_executable(hardware-test_stub HardwaretestStub.c)
@@ -13,7 +13,7 @@ target_link_libraries(hardware-test_stub
         flash_lib
         enV5_hwc
         fpga_configuration_handler
-        middleware_lib
+        middleware_v1_lib
         echoserver_lib)
 target_compile_definitions(hardware-test_stub PRIVATE DEBUG)
 create_enV5_executable(hardware-test_stub)
@@ -28,7 +28,7 @@ target_link_libraries(hardware-test_echoServerOTA
         flash_lib
         enV5_hwc
         fpga_configuration_handler
-        middleware_lib
+        middleware_v1_lib
         espBroker_lib
         echoserver_lib)
 target_compile_definitions(hardware-test_echoServerOTA PRIVATE DEBUG)

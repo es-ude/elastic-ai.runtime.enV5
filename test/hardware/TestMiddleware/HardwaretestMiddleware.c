@@ -1,6 +1,6 @@
 /* IMPORTANT: This program only works with the logic design with middleware!
  *
- * IMPORTANT: To reach access the wifi-network the network credentials have to be updated!
+ * IMPORTANT: To reach access to the wifi-network the network credentials have to be updated!
  *
  * NOTE: To run this test, a server that serves the HTTPGet request is required.
  *       This server can be started by running the `HW-Test_Webserver.py` script
@@ -16,6 +16,7 @@
 #define SOURCE_FILE "MIDDLEWARE-HWTEST"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "hardware/spi.h"
 #include "pico/stdio.h"
@@ -26,7 +27,6 @@
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
-#include "Sleep.h"
 #include "Spi.h"
 #include "enV5HwController.h"
 #include "middleware.h"
@@ -38,6 +38,7 @@ spi_t spiConfiguration = {
 uint8_t csPin = 1;
 
 char baseUrl[] = "http://127.0.0.1:5000/getecho";
+size_t echo_length = 175384;
 uint32_t sectorIdForConfig = 1;
 
 static void initHardware(void) {
@@ -58,26 +59,36 @@ static void initHardware(void) {
         // wait for serial connection
     }
 }
+
 static void downloadBinFile(void) {
     espInit();
     PRINT("Try Connecting to WiFi")
     networkTryToConnectToNetworkUntilSuccessful();
 
     PRINT("Downloading HW configuration...")
-    fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorIdForConfig);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        baseUrl, echo_length, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
-        while (true) {
-            PRINT("Download failed!")
-            sleep_for_ms(3000);
-        }
+        PRINT("Download failed!")
+        exit(EXIT_FAILURE);
     }
     PRINT("Download Successful.")
 }
 
-static void getId(void) {
+void getId(void) {
+    PRINT("Request ID")
     uint8_t id = middlewareGetDesignId();
     PRINT("ID: 0x%02X", id)
+}
+
+void writeData(void) {
+    uint8_t data_write[3] = {0x01, 0x02, 0x03};
+    middlewareWriteBlocking(0, data_write, 3);
+    PRINT("Data written")
+    middlewareStartComputation();
+    uint8_t data_read[3];
+    middlewareReadBlocking(0, data_read, 1);
+    PRINT_BYTE_ARRAY("DATA: ", data_read, 3)
 }
 
 _Noreturn static void runTest() {
@@ -86,6 +97,9 @@ _Noreturn static void runTest() {
         char c = getchar_timeout_us(UINT32_MAX);
 
         switch (c) {
+        case 'C':
+            downloadBinFile();
+            break;
         case 'P':
             env5HwFpgaPowersOn();
             PRINT("FPGA powered ON")
@@ -102,6 +116,14 @@ _Noreturn static void runTest() {
             middlewareDeinit();
             PRINT("DEINIT")
             break;
+        case 'L':
+            middlewareSetFpgaLeds(0x09); // ON
+            PRINT("LEDS ON")
+            break;
+        case 'l':
+            middlewareSetFpgaLeds(0x00); // OFF
+            PRINT("LEDS OFF")
+            break;
         case 'U':
             middlewareUserlogicEnable();
             PRINT("Userlogic enabled")
@@ -109,11 +131,6 @@ _Noreturn static void runTest() {
         case 'u':
             middlewareUserlogicDisable();
             PRINT("Userlogic disabled")
-        case 'L':
-            middlewareSetFpgaLeds(0xFF); // ON
-            break;
-        case 'l':
-            middlewareSetFpgaLeds(0x00); // OFF
             break;
         case 'd':
             getId();
@@ -122,7 +139,7 @@ _Noreturn static void runTest() {
             // TODO: run reconfigure test
             break;
         case 't':
-            // TODO: run receive data test
+            writeData();
             break;
         default:
             PRINT("Waiting ...")
@@ -132,6 +149,5 @@ _Noreturn static void runTest() {
 
 int main() {
     initHardware();
-    downloadBinFile();
     runTest();
 }
