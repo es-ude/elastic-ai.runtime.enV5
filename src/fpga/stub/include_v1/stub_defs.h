@@ -1,0 +1,17 @@
+#ifndef STUB_DEFINES
+#define STUB_DEFINES
+
+#ifndef ADDR_COMPUTATION_ENABLE
+#define ADDR_COMPUTATION_ENABLE 100
+#endif
+#ifndef ADDR_SKELETON_INPUTS
+#define ADDR_SKELETON_INPUTS 0
+#endif
+#ifndef ADDR_MODEL_ID
+#define ADDR_MODEL_ID 2000
+#endif
+#ifndef BYTES_MODEL_ID
+#define BYTES_MODEL_ID 1
+#endif
+
+#endif

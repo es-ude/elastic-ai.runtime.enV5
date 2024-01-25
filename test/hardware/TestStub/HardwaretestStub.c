@@ -19,26 +19,33 @@
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
+#include "HTTP.h"
 #include "Network.h"
-#include "Sleep.h"
-#include "echo_server.h"
 #include "enV5HwController.h"
+#include "stub.h"
+#include "stub_defs.h"
 
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
 
-#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern networkCredentials_t networkCredentials;
+
+char baseUrl[] = "http://192.168.178.24:5000/getconfig";
+char lengthUrl[] = "http://192.168.178.24:5000/length";
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-char baseUrl[] = "http://127.0.0.1:5000/getecho";
-uint32_t sectorIdForConfig = 1;
-size_t configSize = 219412;
+#if BYTES_MODEL_ID == 1
+uint8_t acceloratorId[BYTES_MODEL_ID] = {0x01};
+#else
+uint8_t acceloratorId[BYTES_MODEL_ID] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
+#endif
 
 static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
@@ -59,68 +66,60 @@ static void initHardware() {
     }
 }
 
-static void loadConfigToFlashViaUSB() {
+static void loadConfigToFlashViaHttp(uint32_t sectorId) {
     espInit();
     PRINT("Try Connecting to WiFi")
     networkTryToConnectToNetworkUntilSuccessful();
 
+    PRINT("Request Download Size")
+    HttpResponse_t *length_response;
+    HTTPGet(lengthUrl, &length_response);
+    length_response->response[length_response->length] = '\0';
+    int configSize = strtol((char *)length_response->response, NULL, 10);
+    HTTPCleanResponseBuffer(length_response);
+    PRINT("Length: %i", configSize)
+
     PRINT("Downloading HW configuration...")
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorIdForConfig);
+        fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, configSize, sectorId);
     if (error != FPGA_RECONFIG_NO_ERROR) {
-        while (true) {
-            PRINT("Download failed!")
-            sleep_ms(3000);
-        }
-    }
-    PRINT("Download Successful.")
-}
-static void loadConfigToFlashViaHttp() {
-    PRINT("Downloading HW configuration...")
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        baseUrl, configSize, sectorIdForConfig);
-    if (error != FPGA_RECONFIG_NO_ERROR) {
-        while (true) {
-            PRINT("Download failed!")
-            sleep_for_ms(3000);
-        }
+        PRINT("Download failed!")
+        exit(EXIT_FAILURE);
     }
     PRINT("Download Successful.")
 }
 
-static void deployConfig() {
-    // triggers automatic reconfiguration from address 0x00000000
-    env5HwFpgaPowersOn();
-    sleep_ms(1000);
-}
+_Noreturn void runTest(void) {
+    PRINT("===== START TEST =====")
+    while (1) {
+        char c = getchar_timeout_us(UINT32_MAX);
 
-_Noreturn static void runTest() {
-    env5HwLedsAllOn();
-    while (true) {
-        for (int8_t counter = 0; counter < 10; counter++) {
-            int32_t in_value = 1 << 18;
-            in_value = counter + in_value;
-            PRINT("Calling HW function with 0x%08lX, %li", in_value, in_value)
-            int32_t return_val = echo_server_echo(in_value);
-            PRINT("HW function returned 0x%08lX, %li", return_val, return_val)
-
-            if (return_val == in_value + counter) {
-                env5HwLedsAllOff();
-                sleep_for_ms(500);
-            }
-            env5HwLedsAllOn();
-            sleep_for_ms(500);
+        switch (c) {
+        case 'a':
+            loadConfigToFlashViaHttp(1);
+            break;
+        case 'A':
+            loadConfigToFlashViaHttp(3);
+            break;
+        case 'P':
+            env5HwFpgaPowersOn();
+            PRINT("FPGA powered ON")
+            break;
+        case 'p':
+            env5HwFpgaPowersOff();
+            PRINT("FPGA powered OFF")
+            break;
+        case 'd':
+            PRINT("Deploy: %s",
+                  modelDeploy(3 * FLASH_BYTES_PER_SECTOR, acceloratorId) ? "successful" : "failed")
+            break;
+        default:
+            PRINT("Waiting ...")
         }
     }
 }
 
 int main() {
     initHardware();
-
-    // either use WiFi or USB!!
-    loadConfigToFlashViaHttp();
-    //    loadConfigToFlashViaUSB();
-
-    deployConfig();
     runTest();
 }

@@ -10,6 +10,14 @@ The link:fpgaConfigurationHandler/[FPGA Config Handler library] provides functio
 
 == Middleware
 
-The middleware implementation for skeleton version 1 can be found under link:middleware_v1/[].
+The middleware implementation can be found under link:middleware_v1/[].
 
 IMPORTANT: Further information about the middleware can be found in the link:https://github.com/es-ude/elastic-ai.creator[elastic-ai.creator repository]
+
+== Stub
+
+The stub implementation can be found under link:middleware_v1/[].
+It provides the counter part for the skeleton defined for the FPGA
+
+
+IMPORTANT: Further information about the stub can be found in the link:https://github.com/es-ude/elastic-ai.creator[elastic-ai.creator repository]

@@ -34,7 +34,7 @@ extern networkCredentials_t networkCredentials;
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
-uint32_t sectorIdForConfig = 0;
+uint32_t sectorIdForConfig = 1;
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
@@ -70,12 +70,12 @@ void downloadBinFile(void) {
     HTTPGet(lengthUrl, &length_response);
     length_response->response[length_response->length] = '\0';
     int file_length = strtol((char*)length_response->response, NULL, 10);
+    HTTPCleanResponseBuffer(length_response);
     PRINT("Length: %i", file_length)
 
     PRINT("Downloading HW configuration...")
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
         baseUrl, file_length, sectorIdForConfig);
-    HTTPCleanResponseBuffer(length_response);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!")
         exit(EXIT_FAILURE);
