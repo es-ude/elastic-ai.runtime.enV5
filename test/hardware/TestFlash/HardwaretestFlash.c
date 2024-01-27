@@ -12,6 +12,7 @@
 #include "Common.h"
 #include "Flash.h"
 #include "Spi.h"
+#include "enV5HwController.h"
 
 spi_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spi = spi0};
 static const uint32_t startAddress = 0x00000000;
@@ -26,6 +27,9 @@ void initializeConsoleOutput(void) {
 }
 
 void initializeHardware(void) {
+    env5HwInit();
+    env5HwFpgaPowersOff();
+
     spiInit(&spiConfig, csPin);
     flashInit(&spiConfig, csPin);
 }

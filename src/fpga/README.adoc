@@ -1,0 +1,23 @@
+= FPGA
+:src-dir: ../../..
+:imagesdir: {src-dir}/documentation/pics
+
+The link:Vivado_Debugger.adoc[] file provides some information for debugging the FPGA/Flash with help of Vivado.
+
+== FPGA Config
+
+The link:fpgaConfigurationHandler/[FPGA Config Handler library] provides functions to easily load configuration from the internet or via USB and load these configurations on to the FPGA.
+
+== Middleware
+
+The middleware implementation can be found under link:middleware_v1/[].
+
+IMPORTANT: Further information about the middleware can be found in the link:https://github.com/es-ude/elastic-ai.creator[elastic-ai.creator repository]
+
+== Stub
+
+The stub implementation can be found under link:middleware_v1/[].
+It provides the counter part for the skeleton defined for the FPGA
+
+
+IMPORTANT: Further information about the stub can be found in the link:https://github.com/es-ude/elastic-ai.creator[elastic-ai.creator repository]

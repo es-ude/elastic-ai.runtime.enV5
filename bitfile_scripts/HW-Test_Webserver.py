@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 from flask import Flask, send_file
 
@@ -26,7 +27,9 @@ def get_file_fast(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin")
+        read_slice(
+            int(position), "bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin"
+        )
     )
     buffer.seek(0)
     return send_file(
@@ -44,7 +47,9 @@ def get_file_slow(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin")
+        read_slice(
+            int(position), "bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin"
+        )
     )
     buffer.seek(0)
     return send_file(
@@ -62,7 +67,9 @@ def get_file_echo(position: str):
     """
     buffer = BytesIO()
     buffer.write(
-        read_slice(int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_echoserver.bin")
+        read_slice(
+            int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig.bin"
+        )
     )
     buffer.seek(0)
     return send_file(
@@ -71,6 +78,32 @@ def get_file_echo(position: str):
         download_name="bitfile.bin",
         mimetype="application/octet-stream",
     )
+
+
+@app.route("/getconfig/<position>")
+def get_bin_file(position: str):
+    """
+    Using positional arguments as parameter did not work!
+    """
+    buffer = BytesIO()
+    buffer.write(
+        read_slice(
+            int(position), "./../config.bin"
+        )
+    )
+    buffer.seek(0)
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="bitfile.bin",
+        mimetype="application/octet-stream",
+    )
+
+
+@app.route("/length")
+def get_bin_file_length():
+    size = os.path.getsize("./../config.bin")
+    return str(size)
 
 
 @app.route("/check")

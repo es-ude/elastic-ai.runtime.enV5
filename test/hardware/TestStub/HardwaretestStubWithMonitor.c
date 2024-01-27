@@ -11,15 +11,15 @@
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "Protocol.h"
-#include "echo_server.h"
 #include "enV5HwController.h"
-#include "pico/bootrom.h"
 
 #include <hardware/spi.h>
+#include <pico/bootrom.h>
 #include <pico/stdlib.h>
 
 #include <stdbool.h>
@@ -36,15 +36,13 @@ typedef struct downloadRequest {
 } downloadRequest_t;
 downloadRequest_t *downloadRequest = NULL;
 
-bool flashing = false;
+volatile bool testInProgress = false;
 
 spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-uint32_t sectorIdForConfig = 1;
-
-static void initHardware() {
+void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
 
@@ -61,7 +59,6 @@ static void initHardware() {
      */
     flashInit(&spiConfiguration, csPin);
     fpgaConfigurationHandlerInitialize();
-    env5HwFpgaPowersOff();
 
     // initialize the serial output
     stdio_init_all();
@@ -70,40 +67,18 @@ static void initHardware() {
     }
 }
 
-_Noreturn static void runTest() {
-    freeRtosTaskWrapperTaskSleep(7500);
-    env5HwLedsAllOn();
-    int8_t counter = 0;
-
-    env5HwFpgaPowersOn();
-    freeRtosTaskWrapperTaskSleep(500);
-    if (!echo_server_deploy()) {
-        PRINT("Deploy failed!")
-    }
-
+_Noreturn void runTest() {
     while (true) {
-        if (flashing) {
-            freeRtosTaskWrapperTaskSleep(500);
-            continue;
-        }
-
-        uint8_t return_val = (uint8_t)echo_server_echo(counter);
-
-        PRINT("%i, %i", return_val, counter)
-
-        if (return_val == counter + 1) {
-            env5HwLedsAllOff();
-            sleep_ms(500);
-        }
-
-        env5HwLedsAllOn();
-        sleep_ms(500);
-
-        counter++;
+        /* TODO:
+         *   1. Get next config to flash from queue
+         *   2. Power on FPGA (load default config with middleware)
+         *   3. Deploy new config via middleware
+         *   4. Run Middleware test (Blink FPGA LED)
+         */
     }
 }
 
-void receiveDownloadBinRequest(posting_t posting) {
+static void receiveDownloadBinRequest(posting_t posting) {
     PRINT("RECEIVED FLASH REQUEST")
     // get download request
     char *urlStart = strstr(posting.data, "URL:") + 4;
@@ -130,31 +105,26 @@ void receiveDownloadBinRequest(posting_t posting) {
  *   - add listener for download start command (MQTT)
  *      uart handle should only set flag -> download handled at task
  *   - download data from server and stored to flash
- *   - add listener for FPGA flashing command
- *   - trigger flash of FPGA
- *      handled in UART interrupt
  */
-_Noreturn void fpgaTask(void) {
+_Noreturn void downloadTask(void) {
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
     publishAliveStatusMessage("");
 
     PRINT("FPGA Ready ...")
     while (true) {
-        if (downloadRequest == NULL) {
+        if (downloadRequest == NULL || testInProgress) {
             freeRtosTaskWrapperTaskSleep(1000);
             continue;
         }
-        flashing = true;
 
-        PRINT("Starting to download bitfile...")
-
+        // assure free SPI/Flash access
         env5HwFpgaPowersOff();
 
+        PRINT("Starting to download bitfile...")
         PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
                     downloadRequest->startSectorId, downloadRequest->url,
                     downloadRequest->fileSizeInBytes)
-
         fpgaConfigurationHandlerError_t configError =
             fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
                                                                  downloadRequest->fileSizeInBytes,
@@ -164,22 +134,14 @@ _Noreturn void fpgaTask(void) {
         free(downloadRequest->url);
         free(downloadRequest);
         downloadRequest = NULL;
-        PRINT("Download finished!")
 
-        PRINT("Try reconfigure FPGA")
         if (configError != FPGA_RECONFIG_NO_ERROR) {
             protocolPublishCommandResponse("FLASH", false);
             PRINT("ERASE ERROR")
         } else {
-            freeRtosTaskWrapperTaskSleep(10);
-            env5HwFpgaPowersOn();
-            freeRtosTaskWrapperTaskSleep(500);
-            if (!echo_server_deploy()) {
-                PRINT("Deploy failed!")
-            }
-            flashing = false;
-            PRINT("FPGA reconfigured")
+            // TODO: Push new reconfig request to queue
             protocolPublishCommandResponse("FLASH", true);
+            PRINT("Download finished!")
         }
     }
 }
@@ -187,7 +149,9 @@ _Noreturn void fpgaTask(void) {
 int main() {
     initHardware();
 
-    freeRtosTaskWrapperRegisterTask(fpgaTask, "fpgaTask", 0, FREERTOS_CORE_0);
+    freeRtosQueueWrapperCreate();
+
+    freeRtosTaskWrapperRegisterTask(downloadTask, "downloadTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(runTest, "runTest", 0, FREERTOS_CORE_1);
 
     freeRtosTaskWrapperStartScheduler();

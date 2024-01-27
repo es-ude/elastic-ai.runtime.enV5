@@ -6,5 +6,6 @@ target_link_libraries(hardware-test_flash
         freeRtosUtils
         hardware_spi
         spi_interface
+        enV5_hwc
         flash_lib)
 create_enV5_executable(hardware-test_flash)

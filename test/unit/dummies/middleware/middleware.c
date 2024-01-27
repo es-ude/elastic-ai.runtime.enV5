@@ -1,19 +1,18 @@
 #define SOURCE_FILE "MIDDLEWARE"
 
-#include "middleware.h"
-
 #include <stdbool.h>
-#include <stdint.h>
 
-#define ADDR_LEDS 0x0003
-#define ADDR_USER_LOGIC_RESET 0x0004
-#define ADDR_MULTI_BOOT 0x0005
-#define ADDR_DESIGN_ID 0x08D0
-#define ADDR_USER_LOGIC_OFFSET 0x0100
+#include "middleware.h"
 
 void middlewareInit() {}
 
 void middlewareDeinit() {}
+
+/* region MIDDLEWARE */
+
+#define ADDR_LEDS 0x0003
+#define ADDR_USER_LOGIC_RESET 0x0004
+#define ADDR_MULTI_BOOT 0x0005
 
 void middlewareConfigureFpga(uint32_t address) {}
 
@@ -25,10 +24,20 @@ void middlewareUserlogicEnable(void) {}
 
 void middlewareUserlogicDisable(void) {}
 
-uint8_t middlewareGetDesignId(void) {}
+/* endregion MIDDLEWARE */
 
-void middlewareWriteBlocking(uint32_t address, uint8_t *data, uint16_t len) {}
+/* region USER LOGIC */
 
-uint8_t middlewareReadBlocking(uint32_t address, uint8_t *data, uint16_t len) {}
+//! has to be added to user logic address (see documentation)
+#define USER_LOGIC_OFFSET 0x0100
+#ifndef FPGA_BUSY_PIN
+#define FPGA_BUSY_PIN 15
+#endif
+
+void middlewareWriteBlocking(uint32_t address, uint8_t *data, size_t length) {}
+
+void middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length) {}
 
 bool middlewareUserlogicGetBusyStatus(void) {}
+
+/* endregion USER LOGIC */

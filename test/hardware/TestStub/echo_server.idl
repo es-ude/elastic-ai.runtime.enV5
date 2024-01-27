@@ -1,6 +1,0 @@
-stub echo_server
-
-path ./
-deploy 50 0
-
-sync echo ( int8 inputs ) : int8

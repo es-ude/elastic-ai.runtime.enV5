@@ -118,14 +118,7 @@ void verifyConfiguration(bool useFast) {
         page++;
     } while (page < numberOfPages);
 }
-void configureFpga(uint32_t sectorID) {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationFlashFpga(sectorID);
-    if (error != FPGA_RECONFIG_NO_ERROR) {
-        PRINT("Reconfiguration failed! (0x%02X)", error)
-        return;
-    }
-    PRINT("Reconfiguration successful!")
-}
+
 _Noreturn void configurationTest(void) {
     PRINT("===== START TEST =====")
 
@@ -154,9 +147,6 @@ _Noreturn void configurationTest(void) {
         case 'v':
             verifyConfiguration(true);
             break;
-        case 'f':
-            configureFpga(blinkFast);
-            break;
         case 'D':
             downloadConfiguration(false);
             break;
@@ -165,9 +155,6 @@ _Noreturn void configurationTest(void) {
             break;
         case 'V':
             verifyConfiguration(false);
-            break;
-        case 'F':
-            configureFpga(blinkSlow);
             break;
         default:
             PRINT("Waiting ...")

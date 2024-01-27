@@ -43,12 +43,4 @@ fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t sectorID);
 // fpgaConfigurationHandlerError_t fpgaConfigurationHandlerVerifyConfiguration();
 //  -> requires hash computation
 
-/*! \brief reconfigures the FPGA with the given configuration
- *  \ingroup FPGA
- *
- * @param sectorID ID of the sector where the configuration starts
- * @return 0 if no error occurred
- */
-fpgaConfigurationHandlerError_t fpgaConfigurationFlashFpga(uint32_t sectorID);
-
 #endif /* ENV5_FPGA_CONFIGURATION_HANDLER_HEADER */
