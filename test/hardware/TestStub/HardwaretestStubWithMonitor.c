@@ -69,12 +69,12 @@ void initHardware() {
 
 _Noreturn void runTest() {
     while (true) {
-      /* TODO:
-       *   1. Get next config to flash from queue
-       *   2. Power on FPGA (load default config with middleware)
-       *   3. Deploy new config via middleware
-       *   4. Run Middleware test (Blink FPGA LED)
-       */
+        /* TODO:
+         *   1. Get next config to flash from queue
+         *   2. Power on FPGA (load default config with middleware)
+         *   3. Deploy new config via middleware
+         *   4. Run Middleware test (Blink FPGA LED)
+         */
     }
 }
 
@@ -129,12 +129,12 @@ _Noreturn void downloadTask(void) {
             fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
                                                                  downloadRequest->fileSizeInBytes,
                                                                  downloadRequest->startSectorId);
-        
+
         // clean artifacts
         free(downloadRequest->url);
         free(downloadRequest);
         downloadRequest = NULL;
-        
+
         if (configError != FPGA_RECONFIG_NO_ERROR) {
             protocolPublishCommandResponse("FLASH", false);
             PRINT("ERASE ERROR")
@@ -143,13 +143,12 @@ _Noreturn void downloadTask(void) {
             protocolPublishCommandResponse("FLASH", true);
             PRINT("Download finished!")
         }
-
     }
 }
 
 int main() {
     initHardware();
-    
+
     freeRtosQueueWrapperCreate();
 
     freeRtosTaskWrapperRegisterTask(downloadTask, "downloadTask", 0, FREERTOS_CORE_0);

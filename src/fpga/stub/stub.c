@@ -1,9 +1,9 @@
 #define SOURCE_FILE "STUB"
 
 #include "stub.h"
-#include "stub_defs.h"
 #include "Sleep.h"
 #include "middleware.h"
+#include "stub_defs.h"
 
 static void startCompute(void);
 static void stopCompute(void);

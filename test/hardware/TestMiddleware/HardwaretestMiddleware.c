@@ -40,7 +40,6 @@ spi_t spiConfiguration = {
     .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
-
 static void initHardware(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
@@ -69,7 +68,7 @@ void downloadBinFile(void) {
     HttpResponse_t *length_response;
     HTTPGet(lengthUrl, &length_response);
     length_response->response[length_response->length] = '\0';
-    int file_length = strtol((char*)length_response->response, NULL, 10);
+    int file_length = strtol((char *)length_response->response, NULL, 10);
     HTTPCleanResponseBuffer(length_response);
     PRINT("Length: %i", file_length)
 

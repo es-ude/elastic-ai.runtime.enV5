@@ -2,8 +2,8 @@
 #define ENV5_MIDDLEWARE_HEADER
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 void middlewareInit();
 void middlewareDeinit();

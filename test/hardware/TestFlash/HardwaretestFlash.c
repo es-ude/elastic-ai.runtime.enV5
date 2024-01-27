@@ -29,7 +29,7 @@ void initializeConsoleOutput(void) {
 void initializeHardware(void) {
     env5HwInit();
     env5HwFpgaPowersOff();
-    
+
     spiInit(&spiConfig, csPin);
     flashInit(&spiConfig, csPin);
 }
