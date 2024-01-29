@@ -5,6 +5,19 @@
 #include "middleware.h"
 #include "stub_defs.h"
 
+#ifndef ADDR_COMPUTATION_ENABLE
+#error ADDR_COMPUTATION_ENABLE not defined!
+#endif
+#ifndef ADDR_SKELETON_INPUTS
+#error ADDR_SKELETON_INPUTS not defined!
+#endif
+#ifndef ADDR_MODEL_ID
+#error ADDR_MODEL_ID not defined!
+#endif
+#ifndef BYTES_MODEL_ID
+#error BYTES_MODEL_ID not defined!
+#endif
+
 static void startCompute(void);
 static void stopCompute(void);
 
