@@ -25,7 +25,7 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
     }
 
     size_t lengthOfString = AT_HTTP_GET_LENGTH + strlen(url);
-    char *httpGet = malloc(lengthOfString);
+    char httpGet[lengthOfString];
     snprintf(httpGet, lengthOfString, AT_HTTP_GET, url);
 
     if (espSendCommand(httpGet, AT_HTTP_GET_RESPONSE, 10000) == ESP_WRONG_ANSWER_RECEIVED) {
@@ -35,7 +35,6 @@ void HTTPGet(const char *url, HttpResponse_t **data) {
 
     *data = HTTPResponse;
     HTTPResponse = NULL;
-    free(httpGet);
 }
 
 void HTTPCleanResponseBuffer(HttpResponse_t *response) {
