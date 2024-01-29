@@ -1,3 +1,14 @@
+## GENERIC STUB
+add_library(stub_lib INTERFACE)
+target_include_directories(stub_lib INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/include)
+target_sources(stub_lib INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/stub.c)
+target_link_libraries(stub_lib INTERFACE
+        common_lib
+        sleep_interface
+        middleware_lib)
+
 ## STUB FOR SKELETON V1
 add_library(stub_v1_lib INTERFACE)
 target_include_directories(stub_v1_lib INTERFACE
