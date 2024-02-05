@@ -4,7 +4,6 @@
 networks.txt
 NetworkConfig.c
 node_modules/
-.husky/
 *.json
 **/__pycache__/
 config.bin
