@@ -15,6 +15,9 @@ link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_che
 link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
 Release]]
 
+
+TIP: If you want to create your own project with the enV5 please use the https://github.com/es-ude/enV5-base-project[base-project]
+
 toc::[]
 
 This repository aims to provide the Elastic-AI implementation for the Elastic Node version 5 (enV5).
