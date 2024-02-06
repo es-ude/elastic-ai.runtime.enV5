@@ -1,3 +1,4 @@
+[#_elastic-ai.runtime.enV5]
 = elastic-ai.runtime.enV5
 :toc:
 :toclevels: 3
@@ -14,11 +15,15 @@ link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_che
 link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
 Release]]
 
+
+TIP: If you want to create your own project with the enV5 please use the https://github.com/es-ude/enV5-base-project[base-project]
+
 toc::[]
 
 This repository aims to provide the Elastic-AI implementation for the Elastic Node version 5 (enV5).
 Mor about this project can be found at the https://www.uni-due.de/es/elastic_ai.php[project homepage].
 
+[#_setup]
 == Setup
 
 For compiling the project, the required tools are:
@@ -51,11 +56,11 @@ If you want to do this by yourself, please refer to <<CMake>>.
 To run the FPGA related flash scripts, it is recommended to create a local virtual Python environment and install the tools from the
 link:bitfile_scripts/requirements.txt[requirements.txt] file.
 
-TIP: link:documentation/SETUP_GUIDE.adoc[Setup Guide]
+TIP: link:documentation/SETUP_GUIDE.adoc#_setup_guide[Setup Guide]
 
 IMPORTANT: You have to adjust the network/mqtt broker credentials as mentioned in link:src/network/README.adoc#_wifi_lib[network README]!
 
-
+[#_cmake]
 == CMake
 
 There are three CMake Profiles provided with the CLion settings:
@@ -80,11 +85,13 @@ cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OF
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
 If this flag is not passed, CMake will use the default build tool on your machine (mostly Makefiles).
 
+[#_target:_local_machine]
 === Target: Local Machine
 
 The local execution of the source code requires a different hal implementation, due to the fact that the hal implementation from the `src` folder is directly connected to the pico-sdk which forces the compiler to build for the RP2040 arm-based platform instead of your local machine.
 The hal dummies for the local machine can be found under link:test/unit/dummies/[test/unit/dummies].
 
+[#_unit_tests]
 ==== Unit Tests
 
 The unit-tests can be build and executed by running:
@@ -101,8 +108,10 @@ ctest --test-dir build/unit-tests/test/unit --output-on-failure
 The built unit-tests can then be found under
 link:build/unit-tests/test/unit[build/unit-tests/test/unit] as executables.
 
+[#_target_pico]
 === Target Pico
 
+[#_build_all_targets]
 ==== Build all Targets
 
 The debug targets can be built by executing:
@@ -122,6 +131,7 @@ cmake --build build/release -j 4
 The `*.uf2` files to flash the pico can than be found under the
 link:out[out] folder.
 
+[#_hardware_tests]
 ==== Hardware Tests
 
 The hardware tests can be build using
@@ -135,6 +145,7 @@ replacing `<test_name>` with the name of the test.
 
 The resulting `<test_name>.u2f` files to flash the pico can be found under the link:./out[out] folder.
 
+[#_flashing_the_elastic_node_version_5_env5]
 ==== Flashing the Elastic Node version 5 (enV5)
 
 . Press and hold `MCU BOOT` on the Elastic Node
@@ -142,6 +153,7 @@ The resulting `<test_name>.u2f` files to flash the pico can be found under the l
 . Release `MCU BOOT`
 . Copy the `*.uf2` File to the RPI-RP2 device
 
+[#_cmd_line_output]
 ==== CMD line output
 
 If the pico is connected to the local machine the `printf()` statements inside the code will be redirected to the USB and are available as serial port output.
@@ -168,12 +180,14 @@ The serial port differs depending on the host machine!
 It can be found via `ls /dev/tty*` (Linux) or `ls /dev/tty.*` (macOS) from the terminal.
 ====
 
+[#_debug_output]
 ==== Debug Output
 
 To enable enhanced Debug output, add the flag `-D DEBUG_OUTPUT:BOOL=ON`
 to the <<_cmake,CMake Setup call>> (or add it in the CLion CMake options).
 This enables the `PRINT_DEBUG(...)` macro from link:src/common/include/Common.h[Common.h] in all targets.
 
+[#_submodules]
 == Submodules
 
 Following submodules are being used
@@ -184,6 +198,7 @@ Following submodules are being used
 * https://github.com/ThrowTheSwitch/CException[ThrowTheSwitch/CExcpetion]
 * https://github.com/ThrowTheSwitch/Unity[ThrowTheSwitch/Unity]
 
+[#_troubleshooting]
 == Troubleshooting
 
 * In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`.

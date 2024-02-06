@@ -1,7 +1,9 @@
-== Contribution Guidelines
+[#_contribution_guidelines]
+= Contribution Guidelines
 :hardbreaks:
 
-=== Naming Scheme
+[#_naming_scheme]
+== Naming Scheme
 
 [cols=">,<,<",options="header",]
 |===
@@ -26,9 +28,22 @@
 
 Functions and global variables should be prefixed with a consistent identifier, e.g.the file name where the function prototype resides.
 
-=== Code Contributions
+[#_code_contributions]
+== Code Contributions
 
 Don’t push directly to the `main` branch::
 - Push your modification to a new branch
 - Open a pull request to `main`
 - The maintainer of the repository can then merge your modifications into the existing codebase
+
+[#_commit_messages]
+== Commit Messages
+
+We use https://spin.atomicobject.com/conventional-commits/[conventional commits]
+
+NOTE: To ensure our guidelines we use xref:SETUP_GUIDE.adoc#_pre_commit_optional[Pre-Commit].
+
+
+link zur einrichtung in setupguide
+
+

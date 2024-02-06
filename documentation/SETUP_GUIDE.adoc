@@ -1,3 +1,4 @@
+[#_setup_guide]
 = Setup Guide
 :toc:
 ifdef::env-github[]
@@ -12,6 +13,7 @@ This guide aims to provide a detailed description on how to setup your developme
 
 IMPORTANT: This Guide assumes you are using a UNIX-like System and have `git` already installed!
 
+[#_get_the_source_code]
 == Get the Source Code
 
 At first, you have to download the source code from GitHub and the required submodules.
@@ -30,6 +32,7 @@ in your terminal.
 <2> Move inside the repository
 <3> Download all Submodules
 
+[#_system_requirements]
 == System Requirements
 
 To determine if all required tools are installed, it is recommended to run
@@ -42,6 +45,7 @@ To determine if all required tools are installed, it is recommended to run
 in your terminal.
 If you have missing dependencies, this script will show which are missing.
 
+[#_dependencies]
 === Dependencies
 
 https://gcc.gnu.org/[GCC]::
@@ -62,6 +66,14 @@ https://ninja-build.org/[Ninja]::
 -> Build Tool +
 Can be installed via your local package manager like dnf, apt or brew.
 
+[#_pre_commit_optional]
+=== Pre-Commit [optional]
+
+To ensure our guidelines we recommend using https://commitlint.js.org/#/[Commitlint] with https://pre-commit.com/[Pre-Commit] in an https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv[virtual environment]
+
+Please check our link:../requirements.txt[requirements.txt]
+
+[#_ide]
 == IDE
 
 We recommend using CLion as your IDE, because this is our standard IDE and all necessary configurations are distributed with this repository.
@@ -75,6 +87,7 @@ To build targets for the enV5 platform, you have to change the profile to either
 Then you are able to build all targets from 'enV5 Targets' folder.
 The `*.uf2` files to flash the pico can be found under the link:out[out] folder in the root of the project.
 
+[#_flash_the_env5]
 == Flash the enV5
 
 . Press and hold `MCU BOOT` on the Elastic Node
@@ -84,6 +97,7 @@ The `*.uf2` files to flash the pico can be found under the link:out[out] folder 
 ** Via the USB device through your file manager
 ** Via the command line by executing `sudo cp out/<file>.uf2 /dev/ttyACM0`
 
+[#_get_debug_output_from_the_env5]
 == Get Debug Output from the enV5
 
 To receive output from the enV5 you have to connect the enV5 to your local machine.
@@ -131,6 +145,7 @@ If you still can't receive any output from the enV5 the problem is possibly caus
 If the serial output is not initialized properly (see integration tests), the enV5 is not able to send the output to your device!
 ====
 
+[#_further_reading]
 == Further Reading
 
 * link:../README.adoc[README]
