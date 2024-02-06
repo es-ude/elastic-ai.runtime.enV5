@@ -1,11 +1,27 @@
+include(FetchContent)
+
 function(add_cexception)
+    FetchContent_Declare(
+            cexception
+            GIT_REPOSITORY https://github.com/ThrowTheSwitch/CException.git
+            GIT_TAG master
+    )
+    FetchContent_Populate(cexception)
+
     add_library(CException INTERFACE)
-    target_sources(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib/CException.c)
-    target_include_directories(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib)
+    target_sources(CException INTERFACE ${cexception_SOURCE_DIR}/lib/CException.c)
+    target_include_directories(CException INTERFACE ${cexception_SOURCE_DIR}/lib)
 endfunction()
 
 function(add_unity)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/unity)
+    FetchContent_Declare(
+            unity
+            GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+            GIT_TAG v2.5.2
+    )
+    FetchContent_Populate(unity)
+
+    add_subdirectory(${unity_SOURCE_DIR})
 endfunction()
 
 function(add_rp2040_hal)
