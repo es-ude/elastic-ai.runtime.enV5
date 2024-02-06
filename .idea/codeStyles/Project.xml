@@ -59,53 +59,7 @@
     <Objective-C-extensions>
       <option name="TAG_PREFIX_OF_LINE_COMMENT" value="AT" />
     </Objective-C-extensions>
-    <clangFormatSettings>
-      <option name="ENABLED" value="true" />
-    </clangFormatSettings>
     <codeStyleSettings language="ObjectiveC">
-      <option name="RIGHT_MARGIN" value="160" />
-      <option name="KEEP_LINE_BREAKS" value="false" />
-      <option name="KEEP_FIRST_COLUMN_COMMENT" value="false" />
-      <option name="KEEP_CONTROL_STATEMENT_IN_ONE_LINE" value="false" />
-      <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
-      <option name="KEEP_BLANK_LINES_BEFORE_RBRACE" value="1" />
-      <option name="BLANK_LINES_AFTER_IMPORTS" value="2" />
-      <option name="BRACE_STYLE" value="4" />
-      <option name="CLASS_BRACE_STYLE" value="4" />
-      <option name="ELSE_ON_NEW_LINE" value="true" />
-      <option name="CATCH_ON_NEW_LINE" value="true" />
-      <option name="SPECIAL_ELSE_IF_TREATMENT" value="false" />
-      <option name="ALIGN_MULTILINE_CHAINED_METHODS" value="true" />
-      <option name="ALIGN_GROUP_FIELD_DECLARATIONS" value="true" />
-      <option name="SPACE_AROUND_UNARY_OPERATOR" value="true" />
-      <option name="SPACE_BEFORE_SEMICOLON" value="true" />
-      <option name="SPACE_WITHIN_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_IF_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_CAST_PARENTHESES" value="true" />
-      <option name="SPACE_WITHIN_BRACKETS" value="true" />
-      <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
-      <option name="SPACE_WITHIN_EMPTY_ARRAY_INITIALIZER_BRACES" value="true" />
-      <option name="SPACE_BEFORE_METHOD_CALL_PARENTHESES" value="true" />
-      <option name="SPACE_BEFORE_METHOD_PARENTHESES" value="true" />
-      <option name="METHOD_CALL_CHAIN_WRAP" value="1" />
-      <option name="BINARY_OPERATION_WRAP" value="0" />
-      <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
-      <option name="TERNARY_OPERATION_WRAP" value="5" />
-      <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="false" />
-      <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="false" />
-      <option name="FOR_STATEMENT_WRAP" value="5" />
-      <option name="ARRAY_INITIALIZER_WRAP" value="5" />
-      <option name="ARRAY_INITIALIZER_RBRACE_ON_NEXT_LINE" value="true" />
-      <option name="IF_BRACE_FORCE" value="3" />
-      <option name="DOWHILE_BRACE_FORCE" value="3" />
-      <option name="WHILE_BRACE_FORCE" value="1" />
-      <option name="FOR_BRACE_FORCE" value="3" />
-      <option name="ENUM_CONSTANTS_WRAP" value="2" />
-      <option name="WRAP_ON_TYPING" value="1" />
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />
         <option name="TAB_SIZE" value="2" />

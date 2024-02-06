@@ -10,10 +10,6 @@
   path = extern/elastic-ai.runtime.c
   url = https://github.com/es-ude/elastic-ai.runtime.c
   branch = v2.4.0
-[submodule "extern/pico-sdk"]
-  path = extern/pico-sdk
-  url = https://github.com/raspberrypi/pico-sdk.git
-  branch = 1.5.1
 [submodule "extern/cexception"]
   path = extern/cexception
   url = https://github.com/ThrowTheSwitch/CException.git
