@@ -16,21 +16,19 @@ IMPORTANT: This Guide assumes you are using a UNIX-like System and have `git` al
 [#_get_the_source_code]
 == Get the Source Code
 
-At first, you have to download the source code from GitHub and the required submodules.
+At first, you have to download the source code from GitHub.
 This can be archived by running
 
 [source,bash]
 ----
 git clone https://github.com/es-ude/elastic-ai.runtime.enV5.git enV5 #<1>
 cd enV5 #<2>
-git submodule update --init --recursive #<3>
 ----
 
 in your terminal.
 
 <1> Download the Repository
 <2> Move inside the repository
-<3> Download all Submodules
 
 [#_system_requirements]
 == System Requirements
