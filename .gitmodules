@@ -1,4 +1,0 @@
-[submodule "extern/freeRTOS/Kernel"]
-  path = extern/freeRTOS/Kernel
-  url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-  branch = smp

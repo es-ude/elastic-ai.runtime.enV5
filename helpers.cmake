@@ -35,6 +35,17 @@ function(add_runtime_c)
     add_subdirectory(${elastic_ai_runtime_c_SOURCE_DIR})
 endfunction()
 
+function(add_freertos_kernel)
+    FetchContent_Declare(
+            freertos_kernel
+            GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+            GIT_TAG smp
+    )
+    FetchContent_Populate(freertos_kernel)
+
+    add_subdirectory(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
+endfunction()
+
 function(add_rp2040_hal)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/hal)
 endfunction()
@@ -43,6 +54,7 @@ function(add_basic_functionality)
     add_cexception()
     add_runtime_c()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
+    add_freertos_kernel()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/rtos)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/flash)
