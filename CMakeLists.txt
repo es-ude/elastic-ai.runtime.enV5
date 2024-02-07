@@ -21,7 +21,7 @@ if (UNIT_TEST)
 
     # include required standard libs for testing
     add_cexception()
-    add_subdirectory(extern/elastic-ai.runtime.c)
+    add_runtime_c()
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
     add_subdirectory(src/network/config)

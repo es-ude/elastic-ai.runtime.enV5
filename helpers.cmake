@@ -24,13 +24,24 @@ function(add_unity)
     add_subdirectory(${unity_SOURCE_DIR})
 endfunction()
 
+function(add_runtime_c)
+    FetchContent_Declare(
+            elastic_ai_runtime_c
+            GIT_REPOSITORY https://github.com/es-ude/elastic-ai.runtime.c.git
+            GIT_TAG v2.5.0
+    )
+    FetchContent_Populate(elastic_ai_runtime_c)
+
+    add_subdirectory(${elastic_ai_runtime_c_SOURCE_DIR})
+endfunction()
+
 function(add_rp2040_hal)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/hal)
 endfunction()
 
 function(add_basic_functionality)
     add_cexception()
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/elastic-ai.runtime.c)
+    add_runtime_c()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/rtos)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network)
