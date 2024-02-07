@@ -42,8 +42,3 @@ Don’t push directly to the `main` branch::
 We use https://spin.atomicobject.com/conventional-commits/[conventional commits]
 
 NOTE: To ensure our guidelines we use xref:SETUP_GUIDE.adoc#_pre_commit_optional[Pre-Commit].
-
-
-link zur einrichtung in setupguide
-
-
