@@ -12,7 +12,7 @@ ifdef::env-github[]
 endif::[]
 
 link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml/badge.svg[Checks]]
-link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
+link:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg?branch=main&event=push(https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml)[image:https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/push_to_main.yml/badge.svg[
 Release]]
 
 
@@ -38,15 +38,6 @@ We recommended pre-commit to check that the commit messages align with the conve
 TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:.[root
 directory].
 
-After pulling the repository, you are required to download all submodules (see <<Submodules>>).
-This can be archived by executing
-
-[source,bash]
-----
-git submodule update --init --recursive
-----
-
-After installing all dependencies, you are now able to build the software targets.
 First, you need to generate the build scripts with cmake and then execute them
 
 NOTE: If you use the CLion IDE as recommended, the build script generation is done by the IDE itself.
@@ -198,11 +189,11 @@ Following submodules are being used
 * https://github.com/ThrowTheSwitch/CException[ThrowTheSwitch/CExcpetion]
 * https://github.com/ThrowTheSwitch/Unity[ThrowTheSwitch/Unity]
 
+NOTE: These submodules will automatically downloaded by CMake on initialization!
+
+
 [#_troubleshooting]
 == Troubleshooting
 
-* In case the command which fetches the submodules fails, try executing `git submodule update --init --recursive --force`.
-This will most likely fix the problem.
-** It is recommended to erase all submodules from your local machine with `git submodules deinit --all`
 * To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
 * If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:src/network/config/NetworkConfig.c[NetworkConfig.c])

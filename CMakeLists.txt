@@ -21,7 +21,7 @@ if (UNIT_TEST)
 
     # include required standard libs for testing
     add_cexception()
-    add_subdirectory(extern/elastic-ai.runtime.c)
+    add_runtime_c()
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
     add_subdirectory(src/network/config)
@@ -44,7 +44,8 @@ else ()
     message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
 
     # include pico-sdk
-    include(extern/pico-sdk/pico_sdk_init.cmake)
+    set(PICO_SDK_FETCH_FROM_GIT on)
+    include(pico_sdk_import.cmake)
 
     project(enV5 C CXX ASM)
 

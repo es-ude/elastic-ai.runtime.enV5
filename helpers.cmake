@@ -1,11 +1,49 @@
+include(FetchContent)
+
 function(add_cexception)
+    FetchContent_Declare(
+            cexception
+            GIT_REPOSITORY https://github.com/ThrowTheSwitch/CException.git
+            GIT_TAG master
+    )
+    FetchContent_Populate(cexception)
+
     add_library(CException INTERFACE)
-    target_sources(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib/CException.c)
-    target_include_directories(CException INTERFACE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/cexception/lib)
+    target_sources(CException INTERFACE ${cexception_SOURCE_DIR}/lib/CException.c)
+    target_include_directories(CException INTERFACE ${cexception_SOURCE_DIR}/lib)
 endfunction()
 
 function(add_unity)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/unity)
+    FetchContent_Declare(
+            unity
+            GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+            GIT_TAG v2.5.2
+    )
+    FetchContent_Populate(unity)
+
+    add_subdirectory(${unity_SOURCE_DIR})
+endfunction()
+
+function(add_runtime_c)
+    FetchContent_Declare(
+            elastic_ai_runtime_c
+            GIT_REPOSITORY https://github.com/es-ude/elastic-ai.runtime.c.git
+            GIT_TAG v2.5.0
+    )
+    FetchContent_Populate(elastic_ai_runtime_c)
+
+    add_subdirectory(${elastic_ai_runtime_c_SOURCE_DIR})
+endfunction()
+
+function(add_freertos_kernel)
+    FetchContent_Declare(
+            freertos_kernel
+            GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+            GIT_TAG smp
+    )
+    FetchContent_Populate(freertos_kernel)
+
+    add_subdirectory(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
 endfunction()
 
 function(add_rp2040_hal)
@@ -14,8 +52,9 @@ endfunction()
 
 function(add_basic_functionality)
     add_cexception()
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/extern/elastic-ai.runtime.c)
+    add_runtime_c()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
+    add_freertos_kernel()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/rtos)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/flash)

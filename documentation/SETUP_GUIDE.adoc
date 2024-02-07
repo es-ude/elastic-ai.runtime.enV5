@@ -16,21 +16,19 @@ IMPORTANT: This Guide assumes you are using a UNIX-like System and have `git` al
 [#_get_the_source_code]
 == Get the Source Code
 
-At first, you have to download the source code from GitHub and the required submodules.
+At first, you have to download the source code from GitHub.
 This can be archived by running
 
 [source,bash]
 ----
 git clone https://github.com/es-ude/elastic-ai.runtime.enV5.git enV5 #<1>
 cd enV5 #<2>
-git submodule update --init --recursive #<3>
 ----
 
 in your terminal.
 
 <1> Download the Repository
 <2> Move inside the repository
-<3> Download all Submodules
 
 [#_system_requirements]
 == System Requirements
@@ -69,9 +67,13 @@ Can be installed via your local package manager like dnf, apt or brew.
 [#_pre_commit_optional]
 === Pre-Commit [optional]
 
-To ensure our guidelines we recommend using https://commitlint.js.org/#/[Commitlint] with https://pre-commit.com/[Pre-Commit] in an https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv[virtual environment]
+To ensure our guidelines, we recommend using https://commitlint.js.org/#/[Commitlint] in combination with https://pre-commit.com/[Pre-Commit].
+To assure you don't corrupt your system we recommend installing the dependencies inside a https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv[virtual environment].
 
-Please check our link:../requirements.txt[requirements.txt]
+.Installation
+1. Create and checkout virtual environment
+2. Install required packages from link:../requirements.txt[requirements.txt]
+3. Run `pre-commit install` to register the provided git hooks
 
 [#_ide]
 == IDE

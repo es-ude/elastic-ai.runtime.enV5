@@ -1,6 +1,3 @@
-# include FreeRTOS Kernel (git submodule)
-add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/../../extern/freeRTOS/Kernel/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
-
 add_library(freeRtosUtils INTERFACE)
 target_include_directories(freeRtosUtils INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_sources(freeRtosUtils INTERFACE
