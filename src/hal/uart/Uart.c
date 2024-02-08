@@ -86,28 +86,28 @@ void uartSetHTTPReceiverFunction(void (*receive)(char *)) {
 uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
     // check if UART is currently occupied
     if (strcmp(uartCommandToSend, "\0") != 0) {
-        PRINT("UART is busy. Can't send command %s.", command)
+        PRINT("UART is busy. Can't send command %s.", command);
         return UART_IS_BUSY;
     }
 
     // reset internal buffer
-    PRINT_DEBUG("Reset Buffer")
+    PRINT_DEBUG("Reset Buffer");
     uartCommandToSend = command;
     uartCorrectResponseReceived = false;
     uartExpectedResponseFromEsp = expectedResponse;
 
     // required for HTTPCGET response handling
     if (strncmp("AT+HTTPCGET", command, 11) == 0) {
-        PRINT_DEBUG("Add HTTPGET")
+        PRINT_DEBUG("Add HTTPGET");
         uartAwaitingHttpGet++;
     }
 
     // send command over uart
-    PRINT_DEBUG("Sending command: \"%s\"", command)
+    PRINT_DEBUG("Sending command: \"%s\"", command);
     uart_puts((uart_inst_t *)uartDevice->uartInstance, command);
     // send \r\n because AT command always ends with CR-LF
     uart_puts((uart_inst_t *)uartDevice->uartInstance, "\r\n");
-    PRINT_DEBUG("command send")
+    PRINT_DEBUG("command send");
 
     return UART_NO_ERROR;
 }
@@ -131,7 +131,7 @@ void uartInternalHandleNewLine(void) {
      */
 
     if (0 == strlen(uartDevice->receiveBuffer)) {
-        PRINT_DEBUG("Empty Buffer")
+        PRINT_DEBUG("Empty Buffer");
         return;
     }
     if (strncmp("+MQTTSUBRECV", uartDevice->receiveBuffer, 12) == 0) {
@@ -147,7 +147,7 @@ void uartInternalHandleNewLine(void) {
             uartHTTPReceive(uartDevice->receiveBuffer);
         }
     } else if (strncmp("+CWJAP", uartDevice->receiveBuffer, 6) == 0) {
-        PRINT_DEBUG("Message: %s", uartDevice->receiveBuffer)
+        PRINT_DEBUG("Message: %s", uartDevice->receiveBuffer);
         uartCorrectResponseReceived = true;
     }
     if (strncmp(uartExpectedResponseFromEsp, uartDevice->receiveBuffer,

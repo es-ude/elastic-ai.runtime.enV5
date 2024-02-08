@@ -61,45 +61,45 @@ static void initHardware(void) {
 
 void downloadBinFile(void) {
     espInit();
-    PRINT("Try Connecting to WiFi")
+    PRINT("Try Connecting to WiFi");
     networkTryToConnectToNetworkUntilSuccessful();
 
-    PRINT("Request Download Size")
+    PRINT("Request Download Size");
     HttpResponse_t *length_response;
     HTTPGet(lengthUrl, &length_response);
     length_response->response[length_response->length] = '\0';
     int file_length = strtol((char *)length_response->response, NULL, 10);
     HTTPCleanResponseBuffer(length_response);
-    PRINT("Length: %i", file_length)
+    PRINT("Length: %i", file_length);
 
-    PRINT("Downloading HW configuration...")
+    PRINT("Downloading HW configuration...");
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
         baseUrl, file_length, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
-        PRINT("Download failed!")
+        PRINT("Download failed!");
         exit(EXIT_FAILURE);
     }
-    PRINT("Download Successful.")
+    PRINT("Download Successful.");
 }
 
 void getId(void) {
-    PRINT("Request ID")
+    PRINT("Request ID");
     uint8_t id[1];
     middlewareReadBlocking(2000, id, sizeof(id));
-    PRINT("ID: 0x%02X", id[0])
+    PRINT("ID: 0x%02X", id[0]);
 }
 
 void writeData(void) {
     uint8_t data_write[3] = {0x01, 0x02, 0x03};
     middlewareWriteBlocking(0, data_write, 3);
-    PRINT("Data written")
+    PRINT("Data written");
     uint8_t data_read[3];
     middlewareReadBlocking(0, data_read, 1);
-    PRINT_BYTE_ARRAY("DATA: ", data_read, 3)
+    PRINT_BYTE_ARRAY("DATA: ", data_read, 3);
 }
 
 _Noreturn static void runTest() {
-    PRINT("===== START TEST =====")
+    PRINT("===== START TEST =====");
     while (1) {
         char c = getchar_timeout_us(UINT32_MAX);
 
@@ -109,35 +109,35 @@ _Noreturn static void runTest() {
             break;
         case 'P':
             env5HwFpgaPowersOn();
-            PRINT("FPGA powered ON")
+            PRINT("FPGA powered ON");
             break;
         case 'p':
             env5HwFpgaPowersOff();
-            PRINT("FPGA powered OFF")
+            PRINT("FPGA powered OFF");
             break;
         case 'I':
             middlewareInit();
-            PRINT("INIT")
+            PRINT("INIT");
             break;
         case 'i':
             middlewareDeinit();
-            PRINT("DEINIT")
+            PRINT("DEINIT");
             break;
         case 'L':
             middlewareSetFpgaLeds(0x09); // ON
-            PRINT("LEDS ON")
+            PRINT("LEDS ON");
             break;
         case 'l':
             middlewareSetFpgaLeds(0x00); // OFF
-            PRINT("LEDS OFF")
+            PRINT("LEDS OFF");
             break;
         case 'U':
             middlewareUserlogicEnable();
-            PRINT("Userlogic enabled")
+            PRINT("Userlogic enabled");
             break;
         case 'u':
             middlewareUserlogicDisable();
-            PRINT("Userlogic disabled")
+            PRINT("Userlogic disabled");
             break;
         case 'd':
             getId();
@@ -149,7 +149,7 @@ _Noreturn static void runTest() {
             writeData();
             break;
         default:
-            PRINT("Waiting ...")
+            PRINT("Waiting ...");
         }
     }
 }

@@ -7,5 +7,5 @@
 
 void sleep_for_ms(uint32_t msToSleep) {
     // Satisfy the compiler
-    PRINT("Call Sleep for %lims", msToSleep);
+    PRINT("Call Sleep for %ums", msToSleep);
 }

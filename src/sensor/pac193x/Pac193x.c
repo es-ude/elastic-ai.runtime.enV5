@@ -430,46 +430,46 @@ pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
     commandBuffer[0] = registerToWrite;
     commandBuffer[1] = settingsToWrite;
 
-    PRINT_DEBUG("send configuration to sensor")
+    PRINT_DEBUG("send configuration to sensor");
     i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                   sensor.i2c_slave_address, sensor.i2c_host);
     if (i2cErrorCode != I2C_NO_ERROR) {
-        PRINT_DEBUG("send configuration failed, error was %02X", i2cErrorCode)
+        PRINT_DEBUG("send configuration failed, error was %02X", i2cErrorCode);
         return PAC193X_SEND_COMMAND_ERROR;
     }
-    PRINT_DEBUG("configuration send successful")
+    PRINT_DEBUG("configuration send successful");
 
     return PAC193X_NO_ERROR;
 }
 
 static pac193xErrorCode_t pac193xInternalRefresh(pac193xSensorConfiguration_t sensor) {
-    PRINT_DEBUG("send refresh signal to sensor")
+    PRINT_DEBUG("send refresh signal to sensor");
     pac193xErrorCode_t errorCode = pac193xInternalSendRequestToSensor(sensor, PAC193X_CMD_REFRESH);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT_DEBUG("refresh send failed, error was %02X", errorCode)
+        PRINT_DEBUG("refresh send failed, error was %02X", errorCode);
         return errorCode;
     }
 
     /* sleep because the sensor is unreachable for 1ms after refresh */
     sleep_for_ms(1);
 
-    PRINT_DEBUG("refresh successful")
+    PRINT_DEBUG("refresh successful");
     return PAC193X_NO_ERROR;
 }
 
 static pac193xErrorCode_t pac193xInternalRefreshV(pac193xSensorConfiguration_t sensor) {
-    PRINT_DEBUG("send pac193xInternalRefreshV signal to sensor")
+    PRINT_DEBUG("send pac193xInternalRefreshV signal to sensor");
     pac193xErrorCode_t errorCode =
         pac193xInternalSendRequestToSensor(sensor, PAC193X_CMD_REFRESH_V);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT_DEBUG("pac193xInternalRefreshV send failed, error was %02X", errorCode)
+        PRINT_DEBUG("pac193xInternalRefreshV send failed, error was %02X", errorCode);
         return errorCode;
     }
 
     /* sleep because the sensor is unreachable for 1ms after refresh */
     sleep_for_ms(1);
 
-    PRINT_DEBUG("pac193xInternalRefreshV successful")
+    PRINT_DEBUG("pac193xInternalRefreshV successful");
     return PAC193X_NO_ERROR;
 }
 
@@ -480,11 +480,11 @@ pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
 
-    PRINT_DEBUG("request data from sensor")
+    PRINT_DEBUG("request data from sensor");
     i2cErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                sensor.i2c_slave_address, sensor.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
-        PRINT_DEBUG("sending request failed, error was %02X", errorCode)
+        PRINT_DEBUG("sending request failed, error was %02X", errorCode);
         return PAC193X_SEND_COMMAND_ERROR;
     }
 
@@ -494,14 +494,14 @@ pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
 static pac193xErrorCode_t pac193xInternalReceiveDataFromSensor(pac193xSensorConfiguration_t sensor,
                                                                uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
-    PRINT_DEBUG("receiving data from sensor")
+    PRINT_DEBUG("receiving data from sensor");
     i2cErrorCode_t errorCode = i2cReadData(responseBuffer, sizeOfResponseBuffer,
                                            sensor.i2c_slave_address, sensor.i2c_host);
     if (errorCode != I2C_NO_ERROR) {
-        PRINT_DEBUG("receiving data failed, error was %02X", errorCode)
+        PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
         return PAC193X_RECEIVE_DATA_ERROR;
     }
-    PRINT_DEBUG("received data successful")
+    PRINT_DEBUG("received data successful");
 
     return PAC193X_NO_ERROR;
 }
@@ -561,14 +561,14 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
         channelIndex = -1;
     }
 
-    PRINT_DEBUG("channel: %i; index: %i", channel, channelIndex)
+    PRINT_DEBUG("channel: %i; index: %i", channel, channelIndex);
     return channelIndex;
 }
 
 static pac193xErrorCode_t
 pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
                                         pac193xValueToMeasure_t valueToMeasure) {
-    PRINT_DEBUG("setting properties for requested measurement")
+    PRINT_DEBUG("setting properties for requested measurement");
 
     switch (valueToMeasure) {
     case PAC193X_VSOURCE:
@@ -607,11 +607,11 @@ pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properti
         properties->sizeOfResponseBuffer = 2;
         break;
     default:
-        PRINT_DEBUG("invalid properties")
+        PRINT_DEBUG("invalid properties");
         return PAC193X_INVALID_MEASUREMENT;
     }
 
-    PRINT_DEBUG("settings applied successful")
+    PRINT_DEBUG("settings applied successful");
     return PAC193X_NO_ERROR;
 }
 
@@ -655,66 +655,66 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
 
 static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
-    PRINT_DEBUG("transforming buffer to uint64")
+    PRINT_DEBUG("transforming buffer to uint64");
     uint64_t scalar = responseBuffer[0];
     for (uint8_t index = 1; index < sizeOfResponseBuffer; index++) {
         scalar <<= 8;
         scalar |= (uint64_t)(responseBuffer[index]);
     }
 
-    PRINT_DEBUG("output: %llu", scalar)
+    PRINT_DEBUG("output: %llu", scalar);
     return scalar;
 }
 
 static float pac193xInternalConvertToFloat(uint64_t input) {
-    PRINT_DEBUG("converting value to float")
-    PRINT_DEBUG("output: %f", ((float)input))
+    PRINT_DEBUG("converting value to float");
+    PRINT_DEBUG("output: %f", ((float)input));
     return (float)input;
 }
 
 static float pac193xInternalCalculateVoltageOfSource(uint64_t input,
                                                      __attribute__((unused)) float resistor) {
-    PRINT_DEBUG("calculating voltage of source")
+    PRINT_DEBUG("calculating voltage of source");
     float vSource =
         32.0f * (pac193xInternalConvertToFloat(input) / pac193xInternalUnipolarVoltageDenominator);
-    PRINT_DEBUG("output: %f", vSource)
+    PRINT_DEBUG("output: %f", vSource);
     return vSource;
 }
 
 static float pac193xInternalCalculateVoltageOfSense(uint64_t input,
                                                     __attribute__((unused)) float resistor) {
-    PRINT_DEBUG("calculating voltage of sense")
+    PRINT_DEBUG("calculating voltage of sense");
     float vSense =
         0.1f * (pac193xInternalConvertToFloat(input) / pac193xInternalUnipolarVoltageDenominator);
-    PRINT_DEBUG("output: %f", vSense)
+    PRINT_DEBUG("output: %f", vSense);
     return vSense;
 }
 
 static float pac193xInternalCalculateCurrentOfSense(uint64_t input, float resistor) {
-    PRINT_DEBUG("calculating current of sense")
+    PRINT_DEBUG("calculating current of sense");
     float fsc = 0.1f / resistor;
     float iSense =
         fsc * (pac193xInternalConvertToFloat(input) / pac193xInternalUnipolarVoltageDenominator);
-    PRINT_DEBUG("output: %f", iSense)
+    PRINT_DEBUG("output: %f", iSense);
     return iSense;
 }
 
 static float pac193xInternalCalculateActualPower(uint64_t input, float resistor) {
-    PRINT_DEBUG("calculating actual power")
+    PRINT_DEBUG("calculating actual power");
     float powerFSR = 3.2f / resistor;
     float powerConversionFactor =
         pac193xInternalConvertToFloat(input) / pac193xInternalUnipolarPowerDenominator;
     float powerActual = powerFSR * powerConversionFactor;
-    PRINT_DEBUG("output: %f", powerActual)
+    PRINT_DEBUG("output: %f", powerActual);
     return powerActual;
 }
 
 static float pac193xInternalCalculateEnergy(uint64_t input, float resistor) {
-    PRINT_DEBUG("calculating energy")
+    PRINT_DEBUG("calculating energy");
     float powerFSR = 3.2f / resistor;
     float energy = pac193xInternalConvertToFloat(input) * powerFSR /
                    (pac193xInternalEnergyDenominator * pac193xInternalSamplingRate);
-    PRINT_DEBUG("output: %f", energy)
+    PRINT_DEBUG("output: %f", energy);
     return energy;
 }
 

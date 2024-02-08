@@ -18,29 +18,29 @@ void env5HwInit() {
 void env5HwLedsInit(void) {
     gpioInitPin(GPIO_LED0, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED0, GPIO_PIN_LOW);
-    PRINT_DEBUG("LED0 initialized.")
+    PRINT_DEBUG("LED0 initialized.");
 
     gpioInitPin(GPIO_LED1, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED1, GPIO_PIN_LOW);
-    PRINT_DEBUG("LED1 initialized.")
+    PRINT_DEBUG("LED1 initialized.");
 
     gpioInitPin(GPIO_LED2, GPIO_OUTPUT);
     gpioSetPin(GPIO_LED2, GPIO_PIN_LOW);
-    PRINT_DEBUG("LED2 initialized.")
+    PRINT_DEBUG("LED2 initialized.");
 }
 
 void env5HwLedsAllOn(void) {
     gpioSetPin(GPIO_LED0, GPIO_PIN_HIGH);
     gpioSetPin(GPIO_LED1, GPIO_PIN_HIGH);
     gpioSetPin(GPIO_LED2, GPIO_PIN_HIGH);
-    PRINT_DEBUG("LED's enabled")
+    PRINT_DEBUG("LED's enabled");
 }
 
 void env5HwLedsAllOff(void) {
     gpioSetPin(GPIO_LED0, GPIO_PIN_LOW);
     gpioSetPin(GPIO_LED1, GPIO_PIN_LOW);
     gpioSetPin(GPIO_LED2, GPIO_PIN_LOW);
-    PRINT_DEBUG("LED's disabled")
+    PRINT_DEBUG("LED's disabled");
 }
 
 /* endregion LED */
@@ -70,14 +70,14 @@ void env5HwFpgaPowersOn(void) {
     sleep_for_ms(10);                                     // wait until the FPGA is powered up
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_LOW);            // turn the MOS-FETS on
 
-    PRINT_DEBUG("FPGA Powered On.")
+    PRINT_DEBUG("FPGA Powered On.");
 }
 
 void env5HwFpgaPowersOff(void) {
     gpioSetPin(FPGA_VOL_REGULATOR_EN_PIN, GPIO_PIN_LOW); // turn the voltage regulator off
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_HIGH);          // turn the MOS-FETS off
 
-    PRINT_DEBUG("FPGA Powered Off.")
+    PRINT_DEBUG("FPGA Powered Off.");
 }
 
 void env5HwFpgaReset(bool enable) {

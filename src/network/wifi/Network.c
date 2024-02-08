@@ -14,7 +14,7 @@ extern networkCredentials_t networkCredentials;
 
 networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
     if (espStatus.WIFIStatus == CONNECTED) {
-        PRINT_DEBUG("Already connected to Network! Disconnect first.")
+        PRINT_DEBUG("Already connected to Network! Disconnect first.");
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
 
@@ -23,11 +23,11 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
         if (networkErrorCode == NETWORK_NO_ERROR) {
             break;
         } else if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
-            PRINT("ESP not reachable. Abort try to connect!")
+            PRINT("ESP not reachable. Abort try to connect!");
             return NETWORK_ESP_CHIP_FAILED;
         } else {
             freeRtosTaskWrapperTaskSleep(1000);
-            PRINT_DEBUG("Connection failed. Trying again now!")
+            PRINT_DEBUG("Connection failed. Trying again now!");
         }
     }
 
@@ -38,11 +38,11 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
 
 networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT_DEBUG("Chip not working! Can't connect to network.")
+        PRINT_DEBUG("Chip not working! Can't connect to network.");
         return NETWORK_ESP_CHIP_FAILED;
     }
     if (espStatus.WIFIStatus == CONNECTED) {
-        PRINT_DEBUG("Already connected to Network! Disconnect first.")
+        PRINT_DEBUG("Already connected to Network! Disconnect first.");
         return NETWORK_WIFI_ALREADY_CONNECTED;
     }
 
@@ -59,12 +59,12 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     free(connectToNetwork);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Connected to Network: %s", credentials.ssid)
+        PRINT("Connected to Network: %s", credentials.ssid);
         espStatus.WIFIStatus = CONNECTED;
         HTTPSetReceiverFunction(); // TODO: should this be called here??
         return NETWORK_NO_ERROR;
     } else {
-        PRINT("Failed to connect to Network: %s", credentials.ssid)
+        PRINT("Failed to connect to Network: %s", credentials.ssid);
         espStatus.WIFIStatus = NOT_CONNECTED;
         return NETWORK_ESTABLISH_CONNECTION_FAILED;
     }
@@ -72,11 +72,11 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
 
 void networkDisconnectFromNetwork(void) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT_DEBUG("Chip not working!")
+        PRINT_DEBUG("Chip not working!");
         return;
     }
     if (espStatus.WIFIStatus == NOT_CONNECTED) {
-        PRINT_DEBUG("No connection to disconnect from!")
+        PRINT_DEBUG("No connection to disconnect from!");
         return;
     }
 
@@ -86,21 +86,21 @@ void networkDisconnectFromNetwork(void) {
     free(disconnect);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT_DEBUG("Disconnected from Network")
+        PRINT_DEBUG("Disconnected from Network");
         espStatus.WIFIStatus = NOT_CONNECTED;
         espStatus.MQTTStatus = NOT_CONNECTED;
     } else {
-        PRINT("Failed to disconnect from Network")
+        PRINT("Failed to disconnect from Network");
     }
 }
 
 networkErrorCode_t networkcheckConnection(void) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT("Chip not working!")
+        PRINT("Chip not working!");
         return NETWORK_ESP_CHIP_FAILED;
     }
     if (espStatus.WIFIStatus == NOT_CONNECTED) {
-        PRINT("No connection to disconnect from!")
+        PRINT("No connection to disconnect from!");
         return NETWORK_ESTABLISH_CONNECTION_FAILED;
     }
 

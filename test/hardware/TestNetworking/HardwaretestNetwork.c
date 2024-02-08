@@ -13,7 +13,7 @@
 extern networkCredentials_t credentials;
 
 _Noreturn void networkTask() {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     while (1) {
         connectToNetwork();

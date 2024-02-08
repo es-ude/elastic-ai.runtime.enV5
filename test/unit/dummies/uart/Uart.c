@@ -16,7 +16,7 @@ void uartSetHTTPReceiverFunction(void (*receive)(char *)) {
 }
 
 uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
-    PRINT("UART send Message: >%s<", command)
+    PRINT("UART send Message: >%s<", command);
     return UART_NO_ERROR;
 }
 

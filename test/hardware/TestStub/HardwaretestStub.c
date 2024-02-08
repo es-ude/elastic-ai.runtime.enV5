@@ -68,29 +68,29 @@ static void initHardware() {
 
 static void loadConfigToFlashViaHttp(uint32_t sectorId) {
     espInit();
-    PRINT("Try Connecting to WiFi")
+    PRINT("Try Connecting to WiFi");
     networkTryToConnectToNetworkUntilSuccessful();
 
-    PRINT("Request Download Size")
+    PRINT("Request Download Size");
     HttpResponse_t *length_response;
     HTTPGet(lengthUrl, &length_response);
     length_response->response[length_response->length] = '\0';
     int configSize = strtol((char *)length_response->response, NULL, 10);
     HTTPCleanResponseBuffer(length_response);
-    PRINT("Length: %i", configSize)
+    PRINT("Length: %i", configSize);
 
-    PRINT("Downloading HW configuration...")
+    PRINT("Downloading HW configuration...");
     fpgaConfigurationHandlerError_t error =
         fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, configSize, sectorId);
     if (error != FPGA_RECONFIG_NO_ERROR) {
-        PRINT("Download failed!")
+        PRINT("Download failed!");
         exit(EXIT_FAILURE);
     }
-    PRINT("Download Successful.")
+    PRINT("Download Successful.");
 }
 
 _Noreturn void runTest(void) {
-    PRINT("===== START TEST =====")
+    PRINT("===== START TEST =====");
     while (1) {
         char c = getchar_timeout_us(UINT32_MAX);
 
@@ -103,18 +103,18 @@ _Noreturn void runTest(void) {
             break;
         case 'P':
             env5HwFpgaPowersOn();
-            PRINT("FPGA powered ON")
+            PRINT("FPGA powered ON");
             break;
         case 'p':
             env5HwFpgaPowersOff();
-            PRINT("FPGA powered OFF")
+            PRINT("FPGA powered OFF");
             break;
         case 'd':
             PRINT("Deploy: %s",
-                  modelDeploy(3 * FLASH_BYTES_PER_SECTOR, acceloratorId) ? "successful" : "failed")
+                  modelDeploy(3 * FLASH_BYTES_PER_SECTOR, acceloratorId) ? "successful" : "failed");
             break;
         default:
-            PRINT("Waiting ...")
+            PRINT("Waiting ...");
         }
     }
 }

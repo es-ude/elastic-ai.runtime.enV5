@@ -38,7 +38,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
     do {
         Try {
             url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
-            PRINT_DEBUG("URL: %s", url)
+            PRINT_DEBUG("URL: %s", url);
 
             HTTPGet(url, &httpResponse);
 
@@ -54,7 +54,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
             page++;
         }
         Catch(exception) {
-            PRINT_DEBUG("Error during Download occurred (0x%02X)", exception)
+            PRINT_DEBUG("Error during Download occurred (0x%02X)", exception);
             fpgaConfigurationHandlerFreeUrl(url);
             HTTPCleanResponseBuffer(httpResponse);
             if (exception == HTTP_CONNECTION_FAILED || exception == HTTP_URL_TO_LONG) {

@@ -19,9 +19,9 @@ _Noreturn void SenderTask() {
         messageCounter++;
 
         if (freeRtosQueueWrapperSend(message)) {
-            PRINT("Send message `%s` into Queue", data)
+            PRINT("Send message `%s` into Queue", data);
         } else {
-            PRINT("Failed to send message into queue")
+            PRINT("Failed to send message into queue");
         }
 
         freeRtosTaskWrapperTaskSleep(250);
@@ -33,9 +33,9 @@ _Noreturn void ReceiverTask() {
 
     while (1) {
         if (!freeRtosQueueWrapperReceive(&message)) {
-            PRINT("Something went Wrong!\n")
+            PRINT("Something went Wrong!\n");
         } else {
-            PRINT("Received: `%s`", message.Data)
+            PRINT("Received: `%s`", message.Data);
         }
 
         // enter boot mode if selected
@@ -78,7 +78,7 @@ void testDynamicMessageChanges() {
 
     // receive modified message
     freeRtosQueueWrapperReceive(&message);
-    PRINT("Expected: `aallo`; Received: `%s`", message.Data)
+    PRINT("Expected: `aallo`; Received: `%s`", message.Data);
 }
 
 int main(void) {
@@ -88,11 +88,11 @@ int main(void) {
     }
     initHardware();
 
-    PRINT("===== START TEST: dynamic vs. static messages =====")
+    PRINT("===== START TEST: dynamic vs. static messages =====");
     testDynamicMessageChanges();
 
     // test async
-    PRINT("===== START TEST: asynchronous messages =====")
+    PRINT("===== START TEST: asynchronous messages =====");
     freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();

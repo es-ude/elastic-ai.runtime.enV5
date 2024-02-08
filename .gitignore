@@ -54,4 +54,5 @@ out/
 ## IntelliJ IDEA
 .idea/workspace.xml
 
+## MacOS Desktop Service Store
 **/.DS_Store

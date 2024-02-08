@@ -17,11 +17,11 @@ uint64_t arrivedMessages = 0;
 
 void deliver(posting_t posting) {
     arrivedMessages++;
-    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages)
+    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages);
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();

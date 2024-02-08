@@ -25,11 +25,11 @@ void publishTestData(uint16_t i) {
 }
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: %s", posting.data)
+    PRINT("Received Data: %s", posting.data);
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();
@@ -39,13 +39,13 @@ _Noreturn void mqttTask(void) {
     uint64_t messageCounter = 0;
     while (1) {
         protocolSubscribeForData("enV5", "testPubSub", sub);
-        PRINT("Should receive data with id: %llu", messageCounter)
+        PRINT("Should receive data with id: %llu", messageCounter);
         publishTestData(messageCounter);
         messageCounter++;
         freeRtosTaskWrapperTaskSleep(2500);
 
         protocolUnsubscribeFromData("enV5", "testPubSub", sub);
-        PRINT("Should NOT receive data with id: %llu", messageCounter)
+        PRINT("Should NOT receive data with id: %llu", messageCounter);
         publishTestData(messageCounter);
         messageCounter++;
         freeRtosTaskWrapperTaskSleep(2500);

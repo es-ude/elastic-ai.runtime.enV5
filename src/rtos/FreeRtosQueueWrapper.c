@@ -15,7 +15,7 @@ void freeRtosQueueWrapperCreate() {
         xQueueCreate(FREERTOS_QUEUE_WRAPPER_QUEUE_LENGTH, FREERTOS_QUEUE_WRAPPER_ITEM_SIZE);
     if (freeRtosQueueWrapperQueue == NULL) {
         PRINT("Failed to create Message Queue! Communication between tasks not "
-              "possible")
+              "possible");
     }
 }
 
@@ -23,7 +23,7 @@ bool freeRtosQueueWrapperSend(freeRtosQueueWrapperMessage_t message) {
     if (xQueueGenericSend(freeRtosQueueWrapperQueue, &message,
                           pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_IF_BLOCKED_MS_AMOUNT),
                           queueSEND_TO_BACK) != pdPASS) {
-        PRINT("Queue full!")
+        PRINT("Queue full!");
         return false;
     }
     return true;

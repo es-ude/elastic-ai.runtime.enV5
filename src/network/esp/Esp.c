@@ -50,24 +50,24 @@ void espInit(void) {
 
     // check if ESP module is available
     while (!espInternalCheckIsResponding()) {
-        PRINT("ESP NOT responding. Trying again ...")
+        PRINT("ESP NOT responding. Trying again ...");
         freeRtosTaskWrapperTaskSleep(1000);
     }
-    PRINT_DEBUG("ESP responding.")
+    PRINT_DEBUG("ESP responding.");
 
     // reset ESP configuration
     espInternalSoftReset();
 
     // configure ESP
     while (ESP_NO_ERROR != espSendCommand(AT_DISABLE_ECHO, AT_DISABLE_ECHO_RESPONSE, 100)) {
-        PRINT("Could not disable ESP echoing commands! Trying again ...")
+        PRINT("Could not disable ESP echoing commands! Trying again ...");
     }
-    PRINT_DEBUG("Disabled ESP echoing commands successful.")
+    PRINT_DEBUG("Disabled ESP echoing commands successful.");
     while (ESP_NO_ERROR !=
            espSendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
-        PRINT("Could not set ESP to single connection mode! Trying again ...")
+        PRINT("Could not set ESP to single connection mode! Trying again ...");
     }
-    PRINT_DEBUG("Set ESP to single connection mode successful.")
+    PRINT_DEBUG("Set ESP to single connection mode successful.");
 
     // set ESP status
     espStatus.ChipStatus = ESP_CHIP_OK;
@@ -78,7 +78,7 @@ void espInit(void) {
 espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
     uartErrorCode_t uartToEspErrorCode = uartSendCommand(cmd, expectedResponse);
     if (uartToEspErrorCode == UART_IS_BUSY) {
-        PRINT("Only one ESP command at a time can be send, did not send %s.", cmd)
+        PRINT("Only one ESP command at a time can be send, did not send %s.", cmd);
         return ESP_UART_IS_BUSY;
     }
 
@@ -88,10 +88,10 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
         responseArrived = uartCorrectResponseArrived();
         if (responseArrived) {
-            PRINT_DEBUG("Correct response received!")
+            PRINT_DEBUG("Correct response received!");
             break;
         }
-        PRINT_DEBUG("No Response Received")
+        PRINT_DEBUG("No Response Received");
         freeRtosTaskWrapperTaskSleep(REFRESH_RESPOND_IN_MS);
     }
     // free command buffer of UART
@@ -119,10 +119,10 @@ bool espInternalCheckIsResponding(void) {
 bool espInternalSoftReset(void) {
     espErrorCode_t espErrorCode = espSendCommand(AT_RESTART, AT_RESTART_RESPONSE, 1000);
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT_DEBUG("ESP reset successful. Sleeping for 2 seconds.")
+        PRINT_DEBUG("ESP reset successful. Sleeping for 2 seconds.");
         freeRtosTaskWrapperTaskSleep(2000); // wait until the esp is ready
     } else {
-        PRINT("ESP reset failed!")
+        PRINT("ESP reset failed!");
     }
 
     return espErrorCode;

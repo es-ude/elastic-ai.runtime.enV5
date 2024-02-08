@@ -26,7 +26,7 @@
 
 void spiInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
     uint32_t actualBaudrate = spi_init(spiConfiguration->spi, spiConfiguration->baudrate);
-    PRINT_DEBUG("Actual Baudrate: %lu", actualBaudrate)
+    PRINT_DEBUG("Actual Baudrate: %lu", actualBaudrate);
 
     gpioSetPinFunction(spiConfiguration->sckPin, GPIO_FUNCTION_SPI);
     gpioSetPinFunction(spiConfiguration->mosiPin, GPIO_FUNCTION_SPI);
@@ -51,7 +51,7 @@ void spiDeinit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
 }
 
 int spiWriteCommandBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command) {
-    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length);
 
     spiEnableDevice(chipSelectPin);
     int numberOfBytesWritten =
@@ -61,8 +61,8 @@ int spiWriteCommandBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data
 }
 int spiWriteCommandAndDataBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data) {
-    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
-    PRINT_BYTE_ARRAY_DEBUG("Data: ", data->data, data->length)
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length);
+    PRINT_BYTE_ARRAY_DEBUG("Data: ", data->data, data->length);
 
     spiEnableDevice(chipSelectPin);
     spi_write_blocking(spiConfiguration->spi, command->data, command->length);
@@ -72,7 +72,7 @@ int spiWriteCommandAndDataBlocking(spi_t *spiConfiguration, uint8_t chipSelectPi
 }
 int spiWriteCommandAndReadBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data) {
-    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length)
+    PRINT_BYTE_ARRAY_DEBUG("Command: ", command->data, command->length);
 
     spiEnableDevice(chipSelectPin);
     spi_write_blocking(spiConfiguration->spi, command->data, command->length);

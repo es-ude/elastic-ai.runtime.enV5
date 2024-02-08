@@ -25,11 +25,11 @@ void publishTestData(uint64_t i) {
 }
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: %s", posting.data)
+    PRINT("Received Data: %s", posting.data);
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();

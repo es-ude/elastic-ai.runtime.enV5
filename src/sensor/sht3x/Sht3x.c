@@ -224,7 +224,7 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xCommand_t command)
     commandBuffer[0] = (command >> 8);
     commandBuffer[1] = (command & 0xFF);
 
-    PRINT_DEBUG("requesting data from sensor")
+    PRINT_DEBUG("requesting data from sensor");
     sht3xErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                  sht3xSensorConfiguration.i2c_slave_address,
                                                  sht3xSensorConfiguration.i2c_host);
@@ -233,13 +233,13 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xCommand_t command)
         return SHT3X_NO_ERROR;
     }
 
-    PRINT_DEBUG("sending request failed, error was %02X", errorCode)
+    PRINT_DEBUG("sending request failed, error was %02X", errorCode);
     return SHT3X_SEND_COMMAND_ERROR;
 }
 
 static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(uint8_t *responseBuffer,
                                                            uint8_t sizeOfResponseBuffer) {
-    PRINT_DEBUG("receiving data from sensor")
+    PRINT_DEBUG("receiving data from sensor");
     sht3xErrorCode_t errorCode =
         i2cReadData(responseBuffer, sizeOfResponseBuffer,
                     sht3xSensorConfiguration.i2c_slave_address, sht3xSensorConfiguration.i2c_host);
@@ -248,13 +248,13 @@ static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(uint8_t *responseBuff
         return SHT3X_NO_ERROR;
     }
 
-    PRINT_DEBUG("receiving data failed, error was %02X", errorCode)
+    PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
     return SHT3X_RECEIVE_DATA_ERROR;
 }
 
 static sht3xErrorCode_t sht3xInternalPerformChecksumCheck(const uint8_t *responseBuffer,
                                                           uint8_t sizeOfResponseBuffer) {
-    PRINT_DEBUG("performing checksum check")
+    PRINT_DEBUG("performing checksum check");
     uint8_t numberOfTriplets = sizeOfResponseBuffer / 3;
     uint8_t group = 0;
 
@@ -265,14 +265,14 @@ static sht3xErrorCode_t sht3xInternalPerformChecksumCheck(const uint8_t *respons
 
         if (transmittedChecksum != calculatedChecksum) {
             PRINT_DEBUG("checksum failed, input: %i, calculated: %i", transmittedChecksum,
-                        calculatedChecksum)
+                        calculatedChecksum);
             return SHT3X_CHECKSUM_ERROR;
         }
 
         group++;
     }
 
-    PRINT_DEBUG("checksum passed")
+    PRINT_DEBUG("checksum passed");
     return SHT3X_NO_ERROR;
 }
 
@@ -295,13 +295,13 @@ static uint8_t sht3xInternalCalculateChecksum(const uint8_t *dataBuffer) {
 
 static float sht3xInternalCalculateTemperature(uint16_t rawValue) {
     float temperature = (175.0f * ((float)rawValue / sht3xDenominator)) - 45.0f;
-    PRINT_DEBUG("calculate the temperature, temperature=%f", temperature)
+    PRINT_DEBUG("calculate the temperature, temperature=%f", temperature);
     return temperature;
 }
 
 static float sht3xInternalCalculateHumidity(uint16_t rawValue) {
     float humidity = 100.0f * ((float)rawValue / sht3xDenominator);
-    PRINT_DEBUG("calculating humidity, humidity=%f", humidity)
+    PRINT_DEBUG("calculating humidity, humidity=%f", humidity);
     return humidity;
 }
 

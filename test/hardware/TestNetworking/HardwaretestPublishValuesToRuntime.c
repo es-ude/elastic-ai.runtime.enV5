@@ -34,7 +34,7 @@ void publishTestDataWifi(uint16_t i) {
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();

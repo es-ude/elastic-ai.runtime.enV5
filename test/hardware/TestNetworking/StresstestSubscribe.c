@@ -14,11 +14,11 @@
  */
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: \"%s\", String length: \"%d\"", posting.data, strlen(posting.data))
+    PRINT("Received Data: \"%s\", String length: \"%d\"", posting.data, strlen(posting.data));
 }
 
 _Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();

@@ -348,38 +348,38 @@ static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bRegister_t
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
 
-    PRINT_DEBUG("requesting data from sensor")
+    PRINT_DEBUG("requesting data from sensor");
     i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                   adxl345bI2cSensorConfiguration.i2c_slave_address,
                                                   adxl345bI2cSensorConfiguration.i2c_host);
     if (i2cErrorCode != I2C_NO_ERROR) {
-        PRINT_DEBUG("sending request failed")
+        PRINT_DEBUG("sending request failed");
         return ADXL345B_SEND_COMMAND_ERROR;
     }
 
-    PRINT_DEBUG("receiving data from sensor")
+    PRINT_DEBUG("receiving data from sensor");
     i2cErrorCode = i2cReadData(responseBuffer, sizeOfResponseBuffer,
                                adxl345bI2cSensorConfiguration.i2c_slave_address,
                                adxl345bI2cSensorConfiguration.i2c_host);
     if (i2cErrorCode != I2C_NO_ERROR) {
-        PRINT_DEBUG("receiving data failed")
+        PRINT_DEBUG("receiving data failed");
         return ADXL345B_RECEIVE_DATA_ERROR;
     }
 
-    PRINT_DEBUG("successful received data from sensor")
+    PRINT_DEBUG("successful received data from sensor");
     return ADXL345B_NO_ERROR;
 }
 
 static adxl345bErrorCode_t adxl345bInternalConvertRawValueToLSB(const uint8_t rawData[2],
                                                                 int *lsbValue) {
-    PRINT_DEBUG("convert raw data to LSB value")
+    PRINT_DEBUG("convert raw data to LSB value");
     if (rawData[1] <= (adxl345bSelectedRange.msbMask >> 1)) {
-        PRINT_DEBUG("entered positive case")
+        PRINT_DEBUG("entered positive case");
         uint16_t rawValue = ((uint16_t)(rawData[1] & (adxl345bSelectedRange.msbMask >> 1)) << 8) |
                             (uint16_t)rawData[0];
         *lsbValue = (int)rawValue;
     } else {
-        PRINT_DEBUG("entered negative case")
+        PRINT_DEBUG("entered negative case");
         /* manual translation needed
          *
          * 1. revert two complement: number minus 1 and flip bits
@@ -391,33 +391,33 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToLSB(const uint8_t ra
         *lsbValue = (-1) * (int)rawValue;
     }
 
-    PRINT_DEBUG("conversion successful")
+    PRINT_DEBUG("conversion successful");
     return ADXL345B_NO_ERROR;
 }
 
 static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(int lsb, float *gValue) {
-    PRINT_DEBUG("convert LSB value to G value")
+    PRINT_DEBUG("convert LSB value to G value");
     float realValue = (float)lsb * adxl345bSelectedRange.scaleFactor;
     *gValue = realValue;
-    PRINT_DEBUG("LSB: %i, G value: %f", lsb, realValue)
+    PRINT_DEBUG("LSB: %i, G value: %f", lsb, realValue);
 
     return ADXL345B_NO_ERROR;
 }
 
 static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t rawData[2],
                                                                    float *gValue) {
-    PRINT_DEBUG("converting raw data to G value")
+    PRINT_DEBUG("converting raw data to G value");
     int intermediateLsb;
     adxl345bErrorCode_t errorCode = adxl345bInternalConvertRawValueToLSB(rawData, &intermediateLsb);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("conversion to LSB failed")
+        PRINT_DEBUG("conversion to LSB failed");
         return errorCode;
     }
 
     float intermediateGValue;
     errorCode = adxl345bInternalConvertLSBtoGValue(intermediateLsb, &intermediateGValue);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("conversion to G value failed")
+        PRINT_DEBUG("conversion to G value failed");
         return errorCode;
     }
 
@@ -426,37 +426,37 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t
 }
 
 static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration() {
-    PRINT_DEBUG("write default config to sensor")
+    PRINT_DEBUG("write default config to sensor");
     /* enable low power mode at 12.5Hz data output rate */
     adxl345bErrorCode_t errorCode =
         adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_BW_RATE, 0b00010111);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("send ADXL345B_REGISTER_BW_RATE failed")
-        PRINT_DEBUG("error code was %i", errorCode)
+        PRINT_DEBUG("send ADXL345B_REGISTER_BW_RATE failed");
+        PRINT_DEBUG("error code was %i", errorCode);
         return errorCode;
     }
 
     /* disable auto sleep, enable normal operation mode */
     errorCode = adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("send ADXL345B_REGISTER_POWER_CONTROL failed")
-        PRINT_DEBUG("error code was %i", errorCode)
+        PRINT_DEBUG("send ADXL345B_REGISTER_POWER_CONTROL failed");
+        PRINT_DEBUG("error code was %i", errorCode);
         return errorCode;
     }
 
     /* disable all interrupts */
     errorCode = adxl345bWriteConfigurationToSensor(ADXL345B_REGISTER_INTERRUPT_ENABLE, 0b00000000);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("send ADXL345B_REGISTER_INTERRUPT_ENABLE failed")
-        PRINT_DEBUG("error code was %i", errorCode)
+        PRINT_DEBUG("send ADXL345B_REGISTER_INTERRUPT_ENABLE failed");
+        PRINT_DEBUG("error code was %i", errorCode);
         return errorCode;
     }
 
     /* right adjusted storage, enable 10 bit 2G resolution */
     errorCode = adxl345bChangeMeasurementRange(ADXL345B_2G_RANGE);
     if (errorCode != ADXL345B_NO_ERROR) {
-        PRINT_DEBUG("changing measurement range failed")
-        PRINT_DEBUG("error code was %i", errorCode)
+        PRINT_DEBUG("changing measurement range failed");
+        PRINT_DEBUG("error code was %i", errorCode);
         return errorCode;
     }
 
@@ -465,16 +465,16 @@ static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration() {
 
 static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
                                                          int minValue) {
-    PRINT_DEBUG("trying to calibrate offset")
+    PRINT_DEBUG("trying to calibrate offset");
     if (measuredDelta <= minValue) {
-        PRINT_DEBUG("offset is %i", minValue - measuredDelta)
+        PRINT_DEBUG("offset is %i", minValue - measuredDelta);
         return (int8_t)(minValue - measuredDelta);
     }
     if (measuredDelta >= maxValue) {
-        PRINT_DEBUG("offset is %i", minValue - measuredDelta)
+        PRINT_DEBUG("offset is %i", minValue - measuredDelta);
         return (int8_t)(maxValue - measuredDelta);
     }
-    PRINT_DEBUG("offset is %i", 0)
+    PRINT_DEBUG("offset is %i", 0);
     return 0;
 }
 
