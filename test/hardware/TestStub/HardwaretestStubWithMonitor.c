@@ -81,18 +81,24 @@ _Noreturn void runTest() {
 static void receiveDownloadBinRequest(posting_t posting) {
     PRINT("RECEIVED FLASH REQUEST");
     // get download request
-    char *urlStart = strstr(posting.data, "URL:"); + 4;
-    char *urlEnd = strstr(urlStart, ";"); - 1;
+    char *urlStart = strstr(posting.data, "URL:");
+    +4;
+    char *urlEnd = strstr(urlStart, ";");
+    -1;
     size_t urlLength = urlEnd - urlStart + 1;
     char *url = malloc(urlLength);
     memcpy(url, urlStart, urlLength);
     url[urlLength - 1] = '\0';
-    char *sizeStart = strstr(posting.data, "SIZE:"); + 5;
-    char *endSize = strstr(sizeStart, ";"); - 1;
+    char *sizeStart = strstr(posting.data, "SIZE:");
+    +5;
+    char *endSize = strstr(sizeStart, ";");
+    -1;
     size_t length = strtol(sizeStart, &endSize, 10);
 
-    char *positionStart = strstr(posting.data, "POSITION:"); + 9;
-    char *positionEnd = strstr(positionStart, ";"); - 1;
+    char *positionStart = strstr(posting.data, "POSITION:");
+    +9;
+    char *positionEnd = strstr(positionStart, ";");
+    -1;
     size_t position = strtol(positionStart, &positionEnd, 10);
 
     downloadRequest = malloc(sizeof(downloadRequest_t));

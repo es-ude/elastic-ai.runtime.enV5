@@ -100,7 +100,8 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
             mqttBrokerReceiverFunctionSet = true;
         }
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port);
+        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip,
+              credentials.port);
         Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
         PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port);

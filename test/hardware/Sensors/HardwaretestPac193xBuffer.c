@@ -104,7 +104,8 @@ int main(void) {
             enterBootMode();
             break;
         default:
-            PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.");
+            PRINT(
+                "Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.");
             break;
         }
     }

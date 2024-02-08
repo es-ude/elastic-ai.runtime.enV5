@@ -65,7 +65,7 @@ static void loadConfigToFlash() {
 
 static void runTest() {
     env5HwFpgaPowersOn();
-    
+
     uint8_t data[] = {53, 49, 22, 53, 61, 35};
     uint8_t ref_res[] = {38, 63};
 

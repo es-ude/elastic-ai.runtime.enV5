@@ -179,8 +179,9 @@ void receiveDataStopRequest(posting_t posting) {
 }
 
 bool getAndPublishSRamValue(char *dataID) {
-    if (!sramReceiver.newValue);
-        return false;
+    if (!sramReceiver.newValue)
+        ;
+    return false;
     protocolPublishData(dataID, sramReceiver.value);
     sramReceiver.newValue = false;
     return true;

@@ -22,7 +22,9 @@ void _Noreturn httpTask(void) {
                   response->response);
             HTTPCleanResponseBuffer(response);
         }
-        Catch(exception){PRINT("HTTPGet failed!");}
+        Catch(exception) {
+            PRINT("HTTPGet failed!");
+        }
 
         freeRtosTaskWrapperTaskSleep(3000);
     }
