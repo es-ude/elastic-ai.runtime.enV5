@@ -6,7 +6,7 @@
 #include "MqttBroker.h"
 
 void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();

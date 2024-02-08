@@ -7,7 +7,6 @@
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "MqttBroker.h"
-#include "Network.h"
 #include "Pac193x.h"
 #include "Protocol.h"
 
@@ -60,7 +59,7 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     pac193xErrorCode_t errorCode =
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return -1;
     }
     return measurement;
@@ -78,7 +77,7 @@ void setTwinID(char *newTwinID) {
 void twinsIsOffline(posting_t posting) {
     if (strstr(posting.data, ";1") != NULL)
         return;
-    PRINT("Twin offline")
+    PRINT("Twin offline");
 
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i].subscribed = false;
@@ -136,26 +135,26 @@ _Noreturn void mainTask(void) {
     connectToNetwork();
     connectToMQTT();
 
-    PRINT("===== INIT SENSOR 1 =====")
+    PRINT("===== INIT SENSOR 1 =====");
     pac193xErrorCode_t errorCode;
     while (1) {
         errorCode = pac193xInit(sensor1);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.\n")
+            PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
 
-    PRINT("===== INIT SENSOR 2 =====")
+    PRINT("===== INIT SENSOR 2 =====");
     while (1) {
         errorCode = pac193xInit(sensor2);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.\n")
+            PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
 

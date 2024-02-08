@@ -87,7 +87,7 @@ void init(void) {
     stdio_init_all();
     // waits for usb connection, REMOVE to continue without waiting for connection
     while ((!stdio_usb_connected())) {}
-    PRINT("")
+    PRINT("");
 
     // initialize ESP over UART
     espInit();
@@ -101,28 +101,28 @@ void init(void) {
     while (1) {
         errorCode = pac193xInit(powersensor1);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.")
+            PRINT("Initialised PAC193X sensor 1.");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
     while (1) {
         errorCode = pac193xInit(powersensor2);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 2.")
+            PRINT("Initialised PAC193X sensor 2.");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
 
     i2c_set_baudrate(i2c1, 2000000);
     errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
     if (errorCode == ADXL345B_NO_ERROR)
-        PRINT("Initialised ADXL345B.")
+        PRINT("Initialised ADXL345B.");
     else
-        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode)
+        PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode);
 
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
@@ -179,7 +179,7 @@ void receiveDataStopRequest(posting_t posting) {
 }
 
 bool getAndPublishSRamValue(char *dataID) {
-    if (!sramReceiver.newValue)
+    if (!sramReceiver.newValue);
         return false;
     protocolPublishData(dataID, sramReceiver.value);
     sramReceiver.newValue = false;
@@ -198,7 +198,7 @@ void twinsIsOffline(posting_t posting) {
     if (strstr(posting.data, STATUS_STATE_ONLINE) != NULL) {
         return;
     }
-    PRINT("Twin is Offline")
+    PRINT("Twin is Offline");
 
     for (int i = 0; i < receivers_count; ++i) {
         receivers[i]->subscribed = false;
@@ -214,7 +214,7 @@ _Noreturn void publishValueBatchesTask(void) {
 
     publishAliveStatusMessage("wifi,sram");
 
-    PRINT("Ready ...")
+    PRINT("Ready ...");
 
     uint64_t seconds;
     bool hasTwin = false;
@@ -228,7 +228,7 @@ _Noreturn void publishValueBatchesTask(void) {
                 if (seconds - receivers[i]->lastPublished >= receivers[i]->frequency) {
                     if (receivers[i]->whenSubscribed(receivers[i]->dataID)) {
                         PRINT("Published Sensor Value (sec: %llu, data: %s)", seconds,
-                              receivers[i]->dataID)
+                              receivers[i]->dataID);
                         receivers[i]->lastPublished = seconds;
                     }
                 }
@@ -253,10 +253,10 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     pac193xErrorCode_t errorCode =
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return -1;
     }
-    PRINT("Measured Value: %4.2f", measurement)
+    PRINT("Measured Value: %4.2f", measurement);
     return measurement;
 }
 

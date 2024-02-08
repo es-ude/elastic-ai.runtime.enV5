@@ -39,7 +39,7 @@ static pac193xSensorConfiguration_t sensor2 = {
 static void sensorTest(pac193xSensorConfiguration_t sensor) {
     pac193xErrorCode_t errorCode = pac193xStartAccumulation(sensor);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
     }
 
@@ -49,20 +49,20 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
     pac193xPowerMeasurements_t measurements;
     errorCode = pac193xReadAccumulatedPowerForAllChannels(sensor, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
     }
     errorCode = pac193XStopAccumulation(sensor);
     if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode)
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
     }
 
-    PRINT("Performed %lu Measurements:", measurements.counterOfMeasurements)
-    PRINT("  Channel 1: %4.6fWs", measurements.powerChannel1)
-    PRINT("  Channel 2: %4.6fWs", measurements.powerChannel2)
-    PRINT("  Channel 3: %4.6fWs", measurements.powerChannel3)
-    PRINT("  Channel 4: %4.6fWs", measurements.powerChannel4)
+    PRINT("Performed %lu Measurements:", measurements.counterOfMeasurements);
+    PRINT("  Channel 1: %4.6fWs", measurements.powerChannel1);
+    PRINT("  Channel 2: %4.6fWs", measurements.powerChannel2);
+    PRINT("  Channel 3: %4.6fWs", measurements.powerChannel3);
+    PRINT("  Channel 4: %4.6fWs", measurements.powerChannel4);
 }
 
 static void enterBootMode() {
@@ -76,20 +76,20 @@ int main(void) {
     while ((!stdio_usb_connected())) {}
     sleep_ms(500);
 
-    PRINT("===== INIT SENSOR 1 =====")
+    PRINT("===== INIT SENSOR 1 =====");
     pac193xErrorCode_t errorCode;
     while (1) {
         errorCode = pac193xInit(sensor1);
         if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.\n")
+            PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode)
+        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
 
-    PRINT("===== START TEST =====")
-    PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.")
+    PRINT("===== START TEST =====");
+    PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.");
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds timeout */
 
@@ -104,7 +104,7 @@ int main(void) {
             enterBootMode();
             break;
         default:
-            PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.")
+            PRINT("Please press 1 (sensor 1), 2 (sensor 2) or b (Boot mode) for a task to perform.");
             break;
         }
     }

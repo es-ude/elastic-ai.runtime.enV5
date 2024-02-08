@@ -25,16 +25,16 @@ void publishTestData(uint64_t i) {
 }
 
 void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
     connectToMQTT();
 
-    PRINT("Start sending...")
+    PRINT("Start sending...");
 
     uint64_t messageCounter = 0;
     while (true) {
-        PRINT("stress: %llu", messageCounter)
+        PRINT("stress: %llu", messageCounter);
         messageCounter++;
         publishTestData(messageCounter);
     }

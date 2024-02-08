@@ -15,7 +15,7 @@ volatile uint32_t httpCount = 0;
 
 void HTTPGet(const char *url, HttpResponse_t **data) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK || espStatus.WIFIStatus == NOT_CONNECTED) {
-        PRINT_DEBUG("HTTP ERROR - No connection")
+        PRINT_DEBUG("HTTP ERROR - No connection");
         Throw(HTTP_CONNECTION_FAILED);
     }
 
@@ -60,6 +60,6 @@ void HTTPReceive(char *httpResponse) {
     memcpy(HTTPResponse->response, data, bytesOfData);
 }
 void HTTPSetReceiverFunction(void) {
-    PRINT_DEBUG("Receive function set")
+    PRINT_DEBUG("Receive function set");
     espSetHTTPReceiverFunction(HTTPReceive);
 }

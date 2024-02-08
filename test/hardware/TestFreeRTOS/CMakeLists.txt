@@ -22,4 +22,3 @@ target_link_libraries(hardware-test_SMP
         freeRtosUtils)
 target_compile_definitions(hardware-test_SMP PRIVATE DEBUG)
 create_enV5_executable(hardware-test_SMP)
-

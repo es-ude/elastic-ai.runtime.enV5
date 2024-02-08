@@ -59,7 +59,7 @@ void initHardware() {
 int main(void) {
     initHardware();
 
-    PRINT("===== START TEST =====")
+    PRINT("===== START TEST =====");
     // create Task1
     freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task", 0, FREERTOS_CORE_0);
     // createTask2

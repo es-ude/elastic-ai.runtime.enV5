@@ -117,7 +117,7 @@ static uint8_t flashReadStatusRegister(void) {
     data_t statusRegisterData = {.data = statusRegister, .length = sizeof(statusRegister)};
 
     spiWriteCommandAndReadBlocking(flashSpi, flashChipSelectPin, &command, &statusRegisterData);
-    PRINT_DEBUG("Status Register: 0x%02X", statusRegisterData.data[0])
+    PRINT_DEBUG("Status Register: 0x%02X", statusRegisterData.data[0]);
     return statusRegisterData.data[0];
 }
 

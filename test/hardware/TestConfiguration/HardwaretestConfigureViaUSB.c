@@ -61,10 +61,10 @@ void downloadConfiguration(bool useFast) {
     fpgaConfigurationHandlerError_t error =
         fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
-        PRINT("Error 0x%02X occurred during download.", error)
+        PRINT("Error 0x%02X occurred during download.", error);
         return;
     }
-    PRINT("Download Successful!")
+    PRINT("Download Successful!");
 }
 void readConfiguration(bool useFast) {
     size_t numberOfPages = 1, page = 0;
@@ -81,8 +81,8 @@ void readConfiguration(bool useFast) {
     while (page < numberOfPages) {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
         flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
-        PRINT("Address: 0x%06lX", startAddress + (page * FLASH_BYTES_PER_PAGE))
-        PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length)
+        PRINT("Address: 0x%06lX", startAddress + (page * FLASH_BYTES_PER_PAGE));
+        PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;
     }
@@ -120,7 +120,7 @@ void verifyConfiguration(bool useFast) {
 }
 
 _Noreturn void configurationTest(void) {
-    PRINT("===== START TEST =====")
+    PRINT("===== START TEST =====");
 
     while (1) {
         char input = getchar_timeout_us(UINT32_MAX);
@@ -128,15 +128,15 @@ _Noreturn void configurationTest(void) {
         switch (input) {
         case 'E':
             flashEraseAll();
-            PRINT("ERASED!")
+            PRINT("ERASED!");
             break;
         case 'P':
             env5HwFpgaPowersOn();
-            PRINT("FPGA Power: ON")
+            PRINT("FPGA Power: ON");
             break;
         case 'p':
             env5HwFpgaPowersOff();
-            PRINT("FPGA Power: OFF")
+            PRINT("FPGA Power: OFF");
             break;
         case 'd':
             downloadConfiguration(true);
@@ -157,7 +157,7 @@ _Noreturn void configurationTest(void) {
             verifyConfiguration(false);
             break;
         default:
-            PRINT("Waiting ...")
+            PRINT("Waiting ...");
         }
     }
 }

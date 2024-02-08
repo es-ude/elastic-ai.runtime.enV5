@@ -41,12 +41,12 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
         CEXCEPTION_T exception_mqttBrokerConnectToBroker;
         Try {
             mqttBrokerConnectToBroker(mqttHost, brokerDomain, clientID);
-            PRINT_DEBUG("Connected")
+            PRINT_DEBUG("Connected");
         }
         Catch(exception_mqttBrokerConnectToBroker) {
             if (exception_mqttBrokerConnectToBroker == MQTT_CONNECTION_FAILED ||
                 exception_mqttBrokerConnectToBroker == MQTT_ESP_WRONG_ANSWER) {
-                PRINT_DEBUG("Connection failed. Trying again now!")
+                PRINT_DEBUG("Connection failed. Trying again now!");
             } else {
                 Throw(exception_mqttBrokerConnectToBroker);
             }
@@ -57,15 +57,15 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
 void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID) {
 
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
-        PRINT("Could not connect to MQTT broker! Chip problem.")
+        PRINT("Could not connect to MQTT broker! Chip problem.");
         Throw(MQTT_ESP_CHIP_FAILED);
     }
     if (espStatus.WIFIStatus == NOT_CONNECTED) {
-        PRINT("Could not connect to MQTT broker! No Wifi connection.")
+        PRINT("Could not connect to MQTT broker! No Wifi connection.");
         Throw(MQTT_WIFI_FAILED);
     }
     if (espStatus.MQTTStatus == CONNECTED) {
-        PRINT("MQTT Broker already connected! Disconnect first")
+        PRINT("MQTT Broker already connected! Disconnect first");
         Throw(MQTT_ALREADY_CONNECTED);
     }
 
@@ -93,20 +93,20 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
     free(connectToBroker);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port)
+        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port);
         espStatus.MQTTStatus = CONNECTED;
         if (!mqttBrokerReceiverFunctionSet) {
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port)
+        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip, credentials.port);
         Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
-        PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port)
+        PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port);
         Throw(MQTT_ESP_CHIP_FAILED);
     } else {
-        PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port)
+        PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port);
         Throw(MQTT_CONNECTION_FAILED);
     }
 }
@@ -116,7 +116,7 @@ void mqttBrokerDisconnect(bool force) {
     if (!force) {
         if (espStatus.ChipStatus == CONNECTED && espStatus.WIFIStatus == CONNECTED) {
             if (espStatus.MQTTStatus == NOT_CONNECTED) {
-                PRINT("No connection to close!")
+                PRINT("No connection to close!");
                 return;
             }
         }
@@ -167,7 +167,7 @@ void mqttBrokerReceive(char *response) {
 
 void communicationEndpointPublish(posting_t posting) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't publish data!")
+        PRINT("MQTT broker not connected. Can't publish data!");
         return;
     }
     posting.topic = mqttBrokerInternalConcatDomainAndClientWithTopic(posting.topic);
@@ -176,7 +176,7 @@ void communicationEndpointPublish(posting_t posting) {
 
 void communicationEndpointPublishRemote(posting_t posting) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't publish data!")
+        PRINT("MQTT broker not connected. Can't publish data!");
         return;
     }
     posting.topic = mqttBrokerInternalConcatDomainWithTopic(posting.topic);
@@ -185,7 +185,7 @@ void communicationEndpointPublishRemote(posting_t posting) {
 
 void communicationEndpointPublishRaw(posting_t posting) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't publish data!")
+        PRINT("MQTT broker not connected. Can't publish data!");
         return;
     }
 
@@ -205,9 +205,9 @@ void communicationEndpointPublishRaw(posting_t posting) {
     }
 
     if (ESP_NO_ERROR != espSendCommand(publishData, AT_MQTT_PUBLISH_RESPONSE, 5000)) {
-        PRINT("Could not publish to topic: %s.", posting.topic)
+        PRINT("Could not publish to topic: %s.", posting.topic);
     } else {
-        PRINT("Published to %s.", posting.topic)
+        PRINT("Published to %s.", posting.topic);
     }
 
     free(publishData);
@@ -215,7 +215,7 @@ void communicationEndpointPublishRaw(posting_t posting) {
 
 void publishLong(posting_t posting) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't publish data!")
+        PRINT("MQTT broker not connected. Can't publish data!");
         return;
     }
 
@@ -233,11 +233,11 @@ void publishLong(posting_t posting) {
     }
 
     if (espSendCommand(publishData, AT_MQTT_PUBLISH_LONG_START, 0) == ESP_NO_ERROR) {
-        PRINT("Could not publish to topic: %s.", posting.topic)
+        PRINT("Could not publish to topic: %s.", posting.topic);
     } else if (espSendCommand(posting.data, AT_MQTT_PUBLISH_LONG_RESPONSE, 0) == ESP_NO_ERROR) {
-        PRINT("Problems when publishing: %s.", posting.topic)
+        PRINT("Problems when publishing: %s.", posting.topic);
     } else {
-        PRINT("Published to %s.", posting.topic)
+        PRINT("Published to %s.", posting.topic);
     }
     free(publishData);
     free(posting.topic);
@@ -245,7 +245,7 @@ void publishLong(posting_t posting) {
 
 void communicationEndpointSubscribe(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic);
         return;
     }
 
@@ -255,7 +255,7 @@ void communicationEndpointSubscribe(char *topic, subscriber_t subscriber) {
 
 void communicationEndpointSubscribeRemote(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic);
         return;
     }
 
@@ -264,7 +264,7 @@ void communicationEndpointSubscribeRemote(char *topic, subscriber_t subscriber) 
 
 void communicationEndpointSubscribeRaw(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't subscribe to topic %s!", topic);
         return;
     }
 
@@ -275,15 +275,15 @@ void communicationEndpointSubscribeRaw(char *topic, subscriber_t subscriber) {
     if (mqttBrokerNumberOfSubscriptions != MAX_SUBSCRIBER) {
         if (ESP_NO_ERROR !=
             espSendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
-            PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic)
+            PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic);
         } else {
             mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions] =
                 (mqttBrokerSubscription_t){.topic = topic, .subscriber = subscriber};
             mqttBrokerNumberOfSubscriptions++;
-            PRINT("Subscribed to %s", topic)
+            PRINT("Subscribed to %s", topic);
         }
     } else {
-        PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic)
+        PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic);
     }
 
     free(subscribeTopic);
@@ -291,7 +291,7 @@ void communicationEndpointSubscribeRaw(char *topic, subscriber_t subscriber) {
 
 void communicationEndpointUnsubscribe(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic);
         return;
     }
 
@@ -302,7 +302,7 @@ void communicationEndpointUnsubscribe(char *topic, subscriber_t subscriber) {
 
 void communicationEndpointUnsubscribeRemote(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic);
         return;
     }
 
@@ -313,7 +313,7 @@ void communicationEndpointUnsubscribeRemote(char *topic, subscriber_t subscriber
 
 void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
-        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic)
+        PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic);
         return;
     }
 
@@ -322,7 +322,7 @@ void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
     snprintf(command, commandLength, AT_MQTT_UNSUBSCRIBE_TOPIC, topic);
 
     if (ESP_NO_ERROR != espSendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
-        PRINT("Could not unsubscribe from topic %s. Have you subscribed beforehand?", topic)
+        PRINT("Could not unsubscribe from topic %s. Have you subscribed beforehand?", topic);
     } else {
         for (int i = 0; i < mqttBrokerNumberOfSubscriptions; ++i) {
             if (strcmp(mqttBrokerSubscriptions[i].topic, topic) == 0) {
@@ -339,7 +339,7 @@ void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
                 }
             }
         }
-        PRINT("Unsubscribed from %s.", topic)
+        PRINT("Unsubscribed from %s.", topic);
     }
 
     free(command);
@@ -394,12 +394,12 @@ static void mqttBrokerInternalSetUserConfiguration(char *clientId, char *userId,
     free(setClientID);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Set client id to %s", clientId)
+        PRINT("Set client id to %s", clientId);
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT("Could not set client id to %s, aborting...", clientId)
+        PRINT("Could not set client id to %s, aborting...", clientId);
         Throw(MQTT_ESP_WRONG_ANSWER);
     } else {
-        PRINT("Could not set client id to %s, aborting...", clientId)
+        PRINT("Could not set client id to %s, aborting...", clientId);
         // sind die nötig? konnte vorher keine anderen frees finden:
         // free(mqttBrokerClientId);
         Throw(MQTT_ESP_CHIP_FAILED);
@@ -429,15 +429,15 @@ static void mqttBrokerInternalSetConnectionConfiguration(void) {
     free(setConnectionConfiguration);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Set connection configuration successful.")
+        PRINT("Set connection configuration successful.");
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT("Failed to store Connection settings! Wrong answer!")
+        PRINT("Failed to store Connection settings! Wrong answer!");
         Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
-        PRINT("Failed to store Connection settings! UART busy!")
+        PRINT("Failed to store Connection settings! UART busy!");
         Throw(MQTT_ESP_CHIP_FAILED);
     } else {
-        PRINT("Failed to store Connection settings!")
+        PRINT("Failed to store Connection settings!");
         Throw(MQTT_CONNECTION_FAILED);
     }
 }
@@ -492,22 +492,22 @@ static void mqttBrokerInternalGetData(posting_t *posting, const char *startOfDat
 
 static bool mqttBrokerInternalHandleResponse(posting_t *posting, char *response) {
     if (strlen(response) == 0) {
-        PRINT_DEBUG("Empty Response.")
+        PRINT_DEBUG("Empty Response.");
         return false;
     }
 
     char *startOfTopic = strstr(response, ",\"") + 2;
     char *endOfTopic = strstr(startOfTopic, "\",");
     mqttBrokerInternalGetTopic(posting, startOfTopic, endOfTopic - startOfTopic);
-    PRINT_DEBUG("Got topic: %s", posting->topic)
+    PRINT_DEBUG("Got topic: %s", posting->topic);
 
     char *startOfDataLength = endOfTopic + 2;
     char *endOfDataLength = strstr(startOfDataLength, ",");
     int dataLength = mqttBrokerInternalGetNumberOfDataBytes(startOfDataLength, endOfDataLength);
-    PRINT_DEBUG("Got length of Data: %i", dataLength)
+    PRINT_DEBUG("Got length of Data: %i", dataLength);
 
     mqttBrokerInternalGetData(posting, endOfDataLength + 1, dataLength);
-    PRINT_DEBUG("Got data: %s", posting->data)
+    PRINT_DEBUG("Got data: %s", posting->data);
 
     return true;
 }

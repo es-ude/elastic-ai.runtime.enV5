@@ -57,7 +57,7 @@ static void loadConfigToFlash() {
         baseUrl, configSize, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
-            PRINT("Download failed!")
+            PRINT("Download failed!");
             sleep_ms(3000);
         }
     }
@@ -65,8 +65,7 @@ static void loadConfigToFlash() {
 
 static void runTest() {
     env5HwFpgaPowersOn();
-
-    int8_t counter = 0;
+    
     uint8_t data[] = {53, 49, 22, 53, 61, 35};
     uint8_t ref_res[] = {38, 63};
 
@@ -75,7 +74,7 @@ static void runTest() {
             uint8_t offset = counter * 3;
             uint8_t return_val = (uint8_t)flow_prediction_predict(data + offset);
 
-            PRINT("Trure: %d, Predicted: %d", ref_res[counter], return_val)
+            PRINT("Ture: %d, Predicted: %d", ref_res[counter], return_val);
             // if (return_val == counter + 1) {
             //     env5HwLedsAllOff();
             //     sleep_ms(500);

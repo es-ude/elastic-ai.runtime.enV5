@@ -9,7 +9,7 @@
 void _Noreturn httpTask(void) {
     connectToNetwork();
 
-    PRINT("=== STARTING TEST ===")
+    PRINT("=== STARTING TEST ===");
 
     HttpResponse_t *response = NULL;
     CEXCEPTION_T exception;
@@ -19,10 +19,10 @@ void _Noreturn httpTask(void) {
         Try {
             HTTPGet("http://192.168.178.24:5000/check", &response);
             PRINT("HTPPGet Success!\n\tResponse Length: %li\n\tResponse: %s", response->length,
-                  response->response)
+                  response->response);
             HTTPCleanResponseBuffer(response);
         }
-        Catch(exception){PRINT("HTTPGet failed!")}
+        Catch(exception){PRINT("HTTPGet failed!");}
 
         freeRtosTaskWrapperTaskSleep(3000);
     }
