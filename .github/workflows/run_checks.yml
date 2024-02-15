@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
@@ -30,7 +30,7 @@ jobs:
       new_sha: ${{ steps.sha.outputs.SHA }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PUSH_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "style: beautify ${{ github.head_ref }}"
+          commit_message: "refactor(beautify): ${{ github.head_ref }}"
           commit_user_name: github-actions
           commit_user_email: action@github.com
           commit_author: github-actions <action@github.com>
@@ -63,7 +63,7 @@ jobs:
       - clang-format
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.clang-format.outputs.new_sha }}
       - name: Fetch Git Submodules
@@ -89,7 +89,7 @@ jobs:
       - unit-tests
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.clang-format.outputs.new_sha }}
       - name: Setup Graphviz
