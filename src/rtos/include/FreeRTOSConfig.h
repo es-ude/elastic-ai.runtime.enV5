@@ -135,5 +135,6 @@ to exclude the API function. */
 
 #define configUSE_CORE_AFFINITY 1
 #define configNUM_CORES 2
+#define configUSE_PASSIVE_IDLE_HOOK 0
 
 #endif /* FREERTOS_CONFIG_H */
