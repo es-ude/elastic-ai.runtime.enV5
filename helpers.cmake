@@ -4,7 +4,7 @@ function(add_cexception)
     FetchContent_Declare(
             cexception
             GIT_REPOSITORY https://github.com/ThrowTheSwitch/CException.git
-            GIT_TAG master
+            GIT_TAG v1.3.3
     )
     FetchContent_Populate(cexception)
 
@@ -39,7 +39,7 @@ function(add_freertos_kernel)
     FetchContent_Declare(
             freertos_kernel
             GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-            GIT_TAG smp
+            GIT_TAG V11.0.1
     )
     FetchContent_Populate(freertos_kernel)
 
