@@ -16,20 +16,27 @@ struct httpResponse {
 };
 typedef struct httpResponse HttpResponse_t;
 
-/*! \brief Curls http from url into data
+/*!
+ * @brief Curls http from url into data
  *
- * \param url url to curl
- * \param data Pointer data is stored to
+ * @param url url to curl
+ * @param data Pointer data is stored to
+ *
+ * @throws HTTP_CONNECTION_FAILED if we can't communicate with the esp chip
+ * @throws HTTP_URL_TO_LONG if the url exceeds the limit of 256 characters
+ * @throws HTTP_WRONG_RESPONSE if response from esp chip is invalid
  */
 void HTTPGet(const char *url, HttpResponse_t **data);
 
-/*! \brief only for the Network library
+/*!
+ * @brief only for the Network library
  *
  * Used to sets its function to receive HTTP messages from UART.
  */
 void HTTPSetReceiverFunction(void);
 
-/*! \brief cleans buffer
+/*!
+ * @brief cleans the response buffer
  *
  * @param response buffer to be removed
  */

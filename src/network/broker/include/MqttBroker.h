@@ -35,6 +35,10 @@ typedef enum MQTTExceptions {
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
+ *
+ * @throws MQTT_ESP_CHIP_FAILED if we can't communicate with esp chip
+ * @throws MQTT_WIFI_FAILED if wifi is not connected
+ * @throws MQTT_ALREADY_CONNECTED if already connected to mqtt broker
  */
 void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID);
 
@@ -48,6 +52,12 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
+ *
+ * @throws MQTT_ESP_CHIP_FAILED if we can't communicate with esp chip
+ * @throws MQTT_WIFI_FAILED if wifi is not connected
+ * @throws MQTT_ALREADY_CONNECTED if already connected to mqtt broker
+ * @throws MQTT_ESP_WRONG_ANSWER if response from esp chip is invalid
+ * @throws MQTT_CONNECTION_FAILED if establishing a connection failed
  */
 void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID);
 
