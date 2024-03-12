@@ -11,8 +11,8 @@ function(enV5_init_unit_tests)
     add_cexception()
     add_runtime_c()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/network/atCommands)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/network/config)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/atCommands)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/config)
 
     # include dummies for local machine
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/test/unit/dummies)
@@ -38,7 +38,4 @@ function(enV5_init)
 
     # provide access to additional sensor libraries
     add_sensor_libraries()
-
-    # include our own hardware-tests
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/test/hardware)
 endfunction()
