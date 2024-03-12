@@ -16,17 +16,6 @@ function(enV5_init_unit_tests)
 
     # include dummies for local machine
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/test/unit/dummies)
-
-    # include our own libraries to test
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/sensor/sht3x)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/sensor/adxl345b)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/sensor/pac193x)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/wifi)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/http)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/broker)
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/fpga/fpgaConfigurationHandler)
-    # include our own unit-tests
-    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/test/unit)
 endfunction()
 
 function(enV5_init)
