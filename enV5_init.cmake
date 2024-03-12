@@ -1,9 +1,6 @@
 include(${CMAKE_CURRENT_LIST_DIR}/helpers.cmake)
 
 function(enV5_init_unit_tests)
-    # enable test execution via CMake
-    include(CTest)
-
     # include unit-test framework
     add_unity()
 
