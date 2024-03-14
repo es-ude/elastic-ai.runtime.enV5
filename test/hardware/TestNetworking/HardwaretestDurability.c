@@ -165,7 +165,7 @@ _Noreturn void mainTask(void) {
     addDataRequestReceiver(
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
 
-    publishAliveStatusMessage("wifi,sram");
+    publishAliveStatusMessageWithMandatoryAttributes((status_t) {.data="wifi,sram"});
 
     printf("Ready ...\n");
 

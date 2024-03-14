@@ -414,7 +414,7 @@ static void mqttBrokerInternalSetConnectionConfiguration(void) {
 
     // generate LWT message
     char *lwt_message = getStatusMessage((status_t){
-        .id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = STATUS_TYPE_DEVICE});
+        .id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = "enV5"});
     size_t lwt_message_length = strlen(lwt_message);
 
     // generate command to send connection configuration to esp module
@@ -443,11 +443,11 @@ static void mqttBrokerInternalSetConnectionConfiguration(void) {
     }
 }
 
-void publishAliveStatusMessage(char *availableMeasurements) {
-    protocolPublishStatus((status_t){.id = mqttBrokerClientId,
-                                     .type = STATUS_TYPE_DEVICE,
-                                     .state = STATUS_STATE_ONLINE,
-                                     .measurements = availableMeasurements});
+void publishAliveStatusMessageWithMandatoryAttributes(status_t status) {
+    status.type = "enV5";
+    status.id = mqttBrokerClientId;
+    status.state = STATUS_STATE_ONLINE;
+    protocolPublishStatus(status);
 }
 
 static char *mqttBrokerInternalConcatDomainAndClientWithTopic(const char *topic) {

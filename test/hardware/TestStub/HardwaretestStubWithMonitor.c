@@ -115,7 +115,7 @@ static void receiveDownloadBinRequest(posting_t posting) {
 _Noreturn void downloadTask(void) {
     freeRtosTaskWrapperTaskSleep(5000);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
-    publishAliveStatusMessage("");
+    publishAliveStatusMessageWithMandatoryAttributes((status_t){});
 
     PRINT("FPGA Ready ...");
     while (true) {

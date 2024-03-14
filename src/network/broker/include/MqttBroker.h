@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "Posting.h"
+#include "Status.h"
 
 #define MAX_SUBSCRIBER 100
 
@@ -79,6 +80,6 @@ void mqttBrokerReceive(char *response);
  * @brief publish online status
  * @param availableMeasurements topic IDs of the available measurements
  */
-void publishAliveStatusMessage(char *availableMeasurements);
+void publishAliveStatusMessageWithMandatoryAttributes(status_t status);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

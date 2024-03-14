@@ -213,7 +213,7 @@ _Noreturn void publishValueBatchesTask(void) {
         (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue, .frequency = 3};
     addDataRequestReceiver(&sramReceiver);
 
-    publishAliveStatusMessage("wifi,sram");
+    publishAliveStatusMessageWithMandatoryAttributes((status_t){.data = "wifi,sram"});
 
     PRINT("Ready ...");
 
