@@ -18,7 +18,7 @@ repos:
         -   id: no-commit-to-branch
             stages: [ commit, manual ]
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v14.0.6
+    rev: v18.1.1
     hooks:
       - id: clang-format
         stages: [ commit, manual ]
