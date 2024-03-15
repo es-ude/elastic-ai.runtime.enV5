@@ -1,10 +1,32 @@
+IF(NOT WIFI_SSID)
+    SET(WIFI_SSID SSID)
+ENDIF()
+IF(NOT WIFI_PWD)
+    SET(WIFI_PWD PASSWORD)
+ENDIF()
+IF(NOT MQTT_HOST)
+    SET(MQTT_HOST 0.0.0.0)
+ENDIF()
+IF(NOT MQTT_PORT)
+    SET(MQTT_PORT 1883)
+ENDIF()
+
+
 if (NOT EXISTS ${CMAKE_SOURCE_DIR}/NetworkConfig.c)
     file(WRITE ${CMAKE_SOURCE_DIR}/NetworkConfig.c "
 #include \"Network.h\"
 #include \"MqttBroker.h\"
 
-networkCredentials_t networkCredentials = {.ssid = \"SSID\", .password = \"password\"};
-mqttBrokerHost_t mqttHost = {.ip = \"0.0.0.0\", .port = \"1883\", .userID = \"\", .password = \"\"};
+networkCredentials_t networkCredentials = {
+    .ssid = \"${WIFI_SSID}\",
+    .password = \"${WIFI_PWD}\"
+};
+mqttBrokerHost_t mqttHost = {
+    .ip = \"${MQTT_HOST}\",
+    .port = \"${MQTT_PORT}\",
+    .userID = \"${MQTT_USER}\",
+    .password = \"${MQTT_PWD}\"
+};
 ")
 endif ()
 
