@@ -34,10 +34,11 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PUSH_TOKEN }}
-      - name: Install clang-format
-        run: |
-          sudo apt update
-          sudo apt install -y clang-format
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "17"
+          directory: ${{ runner.temp }}/llvm
       - name: Get C Files
         run: |
           echo SRC=$(git ls-tree --full-tree -r HEAD | grep -e "\.\(c\|h\)\$" | cut -f 2 | grep -v ^extern) >> $GITHUB_ENV
@@ -47,7 +48,7 @@ jobs:
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "refactor(beautify): ${{ github.head_ref }}"
+          commit_message: "style(all): apply clang-format to '${{ github.head_ref }}'"
           commit_user_name: github-actions
           commit_user_email: action@github.com
           commit_author: github-actions <action@github.com>

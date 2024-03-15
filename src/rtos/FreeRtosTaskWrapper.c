@@ -10,9 +10,9 @@
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;
-    if (taskCode)
+    if (taskCode) {
         taskCode();
-    else {
+    } else {
         PRINT("Invoking failed: taskCode not set to Function pointer");
     }
     vTaskDelete(NULL);
@@ -31,9 +31,9 @@ void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName
 }
 
 void freeRtosTaskWrapperTaskSleep(int timeInMs) {
-    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED)
+    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
         sleep_for_ms(timeInMs);
-    else {
+    } else {
         // vTaskDelay does not support delaying less than typically 10ms
         if (timeInMs < 10) {
             timeInMs = 10;

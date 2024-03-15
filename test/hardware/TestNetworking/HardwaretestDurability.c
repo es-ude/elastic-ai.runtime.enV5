@@ -66,17 +66,20 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
 }
 
 void setTwinID(char *newTwinID) {
-    if (newTwinID == twinID)
+    if (newTwinID == twinID) {
         return;
-    if (newTwinID != NULL)
+    }
+    if (newTwinID != NULL) {
         free(twinID);
+    }
     twinID = malloc(strlen(newTwinID) + 1);
     strcpy(twinID, newTwinID);
 }
 
 void twinsIsOffline(posting_t posting) {
-    if (strstr(posting.data, ";1") != NULL)
+    if (strstr(posting.data, ";1") != NULL) {
         return;
+    }
     PRINT("Twin offline");
 
     for (int i = 0; i < receivers_count; ++i) {
