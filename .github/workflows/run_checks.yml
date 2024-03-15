@@ -34,10 +34,11 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.PUSH_TOKEN }}
-      - name: Install clang-format
-        run: |
-          sudo apt update
-          sudo apt install -y clang-format
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "17"
+          directory: ${{ runner.temp }}/llvm
       - name: Get C Files
         run: |
           echo SRC=$(git ls-tree --full-tree -r HEAD | grep -e "\.\(c\|h\)\$" | cut -f 2 | grep -v ^extern) >> $GITHUB_ENV
