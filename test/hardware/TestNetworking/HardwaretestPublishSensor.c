@@ -119,10 +119,11 @@ void init(void) {
 
     i2c_set_baudrate(i2c1, 2000000);
     errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
-    if (errorCode == ADXL345B_NO_ERROR)
+    if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("Initialised ADXL345B.");
-    else
+    } else {
         PRINT("Initialise ADXL345B failed; adxl345b_ERROR: %02X", errorCode);
+    }
 
     // create FreeRTOS task queue
     freeRtosQueueWrapperCreate();
@@ -188,8 +189,9 @@ bool getAndPublishSRamValue(char *dataID) {
 }
 
 bool getAndPublishWifiValue(char *dataID) {
-    if (!wifiReceiver.newValue)
+    if (!wifiReceiver.newValue) {
         return false;
+    }
     protocolPublishData(dataID, wifiReceiver.value);
     wifiReceiver.newValue = false;
     return true;

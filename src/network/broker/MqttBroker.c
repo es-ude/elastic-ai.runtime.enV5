@@ -413,8 +413,8 @@ static void mqttBrokerInternalSetConnectionConfiguration(void) {
     size_t lwt_topic_length = strlen(lwt_topic);
 
     // generate LWT message
-    char *lwt_message = getStatusMessage((status_t){
-        .id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = "enV5"});
+    char *lwt_message = getStatusMessage(
+        (status_t){.id = mqttBrokerClientId, .state = STATUS_STATE_OFFLINE, .type = "enV5"});
     size_t lwt_message_length = strlen(lwt_message);
 
     // generate command to send connection configuration to esp module
