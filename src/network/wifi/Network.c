@@ -94,7 +94,7 @@ void networkDisconnectFromNetwork(void) {
     }
 }
 
-networkErrorCode_t networkcheckConnection(void) {
+networkErrorCode_t networkCheckConnection(void) {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Chip not working!");
         return NETWORK_ESP_CHIP_FAILED;

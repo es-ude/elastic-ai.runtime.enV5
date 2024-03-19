@@ -44,6 +44,6 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials);
 
 void networkDisconnectFromNetwork(void);
 
-networkErrorCode_t networkcheckConnection(void);
+networkErrorCode_t networkCheckConnection(void);
 
 #endif /* ENV5_NETWORK_HEADER */
