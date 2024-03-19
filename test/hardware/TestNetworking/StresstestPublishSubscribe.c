@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH/SUBSCRIBE"
 
 #include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "MqttBroker.h"
@@ -14,40 +15,41 @@
  * topic "eip://uni-due.de/es/test" and prints the received Data.
  */
 
-void publishTestData(uint64_t i) {
-    char buffer[8];
-    sprintf(buffer, "%llu", i);
-    char *data = malloc(strlen("testData") + strlen(buffer) + 1);
-    strcpy(data, "testData");
-    strcat(data, buffer);
-    protocolPublishData("stresstestPubSub", data);
-    free(data);
-}
+queue_t postings;
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: %s", posting.data);
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
 
-_Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
+_Noreturn void receiveTask(void) {
+    protocolSubscribeForData("enV5", "testSub", (subscriber_t){.deliver = deliver});
 
-    connectToNetwork();
-    connectToMQTT();
+    while (true) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT("Received: %s", post.data);
+        }
+        freeRtosTaskWrapperTaskSleep(1);
+    }
+}
 
-    protocolSubscribeForData("enV5", "stresstestPubSub", (subscriber_t){.deliver = deliver});
-
-    uint64_t messageCounter = 0;
-    while (1) {
-        publishTestData(messageCounter);
+void _Noreturn sendTask(void) {
+    uint16_t messageCounter = 0;
+    while (true) {
+        char data[17];
+        snprintf(data, 17, "testData - %i", messageCounter);
+        PRINT("Send Message '%s'", data);
+        protocolPublishData("stresstestPub", data);
         messageCounter++;
+        freeRtosTaskWrapperTaskSleep(1);
     }
 }
 
 int main() {
     initHardwareTest();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(receiveTask, "receive", 0, FREERTOS_CORE_1);
+    freeRtosTaskWrapperRegisterTask(sendTask, "sendTask", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }

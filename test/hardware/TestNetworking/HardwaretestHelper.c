@@ -5,6 +5,7 @@
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
+#include "enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
@@ -14,29 +15,35 @@ void connectToNetwork(void) {
     networkTryToConnectToNetworkUntilSuccessful();
 }
 
-void connectToMQTT(void) {
+void connectToMqttBroker(void) {
     mqttBrokerConnectToBrokerUntilSuccessful("enV5", NULL);
 }
 
 void initHardwareTest(void) {
-    // Did we crash last time -> reboot into boot rom mode
+    // check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
-    // init stdio and esp
+
+    env5HwInit();
+
+    // initialize the serial output
     stdio_init_all();
-    while ((!stdio_usb_connected())) {}
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
+
     espInit();
 }
 
-void _Noreturn enterBootModeTaskHardwareTest(void) {
-    watchdog_enable(5000000, 1); // max timeout ~8.3s
+void _Noreturn enterBootModeTask(void) {
+    watchdog_enable(5000, 1); // 5 seconds
 
     while (1) {
         if (getchar_timeout_us(0) == 'r' || !stdio_usb_connected()) {
             reset_usb_boot(0, 0);
         }
         watchdog_update();
-        freeRtosTaskWrapperTaskSleep(500);
+        freeRtosTaskWrapperTaskSleep(1500);
     }
 }

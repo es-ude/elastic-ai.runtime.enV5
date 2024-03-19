@@ -20,11 +20,11 @@ void deliver(posting_t posting) {
     PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages);
 }
 
-void _Noreturn mqttTask(void) {
+void _Noreturn sendTask(void) {
     PRINT("=== STARTING TEST ===");
 
     connectToNetwork();
-    connectToMQTT();
+    connectToMqttBroker();
 
     protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
 
@@ -34,8 +34,7 @@ void _Noreturn mqttTask(void) {
 int main() {
     initHardwareTest();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(sendTask, "sendTask", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();
 }

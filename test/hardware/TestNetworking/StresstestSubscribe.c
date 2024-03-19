@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MQTT-STRESSTEST-PUBLISH"
 
 #include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "Protocol.h"
@@ -8,31 +9,37 @@
 #include <string.h>
 
 /*!
- * Similar to test_MQTTSubscribe.c. Connects to Wi-Fi and MQTT Broker (Change in
- * src/configuration.h). When connected it subscribes data published to
- * eip://uni-due.de/es/stresstest.
+ * Similar to HardwaretestMqttSubscribe.c.
+ * Connects to Wi-Fi and MQTT Broker.
+ * When connected, it subscribes to a topic and tries to handle messages as fast as possible.
  */
 
+queue_t postings;
+
 void deliver(posting_t posting) {
-    PRINT("Received Data: \"%s\", String length: \"%d\"", posting.data, strlen(posting.data));
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
 
-_Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
+_Noreturn void receiveTask(void) {
+    protocolSubscribeForData("enV5", "testSub", (subscriber_t){.deliver = deliver});
 
-    connectToNetwork();
-    connectToMQTT();
-
-    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
-
-    while (true) {}
+    while (true) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT("Received: %s", post.data);
+        }
+    }
 }
 
 int main() {
     initHardwareTest();
+    connectToNetwork();
+    connectToMqttBroker();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    postings = freeRtosQueueWrapperCreate(20, sizeof(posting_t));
+
+    PRINT("=== STARTING TEST ===");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(receiveTask, "receive", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }

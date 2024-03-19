@@ -1,99 +1,90 @@
-#define SOURCE_FILE "FreeRTOS-QUEUE-TEST"
+#define SOURCE_FILE "HARDWARE-TEST-FREERTOS-QUEUES"
 
 #include "Common.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include <hardware/watchdog.h>
-#include <pico/bootrom.h>
-#include <pico/stdio_usb.h>
-#include <stdlib.h>
+#include "enV5HwController.h"
 
-_Noreturn void SenderTask() {
-    freeRtosQueueWrapperMessage_t message;
-    int messageCounter = 0;
-    char *data = malloc(10);
-    message.Data = data;
+#include "hardware/watchdog.h"
+#include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
 
+#include "stdlib.h"
+#include "string.h"
+
+queue_t messageQueue;
+
+char staticMessage[] = "STATIC MSG";
+char dynamicMessage[] = "DYNAMIC MSG";
+
+typedef struct message {
+    uint16_t messageId;
+    char *content;
+} message_t;
+
+_Noreturn void senderTask() {
+    uint16_t messageId = 0;
     while (1) {
-        sprintf(data, "%i", messageCounter);
-        messageCounter++;
-
-        if (freeRtosQueueWrapperSend(message)) {
-            PRINT("Send message `%s` into Queue", data);
+        message_t message = {.messageId = messageId, .content = calloc(1, 15)};
+        strcpy(message.content, staticMessage);
+        if (freeRtosQueueWrapperPush(messageQueue, &message)) {
+            // Modify all messages with odd ID to demonstrate dynamic messages
+            if (messageId % 2) {
+                strcpy(message.content, dynamicMessage);
+            }
+            messageId++;
         } else {
-            PRINT("Failed to send message into queue");
+            PRINT("Failed to add message to queue.");
         }
 
-        freeRtosTaskWrapperTaskSleep(250);
+        freeRtosTaskWrapperTaskSleep(2000);
     }
 }
 
-_Noreturn void ReceiverTask() {
-    freeRtosQueueWrapperMessage_t message;
-
+_Noreturn void receiverTask() {
     while (1) {
-        if (!freeRtosQueueWrapperReceive(&message)) {
-            PRINT("Something went Wrong!\n");
+        message_t message;
+        if (freeRtosQueueWrapperPop(messageQueue, &message)) {
+            PRINT("Message with ID '%i' was: '%s'", message.messageId, message.content);
+            free(message.content);
         } else {
-            PRINT("Received: `%s`", message.Data);
+            PRINT("No message available!");
         }
 
-        // enter boot mode if selected
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            reset_usb_boot(0, 0);
-        }
-
-        // reset watchdog timer
-        watchdog_update();
-
-        freeRtosTaskWrapperTaskSleep(250);
+        freeRtosTaskWrapperTaskSleep(3500);
     }
 }
 
 void initHardware() {
-    // init usb and wait for user connection
-    stdio_init_all();
-    while ((!stdio_usb_connected())) {}
-    freeRtosTaskWrapperTaskSleep(1000);
-
-    // start watchdog timer
-    watchdog_enable(2000, 1);
-
-    // create queue
-    freeRtosQueueWrapperCreate();
-}
-
-void testDynamicMessageChanges() {
-    // create message
-    char data[10];
-    snprintf(data, 6, "hallo");
-    freeRtosQueueWrapperMessage_t message;
-    message.Data = data;
-
-    // send message into queue
-    freeRtosQueueWrapperSend(message);
-
-    // modify message data after send
-    message.Data[0] = 'a';
-
-    // receive modified message
-    freeRtosQueueWrapperReceive(&message);
-    PRINT("Expected: `aallo`; Received: `%s`", message.Data);
-}
-
-int main(void) {
-    // Did we crash last time? -> reboot into boot mode
+    // check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
     }
+
+    env5HwInit();
+
+    // initialize the serial output
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
+
+    // enables watchdog timer (5s)
+    watchdog_enable(5000, 1);
+}
+
+int main(void) {
     initHardware();
 
-    PRINT("===== START TEST: dynamic vs. static messages =====");
-    testDynamicMessageChanges();
+    PRINT("===== CREATE QUEUE =====");
+    messageQueue = freeRtosQueueWrapperCreate(5, sizeof(message_t));
+    if (NULL == messageQueue) {
+        PRINT("Creating Queue failed!");
+        reset_usb_boot(0, 0);
+    }
 
-    // test async
-    PRINT("===== START TEST: asynchronous messages =====");
-    freeRtosTaskWrapperRegisterTask(SenderTask, "sendMessage", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(ReceiverTask, "receiveTask", 0, FREERTOS_CORE_0);
+    PRINT("===== START TEST =====");
+    freeRtosTaskWrapperRegisterTask(senderTask, "sendTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(receiverTask, "sendTask", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }
