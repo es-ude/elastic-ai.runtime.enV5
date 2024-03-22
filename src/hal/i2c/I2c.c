@@ -4,10 +4,17 @@
 
 #include <hardware/i2c.h>
 
+
+
+
+
+#include "Common.h"
+
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/
 
-void i2cInit(i2c_inst_t *i2cHost, uint32_t baudRate, uint8_t sdaGPIO, uint8_t sclGPIO) {
-    i2c_init(i2cHost, baudRate);
+void i2cInit( i2c_inst_t *i2cHost, uint32_t baudrate, uint8_t sdaGPIO, uint8_t sclGPIO ) {
+    uint actualBaudrate = i2c_init( i2cHost, baudrate );
+    PRINT_DEBUG("Baudrate set to %u", actualBaudrate);
     i2cInternalSetupSda(sdaGPIO);
     i2cInternalSetupScl(sclGPIO);
 }
@@ -16,11 +23,11 @@ i2cErrorCode_t i2cWriteCommand(const uint8_t *commandBuffer, uint16_t sizeOfComm
                                uint8_t slaveAddress, i2c_inst_t *i2cHost) {
     int successfulTransmit =
         i2cInternalWriteBlocking(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cHost);
-
     /* sensor not available */
     if (successfulTransmit == PICO_ERROR_GENERIC) {
         return I2C_INIT_ERROR;
     }
+    
     /* all bytes successful send to sensor */
     if (successfulTransmit == sizeOfCommandBuffer) {
         return I2C_NO_ERROR;
