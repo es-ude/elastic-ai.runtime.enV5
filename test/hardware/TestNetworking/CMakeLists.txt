@@ -1,14 +1,3 @@
-################## hardwareTestHelper ##################
-add_library(hardware-testHelper HardwaretestHelper.c)
-target_link_libraries(hardware-testHelper
-        common_lib
-        pico_stdlib
-        espBroker_lib
-        network_lib
-        freeRtosUtils)
-target_compile_definitions(hardware-testHelper PRIVATE DEBUG)
-pico_enable_stdio_usb(hardware-testHelper 1)
-pico_enable_stdio_uart(hardware-testHelper 0)
 
 ################## test_MQTTPublish ##################
 add_executable(hardware-test_MQTTPublish HardwaretestMqttPublish.c)

@@ -66,9 +66,11 @@ target_link_libraries(hardware-test_stressTest_adxl345b
         common_lib
         pico_stdlib
         pico_stdio_usb
-        pico_bootrom
         pico_time
-        hardware_i2c
-        sensor_lib_adxl345b)
+        freeRtosUtils
+        espBroker_lib
+        middleware_lib
+        sensor_lib_adxl345b
+        hardware-testHelper)
 create_enV5_executable(hardware-test_stressTest_adxl345b)
 ##############################################

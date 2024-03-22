@@ -1,6 +1,6 @@
 #define SOURCE_FILE "TEST-HELPER"
 
-#include "HardwaretestHelper.h"
+#include "include/HardwaretestHelper.h"
 #include "Esp.h"
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
