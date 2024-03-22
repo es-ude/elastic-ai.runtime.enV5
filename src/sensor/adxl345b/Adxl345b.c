@@ -21,28 +21,31 @@ static adxl345bRange_t adxl345bSelectedRange;
 
 adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t i2cAddress) {
     /* save i2c access for later usage */
+    
     adxl345bI2cSensorConfiguration.i2c_host = i2cHost;
     adxl345bI2cSensorConfiguration.i2c_slave_address = i2cAddress;
-
-    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
-    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 6, 7);
+    
+    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (400 * 1000), 6, 7);
+    
 
     /* sleep to make sure the sensor is fully initialized */
     sleep_for_ms(2);
-
+    
     /* Check if sensor ADXL345B is on Bus by requesting serial number without processing */
     uint8_t sizeOfCommandBuffer = 1;
+    
     uint8_t commandBuffer[sizeOfCommandBuffer];
+    
     commandBuffer[0] = ADXL345B_REGISTER_DEVICE_ID;
-
+    
     /* if i2c returns error -> sensor not available on bus */
     i2cErrorCode_t i2CErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
                                                   adxl345bI2cSensorConfiguration.i2c_slave_address,
                                                   adxl345bI2cSensorConfiguration.i2c_host);
+   
     if (i2CErrorCode != I2C_NO_ERROR) {
         return ADXL345B_INIT_ERROR;
     }
-
     adxl345bErrorCode_t errorCode = adxl345bInternalWriteDefaultLowPowerConfiguration();
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
