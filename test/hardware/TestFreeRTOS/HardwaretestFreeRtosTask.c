@@ -1,3 +1,7 @@
+/*!
+ * This test aims to provide a simple way to prove FreeRTOS tasks can be compiled and executed
+ */
+
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-TASKS"
 
 #include "Common.h"
@@ -14,6 +18,7 @@ uint8_t led2Pin = 24;
 
 _Noreturn void blinkLed1Task() {
     while (1) {
+        PRINT_DEBUG("BLINK 1");
         gpioSetPin(led1Pin, GPIO_PIN_HIGH); // turn LED on
         freeRtosTaskWrapperTaskSleep(1000);
         gpioSetPin(led1Pin, GPIO_PIN_LOW); // turn LED off
@@ -23,6 +28,7 @@ _Noreturn void blinkLed1Task() {
 
 _Noreturn void blinkLed2Task() {
     while (1) {
+        PRINT_DEBUG("BLINK 2");
         gpioSetPin(led2Pin, GPIO_PIN_HIGH); // turn LED on
         freeRtosTaskWrapperTaskSleep(1500);
         gpioSetPin(led2Pin, GPIO_PIN_LOW); // turn LED off
@@ -32,6 +38,7 @@ _Noreturn void blinkLed2Task() {
 
 _Noreturn void enterBootModeTask() {
     while (1) {
+        PRINT_DEBUG("RESET WATCHDOG");
         watchdog_update();
         freeRtosTaskWrapperTaskSleep(2000);
     }
@@ -58,7 +65,6 @@ void initHardware() {
 int main(void) {
     initHardware();
 
-    PRINT("===== START TEST =====");
     freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(blinkLed2Task, "blinkLed2Task", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootMode", 0, FREERTOS_CORE_0);

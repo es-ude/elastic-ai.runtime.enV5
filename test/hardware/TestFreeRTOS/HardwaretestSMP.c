@@ -30,6 +30,7 @@ void initHardware() {
 
 _Noreturn void enterBootModeTask() {
     while (1) {
+        PRINT_DEBUG("RESET_WATCHDOG");
         watchdog_update();
         freeRtosTaskWrapperTaskSleep(2000);
     }
@@ -43,6 +44,8 @@ _Noreturn void task() {
 }
 
 int main() {
+    initHardware();
+
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "watchdog", 30, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(task, "task0", 1, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(task, "task1", 1, FREERTOS_CORE_1);
