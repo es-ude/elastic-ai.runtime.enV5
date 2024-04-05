@@ -35,12 +35,12 @@ _Noreturn void receiverTask(void) {
 _Noreturn void senderTask(void) {
     uint16_t messageCounter = 0;
     while (1) {
+        freeRtosTaskWrapperTaskSleep(1000);
         char data[17];
         snprintf(data, 17, "testData - %i", messageCounter);
         PRINT("Send Message: '%s' via '%s'", data, dataTopic);
         protocolPublishData(dataTopic, data);
         messageCounter++;
-        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 

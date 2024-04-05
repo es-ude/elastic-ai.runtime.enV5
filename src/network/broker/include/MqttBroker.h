@@ -32,7 +32,6 @@ typedef enum MQTTExceptions {
  * Set the broker domain, client ID and then tries to connect to the host broker until successful.
  * If there is already any connection, then it is also successful.
  *
- * @param mqttHost contains ip and port of MQTT host
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
@@ -49,7 +48,6 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
  * Set the broker domain, client ID and then tries to connect to the host broker.
  * If there is already any connection, then it is also successful
  *
- * @param mqttHost contains ip and port of MQTT host
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
@@ -60,7 +58,7 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
  * @throws MQTT_ESP_WRONG_ANSWER if response from esp chip is invalid
  * @throws MQTT_CONNECTION_FAILED if establishing a connection failed
  */
-void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID);
+void mqttBrokerConnectToBroker(char *brokerDomain, char *clientID);
 
 void publishLong(posting_t posting);
 

@@ -16,7 +16,7 @@ void connectToNetwork(void) {
 }
 
 void connectToMqttBroker(void) {
-    mqttBrokerConnectToBrokerUntilSuccessful("enV5", NULL);
+    mqttBrokerConnectToBrokerUntilSuccessful("eip://uni-due.de/es", "enV5");
 }
 
 void initHardwareTest(void) {

@@ -79,34 +79,6 @@ target_link_libraries(hardware-test_MQTTPublishSubscribe
 target_compile_definitions(hardware-test_MQTTPublishSubscribe PRIVATE DEBUG)
 create_enV5_executable(hardware-test_MQTTPublishSubscribe)
 
-################## test_StressTestPublish ##################
-add_executable(hardware-test_StressTestPublish StresstestPublish.c)
-target_link_libraries(hardware-test_StressTestPublish
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_StressTestPublish PRIVATE DEBUG)
-create_enV5_executable(hardware-test_StressTestPublish)
-################## test_StressTestSubscribe ##################
-add_executable(hardware-test_StressTestSubscribe StresstestSubscribe.c)
-target_link_libraries(hardware-test_StressTestSubscribe
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_StressTestSubscribe PRIVATE DEBUG)
-create_enV5_executable(hardware-test_StressTestSubscribe)
-################## test_StressTestPublishSubscribe ##################
-add_executable(hardware-test_StressTestPublishSubscribe StresstestPublishSubscribe.c)
-target_link_libraries(hardware-test_StressTestPublishSubscribe
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_StressTestPublishSubscribe PRIVATE DEBUG)
-create_enV5_executable(hardware-test_StressTestPublishSubscribe)
-
 ################## test_Durability ##################
 add_executable(hardware-test_Durability HardwaretestDurability.c)
 target_link_libraries(hardware-test_Durability

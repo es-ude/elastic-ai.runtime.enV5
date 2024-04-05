@@ -28,7 +28,7 @@ _Noreturn void subscriptionTask(void) {
         PRINT("Subscribed!");
         freeRtosTaskWrapperTaskSleep(3000);
 
-        protocolUnsubscribeFromData("enV5", "testPubSub", (subscriber_t){.deliver = deliver});
+        protocolUnsubscribeFromData("enV5", dataTopic, (subscriber_t){.deliver = deliver});
         PRINT("Unsubscribed!");
         freeRtosTaskWrapperTaskSleep(3000);
     }
@@ -40,19 +40,19 @@ _Noreturn void receiverTask(void) {
         if (freeRtosQueueWrapperPop(postings, &post)) {
             PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
         }
-        freeRtosTaskWrapperTaskSleep(500);
+        freeRtosTaskWrapperTaskSleep(100);
     }
 }
 
 _Noreturn void senderTask(void) {
     uint16_t messageCounter = 0;
     while (1) {
+        freeRtosTaskWrapperTaskSleep(700);
         char data[17];
         snprintf(data, 17, "testData - %i", messageCounter);
         PRINT("Send Message: '%s' via '%s'", data, dataTopic);
         protocolPublishData(dataTopic, data);
         messageCounter++;
-        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 

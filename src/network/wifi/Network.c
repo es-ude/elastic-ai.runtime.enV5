@@ -19,7 +19,7 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
     }
 
     while (espStatus.WIFIStatus == NOT_CONNECTED) {
-        networkErrorCode_t networkErrorCode = networkConnectToNetwork(networkCredentials);
+        networkErrorCode_t networkErrorCode = networkConnectToNetwork();
         if (networkErrorCode == NETWORK_NO_ERROR) {
             break;
         } else if (networkErrorCode == NETWORK_ESP_CHIP_FAILED) {
@@ -36,7 +36,7 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful() {
     return NETWORK_NO_ERROR;
 }
 
-networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
+networkErrorCode_t networkConnectToNetwork() {
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT_DEBUG("Chip not working! Can't connect to network.");
         return NETWORK_ESP_CHIP_FAILED;
@@ -47,11 +47,11 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     }
 
     // generate connect command with SSID and Password from configuration.h
-    size_t lengthOfString =
-        AT_CONNECT_TO_NETWORK_LENGTH + strlen(credentials.ssid) + strlen(credentials.password);
+    size_t lengthOfString = AT_CONNECT_TO_NETWORK_LENGTH + strlen(networkCredentials.ssid) +
+                            strlen(networkCredentials.password);
     char *connectToNetwork = malloc(lengthOfString);
-    snprintf(connectToNetwork, lengthOfString, AT_CONNECT_TO_NETWORK, credentials.ssid,
-             credentials.password);
+    snprintf(connectToNetwork, lengthOfString, AT_CONNECT_TO_NETWORK, networkCredentials.ssid,
+             networkCredentials.password);
 
     // send connect request to ESP32
     espErrorCode_t espErrorCode =
@@ -59,12 +59,12 @@ networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials) {
     free(connectToNetwork);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Connected to Network: %s", credentials.ssid);
+        PRINT("Connected to Network: %s", networkCredentials.ssid);
         espStatus.WIFIStatus = CONNECTED;
         HTTPSetReceiverFunction(); // TODO: should this be called here??
         return NETWORK_NO_ERROR;
     } else {
-        PRINT("Failed to connect to Network: %s", credentials.ssid);
+        PRINT("Failed to connect to Network: %s", networkCredentials.ssid);
         espStatus.WIFIStatus = NOT_CONNECTED;
         return NETWORK_ESTABLISH_CONNECTION_FAILED;
     }

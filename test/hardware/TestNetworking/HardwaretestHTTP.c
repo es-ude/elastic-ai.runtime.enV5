@@ -15,7 +15,7 @@ void _Noreturn runTest(void) {
     while (1) {
         Try {
             HttpResponse_t *response = NULL;
-            HTTPGet("http://192.168.178.24:5000/check", &response);
+            HTTPGet("http://127.0.0.1:5000/check", &response);
             PRINT("HTPPGet Success!\n\tResponse Length: %li\n\tResponse: %s", response->length,
                   response->response);
             HTTPCleanResponseBuffer(response);

@@ -40,7 +40,7 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
     while (espStatus.MQTTStatus == NOT_CONNECTED) {
         CEXCEPTION_T exception_mqttBrokerConnectToBroker;
         Try {
-            mqttBrokerConnectToBroker(mqttHost, brokerDomain, clientID);
+            mqttBrokerConnectToBroker(brokerDomain, clientID);
             PRINT_DEBUG("Connected");
         }
         Catch(exception_mqttBrokerConnectToBroker) {
@@ -54,7 +54,7 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
     }
 }
 
-void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID) {
+void mqttBrokerConnectToBroker(char *brokerDomain, char *clientID) {
 
     if (espStatus.ChipStatus == ESP_CHIP_NOT_OK) {
         PRINT("Could not connect to MQTT broker! Chip problem.");
@@ -71,7 +71,7 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
 
     if (!mqttUserConfigSet) {
         // store mqtt client/domain
-        mqttBrokerInternalSetUserConfiguration(clientID, credentials.userID, credentials.password);
+        mqttBrokerInternalSetUserConfiguration(clientID, mqttHost.userID, mqttHost.password);
         mqttUserConfigSet = true;
     }
 
@@ -82,10 +82,9 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
 
     // generate connect command with ip and port
     size_t commandLength =
-        AT_MQTT_CONNECT_TO_BROKER_LENGTH + strlen(credentials.ip) + strlen(credentials.port);
+        AT_MQTT_CONNECT_TO_BROKER_LENGTH + strlen(mqttHost.ip) + strlen(mqttHost.port);
     char *connectToBroker = malloc(commandLength);
-    snprintf(connectToBroker, commandLength, AT_MQTT_CONNECT_TO_BROKER, credentials.ip,
-             credentials.port);
+    snprintf(connectToBroker, commandLength, AT_MQTT_CONNECT_TO_BROKER, mqttHost.ip, mqttHost.port);
 
     // send connect request to broker
     espErrorCode_t espErrorCode =
@@ -93,21 +92,20 @@ void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain,
     free(connectToBroker);
 
     if (espErrorCode == ESP_NO_ERROR) {
-        PRINT("Connected to %s at Port %s", credentials.ip, credentials.port);
+        PRINT("Connected to %s at Port %s", mqttHost.ip, mqttHost.port);
         espStatus.MQTTStatus = CONNECTED;
         if (!mqttBrokerReceiverFunctionSet) {
             espSetMqttReceiverFunction(mqttBrokerReceive);
             mqttBrokerReceiverFunctionSet = true;
         }
     } else if (espErrorCode == ESP_WRONG_ANSWER_RECEIVED) {
-        PRINT("Could not connect to %s at Port %s. Wrong answer!", credentials.ip,
-              credentials.port);
+        PRINT("Could not connect to %s at Port %s. Wrong answer!", mqttHost.ip, mqttHost.port);
         Throw(MQTT_ESP_WRONG_ANSWER);
     } else if (espErrorCode == ESP_UART_IS_BUSY) {
-        PRINT("Could not connect to %s at Port %s. UART busy!", credentials.ip, credentials.port);
+        PRINT("Could not connect to %s at Port %s. UART busy!", mqttHost.ip, mqttHost.port);
         Throw(MQTT_ESP_CHIP_FAILED);
     } else {
-        PRINT("Could not connect to %s at Port %s", credentials.ip, credentials.port);
+        PRINT("Could not connect to %s at Port %s", mqttHost.ip, mqttHost.port);
         Throw(MQTT_CONNECTION_FAILED);
     }
 }
@@ -157,8 +155,6 @@ void mqttBrokerReceive(char *response) {
                 break;
             }
         }
-        free(posting.topic);
-        free(posting.data);
     }
 }
 

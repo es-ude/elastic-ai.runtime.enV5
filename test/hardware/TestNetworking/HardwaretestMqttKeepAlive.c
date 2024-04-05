@@ -3,7 +3,7 @@
 /*!
  * Connects to Wi-Fi and MQTT Broker.
  * Disconnects from Broker after 5 seconds.
- * => Broker should provide LWT-Message!
+ * => Broker should NOT provide LWT-Message!
  */
 
 #include "Common.h"
@@ -23,7 +23,7 @@ int main() {
 
     sleep_for_ms(5000);
 
-    mqttBrokerDisconnect(false);
+    mqttBrokerDisconnect(false); //! comment to test LWT message
 
     return EXIT_SUCCESS;
 }
