@@ -31,7 +31,7 @@
 typedef struct downloadRequest {
     char *url;
     size_t fileSizeInBytes;
-    size_t startSectorId;
+    uint32_t startSectorId;
 } downloadRequest_t;
 
 typedef enum {
@@ -81,34 +81,33 @@ void initHardware() {
 void deliver(posting_t posting) {
     freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
-downloadRequest_t *parseDownloadRequest(char *data) {
-    PRINT_DEBUG("RECEIVED FLASH REQUEST");
+downloadRequest_t parseDownloadRequest(char *data) {
+    PRINT("RECEIVED FLASH REQUEST");
 
-    /* region parse url */
-    char *urlStart = strstr(data, "URL:") + 4;
-    char *urlEnd = strstr(urlStart, ";") - 1;
-    size_t urlLength = urlEnd - urlStart + 1;
-    char *url = malloc(urlLength);
-    strncpy(url, urlStart, urlLength);
-    /* endregion parse url */
     /* region parse length */
     char *sizeStart = strstr(data, "SIZE:") + 5;
-    char *endSize = strstr(sizeStart, ";") - 1;
-    size_t length = strtol(sizeStart, &endSize, 10);
+    size_t length = strtol(sizeStart, NULL, 10);
     /* endregion parse length */
     /* region parse sector-ID */
     char *positionStart = strstr(data, "POSITION:") + 9;
-    char *positionEnd = strstr(positionStart, ";") - 1;
-    size_t position = strtol(positionStart, &positionEnd, 10);
+    uint32_t position = strtol(positionStart, NULL, 10);
     /* endregion parse sector-ID */
+    /* region parse url */
+    char *urlStart = strstr(data, "URL:") + 4;
+    char *urlRaw = strtok(urlStart, ";");
+    size_t urlLength = strlen(urlRaw);
+    char *url = malloc(urlLength + 1);
+    strcpy(url, urlRaw);
+    /* endregion parse url */
 
-    downloadRequest_t *downloadRequest = malloc(sizeof(downloadRequest_t));
-    downloadRequest->url = url;
-    downloadRequest->fileSizeInBytes = length;
-    downloadRequest->startSectorId = position;
-    return downloadRequest;
+    PRINT_DEBUG("URL: %s", url);
+    PRINT_DEBUG("LENGTH: %zu", length);
+    PRINT_DEBUG("SECTOR 0: %lu", position);
+
+    return (downloadRequest_t){.url = url, .startSectorId = position, .fileSizeInBytes = length};
 }
 _Noreturn void handleReceiveTasks(void) {
+    freeRtosTaskWrapperTaskSleep(500);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = deliver});
 
     while (1) {
@@ -116,8 +115,8 @@ _Noreturn void handleReceiveTasks(void) {
         if (freeRtosQueueWrapperPop(postings, &post)) {
             PRINT_DEBUG("Received Message: '%s' via '%s'", post.data, post.topic);
             if (NULL != strstr(post.topic, "DO/FLASH")) {
-                downloadRequest_t *downloadRequest = parseDownloadRequest(post.data);
-                freeRtosQueueWrapperPush(testCases, downloadRequest);
+                downloadRequest_t downloadRequest = parseDownloadRequest(post.data);
+                freeRtosQueueWrapperPush(testCases, &downloadRequest);
                 free(post.topic);
                 free(post.data);
             }
@@ -127,13 +126,15 @@ _Noreturn void handleReceiveTasks(void) {
 }
 
 _Noreturn void handlePublishTask(void) {
+    publishAliveStatusMessageWithMandatoryAttributes((status_t){.fpga = "V1", .data = "test"});
+
     while (1) {
         publishRequest_t request;
         if (freeRtosQueueWrapperPop(publishRequests, &request)) {
             switch (request.pubType) {
             case COMMAND_RESPONSE:
                 freeRtosMutexWrapperLock(espOccupied);
-                protocolPublishCommandResponse(request.topic, strcmp(request.data, "SUCCESS"));
+                protocolPublishCommandResponse(request.topic, strcmp(request.data, "FAILED"));
                 freeRtosMutexWrapperUnlock(espOccupied);
                 break;
             case DATA_VALUE:
@@ -152,26 +153,27 @@ _Noreturn void handlePublishTask(void) {
     }
 }
 
-bool successfullyDownloadBinFile(downloadRequest_t *downloadRequest) {
+bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t startSector) {
     freeRtosMutexWrapperLock(espOccupied);
     fpgaConfigurationHandlerError_t error =
-        FPGA_RECONFIG_NO_ERROR !=
-        fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-            downloadRequest.url, downloadRequest.fileSizeInBytes, downloadRequest.startSectorId);
+        fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, lengthOfBinFile, startSector);
     freeRtosMutexWrapperUnlock(espOccupied);
+    free(url);
+
     publishRequest_t downloadDonePosting;
     downloadDonePosting.pubType = COMMAND_RESPONSE;
     downloadDonePosting.topic = calloc(6, sizeof(char));
     strcpy(downloadDonePosting.topic, "FLASH");
-    if (FPGA_RECONFIG_NO_ERROR != error) {
-        downloadDonePosting.data = calloc(7, sizeof(char));
-        strcpy(downloadDonePosting.data, "FAILED");
-        return false;
+    if (FPGA_RECONFIG_NO_ERROR == error) {
+        downloadDonePosting.data = calloc(8, sizeof(char));
+        strcpy(downloadDonePosting.data, "SUCCESS");
+        freeRtosQueueWrapperPush(publishRequests, &downloadDonePosting);
+        return true;
     }
-    downloadDonePosting.data = calloc(8, sizeof(char));
-    strcpy(downloadDonePosting.data, "SUCCESS");
+    downloadDonePosting.data = calloc(7, sizeof(char));
+    strcpy(downloadDonePosting.data, "FAILED");
     freeRtosQueueWrapperPush(publishRequests, &downloadDonePosting);
-    return true;
+    return false;
 }
 void blinkFpgaLeds(void) {
     middlewareSetFpgaLeds(0b00000000);
@@ -202,13 +204,22 @@ _Noreturn void runTestTask(void) {
              * 3. Deploy new config via middleware
              * 4. Run Middleware test (Blink FPGA LED)
              */
-            if (!successfullyDownloadBinFile(&downloadRequest)) {
+            env5HwFpgaPowersOff();
+            if (!successfullyDownloadBinFile(downloadRequest.url, downloadRequest.fileSizeInBytes,
+                                             downloadRequest.startSectorId)) {
                 continue;
             }
             env5HwFpgaPowersOn();
-            freeRtosTaskWrapperTaskSleep(100);
-            middlewareConfigureFpga(downloadRequest.startSectorId);
-            blinkFpgaLeds();
+            //            freeRtosTaskWrapperTaskSleep(100);
+            //            middlewareConfigureFpga(downloadRequest.startSectorId);
+            //            blinkFpgaLeds();
+            publishRequest_t testSuccess;
+            testSuccess.pubType = DATA_VALUE;
+            testSuccess.topic = calloc(6, sizeof(char));
+            strcpy(testSuccess.topic, "test");
+            testSuccess.data = calloc(8, sizeof(char));
+            strcpy(testSuccess.data, "DONE");
+            freeRtosQueueWrapperPush(publishRequests, &testSuccess);
         }
     }
 }
@@ -217,13 +228,11 @@ int main() {
     initHardware();
 
     postings = freeRtosQueueWrapperCreate(5, sizeof(posting_t));
-    publishRequests = freeRtosQueueWrapperCreate(5, sizeof(downloadRequest_t));
-    testCases = freeRtosQueueWrapperCreate(5, sizeof(size_t));
+    publishRequests = freeRtosQueueWrapperCreate(5, sizeof(publishRequest_t));
+    testCases = freeRtosQueueWrapperCreate(5, sizeof(downloadRequest_t));
 
     espOccupied = freeRtosMutexWrapperCreate();
     freeRtosMutexWrapperUnlockFromInterrupt(espOccupied);
-
-    publishAliveStatusMessageWithMandatoryAttributes((status_t){});
 
     freeRtosTaskWrapperRegisterTask(handleReceiveTasks, "receive", 1, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(handlePublishTask, "send", 1, FREERTOS_CORE_0);
