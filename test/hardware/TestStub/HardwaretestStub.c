@@ -31,8 +31,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern networkCredentials_t networkCredentials;
-
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 
@@ -51,6 +49,12 @@ static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
 
+    // initialize the serial output
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
+
     /* Always release flash after use:
      *   -> FPGA and MCU share the bus to flash-memory.
      * Make sure this is only enabled while FPGA does not use it and release after use before
@@ -59,18 +63,11 @@ static void initHardware() {
      */
     flashInit(&spiConfiguration, csPin);
 
-    // initialize the serial output
-    stdio_init_all();
-    while ((!stdio_usb_connected())) {
-        // wait for serial connection
-    }
+    espInit(); // initialize Wi-Fi chip
+    networkTryToConnectToNetworkUntilSuccessful();
 }
 
 static void loadConfigToFlashViaHttp(uint32_t sectorId) {
-    espInit();
-    PRINT("Try Connecting to WiFi");
-    networkTryToConnectToNetworkUntilSuccessful();
-
     PRINT("Request Download Size");
     HttpResponse_t *length_response;
     HTTPGet(lengthUrl, &length_response);

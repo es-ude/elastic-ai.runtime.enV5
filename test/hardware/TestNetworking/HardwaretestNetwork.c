@@ -6,28 +6,24 @@
 #include "Network.h"
 
 /*!
- * Tries to connect to the network which is specified in NetworkSettings.h. When successful the
- * connection is closed and the process repeats.
+ * Tries to connect to the Wi-Fi.
+ * When successful, the connection is closed and the process repeats.
  */
 
-extern networkCredentials_t credentials;
-
-_Noreturn void networkTask() {
+_Noreturn void runTest() {
     PRINT("=== STARTING TEST ===");
 
     while (1) {
-        connectToNetwork();
+        networkTryToConnectToNetworkUntilSuccessful();
+        PRINT("CONNECTED!");
         freeRtosTaskWrapperTaskSleep(2000);
         networkDisconnectFromNetwork();
+        PRINT("DISCONNECTED!");
         freeRtosTaskWrapperTaskSleep(2000);
     }
 }
 
 int main() {
     initHardwareTest();
-
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(networkTask, "networkTask", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperStartScheduler();
+    runTest();
 }

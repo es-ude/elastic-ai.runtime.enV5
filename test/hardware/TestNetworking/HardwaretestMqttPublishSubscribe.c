@@ -1,54 +1,59 @@
-#define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
+#define SOURCE_FILE "MQTT-PUBSUB-TEST"
 
 #include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
-#include "MqttBroker.h"
 #include "Protocol.h"
-#include <malloc.h>
+
 #include <stdio.h>
-#include <string.h>
 
 /*!
- * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
+ * Connects to Wi-Fi and MQTT Broker.
  * Subscribes and publishes to topic "eip://uni-due.de/es/test" and prints the received Data.
  */
 
-void publishTestData(uint16_t i) {
-    char buffer[2];
-    sprintf(buffer, "%d", i);
-    char *data = malloc(strlen("testData") + strlen(buffer));
-    strcpy(data, "testData");
-    strcat(data, buffer);
-    protocolPublishData("testPubSub", data);
-    free(data);
-}
+queue_t postings;
+char dataTopic[] = "testPubSub";
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: %s", posting.data);
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
 
-_Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
+_Noreturn void receiverTask(void) {
+    protocolSubscribeForData("enV5", dataTopic, (subscriber_t){.deliver = deliver});
 
-    connectToNetwork();
-    connectToMQTT();
-
-    protocolSubscribeForData("enV5", "testPubSub", (subscriber_t){.deliver = deliver});
-
-    uint64_t messageCounter = 0;
     while (1) {
-        publishTestData(messageCounter);
-        messageCounter++;
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
+        }
         freeRtosTaskWrapperTaskSleep(1000);
+    }
+}
+
+_Noreturn void senderTask(void) {
+    uint16_t messageCounter = 0;
+    while (1) {
+        freeRtosTaskWrapperTaskSleep(1000);
+        char data[17];
+        snprintf(data, 17, "testData - %i", messageCounter);
+        PRINT("Send Message: '%s' via '%s'", data, dataTopic);
+        protocolPublishData(dataTopic, data);
+        messageCounter++;
     }
 }
 
 int main() {
     initHardwareTest();
+    connectToNetwork();
+    connectToMqttBroker();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    postings = freeRtosQueueWrapperCreate(5, sizeof(posting_t));
+
+    PRINT("===== STARTING TEST =====");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(receiverTask, "receive", 0, FREERTOS_CORE_1);
+    freeRtosTaskWrapperRegisterTask(senderTask, "send", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }
