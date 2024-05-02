@@ -24,7 +24,7 @@ include::include/Pac193x.h[tags=prototypes]
 [source,c]
 ----
 #include "pac193x/Pac193x.h"
-#include "hardware/i2c.h"
+#include "hardware/i2cConfig.h"
 
 pac193xSensorConfiguration_t sensor = {
     .i2c_host = i2c1,

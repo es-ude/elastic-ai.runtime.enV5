@@ -21,7 +21,7 @@
 .. Click "Open Hardwaremanager"
 .. Click "Open Target" > "Autoconnect"
 . Right-click on Device > "Add Configuration Memory Device"
-. Search for "fl128" and select "s25fl128sxxxxxx1-spi-x1_x2_x4"
+. Search for "fl128" and select "s25fl128sxxxxxx1-spiInstance-x1_x2_x4"
 
 CAUTION: JTAG cable for FPGA required
 

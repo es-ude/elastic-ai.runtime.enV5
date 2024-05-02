@@ -6,13 +6,13 @@
 
 #include <SpiTypedefs.h>
 
-void spiInit(spi_t *spiConfigration, uint8_t chipSelectPin);
-void spiDeinit(spi_t *spiConfiguration, uint8_t chipSelectPin);
+void spiInit(spiConfig_t *spiConfigration, uint8_t chipSelectPin);
+void spiDeinit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin);
 
-int spiWriteCommandBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command);
-int spiWriteCommandAndDataBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+int spiWriteCommandBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command);
+int spiWriteCommandAndDataBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data);
-int spiWriteCommandAndReadBlocking(spi_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+int spiWriteCommandAndReadBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data);
 
 #endif /* ENV5_SPI_HEADER */

@@ -10,7 +10,7 @@
  * @IMPORTANT
  *    function has to be called before use of the sensor can be used \n
  *    needs max 1.5ms for idle state after power up
- * @param[in] i2cHost i2c line to be used with sensor
+ * @param[in] i2cHost i2cConfig line to be used with sensor
  * @return            return the error code (0 if everything passed)
  */
 sht3xErrorCode_t sht3xInit(i2c_inst_t *i2cHost);

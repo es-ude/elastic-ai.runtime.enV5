@@ -2,20 +2,22 @@
 #include "Gpio.h"
 #include "I2cInternal.h"
 
+
 #include <hardware/i2c.h>
 
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/
 
-void i2cInit(i2c_inst_t *i2cHost, uint32_t baudRate, uint8_t sdaGPIO, uint8_t sclGPIO) {
-    i2c_init(i2cHost, baudRate);
-    i2cInternalSetupSda(sdaGPIO);
-    i2cInternalSetupScl(sclGPIO);
+
+void i2cInit(i2cConfig_t *i2cConfig) {
+    i2c_init(i2cConfig->i2cInstance, i2cConfig->frequency);
+    i2cInternalSetupPin(i2cConfig->sdaPin);
+    i2cInternalSetupPin(i2cConfig->sclPin);
 }
 
-i2cErrorCode_t i2cWriteCommand(const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer,
-                               uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cWriteCommand(i2cConfig_t *i2cConfig, uint8_t slaveAddress,
+                               const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
     int successfulTransmit =
-        i2cInternalWriteBlocking(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cHost);
+        i2cInternalWriteBlocking(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cConfig->i2cInstance);
 
     /* sensor not available */
     if (successfulTransmit == PICO_ERROR_GENERIC) {
@@ -30,10 +32,10 @@ i2cErrorCode_t i2cWriteCommand(const uint8_t *commandBuffer, uint16_t sizeOfComm
     return I2C_ACK_ERROR;
 }
 
-i2cErrorCode_t i2cReadData(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress,
-                           i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cReadData(i2cConfig_t *i2cConfig, uint8_t slaveAddress, uint8_t *readBuffer,
+                           uint8_t sizeOfReadBuffer) {
     int successfulTransmit =
-        i2cInternalReadBlocking(readBuffer, sizeOfReadBuffer, slaveAddress, i2cHost);
+        i2cInternalReadBlocking(readBuffer, sizeOfReadBuffer, slaveAddress, i2cConfig->i2cInstance);
 
     /* sensor not available */
     if (successfulTransmit == PICO_ERROR_GENERIC) {
@@ -53,14 +55,10 @@ i2cErrorCode_t i2cReadData(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static void i2cInternalSetupSda(uint8_t sdaGPIO) {
-    gpioSetPinFunction(sdaGPIO, GPIO_FUNCTION_I2C);
-    gpioEnablePullUp(sdaGPIO);
-}
 
-static void i2cInternalSetupScl(uint8_t sclGPIO) {
-    gpioSetPinFunction(sclGPIO, GPIO_FUNCTION_I2C);
-    gpioEnablePullUp(sclGPIO);
+static void i2cInternalSetupPin(uint8_t gpio) {
+    gpioSetPinFunction(gpio, GPIO_FUNCTION_I2C);
+    gpioEnablePullUp(gpio);
 }
 
 static int i2cInternalWriteBlocking(const uint8_t *bytesToSend, uint16_t numberOfBytesToSend,

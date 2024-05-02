@@ -38,8 +38,8 @@ downloadRequest_t *downloadRequest = NULL;
 
 volatile bool testInProgress = false;
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+spiConfig_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 void initHardware() {

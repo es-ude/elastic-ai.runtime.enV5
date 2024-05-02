@@ -1,11 +1,48 @@
 #define SOURCE_FILE "ENV5-HWC"
 
-#include <stdbool.h>
+#include<stdbool.h>
 
 #include "Common.h"
 #include "Gpio.h"
 #include "Sleep.h"
 #include "enV5HwController.h"
+#include "HwConfig.h"
+
+spiConfig_t fpgaSpiConfig = {
+    .spiInstance = SPI_FPGA_INSTANCE,
+    .sckPin = SPI_FPGA_SCK,
+    .misoPin = SPI_FPGA_MISO,
+    .mosiPin = SPI_FPGA_MOSI,
+    .baudrate = SPI_FPGA_BAUDRATE,
+    .csPin = SPI_FPGA_CS
+};
+spiConfig_t flashSpiConfig = {
+    .spiInstance = SPI_FLASH_INSTANCE,
+    .misoPin = SPI_FLASH_MISO,
+    .sckPin = SPI_FLASH_SCK,
+    .mosiPin = SPI_FLASH_MOSI,
+    .baudrate = SPI_FLASH_BAUDRATE,
+    .csPin = SPI_FLASH_CS
+    
+};
+
+i2cConfig_t i2cConfig = {
+    .i2cInstance = I2C_CONTROLLER,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
+    .frequency = I2C_FREQUENCY_IN_HZ
+};
+
+uartConfig_t uartConfig = {
+    .uartInstance = UART_INSTANCE,
+    .txPin = UART_TX_PIN,
+    .rxPin = UART_RX_PIN,
+    .baudrate = UART_BAUDRATE,
+    .dataBits = UART_DATA_BITS,
+    .stopBits = UART_STOP_BITS,
+    .parity = UART_PARITY
+};
+
 
 void env5HwInit() {
     env5HwLedsInit();

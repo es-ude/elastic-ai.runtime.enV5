@@ -32,8 +32,8 @@
 #include "enV5HwController.h"
 
 /* ES-Stud config */
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+spiConfig_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 const char *baseUrl = "http://127.0.0.1:5000";

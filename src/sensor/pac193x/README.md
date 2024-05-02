@@ -11,11 +11,11 @@
 
 ```C
 #include "pac193x/Pac193x.h"
-#include "hardware/i2c.h"
+#include "hardware/i2cConfig.h"
 
 pac193xSensorConfiguration_t sensor = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
+    .i2cConfig = i2c1,
+    .i2cAddress = PAC193X_I2C_ADDRESS_499R,
     .powerPin = -1,
     .usedChannels = {.uint_channelsInUse = 0b00000011},
     .rSense = {0.82f, 0.82f, 0, 0},

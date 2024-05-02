@@ -22,7 +22,6 @@ const static adxl345bRange_t ADXL345B_16G_RANGE = {16, 0b00001011, 0b00111111, 0
  * @return            return the error code (0 if everything passed)
  */
 adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t i2cAddress);
-
 /*!
  * @brief send the configuration to the sensor
  * @param registerToWrite[in] address of the register to write the configuration bit to

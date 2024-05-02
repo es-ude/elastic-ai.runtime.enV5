@@ -12,13 +12,13 @@ struct data {
 };
 typedef struct data data_t;
 
-struct spi {
-    spi_inst_t *spi;
+typedef struct spiConfig {
+    spi_inst_t *spiInstance;
     uint8_t sckPin;
     uint8_t misoPin;
     uint8_t mosiPin;
     uint32_t baudrate;
-};
-typedef struct spi spi_t;
+    uint8_t csPin;
+} spiConfig_t;
 
 #endif /* ENV5_SPI_TYPEDEFS */
