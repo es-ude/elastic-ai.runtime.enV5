@@ -1,23 +1,45 @@
 #ifndef ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
 #define ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
 
+#include <FreeRTOS.h>
+#include <queue.h>
 #include <stdbool.h>
 
-#define FREERTOS_QUEUE_WRAPPER_QUEUE_LENGTH 10
-#define FREERTOS_QUEUE_WRAPPER_WAIT_IF_BLOCKED_MS_AMOUNT 10
-#define FREERTOS_QUEUE_WRAPPER_WAIT_FOR_RECEIVE_MS_AMOUNT 1000
+typedef QueueHandle_t queue_t;
 
-struct freeRtosQueueWrapperMessage {
-    // be aware that only the pointer is copied and not the content of the
-    // message! see the queue hardware test for usage
-    char *Data;
-};
-typedef struct freeRtosQueueWrapperMessage freeRtosQueueWrapperMessage_t;
+/*!
+ * \brief create a queue
+ *
+ * @param numberOfElements number of elements the queue can hold at max
+ * @param bytesPerElement number of bytes each element has
+ * @return reference to the queue if successful, NULL otherwise
+ */
+queue_t freeRtosQueueWrapperCreate(uint8_t numberOfElements, size_t bytesPerElement);
 
-void freeRtosQueueWrapperCreate(void);
+/*!
+ * \brief copies the referenced data to the queue
+ *
+ * @param queue references to the queue
+ * @param data data to be copied to queue
+ * @return true if successful, else false
+ */
+bool freeRtosQueueWrapperPush(queue_t queue, void *data);
+/*!
+ * \brief copies the referenced data to the queue
+ *
+ * @param queue references to the queue
+ * @param data data to be copied to queue
+ * @return true if successful, else false
+ */
+bool freeRtosQueueWrapperPushFromInterrupt(queue_t queue, void *data);
 
-bool freeRtosQueueWrapperSend(freeRtosQueueWrapperMessage_t message);
-
-bool freeRtosQueueWrapperReceive(freeRtosQueueWrapperMessage_t *message);
+/*!
+ * \brief copies the first item from the queue
+ *
+ * @param queue references to the queue
+ * @param data buffer for the element from the queue
+ * @return true if successful, else false
+ */
+bool freeRtosQueueWrapperPop(queue_t queue, void *data);
 
 #endif /* ENV5_FREERTOS_QUEUE_WRAPPER_HEADER */

@@ -20,14 +20,14 @@ void tearDown(void) {}
 
 void testConnectToNetworkSuccessful(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
-    networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
+    networkErrorCode_t networkErrorCode = networkConnectToNetwork();
     TEST_ASSERT_EQUAL(NETWORK_NO_ERROR, networkErrorCode);
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.WIFIStatus);
 }
 void testConnectToNetworkAlreadyConnected(void) {
     espStatus.WIFIStatus = CONNECTED;
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.WIFIStatus);
-    networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
+    networkErrorCode_t networkErrorCode = networkConnectToNetwork();
     TEST_ASSERT_EQUAL(NETWORK_WIFI_ALREADY_CONNECTED, networkErrorCode);
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.WIFIStatus);
 }
@@ -35,14 +35,14 @@ void testConnectToNetworkEspChipFailed(void) {
     espStatus.ChipStatus = ESP_CHIP_NOT_OK;
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
     TEST_ASSERT_EQUAL(ESP_CHIP_NOT_OK, espStatus.ChipStatus);
-    networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
+    networkErrorCode_t networkErrorCode = networkConnectToNetwork();
     TEST_ASSERT_EQUAL(NETWORK_ESP_CHIP_FAILED, networkErrorCode);
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
 }
 void testConnectToNetworkSendFailed(void) {
     ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
-    networkErrorCode_t networkErrorCode = networkConnectToNetwork(credentials);
+    networkErrorCode_t networkErrorCode = networkConnectToNetwork();
     TEST_ASSERT_EQUAL(NETWORK_ESTABLISH_CONNECTION_FAILED, networkErrorCode);
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
 }

@@ -31,7 +31,6 @@
 #include "Spi.h"
 #include "enV5HwController.h"
 
-/* ES-Stud config */
 spiConfig_t spiConfiguration = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
@@ -43,19 +42,18 @@ uint32_t blinkSlow = 1;
 size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
+    env5HwInit();
+
     // initialize the serial output
     stdio_init_all();
     while ((!stdio_usb_connected())) {
         // wait for serial connection
     }
 
-    // connect to Wi-Fi network
-    espInit();
+    espInit(); // initilize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
 
-    // initialize the Flash and FPGA
     flashInit(&spiConfiguration, csPin);
-    env5HwInit();
     fpgaConfigurationHandlerInitialize();
 }
 

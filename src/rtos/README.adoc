@@ -1,0 +1,135 @@
+https://github.com/AErbsloeh/spaike_denspp= FreeRTOS :toc:
+:toclevels: 3 :toc-placement!:
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+[.lead]
+This FreeRTOS library provides a facade tailored to the requirements of the elastic-AI runtime for the Elastic Note version 5.
+This Readme intends to provide a basic overview of the provided functionality and their intended usage. +
+The chapter <<_components>> aims to present the provided parts of the library, whereas the chapter <<_implementation_constraints>> aims to provide basic principles for working with FreeRTOS and the required steps to properly implement a scenario alongside common errors.
+
+We also use FreeRTOS to support the usage of both cores of the RP2040.
+This is optional and can be disabled by executing all Tasks on Core 0.
+
+[#_components]
+== Components
+
+The provided faced makes three core concepts of the FreeRTOS Kernel available for usage:
+
+[horizontal]
+<<_tasks>>:: Core feature for workload orchestration
+<<_queues>>:: Feature to enable communication between tasks
+<<_mutex>>:: Feature to lock resources
+
+[#_tasks]
+=== Tasks
+
+Tasks are the core feature of FreeRTOS where all other functions evolve around.
+Tasks in this context provide a way to schedule workloads to FreeRTOS.
+
+Each Task has its own Stack and a priority which is considered by the schedular.
+
+[#_queues]
+=== Queues
+
+Queues are FiFo buffers that provide a way to exchange data between tasks, or send data to a task from an Interrupt Service Routine (ISR).
+
+The content provided as input to the queue is copied to the queue itself.
+
+TIP: If you pass a pointer to the queue, it is possible to modify the content pushed to the queue, even after you pushed it.
+
+CAUTION: You have to know on queue initialization which sizes the elements of the queue have.
+
+A Queue can hold a set number of items, which are defined on initialization!
+
+[#_mutex]
+=== Mutex
+
+Mutexes provide a simple way to ensure mutual exclusion of shared resources if necessary.
+It can be used to assure that only one task is able to access the SPI bus and the other tasks have to wait before it is their turn.
+
+[#_implementation_constraints]
+== Implementation Constraints
+
+IMPORTANT: ISR should be as short as possible: Only push the received content into a queue handled by a Task!
+
+Passing Data to/between Tasks::
+To allow the schedular to properly execute the tasks, you are required to use queues as the mechanism to exchange data.
+
+Ensure Only One Task Access a Physical Resource::
+Only one Task should be able to access a physical resource like the I^2^C, SPI or UART Bus.
+This can be assured in two ways:
+Single Task::: Combine all access to a physical resource in the same Task
+Mutex::: Guard access to physical resources with mutex lock/unlock operations.
+
+[example]
+.Pub-Sub-Handling
+--
+[%collapsible]
+====
+[source,C]
+----
+#include <FreeRtosTaskWrapper.h> //<1>
+#include <FreeRtosQueueWrapper.h> //<2>
+
+queue_t receivedPostings; //<3>
+
+void deliverCallback(Posting post) {
+    freeRtosQueueWrapperPushFromInterrupt(receivedPosting, &post); //<4>
+}
+_Noreturn void receiveTask(void) {
+    protocolSubscribeForData("enV5", dataTopic, (subscriber_t){.deliver = deliverCallback}); //<5>
+
+    while (1) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) { //<6>
+            PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
+        }
+        freeRtosTaskWrapperTaskSleep(1000); //<8>
+    }
+
+}
+
+_Noreturn void sendTask(void) {
+    while (1) {
+        protocolPublishData(dataTopic, "TEST TEST"); //<7>
+        freeRtosTaskWrapperTaskSleep(1000); //<8>
+    }
+}
+
+int main(void)  {
+    //...
+
+    receivedPostings = freeRtosQueueWrapperCreate(5, sizeof(Posting)); //<9>
+
+    freeRtosTaskWrapperRegisterTask(receiveTask, "receive", 0, FREERTOS_CORE_0); //<10>
+    freeRtosTaskWrapperRegisterTask(sendTask, "send", 0, FREERTOS_CORE_1); //<11>
+
+    freeRtosTaskWrapperStartScheduler(); //<12>
+}
+----
+<1> Include Functions for Tasks
+<2> Include Functions for Queues
+<3> Reference to the Queue for received postings
+<4> Push Received Posting to Queue from Interrupt Callback (see <<_implementation_constraints>>)
+<5> Subscribe topic and set Callback for received Messages
+<6> Check if a new Item is available and retrieve it from the Queue for further handling
+<7> Publish Data to specified Topic
+<8> Let the task sleep for one second
+<9> Create a Queue that can hold up to five Postings
+<10> Register a Task to run on Core 0
+<11> Register a Task to run on Core 1
+<12> Start the FreeRTOS Schedular
+
+====
+--
+
+== Further Reading
+
+* https://www.freertos.org/features.html[FreeRTOS Developer Docs]
+* https://www.freertos.org/smp-demos-for-the-raspberry-pi-pico-board.html[RP2040 Symmetric Multiprocessing Demo]

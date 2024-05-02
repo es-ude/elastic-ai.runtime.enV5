@@ -5,18 +5,20 @@
  * NOTE: To run this test, the monitor is required!
  */
 
-#define SOURCE_FILE "HWTEST-STUB"
+#define SOURCE_FILE "HWTEST-STUB-WITH-MONITOR"
 
 #include "Common.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
+#include "FreeRtosMutexWrapper.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
 #include "Protocol.h"
 #include "enV5HwController.h"
+#include "middleware.h"
 
 #include <hardware/spi.h>
 #include <pico/bootrom.h>
@@ -26,28 +28,43 @@
 #include <stdio.h>
 #include <string.h>
 
-extern networkCredentials_t networkCredentials;
-extern mqttBrokerHost_t mqttHost;
-
 typedef struct downloadRequest {
     char *url;
     size_t fileSizeInBytes;
-    size_t startSectorId;
+    uint32_t startSectorId;
 } downloadRequest_t;
-downloadRequest_t *downloadRequest = NULL;
 
-volatile bool testInProgress = false;
+typedef enum {
+    COMMAND_RESPONSE,
+    DATA_VALUE,
+} pubType_t;
+typedef struct publishRequest {
+    pubType_t pubType;
+    char *topic;
+    char *data;
+} publishRequest_t;
 
 spiConfig_t spiConfiguration = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
+queue_t postings;
+queue_t publishRequests;
+queue_t testCases;
+
+mutex_t espOccupied;
+
 void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwInit();
 
-    // Connect to Wi-Fi network and MQTT Broker
-    espInit();
+    // initialize the serial output
+    stdio_init_all();
+    while ((!stdio_usb_connected())) {
+        // wait for serial connection
+    }
+
+    espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
     mqttBrokerConnectToBrokerUntilSuccessful("eip://uni-due.de/es", "enV5");
 
@@ -59,95 +76,150 @@ void initHardware() {
      */
     flashInit(&spiConfiguration, csPin);
     fpgaConfigurationHandlerInitialize();
-
-    // initialize the serial output
-    stdio_init_all();
-    while ((!stdio_usb_connected())) {
-        // wait for serial connection
-    }
 }
 
-_Noreturn void runTest() {
-    while (true) {
-        /* TODO:
-         *   1. Get next config to flash from queue
-         *   2. Power on FPGA (load default config with middleware)
-         *   3. Deploy new config via middleware
-         *   4. Run Middleware test (Blink FPGA LED)
-         */
-    }
+void deliver(posting_t posting) {
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
-
-static void receiveDownloadBinRequest(posting_t posting) {
+downloadRequest_t parseDownloadRequest(char *data) {
     PRINT("RECEIVED FLASH REQUEST");
-    // get download request
-    char *urlStart = strstr(posting.data, "URL:");
-    +4;
-    char *urlEnd = strstr(urlStart, ";");
-    -1;
-    size_t urlLength = urlEnd - urlStart + 1;
-    char *url = malloc(urlLength);
-    memcpy(url, urlStart, urlLength);
-    url[urlLength - 1] = '\0';
-    char *sizeStart = strstr(posting.data, "SIZE:");
-    +5;
-    char *endSize = strstr(sizeStart, ";");
-    -1;
-    size_t length = strtol(sizeStart, &endSize, 10);
 
-    char *positionStart = strstr(posting.data, "POSITION:");
-    +9;
-    char *positionEnd = strstr(positionStart, ";");
-    -1;
-    size_t position = strtol(positionStart, &positionEnd, 10);
+    /* region parse length */
+    char *sizeStart = strstr(data, "SIZE:") + 5;
+    size_t length = strtol(sizeStart, NULL, 10);
+    /* endregion parse length */
+    /* region parse sector-ID */
+    char *positionStart = strstr(data, "POSITION:") + 9;
+    uint32_t position = strtol(positionStart, NULL, 10);
+    /* endregion parse sector-ID */
+    /* region parse url */
+    char *urlStart = strstr(data, "URL:") + 4;
+    char *urlRaw = strtok(urlStart, ";");
+    size_t urlLength = strlen(urlRaw);
+    char *url = malloc(urlLength + 1);
+    strcpy(url, urlRaw);
+    /* endregion parse url */
 
-    downloadRequest = malloc(sizeof(downloadRequest_t));
-    downloadRequest->url = url;
-    downloadRequest->fileSizeInBytes = length;
-    downloadRequest->startSectorId = position;
+    PRINT_DEBUG("URL: %s", url);
+    PRINT_DEBUG("LENGTH: %zu", length);
+    PRINT_DEBUG("SECTOR 0: %lu", position);
+
+    return (downloadRequest_t){.url = url, .startSectorId = position, .fileSizeInBytes = length};
+}
+_Noreturn void handleReceiveTasks(void) {
+    freeRtosTaskWrapperTaskSleep(500);
+    protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = deliver});
+
+    while (1) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT_DEBUG("Received Message: '%s' via '%s'", post.data, post.topic);
+            if (NULL != strstr(post.topic, "DO/FLASH")) {
+                downloadRequest_t downloadRequest = parseDownloadRequest(post.data);
+                freeRtosQueueWrapperPush(testCases, &downloadRequest);
+                free(post.topic);
+                free(post.data);
+            }
+        }
+        freeRtosTaskWrapperTaskSleep(1000);
+    }
 }
 
-/* What this function does:
- *   - add listener for download start command (MQTT)
- *      uart handle should only set flag -> download handled at task
- *   - download data from server and stored to flash
- */
-_Noreturn void downloadTask(void) {
-    freeRtosTaskWrapperTaskSleep(5000);
-    protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = receiveDownloadBinRequest});
-    publishAliveStatusMessageWithMandatoryAttributes((status_t){});
+_Noreturn void handlePublishTask(void) {
+    publishAliveStatusMessageWithMandatoryAttributes((status_t){.fpga = "V1", .data = "test"});
 
-    PRINT("FPGA Ready ...");
-    while (true) {
-        if (downloadRequest == NULL || testInProgress) {
-            freeRtosTaskWrapperTaskSleep(1000);
-            continue;
+    while (1) {
+        publishRequest_t request;
+        if (freeRtosQueueWrapperPop(publishRequests, &request)) {
+            switch (request.pubType) {
+            case COMMAND_RESPONSE:
+                freeRtosMutexWrapperLock(espOccupied);
+                protocolPublishCommandResponse(request.topic, strcmp(request.data, "FAILED"));
+                freeRtosMutexWrapperUnlock(espOccupied);
+                break;
+            case DATA_VALUE:
+                freeRtosMutexWrapperLock(espOccupied);
+                protocolPublishData(request.topic, request.data);
+                freeRtosMutexWrapperUnlock(espOccupied);
+                break;
+            default:
+                PRINT_DEBUG("type NOT valid!");
+            }
+
+            free(request.topic);
+            free(request.data);
         }
+        freeRtosTaskWrapperTaskSleep(1000);
+    }
+}
 
-        // assure free SPI/Flash access
-        env5HwFpgaPowersOff();
+bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t startSector) {
+    freeRtosMutexWrapperLock(espOccupied);
+    fpgaConfigurationHandlerError_t error =
+        fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, lengthOfBinFile, startSector);
+    freeRtosMutexWrapperUnlock(espOccupied);
+    free(url);
 
-        PRINT("Starting to download bitfile...");
-        PRINT_DEBUG("Download: position in flash: %i, address: %s, size: %i",
-                    downloadRequest->startSectorId, downloadRequest->url,
-                    downloadRequest->fileSizeInBytes);
-        fpgaConfigurationHandlerError_t configError =
-            fpgaConfigurationHandlerDownloadConfigurationViaHttp(downloadRequest->url,
-                                                                 downloadRequest->fileSizeInBytes,
-                                                                 downloadRequest->startSectorId);
-
-        // clean artifacts
-        free(downloadRequest->url);
-        free(downloadRequest);
-        downloadRequest = NULL;
-
-        if (configError != FPGA_RECONFIG_NO_ERROR) {
-            protocolPublishCommandResponse("FLASH", false);
-            PRINT("ERASE ERROR");
-        } else {
-            // TODO: Push new reconfig request to queue
-            protocolPublishCommandResponse("FLASH", true);
-            PRINT("Download finished!");
+    publishRequest_t downloadDonePosting;
+    downloadDonePosting.pubType = COMMAND_RESPONSE;
+    downloadDonePosting.topic = calloc(6, sizeof(char));
+    strcpy(downloadDonePosting.topic, "FLASH");
+    if (FPGA_RECONFIG_NO_ERROR == error) {
+        downloadDonePosting.data = calloc(8, sizeof(char));
+        strcpy(downloadDonePosting.data, "SUCCESS");
+        freeRtosQueueWrapperPush(publishRequests, &downloadDonePosting);
+        return true;
+    }
+    downloadDonePosting.data = calloc(7, sizeof(char));
+    strcpy(downloadDonePosting.data, "FAILED");
+    freeRtosQueueWrapperPush(publishRequests, &downloadDonePosting);
+    return false;
+}
+void blinkFpgaLeds(void) {
+    middlewareSetFpgaLeds(0b00000000);
+    freeRtosTaskWrapperTaskSleep(500);
+    middlewareSetFpgaLeds(0b00000001);
+    freeRtosTaskWrapperTaskSleep(500);
+    middlewareSetFpgaLeds(0b00000011);
+    freeRtosTaskWrapperTaskSleep(500);
+    middlewareSetFpgaLeds(0b00000111);
+    freeRtosTaskWrapperTaskSleep(500);
+    middlewareSetFpgaLeds(0b00001111);
+    freeRtosTaskWrapperTaskSleep(1000);
+    middlewareSetFpgaLeds(0b00000000);
+    publishRequest_t testDonePosting;
+    testDonePosting.pubType = DATA_VALUE;
+    testDonePosting.topic = calloc(10, sizeof(char));
+    strcpy(testDonePosting.topic, "FPGA/TEST");
+    testDonePosting.data = calloc(5, sizeof(char));
+    strcpy(testDonePosting.data, "DONE");
+    freeRtosQueueWrapperPush(publishRequests, &testDonePosting);
+}
+_Noreturn void runTestTask(void) {
+    while (1) {
+        downloadRequest_t downloadRequest;
+        if (freeRtosQueueWrapperPop(testCases, &downloadRequest)) {
+            /* 1. Download config to flash
+             * 2. Power on FPGA (load default config with middleware)
+             * 3. Deploy new config via middleware
+             * 4. Run Middleware test (Blink FPGA LED)
+             */
+            env5HwFpgaPowersOff();
+            if (!successfullyDownloadBinFile(downloadRequest.url, downloadRequest.fileSizeInBytes,
+                                             downloadRequest.startSectorId)) {
+                continue;
+            }
+            env5HwFpgaPowersOn();
+            //            freeRtosTaskWrapperTaskSleep(100);
+            //            middlewareConfigureFpga(downloadRequest.startSectorId);
+            //            blinkFpgaLeds();
+            publishRequest_t testSuccess;
+            testSuccess.pubType = DATA_VALUE;
+            testSuccess.topic = calloc(6, sizeof(char));
+            strcpy(testSuccess.topic, "test");
+            testSuccess.data = calloc(8, sizeof(char));
+            strcpy(testSuccess.data, "DONE");
+            freeRtosQueueWrapperPush(publishRequests, &testSuccess);
         }
     }
 }
@@ -155,10 +227,15 @@ _Noreturn void downloadTask(void) {
 int main() {
     initHardware();
 
-    freeRtosQueueWrapperCreate();
+    postings = freeRtosQueueWrapperCreate(5, sizeof(posting_t));
+    publishRequests = freeRtosQueueWrapperCreate(5, sizeof(publishRequest_t));
+    testCases = freeRtosQueueWrapperCreate(5, sizeof(downloadRequest_t));
 
-    freeRtosTaskWrapperRegisterTask(downloadTask, "downloadTask", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(runTest, "runTest", 0, FREERTOS_CORE_1);
+    espOccupied = freeRtosMutexWrapperCreate();
+    freeRtosMutexWrapperUnlockFromInterrupt(espOccupied);
 
+    freeRtosTaskWrapperRegisterTask(handleReceiveTasks, "receive", 1, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(handlePublishTask, "send", 1, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(runTestTask, "test", 1, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }

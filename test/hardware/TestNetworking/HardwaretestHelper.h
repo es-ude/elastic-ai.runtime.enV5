@@ -3,10 +3,10 @@
 
 void connectToNetwork(void);
 
-void connectToMQTT(void);
+void connectToMqttBroker(void);
 
 void initHardwareTest(void);
 
-_Noreturn void enterBootModeTaskHardwareTest(void);
+_Noreturn void enterBootModeTask(void);
 
 #endif // SENSOR_BOARD_HARDWARE_TEST_HELPER_H

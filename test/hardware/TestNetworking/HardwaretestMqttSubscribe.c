@@ -1,6 +1,7 @@
 #define SOURCE_FILE "MQTT-SUBSCRIBE-TEST"
 
 #include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "MqttBroker.h"
@@ -13,29 +14,39 @@
  * IntegrationTestWhereENv5Subscribes can be used to publish the data.
  */
 
-uint64_t arrivedMessages = 0;
+queue_t postings;
 
 void deliver(posting_t posting) {
-    arrivedMessages++;
-    PRINT("Received Data: %s, Message number: %llu", posting.data, arrivedMessages);
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
 
-void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
-
-    connectToNetwork();
-    connectToMQTT();
+void _Noreturn receiverTask(void) {
+    PRINT("===== STARTING TEST =====");
 
     protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
 
-    while (1) {}
+    while (1) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
+            free(post.data);
+            free(post.topic);
+        }
+        freeRtosTaskWrapperTaskSleep(1000);
+    }
 }
 
 int main() {
     initHardwareTest();
+    connectToNetwork();
+    connectToMqttBroker();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    publishAliveStatusMessageWithMandatoryAttributes(
+        (status_t){.type = "enV5", .state = STATUS_STATE_ONLINE});
+
+    postings = freeRtosQueueWrapperCreate(10, sizeof(posting_t));
+
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "watchdog_update", 0, FREERTOS_CORE_1);
+    freeRtosTaskWrapperRegisterTask(receiverTask, "receive", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperStartScheduler();
 }

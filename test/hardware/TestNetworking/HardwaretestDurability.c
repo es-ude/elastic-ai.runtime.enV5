@@ -1,5 +1,11 @@
 #define SOURCE_FILE "HARDWARETEST-DURABILITY"
 
+/*!
+ * Connects to Wi-Fi and MQTT Broker.
+ * Subscribes to START/STOP topic of "wifi" and "sram".
+ * Responds to data requests for these topics!
+ */
+
 // src headers
 #include "Common.h"
 #include "Esp.h"
@@ -10,24 +16,39 @@
 #include "Pac193x.h"
 #include "Protocol.h"
 
-// external headers
+// pico-sdk
 #include <hardware/i2c.h>
-#include <hardware/watchdog.h>
+
+// external headers
 #include <malloc.h>
-#include <pico/bootrom.h>
-#include <pico/stdlib.h>
 #include <string.h>
 
-char *twinID;
+typedef enum topics {
+    WIFI = 0,
+    SRAM = 1,
+} topics_t;
+char *topic_strings[] = {"wifi", "sram"};
 
-typedef struct receiver {
-    char *dataID;
-    void (*whenSubscribed)(char *dataID);
-    bool subscribed;
-} receiver_t;
+typedef struct publishRequest {
+    topics_t topic;
+    char *data;
+} publishRequest_t;
 
-receiver_t receivers[5];
-uint16_t receivers_count = 0;
+typedef struct dataRequester {
+    char *clientId;
+    bool wifiSubscribed;
+    bool sramSubscribed;
+    struct dataRequester *nextItem;
+} dataRequester_t;
+
+typedef struct countUpdateMessage {
+    topics_t topic;
+    bool add;
+} countUpdateMessage_t;
+
+queue_t postingQueue;
+queue_t updateSubscriberCount;
+queue_t publishData;
 
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
@@ -36,9 +57,6 @@ static pac193xSensorConfiguration_t sensor1 = {
     .usedChannels = {.uint_channelsInUse = 0b00001111},
     .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
 };
-#define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
-#define PAC193X_CHANNEL_MCU PAC193X_CHANNEL03
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
 static pac193xSensorConfiguration_t sensor2 = {
@@ -48,11 +66,158 @@ static pac193xSensorConfiguration_t sensor2 = {
     .usedChannels = {.uint_channelsInUse = 0b00001111},
     .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
 };
-#define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
-#define PAC193X_CHANNEL_FPGA_1V PAC193X_CHANNEL03
 #define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
 
+void receivePosting(posting_t posting) {
+    freeRtosQueueWrapperPushFromInterrupt(postingQueue, &posting);
+}
+void makeDataAvailable(char *dataTopic) {
+    protocolSubscribeForDataStartRequest(dataTopic, (subscriber_t){.deliver = receivePosting});
+    protocolSubscribeForDataStopRequest(dataTopic, (subscriber_t){.deliver = receivePosting});
+}
+void addClientToList(dataRequester_t **list, char *clientId, topics_t topic) {
+    dataRequester_t *current = *list;
+    while (current != NULL) {
+        if (0 == strcmp(current->clientId, clientId)) {
+            if (WIFI == topic && !current->wifiSubscribed) {
+                countUpdateMessage_t msg = {.topic = WIFI, .add = true};
+                freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+                current->wifiSubscribed = true;
+            } else if (SRAM == topic && !current->sramSubscribed) {
+                countUpdateMessage_t msg = {.topic = SRAM, .add = true};
+                freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+                current->sramSubscribed = true;
+            }
+            return;
+        }
+        if (current->nextItem == NULL) {
+            break;
+        }
+    }
+
+    protocolSubscribeForStatus(clientId, (subscriber_t){.deliver = receivePosting});
+    dataRequester_t *newSubscriber = calloc(1, sizeof(dataRequester_t));
+    newSubscriber->clientId = clientId;
+    switch (topic) {
+    case WIFI:
+        newSubscriber->wifiSubscribed = true;
+        break;
+    case SRAM:
+        newSubscriber->sramSubscribed = true;
+        break;
+    }
+    countUpdateMessage_t msg = {.topic = topic, .add = true};
+    freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+    newSubscriber->nextItem = NULL;
+
+    if (current == NULL) {
+        *list = newSubscriber;
+    } else {
+        current->nextItem = newSubscriber;
+    }
+}
+void removeClientFromList(dataRequester_t **list, char *clientId, topics_t topic) {
+    if (*list == NULL) {
+        return;
+    }
+    dataRequester_t *last = NULL;
+    dataRequester_t *current = *list;
+    if (0 == strstr(current->clientId, clientId)) {
+        if (topic == WIFI && current->wifiSubscribed) {
+            countUpdateMessage_t msg = {.topic = WIFI, .add = false};
+            freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+            current->wifiSubscribed = false;
+        }
+        if (topic == SRAM && current->sramSubscribed) {
+            countUpdateMessage_t msg = {.topic = SRAM, .add = false};
+            freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+            current->sramSubscribed = false;
+        }
+        if (!current->wifiSubscribed && !current->sramSubscribed) {
+            protocolUnsubscribeFromStatus(clientId, (subscriber_t){.deliver = receivePosting});
+            *list = current->nextItem;
+            free(current->clientId);
+            free(current);
+        }
+        return;
+    }
+    last = current;
+    current = current->nextItem;
+    while (current != NULL) {
+        if (0 == strstr(current->clientId, clientId)) {
+            if (topic == WIFI && current->wifiSubscribed) {
+                countUpdateMessage_t msg = {.topic = WIFI, .add = false};
+                freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+                current->wifiSubscribed = false;
+            }
+            if (topic == SRAM && current->sramSubscribed) {
+                countUpdateMessage_t msg = {.topic = SRAM, .add = false};
+                freeRtosQueueWrapperPush(updateSubscriberCount, &msg);
+                current->sramSubscribed = false;
+            }
+            if (!current->wifiSubscribed && !current->sramSubscribed) {
+                protocolUnsubscribeFromStatus(clientId, (subscriber_t){.deliver = receivePosting});
+                last->nextItem = current->nextItem;
+                free(current->clientId);
+                free(current);
+            }
+            return;
+        }
+        last = current;
+        current = current->nextItem;
+    }
+}
+void handlePosting(posting_t *posting, dataRequester_t **subscriberList) {
+    if (strstr(posting->topic, START)) {
+        addClientToList(subscriberList, posting->data,
+                        strstr(posting->topic, "wifi") ? WIFI : SRAM);
+        free(posting->topic);
+    } else if (strstr(posting->topic, STOP)) {
+        removeClientFromList(subscriberList, posting->data,
+                             strstr(posting->topic, "wifi") ? WIFI : SRAM);
+    } else if (strstr(posting->data, STATUS_STATE_OFFLINE)) {
+        posting->topic[strlen(posting->topic) - 7] = '\0';
+        removeClientFromList(subscriberList, posting->topic, WIFI);
+        removeClientFromList(subscriberList, posting->topic, SRAM);
+        free(posting->topic);
+        free(posting->data);
+    } else {
+        PRINT("Received unknown message:\n{\n\ttopic: %s\n\tcontent: %s\n}", posting->topic,
+              posting->data);
+    }
+}
+_Noreturn void networkManagerTask(void) {
+    dataRequester_t *subscriberList = NULL;
+
+    makeDataAvailable("sram");
+    makeDataAvailable("wifi");
+    publishAliveStatusMessageWithMandatoryAttributes(
+        (status_t){.type = "enV5", .state = STATUS_STATE_ONLINE, .data = "wifi,sram"});
+
+    while (1) {
+        posting_t posting;
+        if (freeRtosQueueWrapperPop(postingQueue, &posting)) {
+            handlePosting(&posting, &subscriberList);
+        }
+
+        publishRequest_t publishRequest;
+        if (freeRtosQueueWrapperPop(publishData, &publishRequest)) {
+            protocolPublishData(topic_strings[publishRequest.topic], publishRequest.data);
+            free(publishRequest.data);
+        }
+    }
+}
+
+void updateCounter(countUpdateMessage_t *msg, uint16_t *counter) {
+    if (msg->add) {
+        *counter += 1;
+    } else {
+        *counter -= 1;
+    }
+    if (*counter < 0) {
+        *counter = 0;
+    }
+}
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
 
@@ -64,80 +229,48 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     }
     return measurement;
 }
-
-void setTwinID(char *newTwinID) {
-    if (newTwinID == twinID) {
-        return;
-    }
-    if (newTwinID != NULL) {
-        free(twinID);
-    }
-    twinID = malloc(strlen(newTwinID) + 1);
-    strcpy(twinID, newTwinID);
-}
-
-void twinsIsOffline(posting_t posting) {
-    if (strstr(posting.data, ";1") != NULL) {
-        return;
-    }
-    PRINT("Twin offline");
-
-    for (int i = 0; i < receivers_count; ++i) {
-        receivers[i].subscribed = false;
+void publishWifiUpdate(void) {
+    char *buffer = calloc(64, sizeof(char));
+    float sensorValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
+    if (sensorValue >= 0) {
+        snprintf(buffer, 64, "%f", sensorValue);
+        publishRequest_t pubRequest = {.topic = WIFI, .data = buffer};
+        freeRtosQueueWrapperPush(publishData, &pubRequest);
     }
 }
+void publishSramUpdate(void) {
+    char *buffer = calloc(64, sizeof(char));
+    float sensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
+    if (sensorValue >= 0) {
+        snprintf(buffer, 64, "%f", sensorValue);
+        publishRequest_t pubRequest = {.topic = SRAM, .data = buffer};
+        freeRtosQueueWrapperPush(publishData, &pubRequest);
+    }
+}
+_Noreturn void sensorTask(void) {
+    uint16_t wifiSubscriber = 0;
+    uint16_t sramSubscriber = 0;
 
-void receiveDataStartRequest(posting_t posting) {
-    setTwinID(posting.data);
+    while (1) {
+        countUpdateMessage_t countUpdateMessage;
+        if (freeRtosQueueWrapperPop(updateSubscriberCount, &countUpdateMessage)) {
+            if (countUpdateMessage.topic == WIFI) {
+                updateCounter(&countUpdateMessage, &wifiSubscriber);
+            } else {
+                updateCounter(&countUpdateMessage, &sramSubscriber);
+            }
+        }
 
-    for (int i = 0; i < receivers_count; ++i) {
-        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
-            receivers[i].subscribed = true;
-            break;
+        if (wifiSubscriber) {
+            publishWifiUpdate();
+        }
+        if (sramSubscriber) {
+            publishSramUpdate();
         }
     }
 }
 
-void receiveDataStopRequest(posting_t posting) {
-    setTwinID(posting.data);
-
-    for (int i = 0; i < receivers_count; ++i) {
-        if (strstr(posting.topic, receivers[i].dataID) != NULL) {
-            receivers[i].subscribed = false;
-            break;
-        }
-    }
-}
-
-void addDataRequestReceiver(receiver_t receiver) {
-    receiver.subscribed = false;
-    protocolSubscribeForDataStartRequest(receiver.dataID,
-                                         (subscriber_t){.deliver = receiveDataStartRequest});
-
-    protocolSubscribeForDataStopRequest(receiver.dataID,
-                                        (subscriber_t){.deliver = receiveDataStopRequest});
-    receivers[receivers_count] = receiver;
-    receivers_count++;
-}
-
-void getAndPublishSRamValue(char *dataID) {
-    char buffer[64];
-    float channelSensorValue = measureValue(sensor2, PAC193X_CHANNEL_FPGA_SRAM);
-    snprintf(buffer, sizeof(buffer), "%f", channelSensorValue);
-    protocolPublishData(dataID, buffer);
-}
-
-void getAndPublishWifiValue(char *dataID) {
-    char buffer[64];
-    float channelWifiValue = measureValue(sensor1, PAC193X_CHANNEL_WIFI);
-    snprintf(buffer, sizeof(buffer), "%f", channelWifiValue);
-    protocolPublishData(dataID, buffer);
-}
-
-_Noreturn void mainTask(void) {
-    connectToNetwork();
-    connectToMQTT();
-
+void initSensors(void) {
     PRINT("===== INIT SENSOR 1 =====");
     pac193xErrorCode_t errorCode;
     while (1) {
@@ -160,77 +293,20 @@ _Noreturn void mainTask(void) {
         PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
         sleep_ms(500);
     }
-
-    sleep_ms(1000);
-
-    addDataRequestReceiver(
-        (receiver_t){.dataID = "wifi", .whenSubscribed = getAndPublishWifiValue});
-    addDataRequestReceiver(
-        (receiver_t){.dataID = "sram", .whenSubscribed = getAndPublishSRamValue});
-
-    publishAliveStatusMessageWithMandatoryAttributes((status_t){.data = "wifi,sram"});
-
-    printf("Ready ...\n");
-
-    bool hasTwin = false;
-    while (true) {
-        bool toSomeTopicIsSubscribed = false;
-        for (int i = 0; i < receivers_count; ++i) {
-            if (receivers[i].subscribed) {
-                receivers[i].whenSubscribed(receivers[i].dataID);
-                toSomeTopicIsSubscribed = true;
-            }
-            sleep_ms(500);
-        }
-
-        if (!hasTwin && (toSomeTopicIsSubscribed)) {
-            hasTwin = true;
-            protocolSubscribeForStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
-        }
-        if (hasTwin && (!toSomeTopicIsSubscribed)) {
-            hasTwin = false;
-            protocolUnsubscribeFromStatus(twinID, (subscriber_t){.deliver = twinsIsOffline});
-        }
-    }
-}
-
-// Goes into bootloader mode when 'r' is pressed
-_Noreturn void enterBootModeTask(void) {
-    while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            reset_usb_boot(0, 0);
-        }
-        // Watchdog update needs to be performed frequent, otherwise the device
-        // will crash
-        watchdog_update();
-        freeRtosTaskWrapperTaskSleep(1000);
-    }
-}
-
-void init(void) {
-    // First check if we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot()) {
-        reset_usb_boot(0, 0);
-    }
-    // init usb, queue and watchdog
-    stdio_init_all();
-    // waits for usb connection, REMOVE to continue without waiting for
-    // connection
-    while ((!stdio_usb_connected()))
-        ;
-    // Checks connection to ESP and initializes
-    espInit();
-    // Create FreeRTOS task queue
-    freeRtosQueueWrapperCreate();
-    // enables watchdog to check for reboots
-    watchdog_enable(2000, 1);
 }
 
 int main() {
-    init();
-    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mainTask, "mainTask", 0, FREERTOS_CORE_0);
+    initHardwareTest();
+    connectToNetwork();
+    connectToMqttBroker();
+    initSensors();
 
-    // Starts FreeRTOS tasks
+    postingQueue = freeRtosQueueWrapperCreate(10, sizeof(posting_t));
+    updateSubscriberCount = freeRtosQueueWrapperCreate(20, sizeof(countUpdateMessage_t));
+    publishData = freeRtosQueueWrapperCreate(20, sizeof(publishRequest_t));
+
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 30, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(networkManagerTask, "subscriberManager", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(sensorTask, "sensorTask", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }

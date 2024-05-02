@@ -99,10 +99,7 @@ void eraseSectorFromFlash() {
     PRINT("Erase Successful");
 }
 
-int main() {
-    initializeConsoleOutput();
-    initializeHardware();
-
+_Noreturn void runTest(void) {
     while (1) {
         char input = getchar_timeout_us(UINT32_MAX);
 
@@ -126,4 +123,10 @@ int main() {
             PRINT("Waiting ...");
         }
     }
+}
+
+int main() {
+    initializeConsoleOutput();
+    initializeHardware();
+    runTest();
 }
