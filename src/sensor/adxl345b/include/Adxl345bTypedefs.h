@@ -2,6 +2,7 @@
 #define ENV5_ADXL345B_TYPEDEFS
 
 #include <stdint.h>
+#include "HwConfig.h"
 
 /* abstraction to avoid dependencies to pico libraries */
 typedef struct i2c_inst i2c_inst_t;
@@ -38,7 +39,7 @@ typedef enum adxl345bI2cSlaveAddress {
     ADXL345B_I2C_ALTERNATE_ADDRESS = 0x53,
 } adxl345bI2cSlaveAddress_t;
 
-typedef struct adxl345bI2cConfiguration {
+typedef struct adxl345bSensorConfiguration {
     adxl345bI2cSlaveAddress_t i2c_slave_address;
     i2c_inst_t *i2c_host;
 } adxl345bI2cSensorConfiguration_t;

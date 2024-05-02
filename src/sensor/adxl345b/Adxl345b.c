@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "I2c.h"
 #include "Sleep.h"
+#include "HwConfig.h"
 
 /* region CONSTANTS */
 
@@ -24,9 +25,6 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
     adxl345bI2cSensorConfiguration.i2c_host = i2cHost;
     adxl345bI2cSensorConfiguration.i2c_slave_address = i2cAddress;
 
-    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
-    i2cInit(adxl345bI2cSensorConfiguration.i2c_host, (100 * 1000), 6, 7);
-
     /* sleep to make sure the sensor is fully initialized */
     sleep_for_ms(2);
 
@@ -36,9 +34,8 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
     commandBuffer[0] = ADXL345B_REGISTER_DEVICE_ID;
 
     /* if i2c returns error -> sensor not available on bus */
-    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  adxl345bI2cSensorConfiguration.i2c_slave_address,
-                                                  adxl345bI2cSensorConfiguration.i2c_host);
+    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(&i2cConfig, adxl345bI2cSensorConfiguration.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
     if (i2CErrorCode != I2C_NO_ERROR) {
         return ADXL345B_INIT_ERROR;
     }
@@ -58,9 +55,8 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bRegister_t regist
     commandBuffer[0] = registerToWrite;
     commandBuffer[1] = configuration;
 
-    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  adxl345bI2cSensorConfiguration.i2c_slave_address,
-                                                  adxl345bI2cSensorConfiguration.i2c_host);
+    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(&i2cConfig, adxl345bI2cSensorConfiguration.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         return ADXL345B_CONFIGURATION_ERROR;
     }
@@ -349,18 +345,15 @@ static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bRegister_t
     commandBuffer[0] = registerToRead;
 
     PRINT_DEBUG("requesting data from sensor");
-    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  adxl345bI2cSensorConfiguration.i2c_slave_address,
-                                                  adxl345bI2cSensorConfiguration.i2c_host);
+    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(&i2cConfig, adxl345bI2cSensorConfiguration.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed");
         return ADXL345B_SEND_COMMAND_ERROR;
     }
 
     PRINT_DEBUG("receiving data from sensor");
-    i2cErrorCode = i2cReadData(responseBuffer, sizeOfResponseBuffer,
-                               adxl345bI2cSensorConfiguration.i2c_slave_address,
-                               adxl345bI2cSensorConfiguration.i2c_host);
+    i2cErrorCode = i2cReadData(&i2cConfig, adxl345bI2cSensorConfiguration.i2c_slave_address, responseBuffer, sizeOfResponseBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed");
         return ADXL345B_RECEIVE_DATA_ERROR;

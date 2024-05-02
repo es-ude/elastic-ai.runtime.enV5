@@ -24,7 +24,7 @@ include::include/Sht3x.h[tags=prototypes]
 [source,c]
 ----
 #include "sht3x/Sht3x.h"
-#include "hardware/i2c.h"
+#include "hardware/i2cConfig.h"
 
 int main(void) {
     sht3xErrorCode_t errorCode = sht3xInit(i2c0); // <1>

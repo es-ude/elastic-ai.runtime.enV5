@@ -4,7 +4,7 @@
 #include <hardware/i2c.h>
 #include <stdint.h>
 
-static void i2cInternalSetupSda(uint8_t sdaGPIO);
+static void i2cInternalSetupPin(uint8_t gpio);
 
 static void i2cInternalSetupScl(uint8_t sclGPIO);
 

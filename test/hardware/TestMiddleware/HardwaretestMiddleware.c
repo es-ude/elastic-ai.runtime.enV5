@@ -34,8 +34,8 @@ char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 uint32_t sectorIdForConfig = 1;
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+spiConfig_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 static void initHardware(void) {

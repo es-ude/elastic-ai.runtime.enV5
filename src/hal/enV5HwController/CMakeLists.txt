@@ -5,4 +5,9 @@ target_sources(enV5_hwc INTERFACE
 target_link_libraries(enV5_hwc INTERFACE
         common_lib
         gpio_interface
-        sleep_interface)
+        spi_interface
+        uart_interface
+        i2c_interface
+        sleep_interface
+        hardware_i2c
+)

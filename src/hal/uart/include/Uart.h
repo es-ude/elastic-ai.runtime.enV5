@@ -6,39 +6,34 @@
 
 #define UART_BUFFER_SIZE 2048
 
-typedef struct uartInstance uartInstance_t;
+typedef struct uart_inst uart_inst_t;
 typedef unsigned int uint;
 
 enum uartParity { NoneParity = 0, OddParity = 1, EvenParity = 2 };
 typedef enum uartParity uartParity_t;
 
-struct uartDevice {
-    char name[15];
-    uartInstance_t *uartInstance;
-    uint uartId;
-    uint txPin;
-    uint rxPin;
-    uint baudrateSet;
-    uint baudrateActual;
+typedef struct uartConfig {
+    uart_inst_t *uartInstance;
+    uint8_t txPin;
+    uint8_t rxPin;
+    uint32_t baudrate;
     uint dataBits;
     uint stopBits;
     uartParity_t parity;
     char receiveBuffer[UART_BUFFER_SIZE];
     uint receivedCharacter_count;
-};
-typedef struct uartDevice uartDevice_t;
+} uartConfig_t;
 
-enum {
+typedef enum {
     UART_NO_ERROR = 0x00,
     UART_IS_BUSY = 0x01,
-};
-typedef uint8_t uartErrorCode_t;
+} uartErrorCode_t;
 
 /*!
  * @brief initialize UART to communicate with ESP
- * @param device[UARTDevice] struct that contains the UART configuration
+ * @param uartConfig[UARTDevice] struct that contains the UART configuration which can be found in HwConfig.h
  */
-void uartInit(uartDevice_t *device);
+void uartInit(uartConfig_t *uartConfig);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT

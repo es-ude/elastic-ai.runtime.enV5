@@ -10,6 +10,7 @@
 #include "Pac193xInternal.h"
 #include "Pac193xTypedefs.h"
 #include "Sleep.h"
+#include "HwConfig.h"
 
 /* Datasheet:
  * https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf
@@ -67,7 +68,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
 }
 
 pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor) {
-    i2cInit(sensor.i2c_host, (100 * 1000), 6, 7);
+    i2cInit(&i2cConfig);
 
     if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
         return PAC193X_INIT_ERROR;
@@ -384,8 +385,8 @@ static pac193xErrorCode_t pac193xInternalCheckSensorAvailable(pac193xSensorConfi
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = PAC193X_CMD_READ_MANUFACTURER_ID;
 
-    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
 
     if (i2CErrorCode != I2C_NO_ERROR) {
         return PAC193X_INIT_ERROR;
@@ -431,8 +432,8 @@ pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
     commandBuffer[1] = settingsToWrite;
 
     PRINT_DEBUG("send configuration to sensor");
-    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("send configuration failed, error was %02X", i2cErrorCode);
         return PAC193X_SEND_COMMAND_ERROR;
@@ -481,8 +482,8 @@ pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
     commandBuffer[0] = registerToRead;
 
     PRINT_DEBUG("request data from sensor");
-    i2cErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                               sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                               commandBuffer, sizeOfCommandBuffer);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed, error was %02X", errorCode);
         return PAC193X_SEND_COMMAND_ERROR;
@@ -495,8 +496,8 @@ static pac193xErrorCode_t pac193xInternalReceiveDataFromSensor(pac193xSensorConf
                                                                uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor");
-    i2cErrorCode_t errorCode = i2cReadData(responseBuffer, sizeOfResponseBuffer,
-                                           sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t errorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address,
+                                           responseBuffer, sizeOfResponseBuffer);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
         return PAC193X_RECEIVE_DATA_ERROR;

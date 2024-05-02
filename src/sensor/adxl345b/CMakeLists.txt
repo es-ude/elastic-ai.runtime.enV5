@@ -5,4 +5,6 @@ target_sources(sensor_lib_adxl345b INTERFACE
 target_link_libraries(sensor_lib_adxl345b INTERFACE
         common_lib
         sleep_interface
-        i2c_interface)
+        i2c_interface
+        enV5_hwc
+)

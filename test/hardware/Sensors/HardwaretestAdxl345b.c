@@ -1,5 +1,6 @@
 #define SOURCE_FILE "ADXL345-Test"
 
+#include "../../../src/hal/enV5HwController/include/HwConfig.h"
 #include "Adxl345b.h"
 #include "Common.h"
 #include <hardware/i2c.h>
@@ -95,7 +96,7 @@ int main(void) {
     PRINT("START INIT");
     adxl345bErrorCode_t errorCode;
     while (1) {
-        errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
+        errorCode = adxl345bInit(i2cConfig.i2cInstance, ADXL345B_I2C_ALTERNATE_ADDRESS);
         if (errorCode == ADXL345B_NO_ERROR) {
             PRINT("Initialised ADXL345B.");
             break;

@@ -44,8 +44,8 @@ typedef struct publishRequest {
     char *data;
 } publishRequest_t;
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+spiConfig_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 queue_t postings;

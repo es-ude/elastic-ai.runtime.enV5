@@ -9,7 +9,7 @@
 
 /* region VARIABLES */
 
-static sht3xI2cSensorConfiguration_t sht3xSensorConfiguration; /*!< i2c configuration for the
+static sht3xI2cSensorConfiguration_t sht3xSensorConfiguration; /*!< i2cConfig configuration for the
                                                                 * sensor */
 
 /* endregion */
@@ -17,11 +17,11 @@ static sht3xI2cSensorConfiguration_t sht3xSensorConfiguration; /*!< i2c configur
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 sht3xErrorCode_t sht3xInit(i2c_inst_t *i2cHost) {
-    /* save i2c access for later usage */
+    /* save i2cConfig access for later usage */
     sht3xSensorConfiguration.i2c_host = i2cHost;
     sht3xSensorConfiguration.i2c_slave_address = 0x44;
 
-    i2cInit(sht3xSensorConfiguration.i2c_host, (100 * 1000), 0, 1);
+    i2cInit(result);
 
     /* sleep to make sure the sensor is fully initialized */
     sleep_for_ms(2);
@@ -33,10 +33,10 @@ sht3xErrorCode_t sht3xInit(i2c_inst_t *i2cHost) {
     commandBuffer[0] = (SHT3X_CMD_READ_STATUS >> 8);
     commandBuffer[1] = (SHT3X_CMD_READ_STATUS & 0xFF);
 
-    /* if i2c returns error -> sensor not available on bus */
-    i2cErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
+    /* if i2cConfig returns error -> sensor not available on bus */
+    i2cErrorCode_t errorCode = i2cWriteCommand(sht3xSensorConfiguration.i2c_host,
                                                sht3xSensorConfiguration.i2c_slave_address,
-                                               sht3xSensorConfiguration.i2c_host);
+                                               commandBuffer, sizeOfCommandBuffer);
     if (errorCode != I2C_NO_ERROR) {
         return SHT3X_INIT_ERROR;
     }
@@ -225,9 +225,9 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xCommand_t command)
     commandBuffer[1] = (command & 0xFF);
 
     PRINT_DEBUG("requesting data from sensor");
-    sht3xErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
+    sht3xErrorCode_t errorCode = i2cWriteCommand(sht3xSensorConfiguration.i2c_host,
                                                  sht3xSensorConfiguration.i2c_slave_address,
-                                                 sht3xSensorConfiguration.i2c_host);
+                                                 commandBuffer, sizeOfCommandBuffer);
 
     if (errorCode == I2C_NO_ERROR) {
         return SHT3X_NO_ERROR;
@@ -241,8 +241,8 @@ static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(uint8_t *responseBuff
                                                            uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor");
     sht3xErrorCode_t errorCode =
-        i2cReadData(responseBuffer, sizeOfResponseBuffer,
-                    sht3xSensorConfiguration.i2c_slave_address, sht3xSensorConfiguration.i2c_host);
+        i2cReadData(sht3xSensorConfiguration.i2c_host, sht3xSensorConfiguration.i2c_slave_address,
+                    responseBuffer, sizeOfResponseBuffer);
 
     if (errorCode == I2C_NO_ERROR) {
         return SHT3X_NO_ERROR;

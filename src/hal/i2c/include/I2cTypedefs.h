@@ -5,6 +5,13 @@
 
 typedef struct i2c_inst i2c_inst_t;
 
+typedef struct i2cConfig {
+    i2c_inst_t *i2cInstance;
+    uint8_t  sdaPin;
+    uint8_t sclPin;
+    uint32_t frequency;
+} i2cConfig_t;
+
 enum {
     I2C_NO_ERROR = 0x00,
     I2C_INIT_ERROR = 0x10,
