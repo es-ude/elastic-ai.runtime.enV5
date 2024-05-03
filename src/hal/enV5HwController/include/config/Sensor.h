@@ -5,7 +5,7 @@
 #ifndef ENV5_SENSOR_H
 #define ENV5_SENSOR_H
 
-#include "Bus.h" //Bus für I2C_CONTROLLER ODER LIEBER MANUELL EINGEBEN
+#include "Bus.h"
 #include "Adxl345bTypedefs.h"
 #include "Pac193xTypedefs.h"
 #include "Sht3xTypedefs.h"
