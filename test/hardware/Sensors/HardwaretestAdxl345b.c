@@ -7,7 +7,6 @@
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 #include "I2c.h"
-#include "Bus.h"
 
 /* region HELPER */
 

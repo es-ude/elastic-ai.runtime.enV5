@@ -2,12 +2,19 @@
 #include "I2cUnitTest.h"
 #include <unity.h>
 
+/*! JUST HERE TO SATISFY THE COMPILER
+ *
+ * @param i2cHost
+ */
+
+adxl345bSensorConfiguration_t sensor;
+
 void setUp(void) {
     /* Default: Point to Pass */
     i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForAdxl345b;
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345b;
 
-    adxl345bChangeMeasurementRange(ADXL345B_2G_RANGE);
+    adxl345bChangeMeasurementRange(sensor, ADXL345B_2G_RANGE);
 }
 
 void tearDown(void) {}
@@ -18,7 +25,7 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails(void) {
     uint8_t serialNumber;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -26,7 +33,7 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
     uint8_t serialNumber;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -34,7 +41,7 @@ void adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails(void) {
     uint8_t serialNumber;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -42,14 +49,14 @@ void adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing(void) {
     uint8_t serialNumber;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
 void adxl345bReadSerialNumberReadSuccessful(void) {
     uint8_t serialNumber;
 
-    uint8_t err = adxl345bReadSerialNumber(&serialNumber);
+    uint8_t err = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, err);
 }
 
@@ -59,7 +66,7 @@ void adxl345bReadSerialNumberReadCorrectValue(void) {
     /* fill expected with random generated */
     expected_serialNumber = byteZero;
 
-    adxl345bReadSerialNumber(&actual_serialNumber);
+    adxl345bReadSerialNumber(sensor, &actual_serialNumber);
     TEST_ASSERT_EQUAL_UINT8(expected_serialNumber, actual_serialNumber);
 }
 
@@ -70,7 +77,7 @@ void adxl345bReadMeasurementsGetSendCommandFail_errorIfHardwarFails(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -78,7 +85,7 @@ void adxl345bReadMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -86,7 +93,7 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfHardwarFails(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -94,14 +101,14 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
 void adxl345bReadMeasurementsReadSuccessful(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
-    uint8_t err = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    uint8_t err = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, err);
 }
 
@@ -136,7 +143,7 @@ void adxl345bReadMeasurementsReadCorrectValue(void) {
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     }
 
-    adxl345bReadMeasurements(&actual_xAxis, &actual_yAxis, &actual_zAxis);
+    adxl345bReadMeasurements(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_xAxis, actual_xAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_yAxis, actual_yAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_zAxis, actual_zAxis);

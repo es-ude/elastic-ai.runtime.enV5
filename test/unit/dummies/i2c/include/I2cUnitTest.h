@@ -14,7 +14,7 @@ extern i2cErrorCode_t (*i2cUnittestWriteCommand)(const uint8_t *commandBuffer,
                                                  uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
                                                  i2c_inst_t *i2cHost);
 extern i2cErrorCode_t (*i2cUnittestReadCommand)(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                uint8_t slaveAddress, i2c_inst_t *i2cHos);
+                                                uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
 /* endregion */
 
