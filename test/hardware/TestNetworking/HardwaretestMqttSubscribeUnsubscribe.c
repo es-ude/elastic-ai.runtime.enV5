@@ -1,6 +1,7 @@
-#define SOURCE_FILE "MQTT-PUBLISH/SUBSCRIBE-TEST"
+#define SOURCE_FILE "MQTT-SUB_UNSUB-TEST"
 
 #include "Common.h"
+#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "MqttBroker.h"
@@ -10,53 +11,62 @@
 #include <string.h>
 
 /*!
- * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). Subscribes and publishes to
- * topic "eip://uni-due.de/es/test" and prints the received Data.
+ * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h).
+ * Subscribes and publishes to topic and prints the received Data.
  */
 
-void publishTestData(uint16_t i) {
-    char buffer[2];
-    sprintf(buffer, "%d", i);
-    char *data = malloc(strlen("testData") + strlen(buffer));
-    strcpy(data, "testData");
-    strcat(data, buffer);
-    protocolPublishData("testPubSub", data);
-    free(data);
-}
+queue_t postings;
+char dataTopic[] = "testPubSub";
 
 void deliver(posting_t posting) {
-    PRINT("Received Data: %s", posting.data);
+    freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
 
-_Noreturn void mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
-
-    connectToNetwork();
-    connectToMQTT();
-
-    subscriber_t sub = (subscriber_t){.deliver = deliver};
-
-    uint64_t messageCounter = 0;
+_Noreturn void subscriptionTask(void) {
     while (1) {
-        protocolSubscribeForData("enV5", "testPubSub", sub);
-        PRINT("Should receive data with id: %llu", messageCounter);
-        publishTestData(messageCounter);
-        messageCounter++;
-        freeRtosTaskWrapperTaskSleep(2500);
+        protocolSubscribeForData("enV5", dataTopic, (subscriber_t){.deliver = deliver});
+        PRINT("Subscribed!");
+        freeRtosTaskWrapperTaskSleep(3000);
 
-        protocolUnsubscribeFromData("enV5", "testPubSub", sub);
-        PRINT("Should NOT receive data with id: %llu", messageCounter);
-        publishTestData(messageCounter);
+        protocolUnsubscribeFromData("enV5", dataTopic, (subscriber_t){.deliver = deliver});
+        PRINT("Unsubscribed!");
+        freeRtosTaskWrapperTaskSleep(3000);
+    }
+}
+
+_Noreturn void receiverTask(void) {
+    while (1) {
+        posting_t post;
+        if (freeRtosQueueWrapperPop(postings, &post)) {
+            PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
+        }
+        freeRtosTaskWrapperTaskSleep(100);
+    }
+}
+
+_Noreturn void senderTask(void) {
+    uint16_t messageCounter = 0;
+    while (1) {
+        freeRtosTaskWrapperTaskSleep(700);
+        char data[17];
+        snprintf(data, 17, "testData - %i", messageCounter);
+        PRINT("Send Message: '%s' via '%s'", data, dataTopic);
+        protocolPublishData(dataTopic, data);
         messageCounter++;
-        freeRtosTaskWrapperTaskSleep(2500);
     }
 }
 
 int main() {
     initHardwareTest();
+    connectToNetwork();
+    connectToMqttBroker();
 
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
+    postings = freeRtosQueueWrapperCreate(10, sizeof(posting_t));
+
+    PRINT("=== STARTING TEST ===");
+    freeRtosTaskWrapperRegisterTask(enterBootModeTask, "enterBootModeTask", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(senderTask, "send", 0, FREERTOS_CORE_1);
+    freeRtosTaskWrapperRegisterTask(subscriptionTask, "subscription", 0, FREERTOS_CORE_0);
+    freeRtosTaskWrapperRegisterTask(receiverTask, "receive", 0, FREERTOS_CORE_1);
     freeRtosTaskWrapperStartScheduler();
 }

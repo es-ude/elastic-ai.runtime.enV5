@@ -6,31 +6,41 @@
 #include "Common.h"
 #include "FreeRtosQueueWrapper.h"
 
-#define FREERTOS_QUEUE_WRAPPER_ITEM_SIZE sizeof(freeRtosQueueWrapperMessage_t)
+#ifndef FREERTOS_QUEUE_WRAPPER_WAIT_IF_FULL
+//! Time in milliseconds to wait if the queue is full
+#define FREERTOS_QUEUE_WRAPPER_WAIT_IF_FULL 10
+#endif
 
-static QueueHandle_t freeRtosQueueWrapperQueue;
-
-void freeRtosQueueWrapperCreate() {
-    freeRtosQueueWrapperQueue =
-        xQueueCreate(FREERTOS_QUEUE_WRAPPER_QUEUE_LENGTH, FREERTOS_QUEUE_WRAPPER_ITEM_SIZE);
-    if (freeRtosQueueWrapperQueue == NULL) {
-        PRINT("Failed to create Message Queue! Communication between tasks not "
-              "possible");
+queue_t freeRtosQueueWrapperCreate(uint8_t numberOfElements, size_t bytesPerElement) {
+    queue_t queue = xQueueCreate(numberOfElements, bytesPerElement);
+    if (NULL == queue) {
+        PRINT("Failed to create Message Queue!");
     }
+    return queue;
 }
 
-bool freeRtosQueueWrapperSend(freeRtosQueueWrapperMessage_t message) {
-    if (xQueueGenericSend(freeRtosQueueWrapperQueue, &message,
-                          pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_IF_BLOCKED_MS_AMOUNT),
-                          queueSEND_TO_BACK) != pdPASS) {
-        PRINT("Queue full!");
-        return false;
+bool freeRtosQueueWrapperPush(queue_t queue, void *data) {
+    if (pdTRUE ==
+        xQueueSendToBack(queue, data, pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_IF_FULL))) {
+        return true;
     }
-    return true;
+    return false;
 }
 
-bool freeRtosQueueWrapperReceive(freeRtosQueueWrapperMessage_t *message) {
-    return xQueueReceive(freeRtosQueueWrapperQueue, message,
-                         pdMS_TO_TICKS(FREERTOS_QUEUE_WRAPPER_WAIT_FOR_RECEIVE_MS_AMOUNT)) ==
-           pdPASS;
+bool freeRtosQueueWrapperPushFromInterrupt(queue_t queue, void *data) {
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    if (pdPASS == xQueueSendToBackFromISR(queue, data, &higherPriorityTaskWoken)) {
+        return true;
+    }
+    if (pdTRUE == higherPriorityTaskWoken) {
+        taskYIELD();
+    }
+    return false;
+}
+
+bool freeRtosQueueWrapperPop(queue_t queue, void *data) {
+    if (pdTRUE == xQueueReceive(queue, data, 0)) {
+        return true;
+    }
+    return false;
 }

@@ -28,8 +28,6 @@ typedef uint8_t networkErrorCode_t;
 /*! \brief tries to connect to network until successful
  *
  * Tries to connect to the network until successful. Is successful if there is already a connection.
- *
- * \param credentials network credentials (SSID, password)
  */
 networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful();
 
@@ -37,13 +35,12 @@ networkErrorCode_t networkTryToConnectToNetworkUntilSuccessful();
  *
  * Tries to connect to the host broker. Is successful if there is already a connection.
  *
- * \param credentials network credentials (SSID, password)
  * \return true if connection successful or already connected, otherwise false
  */
-networkErrorCode_t networkConnectToNetwork(networkCredentials_t credentials);
+networkErrorCode_t networkConnectToNetwork();
 
 void networkDisconnectFromNetwork(void);
 
-networkErrorCode_t networkcheckConnection(void);
+networkErrorCode_t networkCheckConnection(void);
 
 #endif /* ENV5_NETWORK_HEADER */

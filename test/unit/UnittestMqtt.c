@@ -23,7 +23,7 @@ void test_ConnectToMqttBrokerSuccessful(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.MQTTStatus);
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
     Try {
-        mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
+        mqttBrokerConnectToBroker("testBroker", "testClient");
         TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
         TEST_PASS();
     }
@@ -38,7 +38,7 @@ void test_ConnectToMqttBrokerEspFailed(void) {
     TEST_ASSERT_EQUAL(ESP_CHIP_NOT_OK, espStatus.ChipStatus);
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
     Try {
-        mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
+        mqttBrokerConnectToBroker("testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_ESP_CHIP_FAILED");
     }
     Catch(exception_mqttBrokerConnectToBroker) {
@@ -52,7 +52,7 @@ void test_ConnectToMqttBrokerNoWifi(void) {
     TEST_ASSERT_EQUAL(NOT_CONNECTED, espStatus.WIFIStatus);
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
     Try {
-        mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
+        mqttBrokerConnectToBroker("testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_WIFI_FAILED");
     }
     Catch(exception_mqttBrokerConnectToBroker) {
@@ -66,7 +66,7 @@ void test_ConnectToMqttBrokerAlreadyConnected(void) {
     TEST_ASSERT_EQUAL(CONNECTED, espStatus.MQTTStatus);
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
     Try {
-        mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
+        mqttBrokerConnectToBroker("testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_ALREADY_CONNECTED");
     }
     Catch(exception_mqttBrokerConnectToBroker) {
@@ -78,7 +78,7 @@ void test_ConnectToMqttBrokerSendCommandFailed(void) {
     ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;
     CEXCEPTION_T exception_mqttBrokerConnectToBroker;
     Try {
-        mqttBrokerConnectToBroker(mqttHost, "testBroker", "testClient");
+        mqttBrokerConnectToBroker("testBroker", "testClient");
         TEST_FAIL_MESSAGE("Should have thrown MQTT_ESP_WRONG_ANSWER");
     }
     Catch(exception_mqttBrokerConnectToBroker) {

@@ -18,28 +18,29 @@
 fpgaConfigurationHandlerError_t
 fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t length,
                                                      uint32_t sectorID) {
-    CEXCEPTION_T exception;
-
-    HttpResponse_t *httpResponse = NULL;
-    char *url = NULL;
+    PRINT_DEBUG("LENGTH: %zu", length);
+    PRINT_DEBUG("SECTOR 0: %lu", sectorID);
 
     uint32_t startAddress = (sectorID - 1) * FLASH_BYTES_PER_SECTOR;
 
-    size_t numberOfSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
-    size_t sector = 0;
-    do {
+    size_t totalNumberOfOccupiedSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
+    for (size_t sector = 0; sector < totalNumberOfOccupiedSectors; sector++) {
         uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
         flashEraseSector(sectorStartAddress);
-        sector++;
-    } while (sector < numberOfSectors);
+    }
 
+    CEXCEPTION_T exception;
     size_t numberOfPages = (size_t)ceilf((float)length / FLASH_BYTES_PER_PAGE);
+    PRINT_DEBUG("TOTAL PAGES: %zu", numberOfPages);
     size_t page = 0;
     do {
-        Try {
-            url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
-            PRINT_DEBUG("URL: %s", url);
+        PRINT_DEBUG("PAGE: %zu", page);
 
+        char *url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
+        PRINT_DEBUG("URL: %s", url);
+
+        HttpResponse_t *httpResponse = NULL;
+        Try {
             HTTPGet(url, &httpResponse);
 
             uint8_t *bitfileChunk = httpResponse->response;
@@ -54,7 +55,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
             page++;
         }
         Catch(exception) {
-            PRINT_DEBUG("Error during Download occurred (0x%02X)", exception);
+            PRINT("Error during Download occurred (0x%02X)", exception);
             fpgaConfigurationHandlerFreeUrl(url);
             HTTPCleanResponseBuffer(httpResponse);
             if (exception == HTTP_CONNECTION_FAILED || exception == HTTP_URL_TO_LONG) {

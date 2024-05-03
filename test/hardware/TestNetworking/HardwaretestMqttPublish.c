@@ -5,45 +5,37 @@
 #include "HardwaretestHelper.h"
 #include "MqttBroker.h"
 #include "Protocol.h"
-#include <malloc.h>
-#include <stdio.h>
-#include <string.h>
 
 /*!
- * Connects to Wi-Fi and MQTT Broker (Change in src/configuration.h). When connected publishes each
- * second "testData" plus incrementing integer to eip://uni-due.de/es/DATA/test. Can be received
- * with the Java Integration TestIntegrationTestWhereENv5IsPublishing.
+ * Connects to Wi-Fi and MQTT Broker.
+ * When connected publishes each second "testData" plus incrementing integer to
+ * eip://uni-due.de/es/DATA/test.
+ * Can be received with the Java Integration TestIntegrationTestWhereENv5IsPublishing.
  */
 
-void publishTestData(uint16_t i) {
-    char buffer[2];
-    sprintf(buffer, "%d", i);
-    char *data = malloc(strlen("testData") + strlen(buffer));
-    strcpy(data, "testData");
-    strcat(data, buffer);
-    protocolPublishData("testPub", data);
-    free(data);
-}
+char pubTopic[] = "testPub";
 
-void _Noreturn mqttTask(void) {
-    PRINT("=== STARTING TEST ===");
+void _Noreturn runTest(void) {
+    PRINT("===== STARTING TEST =====");
 
-    connectToNetwork();
-    connectToMQTT();
-
-    uint64_t messageCounter = 0;
+    uint16_t messageCounter = 0;
     while (1) {
-        publishTestData(messageCounter);
+        char data[17];
+        snprintf(data, 17, "testData - %i", messageCounter);
+        PRINT("Message: '%s'", data);
+        protocolPublishData(pubTopic, data);
+
         messageCounter++;
+
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
 int main() {
     initHardwareTest();
-
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(mqttTask, "mqttTask", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperStartScheduler();
+    connectToNetwork();
+    connectToMqttBroker();
+    publishAliveStatusMessageWithMandatoryAttributes(
+        (status_t){.type = "enV5", .state = STATUS_STATE_ONLINE, .data = pubTopic});
+    runTest();
 }

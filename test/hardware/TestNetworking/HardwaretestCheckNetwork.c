@@ -6,28 +6,25 @@
 #include "Network.h"
 
 /*!
- * Tries to connect to the network which is specified in NetworkConfig.c. When successful the
- * connection is closed and the process repeats.
+ * Tries to connect to the network which is specified in NetworkConfig.c.
+ * Runs connection check every 3 seconds.
  */
 
-extern networkCredentials_t credentials;
-
-_Noreturn void networkTask() {
-    connectToNetwork();
-
+_Noreturn void runTest() {
     PRINT("=== STARTING TEST ===");
 
     while (1) {
-        networkcheckConnection();
+        if (NETWORK_NO_ERROR == networkCheckConnection()) {
+            PRINT("Connection ok!");
+        } else {
+            PRINT("Problem with connection!");
+        }
         freeRtosTaskWrapperTaskSleep(3000);
     }
 }
 
 int main() {
     initHardwareTest();
-
-    freeRtosTaskWrapperRegisterTask(enterBootModeTaskHardwareTest, "enterBootModeTask", 0,
-                                    FREERTOS_CORE_0);
-    freeRtosTaskWrapperRegisterTask(networkTask, "networkTask", 0, FREERTOS_CORE_0);
-    freeRtosTaskWrapperStartScheduler();
+    connectToNetwork();
+    runTest();
 }

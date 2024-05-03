@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "Posting.h"
+#include "Status.h"
 
 #define MAX_SUBSCRIBER 100
 
@@ -31,10 +32,13 @@ typedef enum MQTTExceptions {
  * Set the broker domain, client ID and then tries to connect to the host broker until successful.
  * If there is already any connection, then it is also successful.
  *
- * @param mqttHost contains ip and port of MQTT host
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
+ *
+ * @throws MQTT_ESP_CHIP_FAILED if we can't communicate with esp chip
+ * @throws MQTT_WIFI_FAILED if wifi is not connected
+ * @throws MQTT_ALREADY_CONNECTED if already connected to mqtt broker
  */
 void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID);
 
@@ -44,12 +48,17 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
  * Set the broker domain, client ID and then tries to connect to the host broker.
  * If there is already any connection, then it is also successful
  *
- * @param mqttHost contains ip and port of MQTT host
  * @param brokerDomain domain of broker, added before every message
  * @param clientID return value of `getDomain` for this client,
  *                 used to Identify to the Broker and added after the Domain in every message
+ *
+ * @throws MQTT_ESP_CHIP_FAILED if we can't communicate with esp chip
+ * @throws MQTT_WIFI_FAILED if wifi is not connected
+ * @throws MQTT_ALREADY_CONNECTED if already connected to mqtt broker
+ * @throws MQTT_ESP_WRONG_ANSWER if response from esp chip is invalid
+ * @throws MQTT_CONNECTION_FAILED if establishing a connection failed
  */
-void mqttBrokerConnectToBroker(mqttBrokerHost_t credentials, char *brokerDomain, char *clientID);
+void mqttBrokerConnectToBroker(char *brokerDomain, char *clientID);
 
 void publishLong(posting_t posting);
 
@@ -69,6 +78,6 @@ void mqttBrokerReceive(char *response);
  * @brief publish online status
  * @param availableMeasurements topic IDs of the available measurements
  */
-void publishAliveStatusMessage(char *availableMeasurements);
+void publishAliveStatusMessageWithMandatoryAttributes(status_t status);
 
 #endif /* ENV5_MQTT_BROKER_HEADER */

@@ -7,6 +7,7 @@ node_modules/
 *.json
 **/__pycache__/
 config.bin
+.envrc
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode

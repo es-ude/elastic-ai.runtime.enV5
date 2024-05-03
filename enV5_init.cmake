@@ -1,16 +1,17 @@
 include(${CMAKE_CURRENT_LIST_DIR}/helpers.cmake)
 
 function(enV5_init_unit_tests)
-    # enable test execution via CMake
-    include(CTest)
-
-    # include unity as unit-test framework
+    # include unit-test framework
     add_unity()
 
-    # add CException for libraries that use it
+    # include required standard libs for testing
     add_cexception()
+    add_runtime_c()
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/atCommands)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network/config)
 
-    # add dummies for unit tests
+    # include dummies for local machine
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/test/unit/dummies)
 endfunction()
 

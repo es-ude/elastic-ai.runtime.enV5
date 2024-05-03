@@ -50,11 +50,9 @@ https://gcc.gnu.org/[GCC]::
 -> C Compiler +
 Can be installed via your local package manager like dnf, apt or brew.
 
-
 https://developer.arm.com/downloads/-/gnu-rm[ARM-None-EABI GCC]::
 -> C Cross Compiler for ARM +
 Can be installed via your local package manager like dnf, apt or brew.
-
 
 https://cmake.org[CMake]::
 -> Build System +
@@ -64,6 +62,16 @@ https://ninja-build.org/[Ninja]::
 -> Build Tool +
 Can be installed via your local package manager like dnf, apt or brew.
 
+https://www.python.org/[Python] [OPTIONAL]::
+-> Python Interpreter +
+Can be installed via your local package manager like dnf, apt or brew. +
+Used for development Server and Pre-commit!
+
+https://nodejs.org/en[Node.js] [OPTIONAL]::
+-> Javascript Runtime +
+Can be installed via your local package manager like dnf, apt or brew. +
+Used for Commitlint hook of Pre-Commit!
+
 [#_pre_commit_optional]
 === Pre-Commit [optional]
 
@@ -71,9 +79,13 @@ To ensure our guidelines, we recommend using https://commitlint.js.org/#/[Commit
 To assure you don't corrupt your system we recommend installing the dependencies inside a https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv[virtual environment].
 
 .Installation
-1. Create and checkout virtual environment
+1. Install https://nodejs.org/en[Node.js]
+2. Install Node.js packages from link:../package.json[package.json] with `npm ci`
+1. Create and checkout a virtual Python environment
 2. Install required packages from link:../requirements.txt[requirements.txt]
 3. Run `pre-commit install` to register the provided git hooks
+
+NOTE: Node.js is required for Commitlint!
 
 [#_ide]
 == IDE

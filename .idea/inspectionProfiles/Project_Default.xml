@@ -4,9 +4,18 @@
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredPackages">
         <value>
-          <list size="2">
+          <list size="11">
             <item index="0" class="java.lang.String" itemvalue="torch" />
             <item index="1" class="java.lang.String" itemvalue="torchvision" />
+            <item index="2" class="java.lang.String" itemvalue="nodeenv" />
+            <item index="3" class="java.lang.String" itemvalue="filelock" />
+            <item index="4" class="java.lang.String" itemvalue="identify" />
+            <item index="5" class="java.lang.String" itemvalue="platformdirs" />
+            <item index="6" class="java.lang.String" itemvalue="PyYAML" />
+            <item index="7" class="java.lang.String" itemvalue="virtualenv" />
+            <item index="8" class="java.lang.String" itemvalue="pre-commit" />
+            <item index="9" class="java.lang.String" itemvalue="distlib" />
+            <item index="10" class="java.lang.String" itemvalue="cfgv" />
           </list>
         </value>
       </option>

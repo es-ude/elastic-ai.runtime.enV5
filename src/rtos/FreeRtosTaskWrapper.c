@@ -10,9 +10,9 @@
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;
-    if (taskCode)
+    if (taskCode) {
         taskCode();
-    else {
+    } else {
         PRINT("Invoking failed: taskCode not set to Function pointer");
     }
     vTaskDelete(NULL);
@@ -26,27 +26,27 @@ void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName
         PRINT("%s: !freeRtosTaskWrapperRegisterTask fail!: Not enough Memory available", taskName);
     } else {
         vTaskCoreAffinitySet(handle, core);
-        PRINT("%s registered successfully.", taskName);
+        PRINT_DEBUG("%s registered successfully.", taskName);
     }
 }
 
 void freeRtosTaskWrapperTaskSleep(int timeInMs) {
-    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED)
+    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
         sleep_for_ms(timeInMs);
-    else {
+    } else {
         // vTaskDelay does not support delaying less than typically 10ms
         if (timeInMs < 10) {
             timeInMs = 10;
-            PRINT("FreeRTOS does not support sleeping less than typically 10ms!");
+            PRINT_DEBUG("FreeRTOS does not support sleeping less than typically 10ms!");
         }
         vTaskDelay(pdMS_TO_TICKS(timeInMs));
     }
 }
 
 void freeRtosTaskWrapperStartScheduler() {
-    PRINT("Starting scheduler");
+    PRINT_DEBUG("Starting scheduler");
     vTaskStartScheduler();
-    PRINT("Creating FreeRTOS-Idle task failed because of low Memory.\nIf you "
-          "see this message, please make "
-          "sure your device is working properly.\nexiting...");
+    PRINT_DEBUG("Creating FreeRTOS-Idle task failed because of low Memory.\n"
+                "If you see this message, please make sure your device is working properly.\n"
+                "exiting...");
 }
