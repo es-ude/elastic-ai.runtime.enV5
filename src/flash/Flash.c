@@ -32,10 +32,10 @@ int flashReadConfig(commands_t registerToRead, data_t *dataBuffer) {
     uint8_t cmd[] = {registerToRead};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(flashSpi, flashChipSelectPin);
+    spiInit(flashSpi);
     int readBytes =
-        spiWriteCommandAndReadBlocking(flashSpi, flashChipSelectPin, &command, dataBuffer);
-    spiDeinit(flashSpi, flashChipSelectPin);
+        spiWriteCommandAndReadBlocking(flashSpi, &command, dataBuffer);
+    spiDeinit(flashSpi);
     return readBytes;
 }
 int flashWriteConfig(uint8_t *configToWrite, size_t bytesToWrite) {

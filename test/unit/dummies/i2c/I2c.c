@@ -8,11 +8,10 @@
 /*! JUST HERE TO SATISFY THE COMPILER
  *
  * @param i2cHost
- * @param baudrate
- * @param sdaGPIO
- * @param sclGPIO
+ * @param i2cConfiguration
  */
-void i2cInit(i2c_inst_t *i2cHost, uint32_t baudrate, uint8_t sdaGPIO, uint8_t sclGPIO) {}
+
+i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {}
 
 /* endregion */
 
@@ -22,9 +21,9 @@ i2cErrorCode_t (*i2cUnittestWriteCommand)(const uint8_t *commandBuffer,
                                           uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
                                           i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cWriteCommand(uint8_t slaveAddress,
+i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
                                const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
-    return i2cUnittestWriteCommand(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cConfig);
+    return i2cUnittestWriteCommand(commandBuffer, sizeOfCommandBuffer, slaveAddress, hostAddress);
 }
 
 i2cErrorCode_t i2cUnittestWriteCommandHardwareDefect(const uint8_t *commandBuffer,
@@ -62,11 +61,11 @@ i2cErrorCode_t i2cUnittestWriteCommandPassForPac193x(const uint8_t *commandBuffe
 /* region I2C_Read DUMMIES */
 
 i2cErrorCode_t (*i2cUnittestReadCommand)(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                         uint8_t slaveAddress, i2c_inst_t *i2cHos);
+                                         uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cReadData(i2cConfiguration_t *i2cConfig, uint8_t slaveAddress, uint8_t *readBuffer,
+i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,
                            uint8_t sizeOfReadBuffer) {
-    return i2cUnittestReadCommand(readBuffer, sizeOfReadBuffer, slaveAddress, i2cConfig);
+    return i2cUnittestReadCommand(readBuffer, sizeOfReadBuffer, slaveAddress, hostAddress);
 }
 
 i2cErrorCode_t i2cUnittestReadCommandHardwareDefect(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
