@@ -29,9 +29,7 @@
 #include "controller/enV5HwController.h"
 
 spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
-
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1 };
 uint32_t blinkFast = 1;
 size_t blinkFastLength = 86116;
 uint32_t blinkSlow = 1;
@@ -45,7 +43,7 @@ void initHardwareTest(void) {
     }
 
     // initialize the Flash and FPGA
-    flashInit(&spiConfiguration, csPin);
+    flashInit(&spiConfiguration);
     env5HwInit();
     fpgaConfigurationHandlerInitialize();
 }
