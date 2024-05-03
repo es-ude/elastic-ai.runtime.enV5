@@ -9,15 +9,15 @@
 
 
 i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
-    i2cErrorCode_t errorCode = I2C_INIT_ERROR;
     uint32_t actualBaudrate = i2c_init(i2cConfiguration->i2cInstance, i2cConfiguration->frequency);
-    if (actualBaudrate == i2cConfiguration->frequency) {
-        i2cInternalSetupPin(i2cConfiguration->sdaPin);
-        i2cInternalSetupPin(i2cConfiguration->sclPin);
-        i2cInternalSetupPin(i2cConfiguration->sclPin);
-        errorCode = I2C_NO_FREQUENCY_ERROR_OTHER_UNKNOWN_YET;
+    //wird nie exakt stimmen
+    //ich brauche noch ein !!!delta!!!
+    if (actualBaudrate > i2cConfiguration->frequency && ) {
+        return I2C_FREQUENCY_ERROR
     }
-    return errorCode;
+    i2cInternalSetupPin(i2cConfiguration->sdaPin);
+    i2cInternalSetupPin(i2cConfiguration->sclPin);
+    return I2C_NO_ERROR;
 }
 
 i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
@@ -61,6 +61,9 @@ i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
+static bool checkFrequencyInRange(soll, ist){
+    vergleich und bool zurück geben
+}
 
 static void i2cInternalSetupPin(uint8_t gpio) {
     gpioSetPinFunction(gpio, GPIO_FUNCTION_I2C);

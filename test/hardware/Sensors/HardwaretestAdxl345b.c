@@ -7,6 +7,7 @@
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 #include "I2c.h"
+#include "Bus.h"
 
 /* region HELPER */
 
@@ -114,7 +115,7 @@ int main(void) {
     i2cErrorCode_t i2cErrorCode;
     while(1) {
         i2cErrorCode = i2cInit(&i2cConfig);
-        if (i2cErrorCode == I2C_NO_FREQUENCY_ERROR_OTHER_UNKNOWN_YET){
+        if (i2cErrorCode == I2C_NO_ERROR){
             PRINT("Initialised I2C.");
             break;
         }

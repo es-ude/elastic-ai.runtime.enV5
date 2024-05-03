@@ -14,10 +14,10 @@ typedef struct i2cConfiguration {
 
 enum {
     I2C_NO_ERROR = 0x00,
-    I2C_NO_FREQUENCY_ERROR_OTHER_UNKNOWN_YET = 0x15,
     I2C_INIT_ERROR = 0x10,
     I2C_ACK_ERROR = 0x13,
     I2C_TIMEOUT_ERROR = 0x14,
+    I2C_FREQUENCY_ERROR = 0x15,
 };
 typedef uint8_t i2cErrorCode_t;
 
