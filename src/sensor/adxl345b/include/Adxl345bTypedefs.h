@@ -2,7 +2,6 @@
 #define ENV5_ADXL345B_TYPEDEFS
 
 #include <stdint.h>
-#include "HwConfig.h"
 
 /* abstraction to avoid dependencies to pico libraries */
 typedef struct i2c_inst i2c_inst_t;
@@ -34,18 +33,13 @@ enum {
  * ADXL345B_I2C_ALTERNATE_ADDRESS should be chosen if the ALT ADDRESS pin (12)
  * is connected to GND ADXL345B_I2C_ADDRESS otherwise
  */
-typedef enum adxl345bI2cSlaveAddress {
+typedef enum adxl345bI2cAddress {
     ADXL345B_I2C_ADDRESS = 0x1D,
     ADXL345B_I2C_ALTERNATE_ADDRESS = 0x53,
-} adxl345bI2cSlaveAddress_t;
-
-typedef struct adxl345bSensorConfiguration {
-    adxl345bI2cSlaveAddress_t i2c_slave_address;
-    i2c_inst_t *i2c_host;
-} adxl345bI2cSensorConfiguration_t;
+} adxl345bI2cAddress_t;
 
 /* All Register + address of the ADXL345B */
-typedef enum adxl345Register {
+typedef enum adxl345bRegister {
     ADXL345B_REGISTER_DEVICE_ID = 0x00,
     ADXL345B_TAP_THRESHOLD = 0x1D,
     ADXL345B_OFFSET_X = 0x1E,
@@ -74,7 +68,13 @@ typedef enum adxl345Register {
     ADXL345B_FIFO_CONTROL = 0x38,
     ADXL345B_FIFO_STATUS = 0x39
 } adxl345bRegister_t;
-typedef uint8_t adxl345bConfiguration_t;
+typedef uint8_t adxl345bConfig_t;
+
+typedef struct adxl345bSensorConfiguration {
+    i2c_inst_t *i2c_host;
+    adxl345bI2cAddress_t i2c_slave_address;
+} adxl345bSensorConfiguration_t;
+
 
 typedef uint8_t adxl345bMsbMask_t;
 typedef float adxl345bScaleFactor_t;

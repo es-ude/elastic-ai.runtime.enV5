@@ -22,7 +22,7 @@ i2cErrorCode_t (*i2cUnittestWriteCommand)(const uint8_t *commandBuffer,
                                           uint16_t sizeOfCommandBuffer, uint8_t slaveAddress,
                                           i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cWriteCommand(i2cConfig_t *i2cConfig, uint8_t slaveAddress,
+i2cErrorCode_t i2cWriteCommand(uint8_t slaveAddress,
                                const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
     return i2cUnittestWriteCommand(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cConfig);
 }
@@ -64,7 +64,7 @@ i2cErrorCode_t i2cUnittestWriteCommandPassForPac193x(const uint8_t *commandBuffe
 i2cErrorCode_t (*i2cUnittestReadCommand)(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
                                          uint8_t slaveAddress, i2c_inst_t *i2cHos);
 
-i2cErrorCode_t i2cReadData(i2cConfig_t *i2cConfig, uint8_t slaveAddress, uint8_t *readBuffer,
+i2cErrorCode_t i2cReadData(i2cConfiguration_t *i2cConfig, uint8_t slaveAddress, uint8_t *readBuffer,
                            uint8_t sizeOfReadBuffer) {
     return i2cUnittestReadCommand(readBuffer, sizeOfReadBuffer, slaveAddress, i2cConfig);
 }

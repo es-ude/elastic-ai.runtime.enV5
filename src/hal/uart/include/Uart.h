@@ -12,7 +12,7 @@ typedef unsigned int uint;
 enum uartParity { NoneParity = 0, OddParity = 1, EvenParity = 2 };
 typedef enum uartParity uartParity_t;
 
-typedef struct uartConfig {
+typedef struct uartConfiguration {
     uart_inst_t *uartInstance;
     uint8_t txPin;
     uint8_t rxPin;
@@ -22,7 +22,7 @@ typedef struct uartConfig {
     uartParity_t parity;
     char receiveBuffer[UART_BUFFER_SIZE];
     uint receivedCharacter_count;
-} uartConfig_t;
+} uartConfiguration_t;
 
 typedef enum {
     UART_NO_ERROR = 0x00,
@@ -33,7 +33,7 @@ typedef enum {
  * @brief initialize UART to communicate with ESP
  * @param uartConfig[UARTDevice] struct that contains the UART configuration which can be found in HwConfig.h
  */
-void uartInit(uartConfig_t *uartConfig);
+void uartInit(uartConfiguration_t *uartConfig);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT

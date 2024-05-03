@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "FreeRTOS.h"
 #include "FreeRtosTaskWrapper.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 #include "task.h"
 
 #include "hardware/watchdog.h"

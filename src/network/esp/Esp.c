@@ -8,7 +8,7 @@
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include "HwConfig.h"
+#include "config/Bus.h"
 
 /* region VARIABLES */
 
@@ -30,7 +30,7 @@ void espInit(void) {
      */
 
     // initialize uart interface for AT commands
-    uartInit(&uartConfig);
+    uartInit(&uartConfiguration);
 
     // check if ESP module is available
     while (!espInternalCheckIsResponding()) {

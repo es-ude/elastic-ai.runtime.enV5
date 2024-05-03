@@ -18,12 +18,12 @@
 #include "Spi.h"
 #include "SpiTypedefs.h"
 
-static spiConfig_t *flashSpi;
+static spiConfiguration_t *flashSpi;
 static uint8_t flashChipSelectPin;
 
 /* region PUBLIC HEADER FUNCTIONS */
 
-void flashInit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin) {
+void flashInit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin) {
     flashChipSelectPin = chipSelectPin;
     flashSpi = spiConfiguration;
 }

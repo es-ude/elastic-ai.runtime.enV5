@@ -7,7 +7,7 @@ target_link_libraries(hardware-test_sht3
         pico_stdio_usb
         pico_bootrom
         pico_time
-        hardware_i2c
+        i2c_interface
         sensor_lib_sht3x)
 create_enV5_executable(hardware-test_sht3)
 ##############################################
@@ -19,7 +19,7 @@ target_link_libraries(hardware-test_adxl345b
         pico_stdio_usb
         pico_bootrom
         pico_time
-        hardware_i2c
+        i2c_interface
         sensor_lib_adxl345b)
 create_enV5_executable(hardware-test_adxl345b)
 ## endregion hardware-test_adxl345b
@@ -32,7 +32,7 @@ target_link_libraries(hardware-test_pac193x
         pico_stdio_usb
         pico_bootrom
         pico_time
-        hardware_i2c
+        i2c_interface
         sensor_lib_pac193x)
 create_enV5_executable(hardware-test_pac193x)
 ##############################################
@@ -44,7 +44,7 @@ target_link_libraries(hardware-test_dualpac193x
         pico_stdio_usb
         pico_bootrom
         pico_time
-        hardware_i2c
+        i2c_interface
         sensor_lib_pac193x)
 create_enV5_executable(hardware-test_dualpac193x)
 ##############################################
@@ -56,7 +56,7 @@ target_link_libraries(hardware-test_pac193xbuffer
         pico_stdio_usb
         pico_bootrom
         pico_time
-        hardware_i2c
+        i2c_interface
         sensor_lib_pac193x)
 create_enV5_executable(hardware-test_pac193xbuffer)
 ##############################################

@@ -5,7 +5,7 @@
 
 #include "Gpio.h"
 #include "Qxi.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 #include "middleware.h"
 
 void middlewareInit() {

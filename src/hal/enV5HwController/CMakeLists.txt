@@ -8,6 +8,9 @@ target_link_libraries(enV5_hwc INTERFACE
         spi_interface
         uart_interface
         i2c_interface
-        sleep_interface
         hardware_i2c
+        sensor_lib_adxl345b
+        sensor_lib_pac193x
+        sensor_lib_sht3x
+        sleep_interface
 )

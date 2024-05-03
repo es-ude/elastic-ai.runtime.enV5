@@ -3,21 +3,21 @@
 #include "Spi.h"
 #include "SpiTypedefs.h"
 
-void spiInit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin) {
+void spiInit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin) {
     // Just here to satisfy the compiler
 }
-void spiDeinit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin) {
+void spiDeinit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin) {
     // Just here to satisfy the compiler
 }
 
-int spiWriteCommandBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command) {
+int spiWriteCommandBlocking(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin, data_t *command) {
     // Just here to satisfy the compiler
 }
-int spiWriteCommandAndDataBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+int spiWriteCommandAndDataBlocking(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data) {
     // Just here to satisfy the compiler
 }
-int spiWriteCommandAndReadBlocking(spiConfig_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
+int spiWriteCommandAndReadBlocking(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin, data_t *command,
                                    data_t *data) {
     // Just here to satisfy the compiler
 }

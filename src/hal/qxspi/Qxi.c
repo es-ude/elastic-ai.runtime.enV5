@@ -4,7 +4,7 @@
 #include "Qxi.h"
 #include "Spi.h"
 
-static spiConfig_t spiConfiguration = {.spiInstance = QXI_SPI,
+static spiConfiguration_t spiConfiguration = {.spiInstance = QXI_SPI,
                                  .baudrate = QXI_BAUD_RATE,
                                  .misoPin = QXI_SPI_RX_PIN,
                                  .mosiPin = QXI_SPI_TX_PIN,

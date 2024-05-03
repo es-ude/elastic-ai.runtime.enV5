@@ -29,9 +29,9 @@
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
 #include "Spi.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 
-spiConfig_t spiConfiguration = {
+spiConfiguration_t spiConfiguration = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 

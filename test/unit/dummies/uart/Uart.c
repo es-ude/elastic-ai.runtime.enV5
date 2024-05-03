@@ -3,7 +3,7 @@
 #include "Uart.h"
 #include "Common.h"
 
-void uartInit(uartConfig_t *device) {
+void uartInit(uartConfiguration_t *device) {
     // Just here to satisfy the compiler
 }
 

@@ -5,7 +5,7 @@
 #include "FreeRtosTaskWrapper.h"
 #include "MqttBroker.h"
 #include "Network.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"

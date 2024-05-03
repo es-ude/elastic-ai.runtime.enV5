@@ -18,6 +18,7 @@
 
 /*! function to read the data from the sensor
  *
+ * @param i2cConfiguration[in] i2c Configuration to be used with sensor
  * @param registerToRead[in]       address of the register to start the read
  * from
  * @param responseBuffer[out]      memory to store the received data
@@ -25,7 +26,7 @@
  * @return                         return the error code (0 if everything
  * passed)
  */
-static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bRegister_t registerToRead,
+static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConfiguration_t sensor, adxl345bRegister_t registerToRead,
                                                               uint8_t *responseBuffer,
                                                               uint8_t sizeOfResponseBuffer);
 
@@ -62,7 +63,7 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t
  *
  * @return return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration();
+static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t sensor);
 
 /*! function to calculate the offset that should be passed to the sensor
  *

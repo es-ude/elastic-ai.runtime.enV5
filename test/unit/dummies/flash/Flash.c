@@ -22,7 +22,7 @@ void flashRemoveDummyStorage(void) {
 /* endregion UNIT TEST SETUP */
 
 /* region PUBLIC HEADER FUNCTIONS */
-void flashInit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin) {
+void flashInit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin) {
     flashInitCalled = true;
 }
 

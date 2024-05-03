@@ -13,7 +13,7 @@
 //! Each sector consists of 256kB (= 262144B)
 #define FLASH_BYTES_PER_SECTOR 262144
 
-void flashInit(spiConfig_t *spiConfiguration, uint8_t chipSelectPin);
+void flashInit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin);
 
 /*! @brief read the device/manufacturer ID and Common Flash Interface ID
  * \n\n
