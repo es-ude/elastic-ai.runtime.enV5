@@ -35,8 +35,7 @@ char lengthUrl[] = "http://192.168.178.24:5000/length";
 uint32_t sectorIdForConfig = 1;
 
 spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 
 static void initHardware(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
@@ -54,7 +53,7 @@ static void initHardware(void) {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration, csPin);
+    flashInit(&spiConfiguration);
 
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();

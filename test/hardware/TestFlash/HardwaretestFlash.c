@@ -14,10 +14,9 @@
 #include "Spi.h"
 #include "controller/enV5HwController.h"
 
-spiConfiguration_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spiInstance = spi0};
+spiConfiguration_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spiInstance = spi0, .csPin = 1};
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
-static const uint8_t csPin = 1;
 
 void initializeConsoleOutput(void) {
     stdio_init_all();
@@ -30,8 +29,8 @@ void initializeHardware(void) {
     env5HwInit();
     env5HwFpgaPowersOff();
 
-    spiInit(&spiConfig, csPin);
-    flashInit(&spiConfig, csPin);
+    spiInit(&spiConfig);
+    flashInit(&spiConfig);
 }
 void readDeviceID() {
     data_t idBuffer = {.data = calloc(3, sizeof(uint8_t)), .length = 3};

@@ -35,8 +35,7 @@ char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 
 spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 
 #if BYTES_MODEL_ID == 1
 uint8_t acceloratorId[BYTES_MODEL_ID] = {0x01};
@@ -61,7 +60,7 @@ static void initHardware() {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration, csPin);
+    flashInit(&spiConfiguration);
 
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();

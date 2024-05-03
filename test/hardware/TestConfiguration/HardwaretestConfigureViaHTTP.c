@@ -53,7 +53,7 @@ void initHardwareTest(void) {
     espInit(); // initilize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
 
-    flashInit(&spiConfiguration, csPin);
+    flashInit(&spiConfiguration);
     fpgaConfigurationHandlerInitialize();
 }
 

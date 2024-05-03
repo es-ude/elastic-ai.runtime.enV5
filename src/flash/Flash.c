@@ -23,8 +23,8 @@ static uint8_t flashChipSelectPin;
 
 /* region PUBLIC HEADER FUNCTIONS */
 
-void flashInit(spiConfiguration_t *spiConfiguration, uint8_t chipSelectPin) {
-    flashChipSelectPin = chipSelectPin;
+void flashInit(spiConfiguration_t *spiConfiguration) {
+    flashChipSelectPin = spiConfiguration->csPin;
     flashSpi = spiConfiguration;
 }
 

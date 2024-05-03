@@ -74,7 +74,7 @@ void initHardware() {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration, csPin);
+    flashInit(&spiConfiguration);
     fpgaConfigurationHandlerInitialize();
 }
 
