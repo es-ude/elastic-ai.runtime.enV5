@@ -64,13 +64,13 @@ void adxl345bReadSerialNumberReadCorrectValue(void) {
 }
 
 /* endregion */
-/* region adxl345bReadMeasurements */
+/* region adxl345bReadMeasurementOneShot */
 
 void adxl345bReadMeasurementsGetSendCommandFail_errorIfHardwarFails(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -78,7 +78,7 @@ void adxl345bReadMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -86,7 +86,7 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfHardwarFails(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -94,14 +94,14 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
 void adxl345bReadMeasurementsReadSuccessful(void) {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
-    uint8_t err = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    uint8_t err = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, err);
 }
 
@@ -135,8 +135,8 @@ void adxl345bReadMeasurementsReadCorrectValue(void) {
         float realValue = (-1) * (float)rawValue * SCALE_FACTOR_FOR_RANGE;
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     }
-
-    adxl345bReadMeasurements(&actual_xAxis, &actual_yAxis, &actual_zAxis);
+    
+    adxl345bReadMeasurementOneShot( & actual_xAxis, & actual_yAxis, & actual_zAxis );
     TEST_ASSERT_EQUAL_FLOAT(expected_xAxis, actual_xAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_yAxis, actual_yAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_zAxis, actual_zAxis);

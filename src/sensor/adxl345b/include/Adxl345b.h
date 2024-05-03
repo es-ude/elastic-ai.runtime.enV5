@@ -7,10 +7,8 @@
 
 #include "Adxl345bTypedefs.h"
 // tag::prototypes[]
-const static adxl345bRange_t ADXL345B_2G_RANGE = {2, 0b00001000, 0b00000011, 0.0043f};
-const static adxl345bRange_t ADXL345B_4G_RANGE = {4, 0b00001001, 0b00000111, 0.0087f};
-const static adxl345bRange_t ADXL345B_8G_RANGE = {8, 0b00001010, 0b00001111, 0.0175f};
-const static adxl345bRange_t ADXL345B_16G_RANGE = {16, 0b00001011, 0b00111111, 0.0345f};
+
+
 
 /*!
  * @brief initializes the sensor
@@ -28,6 +26,7 @@ adxl345bErrorCode_t adxl345bInit(i2c_inst_t *i2cHost, adxl345bI2cSlaveAddress_t 
  * @param registerToWrite[in] address of the register to write the configuration bit to
  * @param configuration[in]   configuration bit to write to the sensor
  * @return                    return the error code (0 if everything passed)
+ * @note                       1600 & 3200 BW_RATE only available for SPI!
  */
 adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bRegister_t registerToWrite,
                                                        adxl345bConfiguration_t configuration);
@@ -37,7 +36,7 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bRegister_t regist
  * @param newRange[in] value of enum in typedefs.h
  * @return             return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bRange_t newRange);
+adxl345bErrorCode_t adxl345bChangeMeasurementRange( adxl345bRange_t newRange );
 
 /*!
  * @brief read the serial number from the sensor
@@ -51,7 +50,7 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(uint8_t *serialNumber);
  * @param xAxis,yAxis,zAxis[out] actual G values from the sensor
  * @return                       return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bReadMeasurements(float *xAxis, float *yAxis, float *zAxis);
+adxl345bErrorCode_t adxl345bReadMeasurementOneShot( float *xAxis, float *yAxis, float *zAxis );
 
 /*!
  * @brief trigger the execution of the self-test procedure

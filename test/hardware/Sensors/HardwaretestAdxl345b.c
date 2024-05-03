@@ -40,7 +40,7 @@ static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     PRINT("Requesting g values.");
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(&xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot( & xAxis, & yAxis, & zAxis );
     if (errorCode == ADXL345B_NO_ERROR) {
         /* 0.2G equals a deviation of about 1% from the ideal value
          * this deviation is given by the datasheet as the accepted tolerance
@@ -95,7 +95,7 @@ int main(void) {
     PRINT("START INIT");
     adxl345bErrorCode_t errorCode;
     while (1) {
-        errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS);
+        errorCode = adxl345bInit(i2c1, ADXL345B_I2C_ALTERNATE_ADDRESS);
         if (errorCode == ADXL345B_NO_ERROR) {
             PRINT("Initialised ADXL345B.");
             break;
@@ -107,6 +107,7 @@ int main(void) {
     /* test function of ADXL345B */
     PRINT("Please enter to request g (G value), s (serialNo), t (self test), "
           "c (calibration) or b (Boot mode)");
+    
     while (1) {
         char input = getchar_timeout_us(10000000); /* 10 seconds wait */
 
