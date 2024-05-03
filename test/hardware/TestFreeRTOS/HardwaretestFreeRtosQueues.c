@@ -11,7 +11,7 @@
 #include "Common.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"

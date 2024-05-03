@@ -13,7 +13,7 @@
 
 /* region VARIABLES */
 
-static uartConfig_t *uartDevice;
+static uartConfiguration_t *uartDevice;
 
 volatile static bool uartLastReceivedCharacterWasReturn = false;
 volatile static bool uartCorrectResponseReceived = false;
@@ -33,7 +33,7 @@ void (*uartInternalCallbackUartRxInterrupt)(void);
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartInit(uartConfig_t *uartConfig) {
+void uartInit(uartConfiguration_t *uartConfig) {
     uartDevice = uartConfig;
     
     // Set the TX and RX pins to UART by using the function select on the GPIO

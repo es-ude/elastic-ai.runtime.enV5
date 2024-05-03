@@ -7,7 +7,7 @@
 #include "Common.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Gpio.h"
-#include "enV5HwController.h"
+#include "controller/enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
