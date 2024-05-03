@@ -11,20 +11,40 @@ typedef struct i2c_inst i2c_inst_t;
  * LPM for Low Power Mode.
  */
 enum {
+
+    //!  represents LPM_BW_RATE 12.5
+    ADXL345B_BW_RATE_LPM_12_point_5 = 0b00010111,
     ADXL345B_BW_RATE_LPM_25 = 0b00011000,
     ADXL345B_BW_RATE_LPM_50 = 0b00011001,
     ADXL345B_BW_RATE_LPM_100 = 0b00011010,
     ADXL345B_BW_RATE_LPM_200 = 0b00011011,
     ADXL345B_BW_RATE_LPM_400 = 0b00011100,
 
+    //!  represents BW_RATE 0.1
+    ADXL345B_BW_RATE_0_point_1 = 0b00010000,
+    //!  represents BW_RATE 0.2
+    ADXL345B_BW_RATE_0_point_2 = 0b00010001,
+    ADXL345B_BW_RATE_0_point_39 = 0b00010010, //!<  represents BW_RATE0.39
+    //!  represents BW_RATE 0.78
+    ADXL345B_BW_RATE_0_point_78 = 0b00010011,
+    //!  represents BW_RATE 0.56
+    ADXL345B_BW_RATE_1_point_56 = 0b00010100,
+    //!  represents BW_RATE 3.13
+    ADXL345B_BW_RATE_3_point_13 = 0b00010101,
+    //!  represents BW_RATE 6.25
+    ADXL345B_BW_RATE_6_point_25 = 0b00010110,
+    //!  represents BW_RATE 12.5
+    ADXL345B_BW_RATE_12_point_5 = 0b00010111,
     ADXL345B_BW_RATE_25 = 0b00001000,
     ADXL345B_BW_RATE_50 = 0b00001001,
     ADXL345B_BW_RATE_100 = 0b00001010,
     ADXL345B_BW_RATE_200 = 0b00001011,
     ADXL345B_BW_RATE_400 = 0b00001100,
     ADXL345B_BW_RATE_800 = 0b00001101,
-    ADXL345B_BW_RATE_1600 = 0b00001110,
-    ADXL345B_BW_RATE_3200 = 0b00001111,
+
+    // ADXL345B_BW_RATE_1600 = 0b00001110, //!< 1600 only available for SPI
+    // ADXL345B_BW_RATE_3200 = 0b00001111, //!< 3200  only available for SPI
+    
 };
 
 /* i2c address of the sensor
@@ -62,6 +82,8 @@ typedef enum adxl345bRegister {
     ADXL345B_REGISTER_INTERRUPT_MAP = 0x2F,
     ADXL345B_REGISTER_INTERRUPT_SOURCE = 0x30,
     ADXL345B_REGISTER_DATA_FORMAT = 0x31,
+
+    // Register 0x32 to 0x37 READ ONLY
     ADXL345B_REGISTER_DATA_X = 0x32,
     ADXL345B_REGISTER_DATA_Y = 0x34,
     ADXL345B_REGISTER_DATA_Z = 0x36,
@@ -75,15 +97,11 @@ typedef struct adxl345bSensorConfiguration {
     adxl345bI2cAddress_t i2c_slave_address;
 } adxl345bSensorConfiguration_t;
 
-
-typedef uint8_t adxl345bMsbMask_t;
-typedef float adxl345bScaleFactor_t;
-typedef uint8_t adxl345bRangeSettings_t;
-typedef struct adxl345bRange {
-    uint8_t maxRange;
-    adxl345bRangeSettings_t settingForRange;
-    adxl345bMsbMask_t msbMask;
-    adxl345bScaleFactor_t scaleFactor;
+typedef enum adxl345bRange {
+    ADXL345B_2G_RANGE,
+    ADXL345B_4G_RANGE,
+    ADXL345B_8G_RANGE,
+    ADXL345B_16G_RANGE,
 } adxl345bRange_t;
 
 typedef enum adxl345bErrorCode {
@@ -94,6 +112,7 @@ typedef enum adxl345bErrorCode {
     ADXL345B_INIT_ERROR = 0x10,
     ADXL345B_PARM_ERROR = 0x11,
     ADXL345B_CONFIGURATION_ERROR = 0x12,
+    ADXL345B_RANGE_ERROR = 0x13,
     ADXL345B_UNDEFINED_ERROR = 0x20,
     ADXL345B_SELF_TEST_FAILED_FOR_X = 0x31,
     ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,

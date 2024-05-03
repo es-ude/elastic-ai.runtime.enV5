@@ -60,3 +60,17 @@ target_link_libraries(hardware-test_pac193xbuffer
         sensor_lib_pac193x)
 create_enV5_executable(hardware-test_pac193xbuffer)
 ##############################################
+## hardware-stresstest_adxl345b
+add_executable(hardware-test_stressTest_adxl345b StressTestAdxl345b.c)
+target_link_libraries(hardware-test_stressTest_adxl345b
+        common_lib
+        pico_stdlib
+        pico_stdio_usb
+        pico_time
+        freeRtosUtils
+        espBroker_lib
+        middleware_lib
+        sensor_lib_adxl345b
+        hardware-testHelper)
+create_enV5_executable(hardware-test_stressTest_adxl345b)
+##############################################

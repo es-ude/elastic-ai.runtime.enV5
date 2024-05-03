@@ -58,7 +58,7 @@ static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     PRINT("Requesting g values.");
-    adxl345bErrorCode_t errorCode = adxl345bReadMeasurements(sensor, &xAxis, &yAxis, &zAxis);
+    adxl345bErrorCode_t errorCode = adxl345bReadMeasurementOneShot(sensor, &xAxis, &yAxis, &zAxis);
     if (errorCode == ADXL345B_NO_ERROR) {
         /* 0.2G equals a deviation of about 1% from the ideal value
          * this deviation is given by the datasheet as the accepted tolerance

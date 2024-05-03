@@ -9,8 +9,18 @@
 
 /* region CONSTANTS */
 
+////TODO: Das sollte im .c file stehen und dann hab ich im typedef einen enum mit den 4 ranges. und das wird dann in der fkt setMeasurementrange rein. die setzt sich das dann in der entsprechenden funktion. Das sollte im Puclic header gar nicht preisgegeben werden. noch ein alter relikt von frueher
+const static adxl345bRangeSetting_t adxl345b_2g_range = {0b00001000, 0b00000011, 0.0043f};
+const static adxl345bRangeSetting_t adxl345b_4g_range = {0b00001001, 0b00000111, 0.0087f};
+const static adxl345bRangeSetting_t adxl345b_8g_range = {0b00001010, 0b00001111, 0.0175f};
+const static adxl345bRangeSetting_t adxl345b_16g_range = {0b00001011, 0b00111111, 0.0345f};
+
+
+//! i2c configuration for the sensor
+static adxl345bSensorConfiguration_t adxl345bI2cSensorConfiguration;
+
 //! measurement range configuration
-static adxl345bRange_t adxl345bSelectedRange;
+static adxl345bRangeSetting_t adxl345bSelectedRange;
 
 /* endregion */
 
@@ -55,16 +65,37 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
     return ADXL345B_NO_ERROR;
 }
 
-adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor, adxl345bRange_t newRange) {
-    adxl345bSelectedRange = newRange;
+static adxl345bErrorCode_t adxl345bSetSelectedRange( adxl345bRange_t range ){
+    switch (range) {
+      case ADXL345B_2G_RANGE:
+        adxl345bSelectedRange = adxl345b_2g_range;
+        break;
+      case ADXL345B_4G_RANGE:
+        adxl345bSelectedRange = adxl345b_4g_range;
+        break;
+      case ADXL345B_8G_RANGE:
+        adxl345bSelectedRange = adxl345b_8g_range;
+        break;
+      case ADXL345B_16G_RANGE:
+        adxl345bSelectedRange = adxl345b_16g_range;
+        break;
+      default:
+        adxl345bSelectedRange = adxl345b_2g_range;
+        return ADXL345B_RANGE_ERROR;
+}
+return ADXL345B_NO_ERROR;}
 
+adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor, adxl345bRange_t newRange ) {
+    adxl345bErrorCode_t errorCode = adxl345bSetSelectedRange(newRange);
+    if (errorCode != ADXL345B_NO_ERROR) {return errorCode;}
+    
     /* right adjusted storage, selected range settings for full resolution */
-    adxl345bErrorCode_t errorCode = adxl345bWriteConfigurationToSensor(sensor,
-        ADXL345B_REGISTER_DATA_FORMAT, adxl345bSelectedRange.settingForRange);
+        errorCode = adxl345bWriteConfigurationToSensor(sensor,
+            ADXL345B_REGISTER_DATA_FORMAT, adxl345bSelectedRange.settingForRange
+        );
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-
     return ADXL345B_NO_ERROR;
 }
 
@@ -84,7 +115,10 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
     return ADXL345B_NO_ERROR;
 }
 
-adxl345bErrorCode_t adxl345bReadMeasurements(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis) {
+//TODO: setbaudrate wird "rausgezogen" und global gesetzt, das soll dann in hardwareConfig!!!!! da soll dann ein ordentlicher header rein, der uns alles setzt. wir koennen dann ggf spaeter ueber praprozessordirektive das PER VERSION setzen
+//& umbenennen zu ReadMeasurement (singular!)oder "oneShot", die andere dann ReadMeasurementsInStream    ...
+// anderer Layer dann 2 fuer InStream  dann fuer Intervall die dann andere per Anzahl
+adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis) {
     adxl345bErrorCode_t errorCode;
     uint8_t interruptSources;
     uint8_t sizeOfResponseBuffer = 6;
@@ -121,12 +155,12 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     adxl345bErrorCode_t errorCode;
 
     /* standard mode, 100Hz */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, 0b00001010);
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_LPM_12_point_5);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
     /* disable sleep/wakeup functions, start measurements */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, ADXL345B_BW_RATE_25);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -302,6 +336,7 @@ adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sen
     }
 
     int8_t offsetX, offsetY, offsetZ;
+    //TODO: Woher kommen diese Werte?
     int maxDeltaX = 489, maxDeltaY = -46, maxDeltaZ = 791;
     int minDeltaX = 46, minDeltaY = -489, minDeltaZ = 69;
     offsetX = adxl345bInternalCalculateCalibrationOffset(deltaX, maxDeltaX, minDeltaX);
@@ -408,11 +443,12 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t
     return ADXL345B_NO_ERROR;
 }
 
+//TODO: configuration zu Typedefs hinzufuegen!!! WIE?
 static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t sensor) {
     PRINT_DEBUG("write default config to sensor");
     /* enable low power mode at 12.5Hz data output rate */
     adxl345bErrorCode_t errorCode =
-        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, 0b00010111);
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_LPM_12_point_5);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("send ADXL345B_REGISTER_BW_RATE failed");
         PRINT_DEBUG("error code was %i", errorCode);

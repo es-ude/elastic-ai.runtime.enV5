@@ -14,7 +14,12 @@
 #include "Adxl345bTypedefs.h"
 #include <stdint.h>
 
-/* region FUNCTION PROTOTYPES */
+typedef struct adxl345bRangeSetting {
+  uint8_t settingForRange;
+  uint8_t msbMask;  //!< used for converting raw data to LSB value
+  float scaleFactor; //!< used for converting LSB value to G value
+} adxl345bRangeSetting_t;
+
 
 /*! function to read the data from the sensor
  *
@@ -76,6 +81,13 @@ static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adx
 static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
                                                          int minValue);
 
-/* endregion*/
+//TODO: adde kommentare
+/*!
+ * @brief
+ * @param range
+ * @return
+ */
+static adxl345bErrorCode_t adxl345bSetSelectedRange( adxl345bRange_t range );
+
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */
