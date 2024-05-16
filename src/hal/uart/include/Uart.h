@@ -31,7 +31,8 @@ typedef enum {
 
 /*!
  * @brief initialize UART to communicate with ESP
- * @param uartConfig[UARTDevice] struct that contains the UART configuration which can be found in HwConfig.h
+ * @param uartConfig[UARTDevice] struct that contains the UART configuration which can be found in
+ * HwConfig.h
  */
 void uartInit(uartConfiguration_t *uartConfig);
 

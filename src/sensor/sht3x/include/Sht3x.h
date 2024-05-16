@@ -27,7 +27,8 @@ sht3xErrorCode_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor, uint32
  * @param[out] statusRegister memory where the status register is stored
  * @return                    return the error code (0 if everything passed)
  */
-sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor, sht3xStatusRegister_t *statusRegister);
+sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
+                                         sht3xStatusRegister_t *statusRegister);
 
 /*!
  * @brief read the temperature \b and the humidity from the sensor
@@ -35,7 +36,8 @@ sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor, sht3
  * @param[out] humidity    memory where the temperature is stored
  * @return                 return the error code (0 if everything passed)
  */
-sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor, float *temperature, float *humidity);
+sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor,
+                                                float *temperature, float *humidity);
 
 /*!
  * @brief read \b only the temperature from the sensor
@@ -59,7 +61,8 @@ sht3xErrorCode_t sht3xGetHumidity(sht3xSensorConfiguration_t sensor, float *humi
  * @param humidity[out]    memory where the humidity is stored
  * @return                 return the error code (0 if everything passed)
  */
-sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature, float *humidity);
+sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
+                                            float *humidity);
 
 /*!
  * @brief enable the heater module of the sensor

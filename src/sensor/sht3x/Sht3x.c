@@ -7,7 +7,6 @@
 #include "Sht3xTypedefs.h"
 #include "Sleep.h"
 
-
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 sht3xErrorCode_t sht3xInit(sht3xSensorConfiguration_t sensor) {
@@ -35,7 +34,8 @@ sht3xErrorCode_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor, uint32
     uint8_t sizeOfRequestBuffer = 6;
     uint8_t requestBuffer[sizeOfRequestBuffer];
 
-    sht3xErrorCode_t errorCode = sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_SERIALNUMBER);
+    sht3xErrorCode_t errorCode =
+        sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_SERIALNUMBER);
     if (errorCode != SHT3X_NO_ERROR) {
         return errorCode;
     }
@@ -56,7 +56,8 @@ sht3xErrorCode_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor, uint32
     return SHT3X_NO_ERROR;
 }
 
-sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor, sht3xStatusRegister_t *statusRegister) {
+sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
+                                         sht3xStatusRegister_t *statusRegister) {
     uint8_t sizeOfResponseBuffer = 3;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -132,7 +133,8 @@ sht3xErrorCode_t sht3xGetHumidity(sht3xSensorConfiguration_t sensor, float *humi
     return SHT3X_NO_ERROR;
 }
 
-sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor, float *temperature, float *humidity) {
+sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor,
+                                                float *temperature, float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -161,7 +163,8 @@ sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t senso
     return SHT3X_NO_ERROR;
 }
 
-sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature, float *humidity) {
+sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
+                                            float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -205,15 +208,15 @@ sht3xErrorCode_t sht3xSoftReset(sht3xSensorConfiguration_t sensor) {
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,sht3xCommand_t command) {
+static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,
+                                                         sht3xCommand_t command) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = (command >> 8);
     commandBuffer[1] = (command & 0xFF);
 
     PRINT_DEBUG("requesting data from sensor");
-    sht3xErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host,
-                                                 sensor.i2c_slave_address,
+    sht3xErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
                                                  commandBuffer, sizeOfCommandBuffer);
 
     if (errorCode == I2C_NO_ERROR) {
@@ -224,12 +227,12 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguratio
     return SHT3X_SEND_COMMAND_ERROR;
 }
 
-static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor, uint8_t *responseBuffer,
+static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor,
+                                                           uint8_t *responseBuffer,
                                                            uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor");
-    sht3xErrorCode_t errorCode =
-        i2cReadData(sensor.i2c_host, sensor.i2c_slave_address,
-                    responseBuffer, sizeOfResponseBuffer);
+    sht3xErrorCode_t errorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address,
+                                             responseBuffer, sizeOfResponseBuffer);
 
     if (errorCode == I2C_NO_ERROR) {
         return SHT3X_NO_ERROR;

@@ -75,7 +75,6 @@ typedef struct adxl345bSensorConfiguration {
     adxl345bI2cAddress_t i2c_slave_address;
 } adxl345bSensorConfiguration_t;
 
-
 typedef uint8_t adxl345bMsbMask_t;
 typedef float adxl345bScaleFactor_t;
 typedef uint8_t adxl345bRangeSettings_t;

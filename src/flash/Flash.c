@@ -59,10 +59,10 @@ int flashReadData(uint32_t startAddress, data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(flashSpi, flashChipSelectPin);
+    spiInit(flashSpi);
     int bytesRead =
-        spiWriteCommandAndReadBlocking(flashSpi, flashChipSelectPin, &command, dataBuffer);
-    spiDeinit(flashSpi, flashChipSelectPin);
+        spiWriteCommandAndReadBlocking(flashSpi, &command, dataBuffer);
+    spiDeinit(flashSpi);
     return bytesRead;
 }
 
@@ -107,7 +107,7 @@ int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
     flashEnableWrite();
 
     int bytesWritten =
-        spiWriteCommandAndDataBlocking(flashSpi, flashChipSelectPin, &command, &dataToWrite);
+        spiWriteCommandAndDataBlocking(flashSpi, &command, &dataToWrite);
 
     flashWaitForDone();
     spiDeinit(flashSpi, flashChipSelectPin);

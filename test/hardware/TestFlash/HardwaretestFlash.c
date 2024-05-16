@@ -14,7 +14,12 @@
 #include "Spi.h"
 #include "controller/enV5HwController.h"
 
-spiConfiguration_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spiInstance = spi0, .csPin = 1};
+spiConfiguration_t spiConfig = {.sckPin = 2,
+                                .misoPin = 0,
+                                .mosiPin = 3,
+                                .baudrate = 1000 * 1000,
+                                .spiInstance = spi0,
+                                .csPin = 1};
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 

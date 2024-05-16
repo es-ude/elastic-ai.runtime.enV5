@@ -7,7 +7,7 @@ typedef struct i2c_inst i2c_inst_t;
 
 typedef struct i2cConfiguration {
     i2c_inst_t *i2cInstance;
-    uint8_t  sdaPin;
+    uint8_t sdaPin;
     uint8_t sclPin;
     uint32_t frequency;
 } i2cConfiguration_t;

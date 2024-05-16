@@ -15,7 +15,6 @@
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
