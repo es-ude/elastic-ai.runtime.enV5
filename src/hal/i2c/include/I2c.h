@@ -4,11 +4,10 @@
 #include "I2cTypedefs.h"
 #include <stdint.h>
 
-
-
 /*!
  * @brief initializes the ports for the I2C interfaces
- * @param i2cConfiguration[I2CDevice] struct that contains the I2C configuration which can be found in HwConfig.h
+ * @param i2cConfiguration[I2CDevice] struct that contains the I2C configuration which can be found
+ * in HwConfig.h
  */
 i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration);
 

@@ -28,28 +28,33 @@ adxl345bErrorCode_t adxl345bInit(adxl345bSensorConfiguration_t sensor);
  * @param configuration[in]   configuration bit to write to the sensor
  * @return                    return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfiguration_t sensor, adxl345bRegister_t registerToWrite, adxl345bConfig_t config);
+adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfiguration_t sensor,
+                                                       adxl345bRegister_t registerToWrite,
+                                                       adxl345bConfig_t config);
 
 /*!
  * @brief change the measurement range of the sensor
  * @param newRange[in] value of enum in typedefs.h
  * @return             return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor, adxl345bRange_t newRange);
+adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor,
+                                                   adxl345bRange_t newRange);
 
 /*!
  * @brief read the serial number from the sensor
  * @param serialNumber[out] memory where the serial number received from the sensor is stored
  * @return                  return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t sensor, uint8_t *serialNumber);
+adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t sensor,
+                                             uint8_t *serialNumber);
 
 /*!
  * @brief read the actual measurements from the sensor
  * @param xAxis,yAxis,zAxis[out] actual G values from the sensor
  * @return                       return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bReadMeasurements(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis);
+adxl345bErrorCode_t adxl345bReadMeasurements(adxl345bSensorConfiguration_t sensor, float *xAxis,
+                                             float *yAxis, float *zAxis);
 
 /*!
  * @brief trigger the execution of the self-test procedure
@@ -59,7 +64,8 @@ adxl345bErrorCode_t adxl345bReadMeasurements(adxl345bSensorConfiguration_t senso
  * @param deltaX,deltaY,deltaZ[out] delta of G Values
  * @return                          return the error code (0 if self-test passed)
  */
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX, int *deltaY, int *deltaZ);
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
+                                            int *deltaY, int *deltaZ);
 
 /*!
  * @brief trigger a self calibration run

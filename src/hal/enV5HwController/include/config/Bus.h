@@ -5,12 +5,12 @@
 #ifndef ENV5_BUS_H
 #define ENV5_BUS_H
 
+#include "I2cTypedefs.h"
+#include "SpiTypedefs.h"
+#include "Uart.h"
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 #include "hardware/uart.h"
-#include "SpiTypedefs.h"
-#include "Uart.h"
-#include "I2cTypedefs.h"
 
 #define SPI_FPGA_INSTANCE spi0
 #define SPI_FPGA_SCK 18

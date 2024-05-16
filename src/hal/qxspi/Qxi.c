@@ -5,11 +5,11 @@
 #include "Spi.h"
 
 static spiConfiguration_t spiConfiguration = {.spiInstance = QXI_SPI,
-                                 .baudrate = QXI_BAUD_RATE,
-                                 .misoPin = QXI_SPI_RX_PIN,
-                                 .mosiPin = QXI_SPI_TX_PIN,
-                                 .sckPin = QXI_SPI_SCK_PIN,
-.csPin = QXI_SPI_CS_PIN};
+                                              .baudrate = QXI_BAUD_RATE,
+                                              .misoPin = QXI_SPI_RX_PIN,
+                                              .mosiPin = QXI_SPI_TX_PIN,
+                                              .sckPin = QXI_SPI_SCK_PIN,
+                                              .csPin = QXI_SPI_CS_PIN};
 
 void qxiInit(void) {
     // The Configuration is defined in the header file.

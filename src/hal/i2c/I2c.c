@@ -2,16 +2,14 @@
 #include "Gpio.h"
 #include "I2cInternal.h"
 
-
 #include <hardware/i2c.h>
 
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/
 
-
 i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
     uint32_t actualBaudrate = i2c_init(i2cConfiguration->i2cInstance, i2cConfiguration->frequency);
-    //TODO: wird nie exakt stimmen für Überprüfung
-    //ich brauche noch ein !!!delta!!!
+    // TODO: wird nie exakt stimmen für Überprüfung
+    // ich brauche noch ein !!!delta!!!
     i2cInternalSetupPin(i2cConfiguration->sdaPin);
     i2cInternalSetupPin(i2cConfiguration->sclPin);
     return I2C_NO_ERROR;

@@ -29,7 +29,8 @@ static const float sht3xDenominator = (1 << 16) - 1.0f;
  * @param command[in] the 16 bit long command to be send to the sensor
  * @return            returns the error code (0 if everything passed)
  */
-static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor, sht3xCommand_t command);
+static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,
+                                                         sht3xCommand_t command);
 
 /*! function to receive data from the sensor via i2c bus
  *
@@ -38,7 +39,8 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguratio
  * @return                         returns the error code (0 if everything
  *                                 passed)
  */
-static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor, uint8_t *responseBuffer,
+static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor,
+                                                           uint8_t *responseBuffer,
                                                            uint8_t sizeOfResponseBuffer);
 
 /*! function to perform a CRC8 checksum check on the received data

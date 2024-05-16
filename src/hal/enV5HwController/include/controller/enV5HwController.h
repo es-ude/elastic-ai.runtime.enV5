@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-
 /*!
  * @brief Initialize LEDs and FPGA
  */

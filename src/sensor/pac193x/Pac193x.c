@@ -17,7 +17,6 @@
 
 /* region CONSTANTS */
 
-
 /*! Denominator for unipolar voltage measurement: 2^{16} = 65536 */
 static const float pac193xInternalUnipolarVoltageDenominator = (float)(1U << 16);
 
@@ -68,7 +67,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
 }
 
 pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor) {
-       if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
+    if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
         return PAC193X_INIT_ERROR;
     }
 

@@ -1,6 +1,6 @@
 #define SOURCE_FILE "ENV5-HWC"
 
-#include<stdbool.h>
+#include <stdbool.h>
 
 #include "Common.h"
 #include "Gpio.h"
@@ -15,7 +15,6 @@
 #define FPGA_MOS_EN_PIN 21           //! LOW -> on, HIGH -> off
 #define FPGA_RESET_CTRL_PIN 12       //! LOW -> on, HIGH -> off
 #define FPGA_BUSY_PIN 15
-
 
 void env5HwInit() {
     env5HwLedsInit();
