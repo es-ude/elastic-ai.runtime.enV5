@@ -3,12 +3,12 @@
 #include <stdbool.h>
 
 #include "AtCommands.h"
+#include "BusConfig.h"
 #include "Common.h"
 #include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include "config/Bus.h"
 
 /* region VARIABLES */
 

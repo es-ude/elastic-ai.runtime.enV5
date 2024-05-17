@@ -1,12 +1,8 @@
-//
-// Created by jasmin on 5/2/24.
-//
-
-#ifndef ENV5_SENSOR_H
-#define ENV5_SENSOR_H
+#ifndef ENV5_SENSORCONFIG_H
+#define ENV5_SENSORCONFIG_H
 
 #include "Adxl345bTypedefs.h"
-#include "Bus.h"
+#include "BusConfig.h"
 #include "Pac193xTypedefs.h"
 #include "Sht3xTypedefs.h"
 
@@ -36,4 +32,4 @@ extern pac193xSensorConfiguration_t pac193xSensorConfigurationTwo;
 #define SHT_HOST I2C_CONTROLLER
 extern sht3xSensorConfiguration_t sht3xSensorConfiguration;
 
-#endif // ENV5_SENSOR_H
+#endif // ENV5_SENSORCONFIG_H

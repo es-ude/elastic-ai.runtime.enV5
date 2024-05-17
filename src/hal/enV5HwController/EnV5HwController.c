@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "Gpio.h"
 #include "Sleep.h"
-#include "controller/enV5HwController.h"
+#include "EnV5HwController.h"
 
 #define GPIO_LED0 22
 #define GPIO_LED1 24

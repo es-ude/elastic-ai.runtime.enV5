@@ -23,10 +23,10 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Spi.h"
-#include "controller/enV5HwController.h"
 
 spiConfiguration_t spiConfiguration = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};

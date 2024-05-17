@@ -24,6 +24,7 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
@@ -31,8 +32,8 @@
 #include "Spi.h"
 #include "enV5HwController.h"
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
+spiConfiguration_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
 uint8_t csPin = 1;
 
 const char *baseUrl = "http://127.0.0.1:5000";
