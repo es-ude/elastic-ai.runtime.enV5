@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Qxi.h"
 #include "middleware.h"
