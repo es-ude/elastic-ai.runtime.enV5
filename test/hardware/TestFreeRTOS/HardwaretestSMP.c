@@ -1,9 +1,9 @@
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-SMP"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "FreeRTOS.h"
 #include "FreeRtosTaskWrapper.h"
-#include "controller/enV5HwController.h"
 #include "task.h"
 
 #include "hardware/watchdog.h"

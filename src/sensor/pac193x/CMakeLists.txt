@@ -1,5 +1,4 @@
-add_library(sensor_lib_pac193x INTERFACE
-        ../../hal/enV5HwController/include/config/Sensor.h)
+add_library(sensor_lib_pac193x INTERFACE)
 target_include_directories(sensor_lib_pac193x INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_sources(sensor_lib_pac193x INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/Pac193x.c)

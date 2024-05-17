@@ -8,6 +8,7 @@
 #define SOURCE_FILE "HWTEST-STUB-WITH-MONITOR"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
@@ -17,7 +18,6 @@
 #include "MqttBroker.h"
 #include "Network.h"
 #include "Protocol.h"
-#include "controller/enV5HwController.h"
 #include "middleware.h"
 
 #include <hardware/spi.h>

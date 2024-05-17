@@ -5,9 +5,9 @@
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-TASKS"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Gpio.h"
-#include "controller/enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"

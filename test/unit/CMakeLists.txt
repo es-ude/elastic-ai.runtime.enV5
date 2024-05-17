@@ -1,7 +1,6 @@
 ##############################################
 ## region UNIT-TEST: unit-test_sht3
-add_executable(unit-test_sht3x ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c
-        ../../src/hal/enV5HwController/include/config/Sensor.h)
+add_executable(unit-test_sht3x ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c)
 target_link_libraries(unit-test_sht3x
         sensor_lib_sht3x
         unity)
@@ -9,8 +8,7 @@ add_test(unit-test_sht3x unit-test_sht3x)
 ## endregion
 ##############################################
 ## region UNIT-TEST: unit-test_adxl345b
-add_executable(unit-test_adxl345b ${CMAKE_CURRENT_LIST_DIR}/UnittestAdxl345b.c
-        ../../src/hal/enV5HwController/include/config/Sensor.h)
+add_executable(unit-test_adxl345b ${CMAKE_CURRENT_LIST_DIR}/UnittestAdxl345b.c)
 target_link_libraries(unit-test_adxl345b
         sensor_lib_adxl345b
         unity)
@@ -18,8 +16,7 @@ add_test(unit-test_adxl345b unit-test_adxl345b)
 ## endregion
 ##############################################
 ## region UNIT-TEST: unit-test_pac193x
-add_executable(unit-test_pac193x ${CMAKE_CURRENT_LIST_DIR}/UnittestPac193x.c
-        ../../src/hal/enV5HwController/include/config/Sensor.h)
+add_executable(unit-test_pac193x ${CMAKE_CURRENT_LIST_DIR}/UnittestPac193x.c)
 target_link_libraries(unit-test_pac193x
         sensor_lib_pac193x
         unity)

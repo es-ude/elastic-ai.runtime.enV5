@@ -2,15 +2,15 @@
 // Created by jasmin on 4/5/24.
 //
 
-#ifndef ENV5_BUS_H
-#define ENV5_BUS_H
+#ifndef ENV5_BUSCONFIG_H
+#define ENV5_BUSCONFIG_H
 
-#include "I2cTypedefs.h"
-#include "SpiTypedefs.h"
-#include "Uart.h"
-#include "hardware/i2c.h"
-#include "hardware/spi.h"
-#include "hardware/uart.h"
+#include "../../../../build/release/_deps/pico_sdk-src/src/rp2_common/hardware_i2c/include/hardware/i2c.h"
+#include "../../../../build/release/_deps/pico_sdk-src/src/rp2_common/hardware_spi/include/hardware/spi.h"
+#include "../../../../build/release/_deps/pico_sdk-src/src/rp2_common/hardware_uart/include/hardware/uart.h"
+#include "../../i2c/include/I2cTypedefs.h"
+#include "../../spi/include/SpiTypedefs.h"
+#include "../../uart/include/Uart.h"
 
 #define SPI_FPGA_INSTANCE spi0
 #define SPI_FPGA_SCK 18
@@ -43,4 +43,4 @@ extern i2cConfiguration_t i2CConfiguration;
 #define UART_PARITY NoneParity
 extern uartConfiguration_t uartConfiguration;
 
-#endif // ENV5_BUS_H
+#endif // ENV5_BUSCONFIG_H

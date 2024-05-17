@@ -1,9 +1,5 @@
-//
-// Created by jasmin on 5/3/24.
-//
-
-#include "config/Bus.h"
-#include "config/Sensor.h"
+#include "BusConfig.h"
+#include "SensorConfig.h"
 
 spiConfiguration_t fpgaSpiConfiguration = {.spiInstance = SPI_FPGA_INSTANCE,
                                            .sckPin = SPI_FPGA_SCK,

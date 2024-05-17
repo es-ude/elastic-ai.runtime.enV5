@@ -21,13 +21,13 @@
 #include "pico/stdio_usb.h"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "HTTP.h"
 #include "Network.h"
 #include "Spi.h"
-#include "controller/enV5HwController.h"
 #include "middleware.h"
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";

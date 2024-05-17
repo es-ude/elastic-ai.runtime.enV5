@@ -10,9 +10,9 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Flash.h"
 #include "Spi.h"
-#include "controller/enV5HwController.h"
 
 spiConfiguration_t spiConfig = {.sckPin = 2,
                                 .misoPin = 0,

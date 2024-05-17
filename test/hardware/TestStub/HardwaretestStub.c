@@ -16,12 +16,12 @@
 #define SOURCE_FILE "HWTEST-STUB"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "HTTP.h"
 #include "Network.h"
-#include "controller/enV5HwController.h"
 #include "stub.h"
 #include "stub_defs.h"
 
