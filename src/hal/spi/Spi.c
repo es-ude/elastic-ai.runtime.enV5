@@ -36,6 +36,7 @@ void spiInit(spiConfiguration_t *spiConfiguration) {
     gpioInitPin(spiConfiguration->csPin, GPIO_OUTPUT);
     spiDisableDevice(spiConfiguration->csPin);
 }
+
 void spiDeinit(spiConfiguration_t *spiConfiguration) {
     spi_deinit(spiConfiguration->spiInstance);
 

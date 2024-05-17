@@ -28,7 +28,7 @@ extern spiConfiguration_t fpgaSpiConfiguration;
 #define SPI_FLASH_CS 1
 extern spiConfiguration_t flashSpiConfiguration;
 
-#define I2C_CONTROLLER i2c1
+#define I2C_INSTANCE i2c1
 #define I2C_FREQUENCY_IN_HZ 400000
 #define I2C_SDA_PIN 6
 #define I2C_SCL_PIN 7
