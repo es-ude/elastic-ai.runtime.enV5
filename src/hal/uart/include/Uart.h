@@ -12,6 +12,7 @@ typedef unsigned int uint;
 enum uartParity { NoneParity = 0, OddParity = 1, EvenParity = 2 };
 typedef enum uartParity uartParity_t;
 
+//! We highly recommend using ENv5HwConfig.c
 typedef struct uartConfiguration {
     uart_inst_t *uartInstance;
     uint8_t txPin;
@@ -31,26 +32,31 @@ typedef enum {
 
 /*!
  * @brief initialize UART to communicate with ESP
- * @param uartConfig[UARTDevice] struct that contains the UART configuration which can be found in
- * HwConfig.h
+ *
+ * @IMPORTANT We highly recommend using ENv5HwConfig.c
+ *
+ * @param uartConfig[UARTDevice] struct that contains the UART configuratio
  */
 void uartInit(uartConfiguration_t *uartConfig);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT
- * @param receive function for interrupt handle
+ * We highly recommend using ENv5HwConfig.c
+ * @param receive: function for interrupt handle
  */
 void uartSetMqttReceiverFunction(void (*receive)(char *));
 
 /*!
  * @brief method to set function which handles UART receive interrupt for HTTP
- * @param receive function for interrupt handle
+ * @param receive: function for interrupt handle
  */
 void uartSetHTTPReceiverFunction(void (*receive)(char *));
 
 /*!
  * @brief send Command to ESP module via UART
+ *
  * @IMPORTANT call `uartFreeCommandBuffer(void) to unblock UART after transmission
+ *
  * @param command[char *]          Pointer to char array which holds the ESP command to send
  * @param expectedResponse[char *] Pointer to char array which holds the successful response
  * @return                         0x00 if no error

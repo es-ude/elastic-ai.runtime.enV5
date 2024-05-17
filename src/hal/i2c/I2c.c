@@ -57,7 +57,7 @@ i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
 /*
- * TODO: static bool checkFrequencyInRange(soll, ist){
+ * TODO: static bool checkFrequencyInRange(uint32_t soll, uint32_t ist){
     vergleich und bool zurück geben
 }*/
 

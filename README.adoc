@@ -35,7 +35,7 @@ For compiling the project, the required tools are:
 
 We recommended pre-commit to check that the commit messages align with the conventional commit message standard.
 
-TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:.[root
+TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:./documentation[documentation
 directory].
 
 First, you need to generate the build scripts with cmake and then execute them

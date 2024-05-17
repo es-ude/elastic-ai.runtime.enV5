@@ -17,7 +17,7 @@ spiConfiguration_t flashSpiConfiguration = {.spiInstance = SPI_FLASH_INSTANCE,
 
 };
 
-i2cConfiguration_t i2cConfiguration = {.i2cInstance = I2C_CONTROLLER,
+i2cConfiguration_t i2cConfiguration = {.i2cInstance = I2C_INSTANCE,
                                        .sdaPin = I2C_SDA_PIN,
                                        .sclPin = I2C_SCL_PIN,
                                        .frequency = I2C_FREQUENCY_IN_HZ};

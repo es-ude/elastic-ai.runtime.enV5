@@ -6,11 +6,10 @@
 
 typedef struct spi_inst spi_inst_t;
 
-struct data {
+typedef struct data {
     uint8_t *data;
     size_t length;
-};
-typedef struct data data_t;
+} data_t;
 
 typedef struct spiConfiguration {
     spi_inst_t *spiInstance;
