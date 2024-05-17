@@ -3,6 +3,7 @@
 
 #include "I2cTypedefs.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 /*!
  * @brief initializes the ports for the I2C interfaces
@@ -39,5 +40,7 @@ i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
  */
 i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,
                            uint8_t sizeOfReadBuffer);
+
+bool i2cInternalCheckFrequencyInRange(uint32_t actualFrequency, uint32_t targetFrequency);
 
 #endif /* ENV5_I2C_HEADER */

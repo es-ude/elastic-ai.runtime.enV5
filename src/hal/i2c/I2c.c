@@ -1,6 +1,7 @@
 #include "I2c.h"
 #include "Gpio.h"
 #include "I2cInternal.h"
+#include "Common.h"
 
 #include <hardware/i2c.h>
 
@@ -8,8 +9,7 @@
 
 i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
     uint32_t actualBaudrate = i2c_init(i2cConfiguration->i2cInstance, i2cConfiguration->frequency);
-    // TODO: wird nie exakt stimmen für Überprüfung
-    // ich brauche noch ein !!!delta!!!
+    if(!i2cInternalCheckFrequencyInRange(actualBaudrate, i2cConfiguration->frequency)){return I2C_FREQUENCY_ERROR;}
     i2cInternalSetupPin(i2cConfiguration->sdaPin);
     i2cInternalSetupPin(i2cConfiguration->sclPin);
     return I2C_NO_ERROR;
@@ -56,10 +56,14 @@ i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-/*
- * TODO: static bool checkFrequencyInRange(uint32_t soll, uint32_t ist){
-    vergleich und bool zurück geben
-}*/
+static bool i2cInternalCheckFrequencyInRange(uint32_t actualFrequency, uint32_t targetFrequency){
+    uint16_t delta = 1000;
+    if(actualFrequency + delta < targetFrequency){return false;}
+    else if (actualFrequency > targetFrequency){
+            PRINT("Warning: actualFrequency above targetFrequency");
+            return false;}
+    return true;
+}
 
 static void i2cInternalSetupPin(uint8_t gpio) {
     gpioSetPinFunction(gpio, GPIO_FUNCTION_I2C);
