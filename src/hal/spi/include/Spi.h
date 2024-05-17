@@ -8,7 +8,7 @@
 
 /*!
  * @brief initializes the ports for the SPI interfaces
- 
+
  * \IMPORTANT We highly recommend using Env5HwConfig.c
  *
  * @param spiConfiguration: struct that contains the SPI configuration

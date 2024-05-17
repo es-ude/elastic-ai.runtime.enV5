@@ -2,8 +2,8 @@
 #define ENV5_I2C_HEADER
 
 #include "I2cTypedefs.h"
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /*!
  * @brief initializes the ports for the I2C interfaces
