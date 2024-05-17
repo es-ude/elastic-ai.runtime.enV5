@@ -3,9 +3,9 @@
 #include <stdbool.h>
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Sleep.h"
-#include "EnV5HwController.h"
 
 #define GPIO_LED0 22
 #define GPIO_LED1 24
