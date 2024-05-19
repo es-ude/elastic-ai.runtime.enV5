@@ -1,5 +1,5 @@
-#ifndef ENV5_SENSORCONFIG_H
-#define ENV5_SENSORCONFIG_H
+#ifndef ENV5_SENSORCONFIG_HEADER
+#define ENV5_SENSORCONFIG_HEADER
 
 #include "Adxl345bTypedefs.h"
 #include "BusConfig.h"
@@ -32,4 +32,4 @@ extern pac193xSensorConfiguration_t pac193xSensorConfigurationTwo;
 #define SHT_HOST I2C_INSTANCE
 extern sht3xSensorConfiguration_t sht3xSensorConfiguration;
 
-#endif // ENV5_SENSORCONFIG_H
+#endif // ENV5_SENSORCONFIG_HEADER

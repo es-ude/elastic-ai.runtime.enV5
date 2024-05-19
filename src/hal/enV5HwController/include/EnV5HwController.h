@@ -1,7 +1,7 @@
 #ifndef ENV5_HARDWARE_CONTROLLER_HEADER
 #define ENV5_HARDWARE_CONTROLLER_HEADER
 
-#include "../../../../../../../../../usr/lib/gcc/arm-none-eabi/10.3.1/include/stdbool.h"
+#include <stdbool.h>
 
 /*!
  * @brief Initialize LEDs and FPGA

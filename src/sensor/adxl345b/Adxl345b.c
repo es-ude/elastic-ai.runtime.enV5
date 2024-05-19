@@ -12,7 +12,7 @@
 //! measurement range configuration
 static adxl345bRange_t adxl345bSelectedRange;
 
-/* endregion */
+/* endregion CONSTANTS */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -332,7 +332,7 @@ adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sen
     return ADXL345B_NO_ERROR;
 }
 
-/* endregion */
+/* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region HELPER FUNCTION IMPLEMENTATIONS */
 
@@ -475,4 +475,4 @@ static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int 
     return 0;
 }
 
-/* endregion */
+/* endregion HELPER FUNCTION IMPLEMENTATIONS */

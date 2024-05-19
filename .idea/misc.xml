@@ -6,9 +6,6 @@
     <option name="pathToExecutable" value="/usr/bin/black" />
     <option name="sdkName" value="Python 3.8 (elastic-ai.runtime.enV5-acrh)" />
   </component>
-  <component name="CMakePythonSetting">
-    <option name="pythonIntegrationState" value="NO" />
-  </component>
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <excludeRoots>
