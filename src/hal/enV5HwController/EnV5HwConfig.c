@@ -1,7 +1,9 @@
 #define SOURCE_FILE "ENV5-CONFIG"
 
-#include "BusConfig.h"
+#include "NetworkConfig.h"
 #include "SensorConfig.h"
+#include "FlashConfig.h"
+#include "FpgaConfig.h"
 
 spiConfiguration_t fpgaSpiConfiguration = {.spiInstance = SPI_FPGA_INSTANCE,
                                            .sckPin = SPI_FPGA_SCK,
@@ -10,12 +12,18 @@ spiConfiguration_t fpgaSpiConfiguration = {.spiInstance = SPI_FPGA_INSTANCE,
                                            .baudrate = SPI_FPGA_BAUDRATE,
                                            .csPin = SPI_FPGA_CS};
 
-spiConfiguration_t flashSpiConfiguration = {.spiInstance = SPI_FLASH_INSTANCE,
+const spiConfiguration_t flashSpiConfiguration = {.spiInstance = SPI_FLASH_INSTANCE,
                                             .misoPin = SPI_FLASH_MISO,
                                             .sckPin = SPI_FLASH_SCK,
                                             .mosiPin = SPI_FLASH_MOSI,
                                             .baudrate = SPI_FLASH_BAUDRATE,
                                             .csPin = SPI_FLASH_CS};
+
+const flashConfiguration_t flashConfiguration = {
+    .flashSpiConfiguration = &flashSpiConfiguration,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE
+};
 
 i2cConfiguration_t i2cConfiguration = {.i2cInstance = I2C_INSTANCE,
                                        .sdaPin = I2C_SDA_PIN,
