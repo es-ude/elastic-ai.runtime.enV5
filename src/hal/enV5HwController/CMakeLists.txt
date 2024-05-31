@@ -6,6 +6,7 @@ target_sources(enV5_hwc INTERFACE
         )
 target_link_libraries(enV5_hwc INTERFACE
         common_lib
+        flash_lib
         gpio_interface
         spi_interface
         uart_interface
