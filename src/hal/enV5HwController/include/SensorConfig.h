@@ -2,7 +2,7 @@
 #define ENV5_SENSORCONFIG_HEADER
 
 #include "Adxl345bTypedefs.h"
-#include "BusConfig.h"
+#include "NetworkConfig.h"
 #include "Pac193xTypedefs.h"
 #include "Sht3xTypedefs.h"
 

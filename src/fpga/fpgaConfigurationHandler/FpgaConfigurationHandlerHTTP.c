@@ -26,7 +26,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
     size_t totalNumberOfOccupiedSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
     for (size_t sector = 0; sector < totalNumberOfOccupiedSectors; sector++) {
         uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
-        flashEraseSector(sectorStartAddress);
+        flashEraseSector(NULL, sectorStartAddress);
     }
 
     CEXCEPTION_T exception;
@@ -46,7 +46,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
             uint32_t pageStartAddress = startAddress + (page * FLASH_BYTES_PER_PAGE);
-            if (flashWritePage(pageStartAddress, bitfileChunk, chunkLength) != chunkLength) {
+            if (flashWritePage(NULL, pageStartAddress, bitfileChunk, chunkLength) != chunkLength) {
                 Throw(FLASH_ERASE_ERROR);
             }
 

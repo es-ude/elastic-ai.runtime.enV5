@@ -26,7 +26,7 @@ void flashInit(spiConfiguration_t *spiConfiguration) {
     flashInitCalled = true;
 }
 
-int flashReadId(data_t *dataBuffer) {
+int flashReadId(spiConfiguration_t *flashSpiConfiguration, data_t *dataBuffer) {
     dataBuffer->data[0] = 0x01;
     dataBuffer->data[1] = 0x17;
     return 2;
@@ -39,7 +39,7 @@ int flashReadData(uint32_t startAddress, data_t *dataBuffer) {
     return (int)dataBuffer->length;
 }
 
-flashErrorCode_t flashEraseAll(void) {
+flashErrorCode_t flashEraseAll(spiConfiguration_t *flashSpiConfiguration) {
     for (size_t index = 0; index < flashStorageLength; index++) {
         flashStorage[index] = 0xFF;
     }

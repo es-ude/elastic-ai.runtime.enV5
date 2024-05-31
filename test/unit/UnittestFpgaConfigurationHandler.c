@@ -4,6 +4,7 @@
 
 #include "unity.h"
 
+#include "../../src/hal/enV5HwController/include/FlashConfig.h"
 #include "FlashUnitTest.h"
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
@@ -40,7 +41,7 @@ static void checkFlashData(size_t iterations) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 
-        flashReadData(0x00 + FLASH_BYTES_PER_PAGE * index, &readBuffer);
+        flashReadData(NULL, 0x00 + FLASH_BYTES_PER_PAGE * index, &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
     }

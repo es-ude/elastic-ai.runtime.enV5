@@ -7,6 +7,7 @@
 #include "pico/stdio_usb.h"
 
 #include "Flash.h"
+#include "FlashConfig.h"
 #include "FpgaConfigurationHandler.h"
 #include "FpgaConfigurationHandlerInternal.h"
 
@@ -76,7 +77,7 @@ static void fpgaConfigurationHandlerGetChunks(uint32_t totalLength, uint32_t sta
     size_t sector = 0;
     do {
         uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
-        flashEraseSector(sectorStartAddress);
+        flashEraseSector(NULL, sectorStartAddress);
         sector++;
     } while (sector < numberOfSectors);
 
@@ -101,7 +102,7 @@ static void fpgaConfigurationHandlerGetChunks(uint32_t totalLength, uint32_t sta
             data[index] = getchar_timeout_us(UINT32_MAX);
         }
         // store data to flash
-        flashWritePage(startAddress + (page * FLASH_BYTES_PER_PAGE), data, fragmentLength);
+        flashWritePage(NULL, startAddress + (page * FLASH_BYTES_PER_PAGE), data, fragmentLength);
         printf("ack");
 
         page++;
