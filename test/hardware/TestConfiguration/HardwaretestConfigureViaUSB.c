@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "EnV5HwController.h"
 #include "Flash.h"
+#include "FlashConfig.h"
 #include "FpgaConfigurationHandler.h"
 #include "Spi.h"
 
@@ -78,7 +79,7 @@ void readConfiguration(bool useFast) {
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
     while (page < numberOfPages) {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(NULL, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
         PRINT("Address: 0x%06lX", startAddress + (page * FLASH_BYTES_PER_PAGE));
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
@@ -106,7 +107,7 @@ void verifyConfiguration(bool useFast) {
         }
 
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(NULL, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
 
         for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
             printf("%02X", pageBuffer.data[index]);
@@ -125,7 +126,7 @@ _Noreturn void configurationTest(void) {
 
         switch (input) {
         case 'E':
-            flashEraseAll();
+            flashEraseAll(NULL);
             PRINT("ERASED!");
             break;
         case 'P':

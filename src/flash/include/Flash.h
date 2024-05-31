@@ -4,16 +4,8 @@
 #include <stdint.h>
 
 #include "FlashTypedefs.h"
-#include "SpiTypedefs.h"
 
 // tag::prototypes[]
-//! depends on part number
-#define FLASH_BYTES_PER_PAGE 512
-
-//! Each sector consists of 256kB (= 262144B)
-#define FLASH_BYTES_PER_SECTOR 262144
-
-void flashInit(spiConfiguration_t *spiConfiguration);
 
 /*! @brief read the device/manufacturer ID and Common Flash Interface ID
  * \n\n
@@ -24,7 +16,7 @@ void flashInit(spiConfiguration_t *spiConfiguration);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadId(data_t *dataBuffer);
+int flashReadId(spiConfiguration_t *flashSpiConfiguration, data_t *dataBuffer);
 
 /*! @brief read data from the flash storage
  *
@@ -32,20 +24,20 @@ int flashReadId(data_t *dataBuffer);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *
  * @return of if noe error occurred
  */
-flashErrorCode_t flashEraseAll(void);
+flashErrorCode_t flashEraseAll(spiConfiguration_t *flashSpiConfiguration);
 
 /*! @brief erases sector of the flash
  *
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
-flashErrorCode_t flashEraseSector(uint32_t address);
+flashErrorCode_t flashEraseSector(spiConfiguration_t *flashSpiConfiguration, uint32_t address);
 
 /*! @brief writes up to one page of bytes to the flash
  *
@@ -55,6 +47,7 @@ flashErrorCode_t flashEraseSector(uint32_t address);
  * @param bytesToWrite length of the data buffer
  * @return number of bytes written to the flash
  */
-int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite);
+int flashWritePage(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, uint8_t *data,
+                   size_t bytesToWrite);
 // end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */

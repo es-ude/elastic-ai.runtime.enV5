@@ -2,28 +2,10 @@
 #define ENV5_BUSCONFIG_HEADER
 
 #include "I2cTypedefs.h"
-#include "SpiTypedefs.h"
 #include "Uart.h"
 
 #include "hardware/i2c.h"
-#include "hardware/spi.h"
 #include "hardware/uart.h"
-
-#define SPI_FPGA_INSTANCE spi0
-#define SPI_FPGA_SCK 18
-#define SPI_FPGA_MISO 16
-#define SPI_FPGA_MOSI 19
-#define SPI_FPGA_BAUDRATE 62000000
-#define SPI_FPGA_CS 17
-extern spiConfiguration_t fpgaSpiConfiguration;
-
-#define SPI_FLASH_INSTANCE spi0
-#define SPI_FLASH_SCK 2
-#define SPI_FLASH_MISO 0
-#define SPI_FLASH_MOSI 3
-#define SPI_FLASH_BAUDRATE 1000000
-#define SPI_FLASH_CS 1
-extern spiConfiguration_t flashSpiConfiguration;
 
 #define I2C_INSTANCE i2c1
 #define I2C_FREQUENCY_IN_HZ 400000

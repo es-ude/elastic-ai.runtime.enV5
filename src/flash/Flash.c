@@ -18,79 +18,82 @@
 #include "Spi.h"
 #include "SpiTypedefs.h"
 
-static spiConfiguration_t *flashSpi;
-static uint8_t flashChipSelectPin;
+/*TODO: in main.c
+uint32_t FLASH_BYTES_PER_PAGE = FLASH_BYTES_PER_SECTOR
+congig.c
+#define FLASH_BYTES_PER_PAGE 256
+ sensorconfig, busconfig (doku)=networkconfig, flashconfig, fpgaconfig
+ 
+ fpgaconfigurationhandler nochmal anschauen
+*/
 
 /* region PUBLIC HEADER FUNCTIONS */
 
-void flashInit(spiConfiguration_t *spiConfiguration) {
-    flashChipSelectPin = spiConfiguration->csPin;
-    flashSpi = spiConfiguration;
-}
 
-int flashReadId(data_t *dataBuffer) {
+int flashReadId(spiConfiguration_t *flashSpiConfiguration, data_t *dataBuffer) {
     uint8_t cmd[1] = {FLASH_READ_ID};
     data_t command = {.data = cmd, .length = 1};
 
-    spiInit(flashSpi);
-    int readBytes = spiWriteCommandAndReadBlocking(flashSpi, &command, dataBuffer);
-    spiDeinit(flashSpi);
+    spiInit(flashSpiConfiguration);
+    int readBytes = spiWriteCommandAndReadBlocking(flashSpiConfiguration, &command, dataBuffer);
+    spiDeinit(flashSpiConfiguration);
     return readBytes;
 }
-int flashReadData(uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(flashSpi);
-    int bytesRead = spiWriteCommandAndReadBlocking(flashSpi, &command, dataBuffer);
-    spiDeinit(flashSpi);
+    spiInit(flashSpiConfiguration);
+    int bytesRead = spiWriteCommandAndReadBlocking(flashSpiConfiguration, &command, dataBuffer);
+    spiDeinit(flashSpiConfiguration);
     return bytesRead;
 }
 
-flashErrorCode_t flashEraseAll(void) {
+flashErrorCode_t flashEraseAll(spiConfiguration_t *flashSpiConfiguration) {
     uint8_t cmd[] = {FLASH_BULK_ERASE};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(flashSpi);
-    flashEnableWrite();
+    spiInit(flashSpiConfiguration);
+    flashEnableWrite(flashSpiConfiguration);
 
-    spiWriteCommandBlocking(flashSpi, &command);
+    spiWriteCommandBlocking(flashSpiConfiguration, &command);
     sleep_for_ms(33000);
     flashWaitForDone();
-    flashErrorCode_t eraseError = flashEraseErrorOccurred();
-    spiDeinit(flashSpi);
+    flashErrorCode_t eraseError = flashEraseErrorOccurred(NULL, 0);
+    spiDeinit(flashSpiConfiguration);
 
     return eraseError;
 }
-flashErrorCode_t flashEraseSector(uint32_t address) {
+flashErrorCode_t flashEraseSector(spiConfiguration_t *flashSpiConfiguration, uint32_t address) {
     uint8_t cmd[] = {FLASH_ERASE_SECTOR, address >> 16 & 0xFF, address >> 8 & 0xFF, address & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(flashSpi);
-    flashEnableWrite();
+    spiInit(flashSpiConfiguration);
+    flashEnableWrite(flashSpiConfiguration);
 
-    spiWriteCommandBlocking(flashSpi, &command);
+    spiWriteCommandBlocking(flashSpiConfiguration, &command);
 
     flashWaitForDone();
-    flashErrorCode_t eraseError = flashEraseErrorOccurred();
-    spiDeinit(flashSpi);
+    flashErrorCode_t eraseError = flashEraseErrorOccurred(NULL, 0);
+    spiDeinit(flashSpiConfiguration);
 
     return eraseError;
 }
 
-int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
+int flashWritePage(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, uint8_t *data,
+                   size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_PAGE, startAddress >> 16 & 0xFF, startAddress >> 8 & 0xFF,
                      startAddress & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = data, .length = bytesToWrite};
 
-    spiInit(flashSpi);
-    flashEnableWrite();
+    spiInit(flashSpiConfiguration);
+    flashEnableWrite(flashSpiConfiguration);
 
-    int bytesWritten = spiWriteCommandAndDataBlocking(flashSpi, &command, &dataToWrite);
+    int bytesWritten = spiWriteCommandAndDataBlocking(flashSpiConfiguration, &command, &dataToWrite);
 
     flashWaitForDone();
-    spiDeinit(flashSpi);
+    spiDeinit(flashSpiConfiguration);
 
     return bytesWritten;
 }
@@ -99,30 +102,30 @@ int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
 
 /* region INTERNAL HEADER FUNCTIONS */
 
-static void flashEnableWrite(void) {
+static void flashEnableWrite(spiConfiguration_t *flashSpiConfiguration) {
     uint8_t cmd[] = {FLASH_ENABLE_WRITE};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiWriteCommandBlocking(flashSpi, &command);
+    spiWriteCommandBlocking(flashSpiConfiguration, &command);
 }
 
-static uint8_t flashReadStatusRegister(void) {
+static uint8_t flashReadStatusRegister(spiConfiguration_t *flashSpiConfiguration) {
     uint8_t cmd[] = {FLASH_STATUS_REGISTER};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
     uint8_t statusRegister[1];
     data_t statusRegisterData = {.data = statusRegister, .length = sizeof(statusRegister)};
 
-    spiWriteCommandAndReadBlocking(flashSpi, &command, &statusRegisterData);
+    spiWriteCommandAndReadBlocking(flashSpiConfiguration, &command, &statusRegisterData);
     PRINT_DEBUG("Status Register: 0x%02X", statusRegisterData.data[0]);
     return statusRegisterData.data[0];
 }
 
-static flashErrorCode_t flashEraseErrorOccurred(void) {
-    return ((flashReadStatusRegister() >> 5) & 1) ? FLASH_ERASE_ERROR : FLASH_NO_ERROR;
+static flashErrorCode_t flashEraseErrorOccurred(spiConfiguration_t *flashSpiConfiguration, ) {
+    return ((flashReadStatusRegister(NULL) >> 5) & 1) ? FLASH_ERASE_ERROR : FLASH_NO_ERROR;
 }
 
 static void flashWaitForDone(void) {
-    while (flashReadStatusRegister() & 0x01) {}
+    while (flashReadStatusRegister(NULL) & 0x01) {}
 }
 /* endregion INTERNAL HEADER FUNCTIONS */
