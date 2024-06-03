@@ -15,16 +15,21 @@
 
 void flashInit(spi_t *spiConfiguration, uint8_t chipSelectPin);
 
-/*! @brief read the device/manufacturer ID and Common Flash Interface ID
- * \n\n
- * -> 1-2 Byte: Manufacturer ID \n
- * -> 3-4 Byte: Device ID \n
- * -> 5-?  Byte: CFI ID \n
+/*! @brief read a configuration register of the flash
  *
+ * @param registerToRead configuration register to read
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadId(data_t *dataBuffer);
+int flashReadConfig(commands_t registerToRead, data_t *dataBuffer);
+
+/*! @brief write to the config register of the flash
+ *
+ * @param configToWrite configuration to write
+ * @param bytesToWrite length of the configuration to write
+ * @return number of written bytes
+ */
+int flashWriteConfig(uint8_t *configToWrite, size_t bytesToWrite);
 
 /*! @brief read data from the flash storage
  *

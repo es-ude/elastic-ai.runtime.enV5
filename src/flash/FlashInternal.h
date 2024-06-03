@@ -9,8 +9,6 @@
  */
 static void flashEnableWrite(void);
 
-static uint8_t flashReadStatusRegister(void);
-
 static flashErrorCode_t flashEraseErrorOccurred(void);
 
 static void flashWaitForDone(void);

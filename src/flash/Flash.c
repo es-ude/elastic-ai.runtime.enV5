@@ -28,9 +28,9 @@ void flashInit(spi_t *spiConfiguration, uint8_t chipSelectPin) {
     flashSpi = spiConfiguration;
 }
 
-int flashReadId(data_t *dataBuffer) {
-    uint8_t cmd[1] = {FLASH_READ_ID};
-    data_t command = {.data = cmd, .length = 1};
+int flashReadConfig(commands_t registerToRead, data_t *dataBuffer) {
+    uint8_t cmd[] = {registerToRead};
+    data_t command = {.data = cmd, .length = sizeof(cmd)};
 
     spiInit(flashSpi, flashChipSelectPin);
     int readBytes =
@@ -38,6 +38,23 @@ int flashReadId(data_t *dataBuffer) {
     spiDeinit(flashSpi, flashChipSelectPin);
     return readBytes;
 }
+int flashWriteConfig(uint8_t *configToWrite, size_t bytesToWrite) {
+    uint8_t cmd[] = {FLASH_WRITE_CONFIG_REGISTER};
+    data_t command = {.data = cmd, .length = sizeof(cmd)};
+    data_t dataToWrite = {.data = configToWrite, .length = bytesToWrite};
+
+    spiInit(flashSpi, flashChipSelectPin);
+    flashEnableWrite();
+
+    int bytesWritten =
+        spiWriteCommandAndDataBlocking(flashSpi, flashChipSelectPin, &command, &dataToWrite);
+
+    flashWaitForDone();
+    spiDeinit(flashSpi, flashChipSelectPin);
+
+    return bytesWritten;
+}
+
 int flashReadData(uint32_t startAddress, data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
@@ -109,23 +126,18 @@ static void flashEnableWrite(void) {
     spiWriteCommandBlocking(flashSpi, flashChipSelectPin, &command);
 }
 
-static uint8_t flashReadStatusRegister(void) {
-    uint8_t cmd[] = {FLASH_STATUS_REGISTER};
-    data_t command = {.data = cmd, .length = sizeof(cmd)};
-
-    uint8_t statusRegister[1];
-    data_t statusRegisterData = {.data = statusRegister, .length = sizeof(statusRegister)};
-
-    spiWriteCommandAndReadBlocking(flashSpi, flashChipSelectPin, &command, &statusRegisterData);
-    PRINT_DEBUG("Status Register: 0x%02X", statusRegisterData.data[0]);
-    return statusRegisterData.data[0];
-}
-
 static flashErrorCode_t flashEraseErrorOccurred(void) {
-    return ((flashReadStatusRegister() >> 5) & 1) ? FLASH_ERASE_ERROR : FLASH_NO_ERROR;
+    uint8_t configRegister;
+    data_t buffer = {.data = &configRegister, .length = 1};
+    flashReadConfig(FLASH_READ_STATUS_REGISTER, &buffer);
+    return ((configRegister >> 5) & 1) ? FLASH_ERASE_ERROR : FLASH_NO_ERROR;
 }
 
 static void flashWaitForDone(void) {
-    while (flashReadStatusRegister() & 0x01) {}
+    uint8_t configRegister;
+    do {
+        data_t buffer = {.data = &configRegister, .length = 1};
+        flashReadConfig(FLASH_READ_STATUS_REGISTER, &buffer);
+    } while (configRegister & 0x01);
 }
 /* endregion INTERNAL HEADER FUNCTIONS */

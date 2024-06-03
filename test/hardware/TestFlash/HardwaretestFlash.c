@@ -34,11 +34,10 @@ void initializeHardware(void) {
     flashInit(&spiConfig, csPin);
 }
 void readDeviceID() {
-    data_t idBuffer = {.data = calloc(6, sizeof(uint8_t)), .length = 6};
-    int bytesRead = flashReadId(&idBuffer);
+    data_t idBuffer = {.data = calloc(3, sizeof(uint8_t)), .length = 3};
+    int bytesRead = flashReadConfig(FLASH_READ_ID, &idBuffer);
     PRINT_DEBUG("Bytes read: %i", bytesRead);
-    PRINT("Device ID is: 0x%02X%02X%02X%02X%02X", idBuffer.data[0], idBuffer.data[1],
-          idBuffer.data[2], idBuffer.data[3], idBuffer.data[4]);
+    PRINT("Device ID is: 0x%06X (Should be 0x010219)", *idBuffer.data);
     free(idBuffer.data);
 }
 void writeToFlash() {
