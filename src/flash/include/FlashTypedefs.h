@@ -1,15 +1,14 @@
 #ifndef ENV5_FLASH_TYPEDEFS
 #define ENV5_FLASH_TYPEDEFS
 
-#include <stdint.h>
 #include "SpiTypedefs.h"
+#include <stdint.h>
 
 typedef struct flashConfiguration {
     spiConfiguration_t *flashSpiConfiguration;
     uint32_t flashBytesPerSector;
     uint32_t flashBytesPerPage;
 } flashConfiguration_t;
-
 
 typedef enum flashErrorCode {
     FLASH_NO_ERROR = 0x00,

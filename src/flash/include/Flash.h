@@ -23,7 +23,8 @@ int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress,
+                  data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *

@@ -56,7 +56,7 @@ void qxiReadBlocking(uint16_t startAddress, uint8_t *dataBuffer, size_t length);
 /*!
  * @brief sends a byte array to slave
  *
-* @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param spiConfiguration[in]: struct that contains the SPI configuration
  * @param command[in]: pointer to data_t, command to be send

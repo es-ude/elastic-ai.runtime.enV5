@@ -8,12 +8,8 @@
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
 
-
 flashConfiguration_t flashConfiguration = {
-    .flashSpiConfiguration = NULL,
-    .flashBytesPerSector = 512,
-    .flashBytesPerPage = 262144
-};
+    .flashSpiConfiguration = NULL, .flashBytesPerSector = 512, .flashBytesPerPage = 262144};
 
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
@@ -65,14 +61,14 @@ void tearDown(void) {
 void test_downloadViaHttpUrlCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetCheckUrl;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfiguration, baseUrl,
-                                                         pages * flashConfiguration.flashBytesPerPage, 1);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
 }
 void test_downloadViaHttpOrderCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfiguration, baseUrl,
-                                                         pages * flashConfiguration.flashBytesPerPage, 1);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
     checkFlashData(pages);
 }
 

@@ -28,7 +28,8 @@ int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer) {
     dataBuffer->data[1] = 0x17;
     return 2;
 }
-int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress,
+                  data_t *dataBuffer) {
     for (size_t offset = 0; offset < dataBuffer->length; offset++) {
         dataBuffer->data[offset] = flashStorage[startAddress + offset];
     }
@@ -55,7 +56,8 @@ flashErrorCode_t flashErasePage(flashConfiguration_t *flashConfiguration, uint32
     return FLASH_NO_ERROR;
 }
 
-int flashWritePage(flashConfiguration_t *flashConfiguration, uint32_t startAddress, uint8_t *data, size_t bytesToWrite) {
+int flashWritePage(flashConfiguration_t *flashConfiguration, uint32_t startAddress, uint8_t *data,
+                   size_t bytesToWrite) {
     for (size_t offset = 0; offset < bytesToWrite; offset++) {
         flashStorage[startAddress + offset] = data[offset];
     }

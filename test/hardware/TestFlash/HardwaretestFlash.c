@@ -25,8 +25,8 @@ spiConfiguration_t spiConfig = {.sckPin = 2,
                                 .csPin = 1};
 
 flashConfiguration_t flashConfig = {.flashSpiConfiguration = &spiConfig,
-.flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-.flashBytesPerSector = FLASH_BYTES_PER_PAGE};
+                                    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+                                    .flashBytesPerSector = FLASH_BYTES_PER_PAGE};
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 

@@ -14,10 +14,10 @@ const static adxl345bRange_t ADXL345B_16G_RANGE = {16, 0b00001011, 0b00111111, 0
 
 /*!
  * @brief initializes the sensor
-  * @IMPORTANT
+ * @IMPORTANT
  *    - function has to be called before use of the sensor can be used \n
  *    needs max 1.5ms for idle state after power up
-  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *    -
  *
  * @param sensor[in] configuration for sensor to use
@@ -87,7 +87,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
  * @brief trigger a self calibration run
  *
  * function assumes that the X, Y error is zero at 0G and Z error is zero at 1G
-  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
  * @return return the error code (0 if self-calibration passed)
