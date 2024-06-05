@@ -8,6 +8,7 @@ node_modules/
 **/__pycache__/
 config.bin
 .envrc
+**/dependencies.png
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode

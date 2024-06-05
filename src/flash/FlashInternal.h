@@ -13,6 +13,6 @@ static uint8_t flashReadStatusRegister(spiConfiguration_t *flashSpiConfiguration
 
 static flashErrorCode_t flashEraseErrorOccurred(spiConfiguration_t *flashSpiConfiguration);
 
-static void flashWaitForDone(void);
+static void flashWaitForDone(spiConfiguration_t *flashSpiConfiguration);
 
 #endif /* ENV5_FLASH_INTERNAL_HEADER */

@@ -6,7 +6,6 @@
 #include "FlashTypedefs.h"
 
 // tag::prototypes[]
-
 /*! @brief read the device/manufacturer ID and Common Flash Interface ID
  * \n\n
  * -> 1-2 Byte: Manufacturer ID \n
@@ -16,7 +15,7 @@
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadId(spiConfiguration_t *flashSpiConfiguration, data_t *dataBuffer);
+int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer);
 
 /*! @brief read data from the flash storage
  *
@@ -24,20 +23,20 @@ int flashReadId(spiConfiguration_t *flashSpiConfiguration, data_t *dataBuffer);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress, data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *
  * @return of if noe error occurred
  */
-flashErrorCode_t flashEraseAll(spiConfiguration_t *flashSpiConfiguration);
+flashErrorCode_t flashEraseAll(flashConfiguration_t *flashConfiguration);
 
 /*! @brief erases sector of the flash
  *
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
-flashErrorCode_t flashEraseSector(spiConfiguration_t *flashSpiConfiguration, uint32_t address);
+flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfiguration, uint32_t address);
 
 /*! @brief writes up to one page of bytes to the flash
  *
@@ -47,7 +46,7 @@ flashErrorCode_t flashEraseSector(spiConfiguration_t *flashSpiConfiguration, uin
  * @param bytesToWrite length of the data buffer
  * @return number of bytes written to the flash
  */
-int flashWritePage(spiConfiguration_t *flashSpiConfiguration, uint32_t startAddress, uint8_t *data,
+int flashWritePage(flashConfiguration_t *flashConfiguration, uint32_t startAddress, uint8_t *data,
                    size_t bytesToWrite);
 // end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */

@@ -8,9 +8,9 @@
 /*!
  * @brief initializes the ports for the I2C interfaces
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param i2cConfiguration[I2CDevice]: struct that contains the I2C configuration
+ * @param i2cConfiguration[in]: struct that contains the I2C configuration
  * @return              return the error code (0 if everything passed)
  */
 i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration);
@@ -18,11 +18,11 @@ i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration);
 /*!
  * @brief sends a byte array to the slave
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+* @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param hostAddress: address of the I2C host (Controller)
- * @param slaveAddress: address of the I2C slave (Sensor)
- * @param commandBuffer: uint8_t array that holds the commands to be send to slave
+ * @param hostAddress[in]: address of the I2C host (Controller)
+ * @param slaveAddress[in]: address of the I2C slave (Sensor)
+ * @param commandBuffer[in]: uint8_t array that holds the commands to be send to slave
  * @return              return the error code (0 if everything passed)
  */
 i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
@@ -31,11 +31,11 @@ i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
 /*!
  * @brief reads bytes from slave
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * * @param hostAddress: address of the I2C host (Controller)
- * @param slaveAddress:  address of the I2C slave (Sensor)
- * @param readBuffer:  pointer to uint8_t array that stores the received data
+ * @param hostAddress[in]: address of the I2C host (Controller)
+ * @param slaveAddress[in]:  address of the I2C slave (Sensor)
+ * @param readBuffer[out]:  pointer to uint8_t array that stores the received data
  * @return              return the error code (0 if everything passed)
  */
 i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,

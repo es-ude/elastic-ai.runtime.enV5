@@ -1,5 +1,8 @@
 #define SOURCE_FILE "FLASH-HWTEST"
 
+#define FLASH_BYTES_PER_PAGE 512
+#define FLASH_BYTES_PER_SECTOR 262144
+
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
@@ -12,7 +15,6 @@
 #include "Common.h"
 #include "EnV5HwController.h"
 #include "Flash.h"
-#include "FlashConfig.h"
 #include "Spi.h"
 
 spiConfiguration_t spiConfig = {.sckPin = 2,
@@ -21,6 +23,10 @@ spiConfiguration_t spiConfig = {.sckPin = 2,
                                 .baudrate = 1000 * 1000,
                                 .spiInstance = spi0,
                                 .csPin = 1};
+
+flashConfiguration_t flashConfig = {.flashSpiConfiguration = &spiConfig,
+.flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+.flashBytesPerSector = FLASH_BYTES_PER_PAGE};
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 
@@ -32,15 +38,14 @@ void initializeConsoleOutput(void) {
 }
 
 void initializeHardware(void) {
-    env5HwInit();
-    env5HwFpgaPowersOff();
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
     spiInit(&spiConfig);
-    flashInit(&spiConfig);
 }
 void readDeviceID() {
     data_t idBuffer = {.data = calloc(6, sizeof(uint8_t)), .length = 6};
-    int bytesRead = flashReadId(NULL, &idBuffer);
+    int bytesRead = flashReadId(&flashConfig, &idBuffer);
     PRINT_DEBUG("Bytes read: %i", bytesRead);
     PRINT("Device ID is: 0x%02X%02X%02X%02X%02X", idBuffer.data[0], idBuffer.data[1],
           idBuffer.data[2], idBuffer.data[3], idBuffer.data[4]);
@@ -122,7 +127,7 @@ _Noreturn void runTest(void) {
             readFromFlash();
             break;
         case 'b':
-            flashEraseAll(NULL);
+            flashEraseAll(&flashConfig);
             break;
         default:
             PRINT("Waiting ...");

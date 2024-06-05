@@ -13,6 +13,9 @@
 
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 
+#define FLASH_BYTES_PER_PAGE 512
+#define FLASH_BYTES_PER_SECTOR 262144
+
 #include <malloc.h>
 #include <math.h>
 #include <stdint.h>
@@ -27,14 +30,16 @@
 #include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
-#include "FlashConfig.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
 #include "Spi.h"
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiConfig = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
+
+flashConfiguration_t flashConfig = {.flashSpiConfiguration = &spiConfig,
+                                    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+                                    .flashBytesPerSector = FLASH_BYTES_PER_PAGE};
 
 const char *baseUrl = "http://127.0.0.1:5000";
 uint32_t blinkFast = 1;
@@ -43,7 +48,7 @@ uint32_t blinkSlow = 1;
 size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();
@@ -53,8 +58,7 @@ void initHardwareTest(void) {
 
     espInit(); // initilize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
-
-    flashInit(&spiConfiguration);
+    
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -67,8 +71,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url);
 
-        error =
-            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkFastLength, blinkFast);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url, blinkFastLength,
+                                                                     blinkFast);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -77,8 +81,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
 
-        error =
-            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkSlowLength, blinkSlow);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url, blinkSlowLength,
+                                                                     blinkSlow);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -150,11 +154,11 @@ _Noreturn void configurationTest(void) {
             PRINT("ERASED");
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA Power: ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA Power: OFF");
             break;
         case 'd':

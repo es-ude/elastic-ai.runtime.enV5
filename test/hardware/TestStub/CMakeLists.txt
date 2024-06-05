@@ -5,7 +5,7 @@ target_link_libraries(hardware-test_stub-v1
         pico_stdlib
         hardware_spi
         flash_lib
-        enV5_hwc
+        enV5_hw_controller
         sleep_interface
         fpga_configuration_handler
         stub_v1_lib)
@@ -19,7 +19,7 @@ target_link_libraries(hardware-test_stub-v2
         pico_stdlib
         hardware_spi
         flash_lib
-        enV5_hwc
+        enV5_hw_controller
         sleep_interface
         fpga_configuration_handler
         stub_v2_lib)
@@ -33,7 +33,7 @@ target_link_libraries(hardware-test_echoServerOTA
         pico_stdlib
         hardware_spi
         flash_lib
-        enV5_hwc
+        enV5_hw_controller
         fpga_configuration_handler
         middleware_lib
         espBroker_lib

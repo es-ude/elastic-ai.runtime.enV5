@@ -1,0 +1,3 @@
+add_subdirectory(enV5HwConfigurationRevisionOne)
+add_subdirectory(enV5HwConfigurationRevisionTwo)
+
