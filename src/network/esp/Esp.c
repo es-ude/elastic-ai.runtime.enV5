@@ -2,12 +2,12 @@
 
 #include <stdbool.h>
 
+#include "../../hal/enV5HwConfiguration/enV5HwConfigurationRevisionOne/include/EnV5HwConfigurationRevisionOne.h"
 #include "AtCommands.h"
 #include "Common.h"
 #include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
-#include "NetworkConfig.h"
 #include "Uart.h"
 
 /* region VARIABLES */
@@ -15,6 +15,14 @@
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
+//TODO: use uartConfiguration as parameter in functions instead
+uartConfiguration_t uartConfiguration = {.uartInstance = UART_INSTANCE,
+                                         .txPin = UART_TX_PIN,
+                                         .rxPin = UART_RX_PIN,
+                                         .baudrate = UART_BAUDRATE,
+                                         .dataBits = UART_DATA_BITS,
+                                         .stopBits = UART_STOP_BITS,
+                                         .parity = UART_PARITY};
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */

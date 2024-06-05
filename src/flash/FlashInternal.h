@@ -11,6 +11,6 @@ static void flashEnableWrite(void);
 
 static flashErrorCode_t flashEraseErrorOccurred(void);
 
-static void flashWaitForDone(void);
+static void flashWaitForDone(spiConfiguration_t *flashSpiConfiguration);
 
 #endif /* ENV5_FLASH_INTERNAL_HEADER */

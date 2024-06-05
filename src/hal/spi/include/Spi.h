@@ -8,40 +8,40 @@
 
 /*!
  * @brief initializes the ports for the SPI interfaces
-
- * \IMPORTANT We highly recommend using Env5HwConfig.c
  *
- * @param spiConfiguration: struct that contains the SPI configuration
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
  */
 void spiInit(spiConfiguration_t *spiConfiguration);
 
 /*!
  * @brief terminates the ports for the SPI interfaces
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param spiConfiguration: struct that contains the SPI configuration
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
  */
 void spiDeinit(spiConfiguration_t *spiConfiguration);
 
 /*!
  * @brief sends command to selected device, which can be found in spiConfiguration
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param spiConfiguration: struct that contains the SPI configuration
- * @param command: pointer to data_t, command to be send to slave
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
+ * @param command[in]: pointer to data_t, command to be send to slave
  */
 int spiWriteCommandBlocking(spiConfiguration_t *spiConfiguration, data_t *command);
 
 /*!
  * @brief sends a byte array to slave
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param spiConfiguration: struct that contains the SPI configuration
- * @param command: pointer to data_t, command to be send
- * @param data: pointer to data_t, data to be send
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
+ * @param command[in]: pointer to data_t, command to be send
+ * @param data[in]: pointer to data_t, data to be send
  */
 int spiWriteCommandAndDataBlocking(spiConfiguration_t *spiConfiguration, data_t *command,
                                    data_t *data);
@@ -49,11 +49,11 @@ int spiWriteCommandAndDataBlocking(spiConfiguration_t *spiConfiguration, data_t 
 /*!
  * @brief reads a byte array
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param spiConfiguration: struct that contains the SPI configuration
- * @param command: pointer to data_t, command to be send
- * @param data: pointer to data_t, data that stores the received data
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
+ * @param command[in]: pointer to data_t, command to be send
+ * @param data[out]: pointer to data_t, data that stores the received data
  */
 int spiWriteCommandAndReadBlocking(spiConfiguration_t *spiConfiguration, data_t *command,
                                    data_t *data);

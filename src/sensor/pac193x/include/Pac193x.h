@@ -10,7 +10,7 @@
 
 /*!
  * @brief power up the sensor by setting PWRDN Pin to HIGH
- * @IMPORTANT We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
  * @return           returns the error code (0 if everything passed)
@@ -20,7 +20,7 @@ pac193xErrorCode_t pac193xPowerUpSensor(pac193xSensorConfiguration_t sensor);
 /*!
  * @brief power down the sensor by setting PWRDN Pin to LOW
  * @IMPORTANT - After powered up again all settings will be set to default!
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
  * @return           returns the error code (0 if everything passed)
@@ -34,7 +34,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor);
  *    needs max 1.5ms for idle state after power up \n
  *    function pac193xPowerUpSensor(...) has to be called beforehand
  * @IMPORTANT
- *     - We highly recommend using ENv5HwConfig.c
+ *     - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
  * @return           returns the error code (0 if everything passed)
@@ -43,7 +43,7 @@ pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor);
 
 /*!
  * @brief updates the number of used channels
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] sensor configuration with updated channels
  * @return           returns the error code (0 if everything passed)
@@ -56,7 +56,7 @@ pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor);
 
 /*!
  * @brief retrieve the production information from the sensor
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration of the sensor to use
  * @param info[out]  struct that holds the information read from the sensor
@@ -67,7 +67,7 @@ pac193xErrorCode_t pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
 
 /*!
  * @brief read a specific value from the sensor for a specific channel
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in]         configuration of the sensor to use
  * @param channel[in]        channel where the measurement should be taken from
@@ -82,7 +82,7 @@ pac193xErrorCode_t pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t 
 
 /*!
  * @brief read \b all available single shot values from the sensor for a specific channel
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in]        configuration of the sensor to use
  * @param channel[in]       channel where the measurement should be taken from
@@ -99,7 +99,7 @@ pac193xErrorCode_t pac193xGetAllMeasurementsForChannel(pac193xSensorConfiguratio
 
 /*!
  * @brief start continuous measurement as accumulator/average with 1024 samples/second
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration of the sensor to use
  * @return           returns the error code (o if everything passed)
@@ -108,7 +108,7 @@ pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor)
 
 /*!
  * @brief stop continuous measurement and return to single shot mode
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration of the sensor to use
  * @return           returns the error code (o if everything passed)
@@ -118,7 +118,7 @@ pac193xErrorCode_t pac193XStopAccumulation(pac193xSensorConfiguration_t sensor);
 /*!
  * @brief get the counter of accumulated values and the accumulated power values
  *        for all channels of the sensor
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in]        configuration of the sensor to use
  * @param measurements[out] memory where the struct with the measured values will be stored
@@ -130,7 +130,7 @@ pac193xReadAccumulatedPowerForAllChannels(pac193xSensorConfiguration_t sensor,
 
 /*!
  * @brief read an rolling average value of from sensor
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in]         configuration of the sensor to use
  * @param channel[in]        channel where the measurement should be taken from
@@ -145,7 +145,7 @@ pac193xErrorCode_t pac193xReadAverageMeasurement(pac193xSensorConfiguration_t se
 
 /*!
  * @brief read an rolling average value of from sensor
- * @IMPORTANT - We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in]        configuration of the sensor to use
  * @param channel[in]       channel where the measurement should be taken from

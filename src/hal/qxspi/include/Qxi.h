@@ -46,21 +46,21 @@ void qxiSetSpeed(uint32_t baudrate);
 /*!
  * @brief reads a byte array
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param startAddress: uint16_t startAddress, needed for command
- * @param dataBuffer: pointer to uint8_t, data that stores the received data
+ * @param startAddress[in]: uint16_t startAddress, needed for command
+ * @param dataBuffer[out]: pointer to uint8_t, data that stores the received data
  */
 void qxiReadBlocking(uint16_t startAddress, uint8_t *dataBuffer, size_t length);
 
 /*!
  * @brief sends a byte array to slave
  *
- * \IMPORTANT We highly recommend using Env5HwConfig.c
+* @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param spiConfiguration: struct that contains the SPI configuration
- * @param command: pointer to data_t, command to be send
- * @param data: pointer to data_t, data to be send
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
+ * @param command[in]: pointer to data_t, command to be send
+ * @param data[in]: pointer to data_t, data to be send
  */
 void qxiWriteBlocking(uint16_t startAddress, uint8_t *data, size_t length);
 

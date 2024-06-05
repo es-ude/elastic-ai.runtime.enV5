@@ -25,7 +25,7 @@ void initHardwareTest(void) {
         reset_usb_boot(0, 0);
     }
 
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();

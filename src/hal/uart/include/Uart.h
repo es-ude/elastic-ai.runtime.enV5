@@ -33,15 +33,15 @@ typedef enum {
 /*!
  * @brief initialize UART to communicate with ESP
  *
- * @IMPORTANT We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param uartConfig[UARTDevice] struct that contains the UART configuratio
+ * @param uartConfig[in] struct that contains the UART configuration
  */
 void uartInit(uartConfiguration_t *uartConfig);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT
- * We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT We highly recommend using ENv5HwConfig.c
  * @param receive: function for interrupt handle
  */
 void uartSetMqttReceiverFunction(void (*receive)(char *));

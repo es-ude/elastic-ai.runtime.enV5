@@ -6,36 +6,36 @@
 /*!
  * @brief Initialize LEDs and FPGA
  */
-void env5HwInit(void);
+void env5HwControllerInit(void);
 
 /*!
  * @brief Initialize GPIOs for LEDs
  */
-void env5HwLedsInit(void);
+void env5HwControllerLedsInit(void);
 /*!
  * @brief Turn ON all LEDs
  */
-void env5HwLedsAllOff(void);
+void env5HwControllerLedsAllOff(void);
 /*!
  * @brief Turn OFF all LEDs
  */
-void env5HwLedsAllOn(void);
+void env5HwControllerLedsAllOn(void);
 
 /*!
  * @brief Initialize FPGA GPIOs and turn it OFF
  */
-void env5HwFpgaInit(void);
+void env5HwControllerFpgaInit(void);
 /*!
  * @brief Power ON FPGA
  */
-void env5HwFpgaPowersOn(void);
+void env5HwControllerFpgaPowersOn(void);
 /*!
  * @brief Power OFF FPGA
  */
-void env5HwFpgaPowersOff(void);
+void env5HwControllerFpgaPowersOff(void);
 /*!
  * @brief Enable/Disable Reset of the FPGA
- * @param enable true=enable reset, false=disable reset
+ * @param enable[in] true=enable reset, false=disable reset
  */
 void env5HwFpgaReset(bool enable);
 

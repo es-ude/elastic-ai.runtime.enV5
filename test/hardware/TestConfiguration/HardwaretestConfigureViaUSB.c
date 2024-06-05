@@ -22,10 +22,10 @@
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 
+#include "../../../src/hal/enV5HwConfiguration/enV5HwConfigurationRevisionOne/include/EnV5HwConfigurationRevisionOne.h"
 #include "Common.h"
 #include "EnV5HwController.h"
 #include "Flash.h"
-#include "FlashConfig.h"
 #include "FpgaConfigurationHandler.h"
 #include "Spi.h"
 
@@ -43,9 +43,8 @@ void initHardwareTest(void) {
         // wait for serial connection
     }
 
-    // initialize the Flash and FPGA
-    flashInit(&spiConfiguration);
-    env5HwInit();
+    // initialize FPGA
+    env5HwControllerInit();
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -58,7 +57,7 @@ void downloadConfiguration(bool useFast) {
     }
 
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorID);
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(NULL, sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Error 0x%02X occurred during download.", error);
         return;
@@ -130,11 +129,11 @@ _Noreturn void configurationTest(void) {
             PRINT("ERASED!");
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA Power: ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA Power: OFF");
             break;
         case 'd':

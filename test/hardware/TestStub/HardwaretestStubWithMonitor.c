@@ -56,7 +56,7 @@ mutex_t espOccupied;
 
 void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();
@@ -74,7 +74,6 @@ void initHardware() {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration);
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -155,8 +154,8 @@ _Noreturn void handlePublishTask(void) {
 
 bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t startSector) {
     freeRtosMutexWrapperLock(espOccupied);
-    fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, lengthOfBinFile, startSector);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        NULL, url, lengthOfBinFile, startSector);
     freeRtosMutexWrapperUnlock(espOccupied);
     free(url);
 
@@ -204,12 +203,12 @@ _Noreturn void runTestTask(void) {
              * 3. Deploy new config via middleware
              * 4. Run Middleware test (Blink FPGA LED)
              */
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             if (!successfullyDownloadBinFile(downloadRequest.url, downloadRequest.fileSizeInBytes,
                                              downloadRequest.startSectorId)) {
                 continue;
             }
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             //            freeRtosTaskWrapperTaskSleep(100);
             //            middlewareConfigureFpga(downloadRequest.startSectorId);
             //            blinkFpgaLeds();

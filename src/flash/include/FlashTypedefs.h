@@ -5,7 +5,7 @@
 #include "SpiTypedefs.h"
 
 typedef struct flashConfiguration {
-    const spiConfiguration_t *flashSpiConfiguration;
+    spiConfiguration_t *flashSpiConfiguration;
     uint32_t flashBytesPerSector;
     uint32_t flashBytesPerPage;
 } flashConfiguration_t;
