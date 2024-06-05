@@ -2,7 +2,7 @@
 .tool-versions
 .venv
 networks.txt
-NetworkConfig.c
+NetworkConfiguration.c
 node_modules/
 *.json
 **/__pycache__/
@@ -51,7 +51,7 @@ cmake-build-*
 build/
 build_*/
 out/
-**/NetworkConfig.c
+
 
 ## IntelliJ IDEA
 .idea/workspace.xml

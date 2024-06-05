@@ -26,7 +26,7 @@ The https://docs.espressif.com/projects/esp-at/en/release-v2.2.0.0_esp8266/AT_Co
 The wifi library provided under link:wifi/[wifi] provides all required functions to connect to a local wifi network.
 
 To connect to a network, the SSID and Password has to be passed to the library.
-The CMake scripts will automatically create a `NetworkConfig.c` inside the link:./config/[config folder].
+The CMake scripts will automatically create a `NetworkConfiguration.c` inside the link:./config/[config folder].
 When you want to use wifi capabilities you than have to add the `network_config` library to your source code.
 
 .Example
@@ -85,7 +85,7 @@ To properly handle the received answer from the ESP32 module it is required to r
 This handler is automatically set when the broker connection was successful.
 
 To connect to a broker, the required credentials have to be passed to the library.
-The CMake scripts will automatically create a `NetworkConfig.c` inside the link:./config[config folder].
+The CMake scripts will automatically create a `NetworkConfiguration.c` inside the link:./config[config folder].
 When you want to use mqtt capabilities you than have to add the `network_config` library to your source code.
 
 IMPORTANT: The `clientId` of every device has to be different
