@@ -18,7 +18,7 @@ i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration);
 /*!
  * @brief sends a byte array to the slave
  *
-* @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param hostAddress[in]: address of the I2C host (Controller)
  * @param slaveAddress[in]: address of the I2C slave (Sensor)

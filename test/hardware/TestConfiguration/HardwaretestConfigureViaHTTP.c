@@ -59,7 +59,7 @@ void initHardwareTest(void) {
 
     espInit(); // initilize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
-    
+
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -72,8 +72,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url);
 
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url, blinkFastLength,
-                                                                     blinkFast);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
+                                                                     blinkFastLength, blinkFast);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -82,8 +82,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
 
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url, blinkSlowLength,
-                                                                     blinkSlow);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
+                                                                     blinkSlowLength, blinkSlow);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;

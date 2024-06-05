@@ -2,8 +2,8 @@
 #define ENV5_HW_CONFIGURATION_REV_ONE_HEADER
 
 #include "hardware/i2c.h"
-#include "hardware/uart.h"
 #include "hardware/spi.h"
+#include "hardware/uart.h"
 
 /* region I2C */
 #define I2C_INSTANCE i2c1
@@ -47,31 +47,39 @@
 /* endregion FPGA */
 
 /* region ADXL345b */
-//! ADXL_SLAVE is the ADXL345B_I2C_ALTERNATE_ADDRESS which can be found in src/sensor/adxl345b/include/Adxl345bTypedefs.h
+//! ADXL_SLAVE is the ADXL345B_I2C_ALTERNATE_ADDRESS which can be found in
+//! src/sensor/adxl345b/include/Adxl345bTypedefs.h
 #define ADXL_SLAVE 0x53
 #define ADXL_HOST I2C_INSTANCE
 /* endregion ADXL345b */
 
 /* region PAC193x I */
-//! PAC_ONE_SLAVE is the PAC193X_I2C_ADDRESS_499R which can be found in src/sensor/pac193x/include/Pac193xTypedefs.h
+//! PAC_ONE_SLAVE is the PAC193X_I2C_ADDRESS_499R which can be found in
+//! src/sensor/pac193x/include/Pac193xTypedefs.h
 #define PAC_ONE_SLAVE 0x11
 #define PAC_ONE_HOST I2C_INSTANCE
 #define PAC_ONE_POWER_PIN -1
-#define PAC_ONE_R_SENSE { 0.82f, 0.82f, 0.82f, 0.82f }
-#define PAC_ONE_USED_CHANNELS { .uint_channelsInUse = 0b00001111 }
+#define PAC_ONE_R_SENSE                                                                            \
+    { 0.82f, 0.82f, 0.82f, 0.82f }
+#define PAC_ONE_USED_CHANNELS                                                                      \
+    { .uint_channelsInUse = 0b00001111 }
 /* endregion PAC193x I*/
 
 /* region PAC193x II */
-//! PAC_TWO_SLAVE is the PAC193X_I2C_ADDRESS_806R which can be found in src/sensor/pac193x/include/Pac193xTypedefs.h
+//! PAC_TWO_SLAVE is the PAC193X_I2C_ADDRESS_806R which can be found in
+//! src/sensor/pac193x/include/Pac193xTypedefs.h
 #define PAC_TWO_SLAVE 0x12
 #define PAC_TWO_HOST I2C_INSTANCE
 #define PAC_TWO_POWER_PIN -1
-#define PAC_TWO_R_SENSE { 0.82f, 0.82f, 0.82f, 0.82f }
-#define PAC_TWO_USED_CHANNELS { .uint_channelsInUse = 0b00001111 }
+#define PAC_TWO_R_SENSE                                                                            \
+    { 0.82f, 0.82f, 0.82f, 0.82f }
+#define PAC_TWO_USED_CHANNELS                                                                      \
+    { .uint_channelsInUse = 0b00001111 }
 /* endregion PAC193x II */
 
 /* region SHT*/
-//! SHT_SLAVE is the SHT3X_I2C_ADDRESS which can be found in src/sensor/sht3x/include/Sht3xTypedefs.h
+//! SHT_SLAVE is the SHT3X_I2C_ADDRESS which can be found in
+//! src/sensor/sht3x/include/Sht3xTypedefs.h
 #define SHT_SLAVE 0x44
 #define SHT_HOST I2C_INSTANCE
 /* endregion SHT */

@@ -15,7 +15,7 @@
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-//TODO: use uartConfiguration as parameter in functions instead
+// TODO: use uartConfiguration as parameter in functions instead
 uartConfiguration_t uartConfiguration = {.uartInstance = UART_INSTANCE,
                                          .txPin = UART_TX_PIN,
                                          .rxPin = UART_RX_PIN,

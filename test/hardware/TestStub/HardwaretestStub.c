@@ -15,7 +15,6 @@
 
 #define SOURCE_FILE "HWTEST-STUB"
 
-
 #define FLASH_BYTES_PER_PAGE 512
 #define FLASH_BYTES_PER_SECTOR 262144
 
@@ -35,24 +34,20 @@
 #include "stub.h"
 #include "stub_defs.h"
 
-
-
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
-
 
 spiConfiguration_t spiConfiguration = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 /* Always release flash after use:
-     *   -> FPGA and MCU share the bus to flash-memory.
-     * Make sure this is only enabled while FPGA does not use it and release after use before
-     * powering on, resetting or changing the configuration of the FPGA.
-     * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
+ *   -> FPGA and MCU share the bus to flash-memory.
+ * Make sure this is only enabled while FPGA does not use it and release after use before
+ * powering on, resetting or changing the configuration of the FPGA.
+ * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
  */
 flashConfiguration_t flashConfiguration = {.flashSpiConfiguration = &spiConfiguration,
-.flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR
-};
+                                           .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+                                           .flashBytesPerSector = FLASH_BYTES_PER_SECTOR};
 
 #if BYTES_MODEL_ID == 1
 uint8_t acceloratorId[BYTES_MODEL_ID] = {0x01};
@@ -70,7 +65,7 @@ static void initHardware() {
     while ((!stdio_usb_connected())) {
         // wait for serial connection
     }
-    
+
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
 }
@@ -85,8 +80,8 @@ static void loadConfigToFlashViaHttp(uint32_t sectorId) {
     PRINT("Length: %i", configSize);
 
     PRINT("Downloading HW configuration...");
-    fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfiguration, baseUrl, configSize, sectorId);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, configSize, sectorId);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!");
         exit(EXIT_FAILURE);

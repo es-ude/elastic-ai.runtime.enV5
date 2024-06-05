@@ -73,16 +73,20 @@ static uint32_t fpgaConfigurationHandlerGetFileLength() {
     return length;
 }
 
-static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfiguration,uint32_t totalLength, uint32_t startAddress) {
-    size_t numberOfSectors = (size_t)ceilf((float)totalLength / (flashConfiguration->flashBytesPerSector));
+static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfiguration,
+                                              uint32_t totalLength, uint32_t startAddress) {
+    size_t numberOfSectors =
+        (size_t)ceilf((float)totalLength / (flashConfiguration->flashBytesPerSector));
     size_t sector = 0;
     do {
-        uint32_t sectorStartAddress = startAddress + sector * (flashConfiguration->flashBytesPerSector);
+        uint32_t sectorStartAddress =
+            startAddress + sector * (flashConfiguration->flashBytesPerSector);
         flashEraseSector(NULL, sectorStartAddress);
         sector++;
     } while (sector < numberOfSectors);
 
-    size_t numberOfPages = (size_t)ceilf((float)totalLength / (flashConfiguration->flashBytesPerPage));
+    size_t numberOfPages =
+        (size_t)ceilf((float)totalLength / (flashConfiguration->flashBytesPerPage));
     size_t page = 0;
     while (page < numberOfPages) {
         // send id of fragment
@@ -103,7 +107,8 @@ static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfigu
             data[index] = getchar_timeout_us(UINT32_MAX);
         }
         // store data to flash
-        flashWritePage(NULL, startAddress + (page * (flashConfiguration->flashBytesPerPage)), data, fragmentLength);
+        flashWritePage(NULL, startAddress + (page * (flashConfiguration->flashBytesPerPage)), data,
+                       fragmentLength);
         printf("ack");
 
         page++;
