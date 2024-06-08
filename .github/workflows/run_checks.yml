@@ -88,6 +88,9 @@ jobs:
     needs:
       - clang-format
       - unit-tests
+    strategy:
+      matrix:
+        config: [1, 2]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -104,6 +107,6 @@ jobs:
           sudo apt install -y ninja-build gcc-arm-none-eabi
       - name: Setup CMake
         run: |
-          cmake -B build/debug -D CMAKE_BUILD_TYPE=RELEASE -G Ninja .
+          cmake -B build/debug -D CMAKE_BUILD_TYPE=RELEASE -D REVISION=${{ matrix.config }} -G Ninja .
       - name: Build Targets
         run: cmake --build build/debug -j 4
