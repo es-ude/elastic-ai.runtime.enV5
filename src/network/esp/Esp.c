@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-#include "../../hal/enV5HwConfiguration/enV5HwConfigurationRevisionOne/include/EnV5HwConfigurationRevisionOne.h"
+#include "EnV5HwConfiguration.h"
 #include "AtCommands.h"
 #include "Common.h"
 #include "Esp.h"

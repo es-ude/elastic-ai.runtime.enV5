@@ -13,9 +13,6 @@
 
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 
-#define FLASH_BYTES_PER_PAGE 512
-#define FLASH_BYTES_PER_SECTOR 262144
-
 #include <malloc.h>
 #include <math.h>
 #include <stdint.h>
@@ -28,6 +25,7 @@
 
 #include "Common.h"
 #include "EnV5HwController.h"
+#include "EnV5HwConfiguration.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
@@ -35,10 +33,10 @@
 #include "Spi.h"
 #include "enV5HwController.h"
 
-spiConfiguration_t spiConfig = {
+spiConfiguration_t flashSpiConfig = {
     .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 
-flashConfiguration_t flashConfig = {.flashSpiConfiguration = &spiConfig,
+flashConfiguration_t flashConfig = {.flashSpiConfiguration = &flashSpiConfig,
                                     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
                                     .flashBytesPerSector = FLASH_BYTES_PER_PAGE};
 

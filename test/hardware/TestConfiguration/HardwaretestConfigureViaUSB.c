@@ -22,7 +22,7 @@
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 
-#include "../../../src/hal/enV5HwConfiguration/enV5HwConfigurationRevisionOne/include/EnV5HwConfigurationRevisionOne.h"
+#include "EnV5HwConfiguration.h"
 #include "Common.h"
 #include "EnV5HwController.h"
 #include "Flash.h"
