@@ -24,8 +24,8 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
-#include "EnV5HwController.h"
 #include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
