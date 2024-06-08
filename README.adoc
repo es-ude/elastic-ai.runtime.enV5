@@ -64,17 +64,20 @@ The _Debug_ and _Release_ targets differ only in the amount of printed informati
 [source,bash]
 ----
 # Unit-test profile
-cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
+cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON -D
 
 # Debug profile
-cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
+cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON -D REVISION=1
 
 # Release profile
-cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
+cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF -D REVISION=1
 ----
 
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
 If this flag is not passed, CMake will use the default build tool on your machine (mostly Makefiles).
+
+The flag `-D REVISION` tells CMake the link:src/hal/enV5HwConfiguration/CMakeLists.txt[hardwareConfiguration]. We highly recommend using our matching link:src/hal/enV5HwConfiguration/[configurations to our revisions]. You can use your own configuration by adding the file with `-D REVISION=your/own/configuration/EnV5HwConfiguration.h`.
+Not passing the flag will cause a fatal error.
 
 [#_target:_local_machine]
 === Target: Local Machine
