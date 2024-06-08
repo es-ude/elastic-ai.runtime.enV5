@@ -9,7 +9,7 @@
 #include "httpDummy.h"
 
 flashConfiguration_t flashConfiguration = {
-    .flashSpiConfiguration = NULL, .flashBytesPerSector = 512, .flashBytesPerPage = 262144};
+    .flashSpiConfiguration = NULL, .flashBytesPerPage = 512, .flashBytesPerSector = 262144};
 
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
@@ -43,7 +43,7 @@ static void checkFlashData(size_t iterations) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 
-        flashReadData(NULL, 0x00 + flashConfiguration.flashBytesPerPage * index, &readBuffer);
+        flashReadData(&flashConfiguration, 0x00 + flashConfiguration.flashBytesPerPage * index, &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
     }
