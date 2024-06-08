@@ -1,2 +1,0 @@
-add_library(enV5_hw_configuration_rev_two INTERFACE)
-target_include_directories(enV5_hw_configuration_rev_two INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
