@@ -196,4 +196,4 @@ NOTE: These submodules will automatically downloaded by CMake on initialization!
 == Troubleshooting
 
 * To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
-* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:src/network/config/NetworkConfig.c[NetworkConfig.c])
+* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:NetworkConfig.c[NetworkConfig.c])
