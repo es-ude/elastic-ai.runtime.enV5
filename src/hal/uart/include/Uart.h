@@ -12,7 +12,7 @@ typedef unsigned int uint;
 enum uartParity { NoneParity = 0, OddParity = 1, EvenParity = 2 };
 typedef enum uartParity uartParity_t;
 
-//! We highly recommend using ENv5HwConfig.c
+//! We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
 typedef struct uartConfiguration {
     uart_inst_t *uartInstance;
     uint8_t txPin;
@@ -41,7 +41,7 @@ void uartInit(uartConfiguration_t *uartConfig);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT
- * @IMPORTANT We highly recommend using ENv5HwConfig.c
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param receive: function for interrupt handle
  */
 void uartSetMqttReceiverFunction(void (*receive)(char *));
