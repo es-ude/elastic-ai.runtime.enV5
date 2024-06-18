@@ -17,13 +17,7 @@ volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
 // TODO: use uartConfiguration as parameter in functions instead
-uartConfiguration_t uartConfiguration = {.uartInstance = UART_INSTANCE,
-                                         .txPin = UART_TX_PIN,
-                                         .rxPin = UART_RX_PIN,
-                                         .baudrate = UART_BAUDRATE,
-                                         .dataBits = UART_DATA_BITS,
-                                         .stopBits = UART_STOP_BITS,
-                                         .parity = UART_PARITY};
+uartConfiguration_t uartConfiguration;
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -36,6 +30,14 @@ void espInit(void) {
      * 5. single connection mode is enabled
      * 6. ChipStatus of `espStatus` is set to `ESP_CHIP_OK`.
      */
+
+    uartConfiguration.uartInstance = UART_INSTANCE;
+    uartConfiguration.txPin = UART_TX_PIN;
+    uartConfiguration.rxPin = UART_RX_PIN;
+    uartConfiguration.baudrate = UART_BAUDRATE;
+    uartConfiguration.dataBits = UART_DATA_BITS;
+    uartConfiguration.stopBits = UART_STOP_BITS;
+    uartConfiguration.parity = UART_PARITY;
 
     // initialize uart interface for AT commands
     uartInit(&uartConfiguration);
