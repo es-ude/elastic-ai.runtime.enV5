@@ -21,26 +21,24 @@
 #include "pico/stdio_usb.h"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
-#include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "HTTP.h"
 #include "Network.h"
 #include "Spi.h"
-#include "enV5HwController.h"
 #include "middleware.h"
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 uint32_t sectorIdForConfig = 1;
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 
 static void initHardware(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();
@@ -54,7 +52,6 @@ static void initHardware(void) {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration, csPin);
 
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
@@ -71,7 +68,7 @@ void downloadBinFile(void) {
 
     PRINT("Downloading HW configuration...");
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        baseUrl, file_length, sectorIdForConfig);
+        NULL, baseUrl, file_length, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!");
         exit(EXIT_FAILURE);
@@ -105,11 +102,11 @@ _Noreturn static void runTest() {
             downloadBinFile();
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA powered ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA powered OFF");
             break;
         case 'I':

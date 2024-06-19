@@ -5,9 +5,9 @@
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-TASKS"
 
 #include "Common.h"
+#include "EnV5HwController.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Gpio.h"
-#include "enV5HwController.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
@@ -50,7 +50,7 @@ void initHardware() {
         reset_usb_boot(0, 0);
     }
 
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();

@@ -35,17 +35,16 @@ enum {
     PAC193X_I2C_ADDRESS_226000R = 0x1E,
     PAC193X_I2C_ADDRESS_VDD = 0x1F,
 };
-typedef uint8_t pac193xI2cAddress;
+typedef uint8_t pac193xI2cAddress_t;
 
-struct pac193xSensorConfiguration {
+typedef struct pac193xSensorConfiguration {
     i2c_inst_t *i2c_host;
-    pac193xI2cAddress i2c_slave_address;
+    pac193xI2cAddress_t i2c_slave_address;
     uint8_t powerPin;
     float rSense[4];
     pac193xUsedChannels_t usedChannels; /*!< Channels to be used. \Note Some channels might be
                                           disabled by the ctrl-register. */
-};
-typedef struct pac193xSensorConfiguration pac193xSensorConfiguration_t;
+} pac193xSensorConfiguration_t;
 
 enum {
     PAC193X_CHANNEL01 = 0,

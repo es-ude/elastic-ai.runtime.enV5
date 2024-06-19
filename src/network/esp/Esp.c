@@ -4,34 +4,20 @@
 
 #include "AtCommands.h"
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
+#include "hardware/uart.h"
 
 /* region VARIABLES */
 
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-// FIXME: pass this from the outside, because it changes with the hardware?
-static uartDevice_t uartDevice = {
-    .name = "uart_to_esp32",
-    // region HARDWARE CONFIGURATION
-    // IMPORTANT: Should be modified according to the hardware
-    .uartId = 1,
-    .txPin = 4,
-    .rxPin = 5,
-    // endregion HARDWARE CONFIGURATION
-    // region ESP32 FIRMWARE
-    .baudrateSet = 115200,
-    .baudrateActual = 0,
-    .dataBits = 8,
-    .stopBits = 1,
-    .parity = NoneParity
-    // endregion ESP32 FIRMWARE
-};
-
+// TODO: use uartConfiguration as parameter in functions instead
+uartConfiguration_t uartConfiguration;
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -45,8 +31,16 @@ void espInit(void) {
      * 6. ChipStatus of `espStatus` is set to `ESP_CHIP_OK`.
      */
 
+    uartConfiguration.uartInstance = UART_INSTANCE;
+    uartConfiguration.txPin = UART_TX_PIN;
+    uartConfiguration.rxPin = UART_RX_PIN;
+    uartConfiguration.baudrate = UART_BAUDRATE;
+    uartConfiguration.dataBits = UART_DATA_BITS;
+    uartConfiguration.stopBits = UART_STOP_BITS;
+    uartConfiguration.parity = UART_PARITY;
+
     // initialize uart interface for AT commands
-    uartInit(&uartDevice);
+    uartInit(&uartConfiguration);
 
     // check if ESP module is available
     while (!espInternalCheckIsResponding()) {

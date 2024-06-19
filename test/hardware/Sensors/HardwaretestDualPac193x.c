@@ -1,6 +1,7 @@
 #define SOURCE_FILE "DUAL-PAC193X-Test"
 
 #include "Common.h"
+#include "I2c.h"
 #include "Pac193x.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
@@ -23,8 +24,16 @@ static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t c
 
 /* endregion HELPER */
 
-/* region SENSOR DEFINITIONS */
+/* region I2C DEFINITION */
+i2cConfiguration_t i2cConfig = {
+    .i2cInstance = i2c1,
+    .frequency = 400000,
+    .sdaPin = 6,
+    .sclPin = 7,
+};
+/* endregion I2C DEFINITION */
 
+/* region SENSOR DEFINITIONS */
 static pac193xSensorConfiguration_t sensor1 = {
     .i2c_host = i2c1,
     .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
@@ -128,7 +137,21 @@ int main(void) {
     while ((!stdio_usb_connected())) {}
     sleep_ms(500);
 
-    PRINT("===== INIT SENSOR 1 =====");
+    /* initialize I2C */
+    PRINT("START I2C INIT");
+    i2cErrorCode_t i2cErrorCode;
+    while (1) {
+        i2cErrorCode = i2cInit(&i2cConfig);
+        if (i2cErrorCode == I2C_NO_ERROR) {
+            PRINT("Initialised I2C.");
+            break;
+        }
+        PRINT("Initialise I2C failed; i2c_ERROR: %02X", i2cErrorCode);
+        sleep_ms(500);
+    }
+
+    /* initialize PAC193X sensors */
+    PRINT("===== START PAC_1 INIT =====");
     pac193xErrorCode_t errorCode;
     while (1) {
         errorCode = pac193xInit(sensor1);
@@ -140,7 +163,7 @@ int main(void) {
         sleep_ms(500);
     }
 
-    PRINT("===== INIT SENSOR 2 =====");
+    PRINT("===== START PAC_2 INIT =====");
     errorCode;
     while (1) {
         errorCode = pac193xInit(sensor2);

@@ -3,7 +3,7 @@ add_library(hardware-testHelper HardwaretestHelper.c)
 target_link_libraries(hardware-testHelper
         pico_stdlib
         common_lib
-        enV5_hwc
+        enV5_hw_controller
         espBroker_lib
         network_lib
         freeRtosUtils)

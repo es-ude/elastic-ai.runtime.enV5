@@ -6,4 +6,4 @@ target_link_libraries(middleware_lib INTERFACE
         common_lib
         qxi_interface
         gpio_interface
-        enV5_hwc)
+        enV5_hw_controller)

@@ -1,12 +1,22 @@
 #define SOURCE_FILE "PAC193X-BUFFER"
 
 #include "Common.h"
+#include "I2c.h"
 #include "Pac193x.h"
 #include "Pac193xTypedefs.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 #include <stdio.h>
+
+/* region I2C DEFINITION */
+i2cConfiguration_t i2cConfig = {
+    .i2cInstance = i2c1,
+    .frequency = 400000,
+    .sdaPin = 6,
+    .sclPin = 7,
+};
+/* endregion I2C DEFINITION */
 
 /* region SENSOR DEFINITIONS */
 
@@ -76,7 +86,20 @@ int main(void) {
     while ((!stdio_usb_connected())) {}
     sleep_ms(500);
 
-    PRINT("===== INIT SENSOR 1 =====");
+    /* initialize I2C */
+    PRINT("===== START I2C INIT =====");
+    i2cErrorCode_t i2cErrorCode;
+    while (1) {
+        i2cErrorCode = i2cInit(&i2cConfig);
+        if (i2cErrorCode == I2C_NO_ERROR) {
+            PRINT("Initialised I2C.");
+            break;
+        }
+        PRINT("Initialise I2C failed; i2c_ERROR: %02X", i2cErrorCode);
+        sleep_ms(500);
+    }
+
+    PRINT("===== START INIT PAC_1 =====");
     pac193xErrorCode_t errorCode;
     while (1) {
         errorCode = pac193xInit(sensor1);

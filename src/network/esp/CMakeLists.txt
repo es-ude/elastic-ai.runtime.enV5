@@ -6,4 +6,8 @@ target_link_libraries(esp_lib INTERFACE
         freeRtosUtils
         common_lib
         uart_interface
-        at_commands)
+        at_commands
+        enV5_hw_controller
+        enV5_hw_configuration
+        network_config
+)

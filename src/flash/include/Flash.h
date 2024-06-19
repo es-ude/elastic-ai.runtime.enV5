@@ -4,17 +4,8 @@
 #include <stdint.h>
 
 #include "FlashTypedefs.h"
-#include "SpiTypedefs.h"
 
 // tag::prototypes[]
-//! depends on part number
-#define FLASH_BYTES_PER_PAGE 512
-
-//! Each sector consists of 256kB (= 262144B)
-#define FLASH_BYTES_PER_SECTOR 262144
-
-void flashInit(spi_t *spiConfiguration, uint8_t chipSelectPin);
-
 /*! @brief read the device/manufacturer ID and Common Flash Interface ID
  * \n\n
  * -> 1-2 Byte: Manufacturer ID \n
@@ -24,7 +15,7 @@ void flashInit(spi_t *spiConfiguration, uint8_t chipSelectPin);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadId(data_t *dataBuffer);
+int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer);
 
 /*! @brief read data from the flash storage
  *
@@ -32,20 +23,21 @@ int flashReadId(data_t *dataBuffer);
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(flashConfiguration_t *flashConfiguration, uint32_t startAddress,
+                  data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *
  * @return of if noe error occurred
  */
-flashErrorCode_t flashEraseAll(void);
+flashErrorCode_t flashEraseAll(flashConfiguration_t *flashConfiguration);
 
 /*! @brief erases sector of the flash
  *
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
-flashErrorCode_t flashEraseSector(uint32_t address);
+flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfiguration, uint32_t address);
 
 /*! @brief writes up to one page of bytes to the flash
  *
@@ -55,6 +47,7 @@ flashErrorCode_t flashEraseSector(uint32_t address);
  * @param bytesToWrite length of the data buffer
  * @return number of bytes written to the flash
  */
-int flashWritePage(uint32_t startAddress, uint8_t *data, size_t bytesToWrite);
+int flashWritePage(flashConfiguration_t *flashConfiguration, uint32_t startAddress, uint8_t *data,
+                   size_t bytesToWrite);
 // end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */

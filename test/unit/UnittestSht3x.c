@@ -2,6 +2,8 @@
 #include "Sht3x.h"
 #include "unity.h"
 
+static sht3xSensorConfiguration_t sensor;
+
 void setUp(void) {
     /* Default: Point to Pass */
     i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForSht3x;
@@ -16,7 +18,7 @@ void sht3xReadStatusRegisterGetSendCommandFailErrorIfHardwareFails(void) {
     sht3xStatusRegister_t statusRegister;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -24,7 +26,7 @@ void sht3xReadStatusRegisterGetSendCommandFailErrorIfAckMissing(void) {
     sht3xStatusRegister_t statusRegister;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -32,7 +34,7 @@ void sht3xReadStatusRegisterGetReceiveDataFailErrorIfHardwareFails(void) {
     sht3xStatusRegister_t statusRegister;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -40,7 +42,7 @@ void sht3xReadStatusRegisterGetReceiveDataFailErrorIfAckMissing(void) {
     sht3xStatusRegister_t statusRegister;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -48,14 +50,14 @@ void sht3xReadStatusRegisterGetChecksumFailError(void) {
     sht3xStatusRegister_t statusRegister;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
 void sht3xReadStatusRegisterReadSuccessful(void) {
     sht3xStatusRegister_t statusRegister;
 
-    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(&statusRegister);
+    sht3xErrorCode_t errorCode = sht3xReadStatusRegister(sensor, &statusRegister);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
@@ -65,7 +67,7 @@ void sht3xReadStatusRegisterReadCorrectValue(void) {
     /* fill expected with random generated */
     expected_statusRegister.config = (byteZero << 8) | (byteOne & 0xFF);
 
-    sht3xReadStatusRegister(&actual_statusRegister);
+    sht3xReadStatusRegister(sensor, &actual_statusRegister);
     TEST_ASSERT_EQUAL_UINT16(expected_statusRegister.config, actual_statusRegister.config);
 }
 
@@ -76,7 +78,7 @@ void sht3xReadSerialNumberGetSendCommandFailErrorIfHardwareFails(void) {
     uint32_t serialNumber;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -84,7 +86,7 @@ void sht3xReadSerialNumberGetSendCommandFailErrorIfAckMissing(void) {
     uint32_t serialNumber;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -92,7 +94,7 @@ void sht3xReadSerialNumberGetReceiveDataFailErrorIfHardwareFails(void) {
     uint32_t serialNumber;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -100,7 +102,7 @@ void sht3xReadSerialNumberGetReceiveDataFailErrorIfAckMissing(void) {
     uint32_t serialNumber;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -108,14 +110,14 @@ void sht3xReadSerialNumberGetChecksumFailError(void) {
     uint32_t serialNumber;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
 void sht3xReadSerialNumberReadSuccessful(void) {
     uint32_t serialNumber;
 
-    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(&serialNumber);
+    sht3xErrorCode_t errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
@@ -125,7 +127,7 @@ void sht3xReadSerialNumberReadCorrectValue(void) {
     /* fill expected with random generated */
     expected_serialNumber = (byteZero << 24) | (byteOne << 16) | (byteZero << 8) | byteOne;
 
-    sht3xReadSerialNumber(&actual_serialNumber);
+    sht3xReadSerialNumber(sensor, &actual_serialNumber);
     TEST_ASSERT_EQUAL_UINT32(expected_serialNumber, actual_serialNumber);
 }
 
@@ -136,7 +138,7 @@ void sht3xGetTemperatureGetSendCommandFailErrorIfHardwareFails(void) {
     float temperature;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -144,7 +146,7 @@ void sht3xGetTemperatureGetSendCommandFailErrorIfAckMissing(void) {
     float temperature;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -152,7 +154,7 @@ void sht3xGetTemperatureGetReceiveDataFailErrorIfHardwareFails(void) {
     float temperature;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -160,7 +162,7 @@ void sht3xGetTemperatureGetChecksumFailError(void) {
     float temperature;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
@@ -168,14 +170,14 @@ void sht3xGetTemperatureGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
 void sht3xGetTemperatureReadSuccessful(void) {
     float temperature;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperature(&temperature);
+    sht3xErrorCode_t errorCode = sht3xGetTemperature(sensor, &temperature);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
@@ -186,7 +188,7 @@ void sht3xGetTemperatureReadCorrectValue(void) {
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3xGetTemperature(&actual_temperature);
+    sht3xGetTemperature(sensor, &actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
 }
 
@@ -197,7 +199,7 @@ void sht3xGetHumidityGetSendCommandFailErrorIfHardwareFails(void) {
     float humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -205,7 +207,7 @@ void sht3xGetHumidityGetSendCommandFailErrorIfAckMissing(void) {
     float humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -213,7 +215,7 @@ void sht3xGetHumidityGetReceiveDataFailErrorIfHardwareFails(void) {
     float humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -221,7 +223,7 @@ void sht3xGetHumidityGetReceiveDataFailErrorIfAckMissing(void) {
     float humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -229,14 +231,14 @@ void sht3xGetHumidityGetChecksumFailError(void) {
     float humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xGetHumidity(&humidity);
+    sht3xErrorCode_t errorCode = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
 void sht3xGetHumidityReadSuccessful(void) {
     float humidity;
 
-    uint8_t err = sht3xGetHumidity(&humidity);
+    uint8_t err = sht3xGetHumidity(sensor, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, err);
 }
 
@@ -247,7 +249,7 @@ void sht3xGetHumidityReadCorrectValue(void) {
     uint16_t expected_rawValue_humidity = (byteZero << 8) | byteOne;
     expected_humidity = 100.0f * ((float)expected_rawValue_humidity / (65536.0f - 1));
 
-    sht3xGetHumidity(&actual_humidity);
+    sht3xGetHumidity(sensor, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
 
@@ -258,7 +260,7 @@ void sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfHardwareFails(void) 
     float temperature, humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -266,7 +268,7 @@ void sht3xGetTemperatureAndHumidityGetSendCommandFailErrorIfAckMissing(void) {
     float temperature, humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -274,7 +276,7 @@ void sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfHardwareFails(void) 
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -282,7 +284,7 @@ void sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -290,14 +292,14 @@ void sht3xGetTemperatureAndHumidityGetChecksumFailError(void) {
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
 void sht3xGetTemperatureAndHumidityReadSuccessful(void) {
     float temperature, humidity;
 
-    uint8_t err = sht3xGetTemperatureAndHumidity(&temperature, &humidity);
+    uint8_t err = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, err);
 }
 
@@ -311,7 +313,7 @@ void sht3xGetTemperatureAndHumidityReadCorrectValue(void) {
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3xGetTemperatureAndHumidity(&actual_temperature, &actual_humidity);
+    sht3xGetTemperatureAndHumidity(sensor, &actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
@@ -323,7 +325,7 @@ void sht3xReadMeasurementBufferGetSendCommandFailErrorIfHardwareFails(void) {
     float temperature, humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -331,7 +333,7 @@ void sht3xReadMeasurementBufferGetSendCommandFailErrorIfAckMissing(void) {
     float temperature, humidity;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -339,7 +341,7 @@ void sht3xReadMeasurementBufferGetReceiveDataFailErrorIfHardwareFails(void) {
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -347,7 +349,7 @@ void sht3xReadMeasurementBufferGetReceiveDataFailErrorIfAckMissing(void) {
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -355,14 +357,14 @@ void sht3xReadMeasurementBufferGetChecksumFailError(void) {
     float temperature, humidity;
     i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_CHECKSUM_ERROR, errorCode);
 }
 
 void sht3xReadMeasurementBufferReadSuccessful(void) {
     float temperature, humidity;
 
-    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(&temperature, &humidity);
+    sht3xErrorCode_t errorCode = sht3xReadMeasurementBuffer(sensor, &temperature, &humidity);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_NO_ERROR, errorCode);
 }
 
@@ -376,7 +378,7 @@ void sht3xReadMeasurementBufferReadCorrectValue(void) {
     uint16_t expected_rawValue_temperature = (byteZero << 8) | byteOne;
     expected_temperature = 175.0f * ((float)expected_rawValue_temperature / (65536.0f - 1)) - 45.0f;
 
-    sht3xReadMeasurementBuffer(&actual_temperature, &actual_humidity);
+    sht3xReadMeasurementBuffer(sensor, &actual_temperature, &actual_humidity);
     TEST_ASSERT_EQUAL_FLOAT(expected_temperature, actual_temperature);
     TEST_ASSERT_EQUAL_FLOAT(expected_humidity, actual_humidity);
 }
@@ -387,14 +389,14 @@ void sht3xReadMeasurementBufferReadCorrectValue(void) {
 void sht3xEnableHeaterGetSendCommandFailErrorIfHardwareFails(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xEnableHeater();
+    sht3xErrorCode_t errorCode = sht3xEnableHeater(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
 void sht3xEnableHeaterGetSendCommandFailErrorIfAckMissing(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xEnableHeater();
+    sht3xErrorCode_t errorCode = sht3xEnableHeater(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -404,14 +406,14 @@ void sht3xEnableHeaterGetSendCommandFailErrorIfAckMissing(void) {
 void sht3xDisableHeaterGetSendCommandFailErrorIfHardwareFails(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xDisableHeater();
+    sht3xErrorCode_t errorCode = sht3xDisableHeater(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
 void sht3xDisableHeaterGetSendCommandFailErrorIfAckMissing(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xDisableHeater();
+    sht3xErrorCode_t errorCode = sht3xDisableHeater(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -421,14 +423,14 @@ void sht3xDisableHeaterGetSendCommandFailErrorIfAckMissing(void) {
 void sht3xSoftResetGetSendCommandFailErrorIfHardwareFails(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    sht3xErrorCode_t errorCode = sht3xSoftReset();
+    sht3xErrorCode_t errorCode = sht3xSoftReset(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 
 void sht3xSoftResetGetSendCommandFailErrorIfAckMissing(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    sht3xErrorCode_t errorCode = sht3xSoftReset();
+    sht3xErrorCode_t errorCode = sht3xSoftReset(sensor);
     TEST_ASSERT_EQUAL_UINT8(SHT3X_SEND_COMMAND_ERROR, errorCode);
 }
 

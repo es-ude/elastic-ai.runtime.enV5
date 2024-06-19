@@ -1,6 +1,7 @@
 #ifndef ENV5_FPGA_CONFIGURATION_HANDLER_HEADER
 #define ENV5_FPGA_CONFIGURATION_HANDLER_HEADER
 
+#include "FlashTypedefs.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -27,9 +28,8 @@ void fpgaConfigurationHandlerInitialize();
  * @param sectorID ID of the sector where the configuration starts
  * @return 0 if no error occurred
  */
-fpgaConfigurationHandlerError_t
-fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t length,
-                                                     uint32_t sectorID);
+fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+    flashConfiguration_t *flashConfiguration, char *baseUrl, size_t length, uint32_t sectorID);
 
 /*! \brief download configuration to flash (USB)
  *  \ingroup FPGA
@@ -38,7 +38,8 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
  * @return 0 if no error occurred
  */
 fpgaConfigurationHandlerError_t
-fpgaConfigurationHandlerDownloadConfigurationViaUsb(uint32_t sectorID);
+fpgaConfigurationHandlerDownloadConfigurationViaUsb(flashConfiguration_t *flashConfiguration,
+                                                    uint32_t sectorID);
 
 // fpgaConfigurationHandlerError_t fpgaConfigurationHandlerVerifyConfiguration();
 //  -> requires hash computation

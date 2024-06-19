@@ -1,4 +1,5 @@
 #include "I2c.h"
+#include "Common.h"
 #include "Gpio.h"
 #include "I2cInternal.h"
 
@@ -6,16 +7,20 @@
 
 /* region FUNCTION IMPLEMENTATIONS FROM HEADER FILE*/
 
-void i2cInit(i2c_inst_t *i2cHost, uint32_t baudRate, uint8_t sdaGPIO, uint8_t sclGPIO) {
-    i2c_init(i2cHost, baudRate);
-    i2cInternalSetupSda(sdaGPIO);
-    i2cInternalSetupScl(sclGPIO);
+i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
+    uint32_t actualBaudrate = i2c_init(i2cConfiguration->i2cInstance, i2cConfiguration->frequency);
+    if (!i2cInternalCheckFrequencyInRange(actualBaudrate, i2cConfiguration->frequency)) {
+        return I2C_FREQUENCY_ERROR;
+    }
+    i2cInternalSetupPin(i2cConfiguration->sdaPin);
+    i2cInternalSetupPin(i2cConfiguration->sclPin);
+    return I2C_NO_ERROR;
 }
 
-i2cErrorCode_t i2cWriteCommand(const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer,
-                               uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
+                               const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
     int successfulTransmit =
-        i2cInternalWriteBlocking(commandBuffer, sizeOfCommandBuffer, slaveAddress, i2cHost);
+        i2cInternalWriteBlocking(commandBuffer, sizeOfCommandBuffer, slaveAddress, hostAddress);
 
     /* sensor not available */
     if (successfulTransmit == PICO_ERROR_GENERIC) {
@@ -30,10 +35,10 @@ i2cErrorCode_t i2cWriteCommand(const uint8_t *commandBuffer, uint16_t sizeOfComm
     return I2C_ACK_ERROR;
 }
 
-i2cErrorCode_t i2cReadData(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_t slaveAddress,
-                           i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,
+                           uint8_t sizeOfReadBuffer) {
     int successfulTransmit =
-        i2cInternalReadBlocking(readBuffer, sizeOfReadBuffer, slaveAddress, i2cHost);
+        i2cInternalReadBlocking(readBuffer, sizeOfReadBuffer, slaveAddress, hostAddress);
 
     /* sensor not available */
     if (successfulTransmit == PICO_ERROR_GENERIC) {
@@ -53,24 +58,30 @@ i2cErrorCode_t i2cReadData(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static void i2cInternalSetupSda(uint8_t sdaGPIO) {
-    gpioSetPinFunction(sdaGPIO, GPIO_FUNCTION_I2C);
-    gpioEnablePullUp(sdaGPIO);
+static bool i2cInternalCheckFrequencyInRange(uint32_t actualFrequency, uint32_t targetFrequency) {
+    uint16_t delta = 1000;
+    if (actualFrequency + delta < targetFrequency) {
+        return false;
+    } else if (actualFrequency > targetFrequency) {
+        PRINT("Warning: actualFrequency above targetFrequency");
+        return false;
+    }
+    return true;
 }
 
-static void i2cInternalSetupScl(uint8_t sclGPIO) {
-    gpioSetPinFunction(sclGPIO, GPIO_FUNCTION_I2C);
-    gpioEnablePullUp(sclGPIO);
+static void i2cInternalSetupPin(uint8_t gpio) {
+    gpioSetPinFunction(gpio, GPIO_FUNCTION_I2C);
+    gpioEnablePullUp(gpio);
 }
 
 static int i2cInternalWriteBlocking(const uint8_t *bytesToSend, uint16_t numberOfBytesToSend,
-                                    uint8_t slaveAddress, i2c_inst_t *i2cHost) {
-    return i2c_write_blocking(i2cHost, slaveAddress, bytesToSend, numberOfBytesToSend, 0);
+                                    uint8_t slaveAddress, i2c_inst_t *hostAddress) {
+    return i2c_write_blocking(hostAddress, slaveAddress, bytesToSend, numberOfBytesToSend, 0);
 }
 
 static int i2cInternalReadBlocking(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
-                                   uint8_t slaveAddress, i2c_inst_t *i2cHost) {
-    return i2c_read_blocking(i2cHost, slaveAddress, responseBuffer, sizeOfResponseBuffer, 0);
+                                   uint8_t slaveAddress, i2c_inst_t *hostAddress) {
+    return i2c_read_blocking(hostAddress, slaveAddress, responseBuffer, sizeOfResponseBuffer, 0);
 }
 
 /* endregion */

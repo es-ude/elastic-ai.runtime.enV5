@@ -5,11 +5,15 @@
 
 typedef struct i2c_inst i2c_inst_t;
 
-struct sht3xI2cSensorConfiguration {
-    uint8_t i2c_slave_address;
-    i2c_inst_t *i2c_host;
+enum {
+    SHT3X_I2C_ADDRESS = 0x44,
 };
-typedef struct sht3xI2cSensorConfiguration sht3xI2cSensorConfiguration_t;
+typedef uint8_t sht3xI2cAddress_t;
+
+typedef struct sht3xSensorConfiguration {
+    sht3xI2cAddress_t i2c_slave_address;
+    i2c_inst_t *i2c_host;
+} sht3xSensorConfiguration_t;
 
 enum {
     SHT3X_CMD_READ_SERIALNUMBER = 0x3780, /*!< read serial number */

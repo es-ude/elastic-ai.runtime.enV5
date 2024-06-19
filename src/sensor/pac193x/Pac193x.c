@@ -35,7 +35,7 @@ static const float pac193xInternalEnergyDenominator = (float)(1ULL << 28);
  * \Important Must be set using the ctrl register */
 static const float pac193xInternalSamplingRate = 1024;
 
-/* endregion */
+/* endregion CONSTANTS */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -67,8 +67,6 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
 }
 
 pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor) {
-    i2cInit(sensor.i2c_host, (100 * 1000), 6, 7);
-
     if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
         return PAC193X_INIT_ERROR;
     }
@@ -375,7 +373,9 @@ pac193xReadAllAverageMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
     return PAC193X_NO_ERROR;
 }
 
-/* endregion */
+/* endregion CONTINUOUS MEASUREMENTS*/
+
+/* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
@@ -384,8 +384,8 @@ static pac193xErrorCode_t pac193xInternalCheckSensorAvailable(pac193xSensorConfi
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = PAC193X_CMD_READ_MANUFACTURER_ID;
 
-    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t i2CErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
 
     if (i2CErrorCode != I2C_NO_ERROR) {
         return PAC193X_INIT_ERROR;
@@ -431,8 +431,8 @@ pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
     commandBuffer[1] = settingsToWrite;
 
     PRINT_DEBUG("send configuration to sensor");
-    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                                  sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("send configuration failed, error was %02X", i2cErrorCode);
         return PAC193X_SEND_COMMAND_ERROR;
@@ -481,8 +481,8 @@ pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
     commandBuffer[0] = registerToRead;
 
     PRINT_DEBUG("request data from sensor");
-    i2cErrorCode_t errorCode = i2cWriteCommand(commandBuffer, sizeOfCommandBuffer,
-                                               sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                               commandBuffer, sizeOfCommandBuffer);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed, error was %02X", errorCode);
         return PAC193X_SEND_COMMAND_ERROR;
@@ -495,8 +495,8 @@ static pac193xErrorCode_t pac193xInternalReceiveDataFromSensor(pac193xSensorConf
                                                                uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor");
-    i2cErrorCode_t errorCode = i2cReadData(responseBuffer, sizeOfResponseBuffer,
-                                           sensor.i2c_slave_address, sensor.i2c_host);
+    i2cErrorCode_t errorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address,
+                                           responseBuffer, sizeOfResponseBuffer);
     if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
         return PAC193X_RECEIVE_DATA_ERROR;
@@ -517,8 +517,6 @@ pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor, uint8_t *r
 
     return pac193xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
 }
-
-// ----------
 
 static bool pac193xInternalCheckChannelIsActive(pac193xUsedChannels_t usedChannels,
                                                 pac193xChannel_t channelToTest) {
@@ -651,8 +649,6 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
     return PAC193X_NO_ERROR;
 }
 
-// ----------
-
 static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("transforming buffer to uint64");
@@ -718,4 +714,4 @@ static float pac193xInternalCalculateEnergy(uint64_t input, float resistor) {
     return energy;
 }
 
-/* endregion */
+/* endregion STATIC FUNCTION IMPLEMENTATIONS*/

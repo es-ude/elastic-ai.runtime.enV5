@@ -23,15 +23,14 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Spi.h"
-#include "enV5HwController.h"
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
-
+spiConfiguration_t spiConfiguration = {
+    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 uint32_t blinkFast = 1;
 size_t blinkFastLength = 86116;
 uint32_t blinkSlow = 1;
@@ -44,9 +43,8 @@ void initHardwareTest(void) {
         // wait for serial connection
     }
 
-    // initialize the Flash and FPGA
-    flashInit(&spiConfiguration, csPin);
-    env5HwInit();
+    // initialize FPGA
+    env5HwControllerInit();
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -59,7 +57,7 @@ void downloadConfiguration(bool useFast) {
     }
 
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(sectorID);
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(NULL, sectorID);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Error 0x%02X occurred during download.", error);
         return;
@@ -80,7 +78,7 @@ void readConfiguration(bool useFast) {
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
     while (page < numberOfPages) {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(NULL, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
         PRINT("Address: 0x%06lX", startAddress + (page * FLASH_BYTES_PER_PAGE));
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
@@ -108,7 +106,7 @@ void verifyConfiguration(bool useFast) {
         }
 
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(NULL, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
 
         for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
             printf("%02X", pageBuffer.data[index]);
@@ -127,15 +125,15 @@ _Noreturn void configurationTest(void) {
 
         switch (input) {
         case 'E':
-            flashEraseAll();
+            flashEraseAll(NULL);
             PRINT("ERASED!");
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA Power: ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA Power: OFF");
             break;
         case 'd':

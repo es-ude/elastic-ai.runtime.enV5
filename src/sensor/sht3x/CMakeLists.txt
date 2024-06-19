@@ -5,4 +5,5 @@ target_sources(sensor_lib_sht3x INTERFACE
 target_link_libraries(sensor_lib_sht3x INTERFACE
         common_lib
         sleep_interface
-        i2c_interface)
+        i2c_interface
+)
