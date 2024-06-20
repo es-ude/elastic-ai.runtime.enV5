@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
@@ -37,17 +38,23 @@
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
 /* Always release flash after use:
  *   -> FPGA and MCU share the bus to flash-memory.
  * Make sure this is only enabled while FPGA does not use it and release after use before
  * powering on, resetting or changing the configuration of the FPGA.
  * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
  */
-flashConfiguration_t flashConfiguration = {.flashSpiConfiguration = &spiConfiguration,
-                                           .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-                                           .flashBytesPerSector = FLASH_BYTES_PER_SECTOR};
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 #if BYTES_MODEL_ID == 1
 uint8_t acceloratorId[BYTES_MODEL_ID] = {0x01};
@@ -59,6 +66,7 @@ uint8_t acceloratorId[BYTES_MODEL_ID] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x0
 static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
     // initialize the serial output
     stdio_init_all();
@@ -81,7 +89,7 @@ static void loadConfigToFlashViaHttp(uint32_t sectorId) {
 
     PRINT("Downloading HW configuration...");
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        &flashConfiguration, baseUrl, configSize, sectorId);
+        &flashConfig, baseUrl, configSize, sectorId);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!");
         exit(EXIT_FAILURE);

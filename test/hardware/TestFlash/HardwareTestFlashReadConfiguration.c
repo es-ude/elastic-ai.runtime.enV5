@@ -8,14 +8,25 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Flash.h"
 #include "Spi.h"
-#include "enV5HwController.h"
 
-spi_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spi = spi0};
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
+
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
-static const uint8_t csPin = 1;
 
 void initializeConsoleOutput(void) {
     stdio_init_all();
@@ -25,20 +36,19 @@ void initializeConsoleOutput(void) {
 }
 
 void initializeHardware(void) {
-    env5HwInit();
-    env5HwFpgaPowersOff();
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
-    spiInit(&spiConfig, csPin);
-    flashInit(&spiConfig, csPin);
+    spiInit(&spiToFlashConfig);
 }
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
-    flashWriteConfig(config, sizeof(config));
+    flashWriteConfig(&flashConfig, config, sizeof(config));
 }
 void readConfig(uint8_t registerToRead) {
-    volatile uint8_t configRegister;
+    uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
-    flashReadConfig(registerToRead, &buffer);
+    flashReadConfig(&flashConfig, registerToRead, &buffer);
     PRINT("CONFIG: 0x%02X", configRegister);
 }
 _Noreturn void runTest(void) {

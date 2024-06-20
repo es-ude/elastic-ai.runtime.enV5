@@ -5,6 +5,7 @@ target_link_libraries(hardware-test_flash
         freeRtosUtils
         hardware_spi
         spi_interface
+        enV5_hw_configuration
         enV5_hw_controller
         flash_lib)
 create_enV5_executable(hardware-test_flash)
@@ -16,6 +17,7 @@ target_link_libraries(hardware-test_flash_read_config
         freeRtosUtils
         hardware_spi
         spi_interface
-        enV5_hwc
+        enV5_hw_configuration
+        enV5_hw_controller
         flash_lib)
 create_enV5_executable(hardware-test_flash_read_config)

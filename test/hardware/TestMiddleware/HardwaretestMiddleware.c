@@ -21,6 +21,7 @@
 #include "pico/stdio_usb.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
 #include "FpgaConfigurationHandler.h"
@@ -33,8 +34,17 @@ char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 uint32_t sectorIdForConfig = 1;
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 static void initHardware(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
@@ -68,7 +78,7 @@ void downloadBinFile(void) {
 
     PRINT("Downloading HW configuration...");
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        NULL, baseUrl, file_length, sectorIdForConfig);
+        &flashConfig, baseUrl, file_length, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!");
         exit(EXIT_FAILURE);

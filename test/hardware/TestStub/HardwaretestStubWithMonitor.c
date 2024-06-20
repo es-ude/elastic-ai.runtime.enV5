@@ -8,6 +8,7 @@
 #define SOURCE_FILE "HWTEST-STUB-WITH-MONITOR"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
@@ -44,9 +45,17 @@ typedef struct publishRequest {
     char *data;
 } publishRequest_t;
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 queue_t postings;
 queue_t publishRequests;
@@ -155,7 +164,7 @@ _Noreturn void handlePublishTask(void) {
 bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t startSector) {
     freeRtosMutexWrapperLock(espOccupied);
     fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        NULL, url, lengthOfBinFile, startSector);
+        &flashConfig, url, lengthOfBinFile, startSector);
     freeRtosMutexWrapperUnlock(espOccupied);
     free(url);
 
