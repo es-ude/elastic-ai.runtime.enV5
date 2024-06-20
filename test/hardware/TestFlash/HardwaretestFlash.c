@@ -1,8 +1,5 @@
 #define SOURCE_FILE "FLASH-HWTEST"
 
-#define FLASH_BYTES_PER_PAGE 512
-#define FLASH_BYTES_PER_SECTOR 262144
-
 #include <malloc.h>
 #include <math.h>
 #include <stdio.h>
@@ -13,20 +10,23 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Flash.h"
 #include "Spi.h"
 
-spiConfiguration_t spiConfig = {.sckPin = 2,
-                                .misoPin = 0,
-                                .mosiPin = 3,
-                                .baudrate = 1000 * 1000,
-                                .spiInstance = spi0,
-                                .csPin = 1};
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
-flashConfiguration_t flashConfig = {.flashSpiConfiguration = &spiConfig,
-                                    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-                                    .flashBytesPerSector = FLASH_BYTES_PER_PAGE};
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 
@@ -41,14 +41,13 @@ void initializeHardware(void) {
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
 
-    spiInit(&spiConfig);
+    spiInit(&spiToFlashConfig);
 }
 void readDeviceID() {
-    data_t idBuffer = {.data = calloc(6, sizeof(uint8_t)), .length = 6};
-    int bytesRead = flashReadId(&flashConfig, &idBuffer);
+    data_t idBuffer = {.data = calloc(3, sizeof(uint8_t)), .length = 3};
+    int bytesRead = flashReadConfig(&flashConfig, FLASH_READ_ID, &idBuffer);
     PRINT_DEBUG("Bytes read: %i", bytesRead);
-    PRINT("Device ID is: 0x%02X%02X%02X%02X%02X", idBuffer.data[0], idBuffer.data[1],
-          idBuffer.data[2], idBuffer.data[3], idBuffer.data[4]);
+    PRINT("Device ID is: 0x%06X (Should be 0x010219)", *idBuffer.data);
     free(idBuffer.data);
 }
 void writeToFlash() {
@@ -66,7 +65,7 @@ void writeToFlash() {
         data[0] = pageCounter;
         pageCounter++;
         int successfulWrittenBytes =
-            flashWritePage(NULL, startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
+            flashWritePage(&flashConfig, startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
         PRINT("Address 0x%02lX: %i Bytes Written", startAddress + pageOffset,
               successfulWrittenBytes);
     }
@@ -77,7 +76,7 @@ void readFromFlash() {
         uint8_t data_read[FLASH_BYTES_PER_PAGE];
         data_t readBuffer = {.data = data_read, .length = FLASH_BYTES_PER_PAGE};
 
-        int bytesRead = flashReadData(NULL, startAddress + pageOffset, &readBuffer);
+        int bytesRead = flashReadData(&flashConfig, startAddress + pageOffset, &readBuffer);
         PRINT("Address 0x%06lX: %u Bytes read", startAddress + pageOffset, bytesRead);
         PRINT_BYTE_ARRAY("Data: ", readBuffer.data, readBuffer.length);
     }
@@ -88,7 +87,8 @@ void eraseSectorFromFlash() {
 
     for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * FLASH_BYTES_PER_SECTOR;
          sectorOffset += FLASH_BYTES_PER_SECTOR) {
-        flashErrorCode_t eraseError = flashEraseSector(NULL, FLASH_BYTES_PER_SECTOR * sectorOffset);
+        flashErrorCode_t eraseError =
+            flashEraseSector(&flashConfig, FLASH_BYTES_PER_SECTOR * sectorOffset);
         PRINT("Sector starting from Address %lu erased. (0x%02X)", startAddress + sectorOffset,
               eraseError);
 
@@ -127,7 +127,7 @@ _Noreturn void runTest(void) {
             readFromFlash();
             break;
         case 'b':
-            flashEraseAll(&flashConfig);
+            flashEraseAll(NULL);
             break;
         default:
             PRINT("Waiting ...");
