@@ -43,8 +43,8 @@ static void checkFlashData(size_t iterations) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 
-        flashReadData(NULL, &flashConfiguration,
-                      0x00 + flashConfiguration.flashBytesPerPage * index);
+        flashReadData(&flashConfiguration, 0x00 + flashConfiguration.flashBytesPerPage * index,
+                      &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
     }

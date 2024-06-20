@@ -6,7 +6,6 @@
 #include "pico/stdio.h"
 #include "pico/stdio_usb.h"
 
-#include "EnV5HwConfiguration.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "FpgaConfigurationHandlerInternal.h"
