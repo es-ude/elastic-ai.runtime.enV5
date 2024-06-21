@@ -15,15 +15,8 @@
 
 #define SOURCE_FILE "HWTEST-STUB"
 
-#include "Common.h"
-#include "Esp.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
-#include "HTTP.h"
-#include "Network.h"
-#include "controller/enV5HwController.h"
-#include "stub.h"
-#include "stub_defs.h"
+#define FLASH_BYTES_PER_PAGE 512
+#define FLASH_BYTES_PER_SECTOR 262144
 
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
@@ -31,11 +24,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
+#include "Esp.h"
+#include "Flash.h"
+#include "FpgaConfigurationHandler.h"
+#include "HTTP.h"
+#include "Network.h"
+#include "stub.h"
+#include "stub_defs.h"
+
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2, .csPin = 1};
+/* Always release flash after use:
+ *   -> FPGA and MCU share the bus to flash-memory.
+ * Make sure this is only enabled while FPGA does not use it and release after use before
+ * powering on, resetting or changing the configuration of the FPGA.
+ * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
+ */
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 #if BYTES_MODEL_ID == 1
 uint8_t acceloratorId[BYTES_MODEL_ID] = {0x01};
@@ -46,21 +65,14 @@ uint8_t acceloratorId[BYTES_MODEL_ID] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x0
 
 static void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
-    env5HwInit();
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
     // initialize the serial output
     stdio_init_all();
     while ((!stdio_usb_connected())) {
         // wait for serial connection
     }
-
-    /* Always release flash after use:
-     *   -> FPGA and MCU share the bus to flash-memory.
-     * Make sure this is only enabled while FPGA does not use it and release after use before
-     * powering on, resetting or changing the configuration of the FPGA.
-     * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
-     */
-    flashInit(&spiConfiguration);
 
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
@@ -76,8 +88,8 @@ static void loadConfigToFlashViaHttp(uint32_t sectorId) {
     PRINT("Length: %i", configSize);
 
     PRINT("Downloading HW configuration...");
-    fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, configSize, sectorId);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfig, baseUrl, configSize, sectorId);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         PRINT("Download failed!");
         exit(EXIT_FAILURE);
@@ -98,11 +110,11 @@ _Noreturn void runTest(void) {
             loadConfigToFlashViaHttp(3);
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA powered ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA powered OFF");
             break;
         case 'd':

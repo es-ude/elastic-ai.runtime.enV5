@@ -22,7 +22,7 @@ static adxl345bSensorConfiguration_t adxl345bI2cSensorConfiguration;
 //! measurement range configuration
 static adxl345bRangeSetting_t adxl345bSelectedRange;
 
-/* endregion */
+/* endregion CONSTANTS */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -50,7 +50,9 @@ adxl345bErrorCode_t adxl345bInit(adxl345bSensorConfiguration_t sensor) {
     return ADXL345B_NO_ERROR;
 }
 
-adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfiguration_t sensor, adxl345bRegister_t registerToWrite, adxl345bConfig_t config) {
+adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfiguration_t sensor,
+                                                       adxl345bRegister_t registerToWrite,
+                                                       adxl345bConfig_t config) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToWrite;
@@ -88,7 +90,7 @@ return ADXL345B_NO_ERROR;}
 adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor, adxl345bRange_t newRange ) {
     adxl345bErrorCode_t errorCode = adxl345bSetSelectedRange(newRange);
     if (errorCode != ADXL345B_NO_ERROR) {return errorCode;}
-    
+
     /* right adjusted storage, selected range settings for full resolution */
         errorCode = adxl345bWriteConfigurationToSensor(sensor,
             ADXL345B_REGISTER_DATA_FORMAT, adxl345bSelectedRange.settingForRange
@@ -99,12 +101,13 @@ adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t
     return ADXL345B_NO_ERROR;
 }
 
-adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t sensor, uint8_t *serialNumber) {
+adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t sensor,
+                                             uint8_t *serialNumber) {
     uint8_t sizeOfResponseBuffer = 1;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    adxl345bErrorCode_t adxl345bErrorCode = adxl345bInternalReadDataFromSensor(sensor,
-        ADXL345B_REGISTER_DEVICE_ID, responseBuffer, sizeOfResponseBuffer);
+    adxl345bErrorCode_t adxl345bErrorCode = adxl345bInternalReadDataFromSensor(
+        sensor, ADXL345B_REGISTER_DEVICE_ID, responseBuffer, sizeOfResponseBuffer);
     // if i2c returns error -> sensor not available on bus
     if (adxl345bErrorCode != ADXL345B_NO_ERROR) {
         return adxl345bErrorCode;
@@ -151,7 +154,8 @@ adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX, int *deltaY, int *deltaZ) {
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
+                                            int *deltaY, int *deltaZ) {
     adxl345bErrorCode_t errorCode;
 
     /* standard mode, 100Hz */
@@ -160,7 +164,8 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
         return errorCode;
     }
     /* disable sleep/wakeup functions, start measurements */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, ADXL345B_BW_RATE_25);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, ADXL345B_BW_RATE_25);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -186,8 +191,8 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
         if (interrupt_source & 0b10000000) {
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
-            errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_X, responseBuffer,
-                                                           sizeOfResponseBuffer);
+            errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_X,
+                                                           responseBuffer, sizeOfResponseBuffer);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -229,7 +234,8 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int avgSampleWithoutForceZ = sumSamplesWithoutForceZ / 100;
 
     /* enable self test force */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, 0b10001000);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, 0b10001000);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -251,8 +257,8 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
 
-            errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_X, responseBuffer,
-                                                           sizeOfResponseBuffer);
+            errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_X,
+                                                           responseBuffer, sizeOfResponseBuffer);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -359,12 +365,14 @@ adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sen
     return ADXL345B_NO_ERROR;
 }
 
-/* endregion */
+/* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region HELPER FUNCTION IMPLEMENTATIONS */
 
-static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConfiguration_t sensor, adxl345bRegister_t registerToRead,
-                                                              uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer) {
+static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConfiguration_t sensor,
+                                                              adxl345bRegister_t registerToRead,
+                                                              uint8_t *responseBuffer,
+                                                              uint8_t sizeOfResponseBuffer) {
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
@@ -378,7 +386,8 @@ static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConf
     }
 
     PRINT_DEBUG("receiving data from sensor");
-    i2cErrorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address, responseBuffer, sizeOfResponseBuffer);
+    i2cErrorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address, responseBuffer,
+                               sizeOfResponseBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed");
         return ADXL345B_RECEIVE_DATA_ERROR;
@@ -444,7 +453,8 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t
 }
 
 //TODO: configuration zu Typedefs hinzufuegen!!! WIE?
-static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t sensor) {
+static adxl345bErrorCode_t
+adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t sensor) {
     PRINT_DEBUG("write default config to sensor");
     /* enable low power mode at 12.5Hz data output rate */
     adxl345bErrorCode_t errorCode =
@@ -456,7 +466,8 @@ static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adx
     }
 
     /* disable auto sleep, enable normal operation mode */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("send ADXL345B_REGISTER_POWER_CONTROL failed");
         PRINT_DEBUG("error code was %i", errorCode);
@@ -464,7 +475,8 @@ static adxl345bErrorCode_t adxl345bInternalWriteDefaultLowPowerConfiguration(adx
     }
 
     /* disable all interrupts */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_INTERRUPT_ENABLE, 0b00000000);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_INTERRUPT_ENABLE, 0b00000000);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("send ADXL345B_REGISTER_INTERRUPT_ENABLE failed");
         PRINT_DEBUG("error code was %i", errorCode);
@@ -497,4 +509,4 @@ static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int 
     return 0;
 }
 
-/* endregion */
+/* endregion HELPER FUNCTION IMPLEMENTATIONS */

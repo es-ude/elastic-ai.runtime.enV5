@@ -47,7 +47,7 @@ void middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length);
 
 /*! \ingroup FPGA
  *
- * requires the enV5HWController function `env5HwFpgaInit()` to be called beforehand
+ * requires the enV5HWController function `env5HwControllerFpgaInit()` to be called beforehand
  *
  * @return returns true if the computation is done
  */

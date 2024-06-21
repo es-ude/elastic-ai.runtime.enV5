@@ -36,6 +36,7 @@ void spiInit(spiConfiguration_t *spiConfiguration) {
     gpioInitPin(spiConfiguration->csPin, GPIO_OUTPUT);
     spiDisableDevice(spiConfiguration->csPin);
 }
+
 void spiDeinit(spiConfiguration_t *spiConfiguration) {
     spi_deinit(spiConfiguration->spiInstance);
 
@@ -66,7 +67,8 @@ int spiWriteCommandAndDataBlocking(spiConfiguration_t *spiConfiguration, data_t 
 
     spiEnableDevice(spiConfiguration->csPin);
     spi_write_blocking(spiConfiguration->spiInstance, command->data, command->length);
-    int numberOfBytesWritten = spi_write_blocking(spiConfiguration->spiInstance, data->data, data->length);
+    int numberOfBytesWritten =
+        spi_write_blocking(spiConfiguration->spiInstance, data->data, data->length);
     spiDisableDevice(spiConfiguration->csPin);
     return numberOfBytesWritten;
 }
@@ -76,7 +78,8 @@ int spiWriteCommandAndReadBlocking(spiConfiguration_t *spiConfiguration, data_t 
 
     spiEnableDevice(spiConfiguration->csPin);
     spi_write_blocking(spiConfiguration->spiInstance, command->data, command->length);
-    int numberOfBlocksRead = spi_read_blocking(spiConfiguration->spiInstance, 0, data->data, data->length);
+    int numberOfBlocksRead =
+        spi_read_blocking(spiConfiguration->spiInstance, 0, data->data, data->length);
     spiDisableDevice(spiConfiguration->csPin);
     return numberOfBlocksRead;
 }

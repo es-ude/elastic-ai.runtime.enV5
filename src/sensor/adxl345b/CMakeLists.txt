@@ -1,5 +1,4 @@
-add_library(sensor_lib_adxl345b INTERFACE
-        ../../hal/enV5HwController/include/config/Sensor.h)
+add_library(sensor_lib_adxl345b INTERFACE)
 target_include_directories(sensor_lib_adxl345b INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_sources(sensor_lib_adxl345b INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/Adxl345b.c)

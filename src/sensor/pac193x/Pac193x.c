@@ -17,7 +17,6 @@
 
 /* region CONSTANTS */
 
-
 /*! Denominator for unipolar voltage measurement: 2^{16} = 65536 */
 static const float pac193xInternalUnipolarVoltageDenominator = (float)(1U << 16);
 
@@ -36,7 +35,7 @@ static const float pac193xInternalEnergyDenominator = (float)(1ULL << 28);
  * \Important Must be set using the ctrl register */
 static const float pac193xInternalSamplingRate = 1024;
 
-/* endregion */
+/* endregion CONSTANTS */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
@@ -68,7 +67,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor) {
 }
 
 pac193xErrorCode_t pac193xInit(pac193xSensorConfiguration_t sensor) {
-       if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
+    if (PAC193X_NO_ERROR != pac193xInternalCheckSensorAvailable(sensor)) {
         return PAC193X_INIT_ERROR;
     }
 
@@ -374,7 +373,9 @@ pac193xReadAllAverageMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
     return PAC193X_NO_ERROR;
 }
 
-/* endregion */
+/* endregion CONTINUOUS MEASUREMENTS*/
+
+/* endregion HEADER FUNCTION IMPLEMENTATIONS */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
@@ -517,8 +518,6 @@ pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor, uint8_t *r
     return pac193xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
 }
 
-// ----------
-
 static bool pac193xInternalCheckChannelIsActive(pac193xUsedChannels_t usedChannels,
                                                 pac193xChannel_t channelToTest) {
     bool validChannel;
@@ -650,8 +649,6 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
     return PAC193X_NO_ERROR;
 }
 
-// ----------
-
 static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("transforming buffer to uint64");
@@ -717,4 +714,4 @@ static float pac193xInternalCalculateEnergy(uint64_t input, float resistor) {
     return energy;
 }
 
-/* endregion */
+/* endregion STATIC FUNCTION IMPLEMENTATIONS*/

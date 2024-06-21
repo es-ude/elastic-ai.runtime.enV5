@@ -4,18 +4,20 @@
 
 #include "AtCommands.h"
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include "config/Bus.h"
+#include "hardware/uart.h"
 
 /* region VARIABLES */
 
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-
+// TODO: use uartConfiguration as parameter in functions instead
+uartConfiguration_t uartConfiguration;
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -28,6 +30,14 @@ void espInit(void) {
      * 5. single connection mode is enabled
      * 6. ChipStatus of `espStatus` is set to `ESP_CHIP_OK`.
      */
+
+    uartConfiguration.uartInstance = UART_INSTANCE;
+    uartConfiguration.txPin = UART_TX_PIN;
+    uartConfiguration.rxPin = UART_RX_PIN;
+    uartConfiguration.baudrate = UART_BAUDRATE;
+    uartConfiguration.dataBits = UART_DATA_BITS;
+    uartConfiguration.stopBits = UART_STOP_BITS;
+    uartConfiguration.parity = UART_PARITY;
 
     // initialize uart interface for AT commands
     uartInit(&uartConfiguration);

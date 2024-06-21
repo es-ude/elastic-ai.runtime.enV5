@@ -35,7 +35,7 @@ void (*uartInternalCallbackUartRxInterrupt)(void);
 
 void uartInit(uartConfiguration_t *uartConfig) {
     uartDevice = uartConfig;
-    
+
     // Set the TX and RX pins to UART by using the function select on the GPIO
     gpioSetPinFunction(uartDevice->txPin, GPIO_FUNCTION_UART);
     gpioSetPinFunction(uartDevice->rxPin, GPIO_FUNCTION_UART);
@@ -43,7 +43,7 @@ void uartInit(uartConfiguration_t *uartConfig) {
     // Set up our UART with requested baud rate.
     // The call will return the actual baud rate selected,
     // which will be as close as possible to that requested
-        uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrate);
+    uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrate);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow((uart_inst_t *)uartDevice->uartInstance, false, false);

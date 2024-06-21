@@ -1,12 +1,12 @@
 #define SOURCE_FILE "DUAL-PAC193X-Test"
 
 #include "Common.h"
+#include "I2c.h"
 #include "Pac193x.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 #include <stdio.h>
-#include "I2c.h"
 
 /* region HELPER */
 
@@ -32,7 +32,6 @@ i2cConfiguration_t i2cConfig = {
     .sclPin = 7,
 };
 /* endregion I2C DEFINITION */
-
 
 /* region SENSOR DEFINITIONS */
 static pac193xSensorConfiguration_t sensor1 = {
@@ -137,20 +136,20 @@ int main(void) {
     // wait for user console to connect
     while ((!stdio_usb_connected())) {}
     sleep_ms(500);
-    
+
     /* initialize I2C */
     PRINT("START I2C INIT");
     i2cErrorCode_t i2cErrorCode;
-    while(1) {
+    while (1) {
         i2cErrorCode = i2cInit(&i2cConfig);
-        if (i2cErrorCode == I2C_NO_ERROR){
+        if (i2cErrorCode == I2C_NO_ERROR) {
             PRINT("Initialised I2C.");
             break;
         }
         PRINT("Initialise I2C failed; i2c_ERROR: %02X", i2cErrorCode);
         sleep_ms(500);
     }
-    
+
     /* initialize PAC193X sensors */
     PRINT("===== START PAC_1 INIT =====");
     pac193xErrorCode_t errorCode;

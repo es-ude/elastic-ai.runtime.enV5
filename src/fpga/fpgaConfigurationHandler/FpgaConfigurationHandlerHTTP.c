@@ -15,22 +15,24 @@
 
 /* region PUBLIC FUNCTION IMPLEMENTATIONS */
 
-fpgaConfigurationHandlerError_t
-fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t length,
-                                                     uint32_t sectorID) {
+fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+    flashConfiguration_t *flashConfiguration, char *baseUrl, size_t length, uint32_t sectorID) {
     PRINT_DEBUG("LENGTH: %zu", length);
     PRINT_DEBUG("SECTOR 0: %lu", sectorID);
 
-    uint32_t startAddress = (sectorID - 1) * FLASH_BYTES_PER_SECTOR;
+    uint32_t startAddress = (sectorID - 1) * (flashConfiguration->flashBytesPerSector);
 
-    size_t totalNumberOfOccupiedSectors = (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR);
+    size_t totalNumberOfOccupiedSectors =
+        (size_t)ceilf((float)length / (float)(flashConfiguration->flashBytesPerSector));
     for (size_t sector = 0; sector < totalNumberOfOccupiedSectors; sector++) {
-        uint32_t sectorStartAddress = startAddress + sector * FLASH_BYTES_PER_SECTOR;
-        flashEraseSector(sectorStartAddress);
+        uint32_t sectorStartAddress =
+            startAddress + sector * (flashConfiguration->flashBytesPerSector);
+        flashEraseSector(flashConfiguration, sectorStartAddress);
     }
 
     CEXCEPTION_T exception;
-    size_t numberOfPages = (size_t)ceilf((float)length / FLASH_BYTES_PER_PAGE);
+    size_t numberOfPages =
+        (size_t)ceilf((float)length / (float)(flashConfiguration->flashBytesPerPage));
     PRINT_DEBUG("TOTAL PAGES: %zu", numberOfPages);
     size_t page = 0;
     do {
@@ -45,8 +47,10 @@ fpgaConfigurationHandlerDownloadConfigurationViaHttp(char *baseUrl, size_t lengt
 
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
-            uint32_t pageStartAddress = startAddress + (page * FLASH_BYTES_PER_PAGE);
-            if (flashWritePage(pageStartAddress, bitfileChunk, chunkLength) != chunkLength) {
+            uint32_t pageStartAddress =
+                startAddress + (page * (flashConfiguration->flashBytesPerPage));
+            if (flashWritePage(flashConfiguration, pageStartAddress, bitfileChunk, chunkLength) !=
+                chunkLength) {
                 Throw(FLASH_ERASE_ERROR);
             }
 

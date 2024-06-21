@@ -44,7 +44,7 @@ enum {
 
     // ADXL345B_BW_RATE_1600 = 0b00001110, //!< 1600 only available for SPI
     // ADXL345B_BW_RATE_3200 = 0b00001111, //!< 3200  only available for SPI
-    
+
 };
 
 /* i2c address of the sensor

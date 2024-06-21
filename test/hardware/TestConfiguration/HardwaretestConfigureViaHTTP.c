@@ -24,16 +24,25 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
 #include "Spi.h"
-#include "controller/enV5HwController.h"
 
-spiConfiguration_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 const char *baseUrl = "http://127.0.0.1:5000";
 uint32_t blinkFast = 1;
@@ -42,7 +51,8 @@ uint32_t blinkSlow = 1;
 size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
-    env5HwInit();
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
     // initialize the serial output
     stdio_init_all();
@@ -53,7 +63,6 @@ void initHardwareTest(void) {
     espInit(); // initilize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
 
-    flashInit(&spiConfiguration);
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -66,8 +75,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url);
 
-        error =
-            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkFastLength, blinkFast);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
+                                                                     blinkFastLength, blinkFast);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -76,8 +85,8 @@ void downloadConfiguration(bool useFast) {
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
 
-        error =
-            fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, blinkSlowLength, blinkSlow);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
+                                                                     blinkSlowLength, blinkSlow);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -99,7 +108,7 @@ void readConfiguration(bool useFast) {
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
     do {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(&flashConfig, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;
@@ -126,7 +135,7 @@ void verifyConfiguration(bool useFast) {
         }
 
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
+        flashReadData(&flashConfig, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
 
         for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
             printf("%02X", pageBuffer.data[index]);
@@ -145,15 +154,15 @@ _Noreturn void configurationTest(void) {
 
         switch (input) {
         case 'E':
-            flashEraseAll();
+            flashEraseAll(NULL);
             PRINT("ERASED");
             break;
         case 'P':
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             PRINT("FPGA Power: ON");
             break;
         case 'p':
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             PRINT("FPGA Power: OFF");
             break;
         case 'd':

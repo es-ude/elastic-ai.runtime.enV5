@@ -1,12 +1,12 @@
 #define SOURCE_FILE "SHT3X-Test"
 
 #include "Common.h"
+#include "I2c.h"
 #include "Sht3x.h"
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 #include <stdio.h>
-#include "I2c.h"
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
@@ -17,7 +17,6 @@ i2cConfiguration_t i2cConfig = {
 };
 /* endregion I2C DEFINITION */
 
-
 /* region SENSOR DEFINITION */
 static sht3xSensorConfiguration_t sensor = {
     .i2c_slave_address = SHT3X_I2C_ADDRESS,
@@ -25,11 +24,11 @@ static sht3xSensorConfiguration_t sensor = {
 };
 /* endregion SENSOR DEFINITION */
 
-
 static void getTemperatureAndHumidity() {
     float temperature, humidity;
 
-    sht3xErrorCode_t sht_errorCode = sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
+    sht3xErrorCode_t sht_errorCode =
+        sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
     if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH", temperature, humidity);
     } else {
@@ -84,16 +83,16 @@ int main(void) {
     /* initialize I2C */
     PRINT("===== START I2C INIT =====");
     i2cErrorCode_t i2cErrorCode;
-    while(1) {
+    while (1) {
         i2cErrorCode = i2cInit(&i2cConfig);
-        if (i2cErrorCode == I2C_NO_ERROR){
+        if (i2cErrorCode == I2C_NO_ERROR) {
             PRINT("Initialised I2C.");
             break;
         }
         PRINT("Initialise I2C failed; i2c_ERROR: %02X", i2cErrorCode);
         sleep_ms(500);
     }
-    
+
     /* initialize SHT3X sensor */
     PRINT("===== START INIT =====");
     sht3xErrorCode_t sht_errorCode;

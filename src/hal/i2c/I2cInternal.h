@@ -14,6 +14,6 @@ static int i2cInternalWriteBlocking(const uint8_t *bytesToSend, uint16_t numberO
 static int i2cInternalReadBlocking(uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
                                    uint8_t slaveAddress, i2c_inst_t *hostAddress);
 
-//static bool checkFrequencyInRange(soll, ist);
+static bool i2cInternalCheckFrequencyInRange(uint32_t actualFrequency, uint32_t targetFrequency);
 
 #endif /* ENV5_I2C_INTERNAL_HEADER */

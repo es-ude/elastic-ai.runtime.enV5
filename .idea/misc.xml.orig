@@ -7,7 +7,11 @@
     <option name="sdkName" value="Python 3.8 (elastic-ai.runtime.enV5-acrh)" />
   </component>
   <component name="CMakePythonSetting">
+<<<<<<< HEAD
     <option name="pythonIntegrationState" value="NO" />
+=======
+    <option name="pythonIntegrationState" value="YES" />
+>>>>>>> main
   </component>
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
