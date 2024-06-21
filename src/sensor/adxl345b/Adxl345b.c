@@ -9,15 +9,10 @@
 
 /* region CONSTANTS */
 
-////TODO: Das sollte im .c file stehen und dann hab ich im typedef einen enum mit den 4 ranges. und das wird dann in der fkt setMeasurementrange rein. die setzt sich das dann in der entsprechenden funktion. Das sollte im Puclic header gar nicht preisgegeben werden. noch ein alter relikt von frueher
 const static adxl345bRangeSetting_t adxl345b_2g_range = {0b00001000, 0b00000011, 0.0043f};
 const static adxl345bRangeSetting_t adxl345b_4g_range = {0b00001001, 0b00000111, 0.0087f};
 const static adxl345bRangeSetting_t adxl345b_8g_range = {0b00001010, 0b00001111, 0.0175f};
 const static adxl345bRangeSetting_t adxl345b_16g_range = {0b00001011, 0b00111111, 0.0345f};
-
-
-//! i2c configuration for the sensor
-static adxl345bSensorConfiguration_t adxl345bI2cSensorConfiguration;
 
 //! measurement range configuration
 static adxl345bRangeSetting_t adxl345bSelectedRange;
@@ -64,6 +59,10 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
         return ADXL345B_CONFIGURATION_ERROR;
     }
 
+    return ADXL345B_NO_ERROR;
+}
+
+adxl345bErrorCode_t adxl345bEnableStreamMode(adxl345bSensorConfiguration_t sensor){
     return ADXL345B_NO_ERROR;
 }
 
@@ -118,7 +117,7 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
     return ADXL345B_NO_ERROR;
 }
 
-//TODO: setbaudrate wird "rausgezogen" und global gesetzt, das soll dann in hardwareConfig!!!!! da soll dann ein ordentlicher header rein, der uns alles setzt. wir koennen dann ggf spaeter ueber praprozessordirektive das PER VERSION setzen
+//TODO:
 //& umbenennen zu ReadMeasurement (singular!)oder "oneShot", die andere dann ReadMeasurementsInStream    ...
 // anderer Layer dann 2 fuer InStream  dann fuer Intervall die dann andere per Anzahl
 adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis) {

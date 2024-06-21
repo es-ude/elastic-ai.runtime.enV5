@@ -36,6 +36,8 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
                                                        adxl345bRegister_t registerToWrite,
                                                        adxl345bConfig_t config);
 
+adxl345bErrorCode_t adxl345bEnableStreamMode(adxl345bSensorConfiguration_t sensor);
+
 /*!
  * @brief change the measurement range of the sensor
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
