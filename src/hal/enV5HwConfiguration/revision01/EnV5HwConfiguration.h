@@ -195,4 +195,10 @@
 
 /* endregion SHT */
 
+/* region HTTP BIN-FILE DOWNLOAD */
+#ifndef HTTP_CHUNK_SIZE
+#define HTTP_CHUNK_SIZE FLASH_BYTES_PER_PAGE
+#endif
+/* endregion HTTP BIN-FILE DOWNLOAD */
+
 #endif // ENV5_HW_CONFIGURATION
