@@ -8,6 +8,7 @@
 #include "CException.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "FpgaConfigurationHandlerInternal.h"
@@ -76,8 +77,8 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 /* region INTERNAL FUNCTION IMPLEMENTATIONS */
 
 static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page) {
-    char *url = malloc(strlen(baseUrl) + 11 * sizeof(char));
-    sprintf(url, "%s/%zu", baseUrl, page);
+    char *url = malloc(strlen(baseUrl) + 36 * sizeof(char));
+    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, HTTP_CHUNK_SIZE);
     return url;
 }
 
