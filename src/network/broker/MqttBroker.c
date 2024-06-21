@@ -21,8 +21,8 @@
 
 char *mqttBrokerBrokerId = NULL;
 char *mqttBrokerClientId = NULL;
-uint8_t mqttBrokerNumberOfSubscriptions = 0;
-mqttBrokerSubscription_t mqttBrokerSubscriptions[MAX_SUBSCRIBER];
+mqttBrokerSubscription_t *subscriptions = NULL;
+
 bool mqttBrokerReceiverFunctionSet = false;
 bool mqttUserConfigSet = false;
 
@@ -149,12 +149,16 @@ void mqttBrokerDisconnect(bool force) {
 void mqttBrokerReceive(char *response) {
     posting_t posting = {};
     if (mqttBrokerInternalHandleResponse(&posting, response)) {
-        for (int i = 0; i < mqttBrokerNumberOfSubscriptions; ++i) {
-            if (topicMatcherCheckIfTopicMatches(mqttBrokerSubscriptions[i].topic, posting.topic)) {
-                mqttBrokerSubscriptions[i].subscriber.deliver(posting);
-                break;
+        mqttBrokerSubscription_t *current = subscriptions;
+        while (current != NULL) {
+            if (topicMatcherCheckIfTopicMatches(current->topic, posting.topic)) {
+                current->subscriber.deliver(posting);
+                return;
             }
         }
+        PRINT_DEBUG("Received data for topic '%s', without active subscription!", posting.topic);
+        free(posting.topic);
+        free(posting.data);
     }
 }
 
@@ -269,18 +273,25 @@ void communicationEndpointSubscribeRaw(char *topic, subscriber_t subscriber) {
     char *subscribeTopic = malloc(commandLength);
     snprintf(subscribeTopic, commandLength, AT_MQTT_SUBSCRIBE_TOPIC, topic);
 
-    if (mqttBrokerNumberOfSubscriptions != MAX_SUBSCRIBER) {
-        if (ESP_NO_ERROR !=
-            espSendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
-            PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic);
-        } else {
-            mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions] =
-                (mqttBrokerSubscription_t){.topic = topic, .subscriber = subscriber};
-            mqttBrokerNumberOfSubscriptions++;
-            PRINT("Subscribed to %s", topic);
-        }
+    if (ESP_NO_ERROR != espSendCommand(subscribeTopic, AT_MQTT_SUBSCRIBE_TOPIC_RESPONSE, 5000)) {
+        PRINT("Could not subscribe to topic: %s. Have You already subscribed?", topic);
     } else {
-        PRINT("Could not subscribe to topic: %s. Maximum number of subscriptions reached.", topic);
+        mqttBrokerSubscription_t *newSubscription = malloc(sizeof(mqttBrokerSubscription_t));
+        newSubscription->topic = calloc(1, strlen(topic));
+        strcpy(newSubscription->topic, topic);
+        newSubscription->subscriber = subscriber;
+        newSubscription->next = NULL;
+
+        if (subscriptions != NULL) {
+            mqttBrokerSubscription_t *current = subscriptions;
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newSubscription;
+        } else {
+            subscriptions = newSubscription;
+        }
+        PRINT("Subscribed to %s", topic);
     }
 
     free(subscribeTopic);
@@ -308,7 +319,8 @@ void communicationEndpointUnsubscribeRemote(char *topic, subscriber_t subscriber
     free(fullTopic);
 }
 
-void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
+void communicationEndpointUnsubscribeRaw(char *topic,
+                                         __attribute__((unused)) subscriber_t subscriber) {
     if (espStatus.MQTTStatus == NOT_CONNECTED) {
         PRINT("MQTT broker not connected. Can't unsubscribe from topic %s!", topic);
         return;
@@ -321,21 +333,25 @@ void communicationEndpointUnsubscribeRaw(char *topic, subscriber_t subscriber) {
     if (ESP_NO_ERROR != espSendCommand(command, AT_MQTT_UNSUBSCRIBE_TOPIC_RESPONSE, 5000)) {
         PRINT("Could not unsubscribe from topic %s. Have you subscribed beforehand?", topic);
     } else {
-        for (int i = 0; i < mqttBrokerNumberOfSubscriptions; ++i) {
-            if (strcmp(mqttBrokerSubscriptions[i].topic, topic) == 0) {
-                if (mqttBrokerSubscriptions[i].subscriber.deliver == subscriber.deliver) {
-                    if (i != mqttBrokerNumberOfSubscriptions) {
-                        strcpy(mqttBrokerSubscriptions[i].topic,
-                               mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions].topic);
-                        mqttBrokerSubscriptions[i].subscriber =
-                            mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions].subscriber;
+        if (subscriptions != NULL) {
+            mqttBrokerSubscription_t *current = subscriptions;
+            mqttBrokerSubscription_t *last = NULL;
+            while (current != NULL) {
+                if (topicMatcherCheckIfTopicMatches(current->topic, topic)) {
+                    if (last != NULL) {
+                        last->next = current->next;
+                    } else {
+                        subscriptions = current->next;
                     }
-                    strcpy(mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions].topic, "\0");
-                    free(mqttBrokerSubscriptions[mqttBrokerNumberOfSubscriptions].topic);
-                    mqttBrokerNumberOfSubscriptions--;
+                    free(current->topic);
+                    free(current);
+                    break;
                 }
+                last = current;
+                current = current->next;
             }
         }
+
         PRINT("Unsubscribed from %s.", topic);
     }
 
