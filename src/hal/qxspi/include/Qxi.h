@@ -31,12 +31,37 @@
 #define QXI_READ_COMMAND 0x40
 #define QXI_WRITE_COMMAND 0x80
 
+/*!
+ * @brief initializes the ports for the SPI interfaces
+ */
 void qxiInit(void);
+
+/*!
+ * @brief deinitializes the ports for the SPI interfaces
+ */
 void qxiDeinit(void);
 
 void qxiSetSpeed(uint32_t baudrate);
 
+/*!
+ * @brief reads a byte array
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param startAddress[in]: uint16_t startAddress, needed for command
+ * @param dataBuffer[out]: pointer to uint8_t, data that stores the received data
+ */
 void qxiReadBlocking(uint16_t startAddress, uint8_t *dataBuffer, size_t length);
+
+/*!
+ * @brief sends a byte array to slave
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param spiConfiguration[in]: struct that contains the SPI configuration
+ * @param command[in]: pointer to data_t, command to be send
+ * @param data[in]: pointer to data_t, data to be send
+ */
 void qxiWriteBlocking(uint16_t startAddress, uint8_t *data, size_t length);
 
 #endif // ENV5_QXI_HEADER

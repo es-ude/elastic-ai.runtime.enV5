@@ -23,7 +23,7 @@ include::include/Adxl345b.h[tags=prototypes]
 [source,C]
 ----
 #include "adxl345b/Adxl345b.h"
-#include "hardware/i2c.h"
+#include "hardware/i2cConfig.h"
 
 int main(void) {
     adxl345bErrorCode_t errorCode = adxl345bInit(i2c0, ADXL345B_I2C_ALTERNATE_ADDRESS); // <1>

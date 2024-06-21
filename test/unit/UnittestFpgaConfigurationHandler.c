@@ -8,6 +8,9 @@
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
 
+flashConfiguration_t flashConfiguration = {
+    .flashSpiConfiguration = NULL, .flashBytesPerPage = 512, .flashBytesPerSector = 262144};
+
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
 
@@ -24,11 +27,11 @@ void HttpGetCheckUrl(const char *url, HttpResponse_t **data) {
     urlRequestCounter++;
 }
 void HttpGetReturnDummyChunk(const char *url, HttpResponse_t **data) {
-    uint8_t *dummyData = calloc(1, FLASH_BYTES_PER_PAGE);
+    uint8_t *dummyData = calloc(1, flashConfiguration.flashBytesPerPage);
     dummyData[0] = urlRequestCounter;
 
     HttpResponse_t *httpResponse = malloc(sizeof(HttpResponse_t));
-    httpResponse->length = FLASH_BYTES_PER_PAGE;
+    httpResponse->length = flashConfiguration.flashBytesPerPage;
     httpResponse->response = dummyData;
 
     *data = httpResponse;
@@ -40,14 +43,15 @@ static void checkFlashData(size_t iterations) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 
-        flashReadData(0x00 + FLASH_BYTES_PER_PAGE * index, &readBuffer);
+        flashReadData(&flashConfiguration, 0x00 + flashConfiguration.flashBytesPerPage * index,
+                      &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
     }
 }
 
 void setUp(void) {
-    flashSetUpDummyStorage(FLASH_BYTES_PER_SECTOR);
+    flashSetUpDummyStorage(flashConfiguration.flashBytesPerSector);
     urlRequestCounter = 0;
 }
 
@@ -58,12 +62,14 @@ void tearDown(void) {
 void test_downloadViaHttpUrlCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetCheckUrl;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE, 1);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
 }
 void test_downloadViaHttpOrderCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
-    fpgaConfigurationHandlerDownloadConfigurationViaHttp(baseUrl, pages * FLASH_BYTES_PER_PAGE, 1);
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
     checkFlashData(pages);
 }
 

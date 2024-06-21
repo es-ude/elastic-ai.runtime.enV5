@@ -6,8 +6,9 @@ target_sources(fpga_configuration_handler INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandlerUSB.c)
 target_link_libraries(fpga_configuration_handler INTERFACE
         common_lib
+        pico_stdio
         flash_lib
         middleware_lib
         network_lib
         http_lib
-        pico_stdio)
+        )

@@ -13,7 +13,7 @@
 
 /* region VARIABLES */
 
-static uartDevice_t *uartDevice;
+static uartConfiguration_t *uartDevice;
 
 volatile static bool uartLastReceivedCharacterWasReturn = false;
 volatile static bool uartCorrectResponseReceived = false;
@@ -33,14 +33,8 @@ void (*uartInternalCallbackUartRxInterrupt)(void);
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartInit(uartDevice_t *device) {
-    uartDevice = device;
-
-    if (uartDevice->uartId == 0) {
-        uartDevice->uartInstance = (uartInstance_t *)uart0;
-    } else {
-        uartDevice->uartInstance = (uartInstance_t *)uart1;
-    }
+void uartInit(uartConfiguration_t *uartConfig) {
+    uartDevice = uartConfig;
 
     // Set the TX and RX pins to UART by using the function select on the GPIO
     gpioSetPinFunction(uartDevice->txPin, GPIO_FUNCTION_UART);
@@ -49,8 +43,7 @@ void uartInit(uartDevice_t *device) {
     // Set up our UART with requested baud rate.
     // The call will return the actual baud rate selected,
     // which will be as close as possible to that requested
-    uartDevice->baudrateActual =
-        uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrateSet);
+    uart_init((uart_inst_t *)uartDevice->uartInstance, uartDevice->baudrate);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
     uart_set_hw_flow((uart_inst_t *)uartDevice->uartInstance, false, false);

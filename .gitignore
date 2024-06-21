@@ -2,12 +2,13 @@
 .tool-versions
 .venv
 networks.txt
-NetworkConfig.c
 node_modules/
 *.json
 **/__pycache__/
 config.bin
 .envrc
+**/dependencies.png
+NetworkConfig.c
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake,visualstudiocode
@@ -50,7 +51,7 @@ cmake-build-*
 build/
 build_*/
 out/
-**/NetworkConfig.c
+
 
 ## IntelliJ IDEA
 .idea/workspace.xml

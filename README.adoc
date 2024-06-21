@@ -35,7 +35,7 @@ For compiling the project, the required tools are:
 
 We recommended pre-commit to check that the commit messages align with the conventional commit message standard.
 
-TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:.[root
+TIP: You can check if your local machine satisfies the required dependencies by executing `test_setup.sh` script in the project link:./documentation[documentation
 directory].
 
 First, you need to generate the build scripts with cmake and then execute them
@@ -64,17 +64,20 @@ The _Debug_ and _Release_ targets differ only in the amount of printed informati
 [source,bash]
 ----
 # Unit-test profile
-cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON
+cmake -B build/unit-tests -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=ON -D DEBUG_MODE:BOOL=ON -D
 
 # Debug profile
-cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON
+cmake -B build/debug -G Ninja -D CMAKE_BUILD_TYPE=DEBUG -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=ON -D REVISION=1
 
 # Release profile
-cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF
+cmake -B build/release -G Ninja -D CMAKE_BUILD_TYPE=RELEASE -D UNIT_TEST:BOOL=OFF -D DEBUG_MODE:BOOL=OFF -D REVISION=1
 ----
 
 The flag `-G Ninja` tells CMake to use Ninja as the build tool.
 If this flag is not passed, CMake will use the default build tool on your machine (mostly Makefiles).
+
+The flag `-D REVISION` tells CMake the link:src/hal/enV5HwConfiguration/CMakeLists.txt[hardwareConfiguration]. We highly recommend using our matching link:src/hal/enV5HwConfiguration/[configurations to our revisions]. You can use your own configuration by adding the file with `-D REVISION=your/own/configuration/EnV5HwConfiguration.h`.
+Not passing the flag will cause a fatal error.
 
 [#_target:_local_machine]
 === Target: Local Machine
@@ -196,4 +199,4 @@ NOTE: These submodules will automatically downloaded by CMake on initialization!
 == Troubleshooting
 
 * To generate a clean CMake Build without deleting and reinitializing the build directory run `cmake --build <build_dir> --target clean`.
-* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:src/network/config/NetworkConfig.c[NetworkConfig.c])
+* If the device doesn't connect to the wifi or mqtt broker make sure that you set up the correct credentials! (link:NetworkConfig.c[NetworkConfig.c])

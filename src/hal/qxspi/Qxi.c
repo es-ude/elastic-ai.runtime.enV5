@@ -4,11 +4,12 @@
 #include "Qxi.h"
 #include "Spi.h"
 
-static spi_t spiConfiguration = {.spi = QXI_SPI,
-                                 .baudrate = QXI_BAUD_RATE,
-                                 .misoPin = QXI_SPI_RX_PIN,
-                                 .mosiPin = QXI_SPI_TX_PIN,
-                                 .sckPin = QXI_SPI_SCK_PIN};
+static spiConfiguration_t spiToFpgaConfig = {.spiInstance = QXI_SPI,
+                                             .baudrate = QXI_BAUD_RATE,
+                                             .misoPin = QXI_SPI_RX_PIN,
+                                             .mosiPin = QXI_SPI_TX_PIN,
+                                             .sckPin = QXI_SPI_SCK_PIN,
+                                             .csPin = QXI_SPI_CS_PIN};
 
 void qxiInit(void) {
     // The Configuration is defined in the header file.
@@ -43,7 +44,7 @@ void qxiReadBlocking(uint16_t startAddress, uint8_t *dataBuffer, size_t length) 
 
     data_t dataToRead = {.data = dataBuffer, .length = length};
 
-    spiWriteCommandAndReadBlocking(&spiConfiguration, QXI_SPI_CS_PIN, &command, &dataToRead);
+    spiWriteCommandAndReadBlocking(&spiToFpgaConfig, &command, &dataToRead);
 }
 
 void qxiWriteBlocking(uint16_t startAddress, uint8_t *data, size_t length) {
@@ -52,5 +53,5 @@ void qxiWriteBlocking(uint16_t startAddress, uint8_t *data, size_t length) {
 
     data_t dataToWrite = {.data = data, .length = length};
 
-    spiWriteCommandAndDataBlocking(&spiConfiguration, QXI_SPI_CS_PIN, &command, &dataToWrite);
+    spiWriteCommandAndDataBlocking(&spiToFpgaConfig, &command, &dataToWrite);
 }

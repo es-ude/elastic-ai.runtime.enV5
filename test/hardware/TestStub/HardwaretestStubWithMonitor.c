@@ -8,6 +8,8 @@
 #define SOURCE_FILE "HWTEST-STUB-WITH-MONITOR"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
@@ -17,7 +19,6 @@
 #include "MqttBroker.h"
 #include "Network.h"
 #include "Protocol.h"
-#include "enV5HwController.h"
 #include "middleware.h"
 
 #include <hardware/spi.h>
@@ -44,9 +45,17 @@ typedef struct publishRequest {
     char *data;
 } publishRequest_t;
 
-spi_t spiConfiguration = {
-    .spi = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
 
 queue_t postings;
 queue_t publishRequests;
@@ -56,7 +65,7 @@ mutex_t espOccupied;
 
 void initHardware() {
     // Should always be called first thing to prevent unique behavior, like current leakage
-    env5HwInit();
+    env5HwControllerInit();
 
     // initialize the serial output
     stdio_init_all();
@@ -74,7 +83,6 @@ void initHardware() {
      * powering on, resetting or changing the configuration of the FPGA.
      * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
      */
-    flashInit(&spiConfiguration, csPin);
     fpgaConfigurationHandlerInitialize();
 }
 
@@ -155,8 +163,8 @@ _Noreturn void handlePublishTask(void) {
 
 bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t startSector) {
     freeRtosMutexWrapperLock(espOccupied);
-    fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaHttp(url, lengthOfBinFile, startSector);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfig, url, lengthOfBinFile, startSector);
     freeRtosMutexWrapperUnlock(espOccupied);
     free(url);
 
@@ -204,12 +212,12 @@ _Noreturn void runTestTask(void) {
              * 3. Deploy new config via middleware
              * 4. Run Middleware test (Blink FPGA LED)
              */
-            env5HwFpgaPowersOff();
+            env5HwControllerFpgaPowersOff();
             if (!successfullyDownloadBinFile(downloadRequest.url, downloadRequest.fileSizeInBytes,
                                              downloadRequest.startSectorId)) {
                 continue;
             }
-            env5HwFpgaPowersOn();
+            env5HwControllerFpgaPowersOn();
             //            freeRtosTaskWrapperTaskSleep(100);
             //            middlewareConfigureFpga(downloadRequest.startSectorId);
             //            blinkFpgaLeds();

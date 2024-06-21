@@ -17,7 +17,8 @@ static void fpgaConfigurationHandlerFreeUrl(char *url);
 
 static void fpgaConfigurationHandlerWaitForStartRequest();
 static uint32_t fpgaConfigurationHandlerGetFileLength();
-static void fpgaConfigurationHandlerGetChunks(uint32_t totalLength, uint32_t startAddress);
+static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfiguration,
+                                              uint32_t totalLength, uint32_t startAddress);
 
 /* endregion USB */
 

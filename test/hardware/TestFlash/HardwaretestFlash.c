@@ -10,14 +10,25 @@
 #include "pico/stdlib.h"
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "Flash.h"
 #include "Spi.h"
-#include "enV5HwController.h"
 
-spi_t spiConfig = {.sckPin = 2, .misoPin = 0, .mosiPin = 3, .baudrate = 1000 * 1000, .spi = spi0};
+spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
+                                       .misoPin = SPI_FLASH_MISO,
+                                       .mosiPin = SPI_FLASH_MOSI,
+                                       .baudrate = SPI_FLASH_BAUDRATE,
+                                       .spiInstance = SPI_FLASH_INSTANCE,
+                                       .csPin = SPI_FLASH_CS};
+flashConfiguration_t flashConfig = {
+    .flashSpiConfiguration = &spiToFlashConfig,
+    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+};
+
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
-static const uint8_t csPin = 1;
 
 void initializeConsoleOutput(void) {
     stdio_init_all();
@@ -27,18 +38,16 @@ void initializeConsoleOutput(void) {
 }
 
 void initializeHardware(void) {
-    env5HwInit();
-    env5HwFpgaPowersOff();
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
 
-    spiInit(&spiConfig, csPin);
-    flashInit(&spiConfig, csPin);
+    spiInit(&spiToFlashConfig);
 }
 void readDeviceID() {
-    data_t idBuffer = {.data = calloc(6, sizeof(uint8_t)), .length = 6};
-    int bytesRead = flashReadId(&idBuffer);
+    data_t idBuffer = {.data = calloc(3, sizeof(uint8_t)), .length = 3};
+    int bytesRead = flashReadConfig(&flashConfig, FLASH_READ_ID, &idBuffer);
     PRINT_DEBUG("Bytes read: %i", bytesRead);
-    PRINT("Device ID is: 0x%02X%02X%02X%02X%02X", idBuffer.data[0], idBuffer.data[1],
-          idBuffer.data[2], idBuffer.data[3], idBuffer.data[4]);
+    PRINT("Device ID is: 0x%06X (Should be 0x010219)", *idBuffer.data);
     free(idBuffer.data);
 }
 void writeToFlash() {
@@ -56,7 +65,7 @@ void writeToFlash() {
         data[0] = pageCounter;
         pageCounter++;
         int successfulWrittenBytes =
-            flashWritePage(startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
+            flashWritePage(&flashConfig, startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
         PRINT("Address 0x%02lX: %i Bytes Written", startAddress + pageOffset,
               successfulWrittenBytes);
     }
@@ -67,7 +76,7 @@ void readFromFlash() {
         uint8_t data_read[FLASH_BYTES_PER_PAGE];
         data_t readBuffer = {.data = data_read, .length = FLASH_BYTES_PER_PAGE};
 
-        int bytesRead = flashReadData(startAddress + pageOffset, &readBuffer);
+        int bytesRead = flashReadData(&flashConfig, startAddress + pageOffset, &readBuffer);
         PRINT("Address 0x%06lX: %u Bytes read", startAddress + pageOffset, bytesRead);
         PRINT_BYTE_ARRAY("Data: ", readBuffer.data, readBuffer.length);
     }
@@ -78,7 +87,8 @@ void eraseSectorFromFlash() {
 
     for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * FLASH_BYTES_PER_SECTOR;
          sectorOffset += FLASH_BYTES_PER_SECTOR) {
-        flashErrorCode_t eraseError = flashEraseSector(FLASH_BYTES_PER_SECTOR * sectorOffset);
+        flashErrorCode_t eraseError =
+            flashEraseSector(&flashConfig, FLASH_BYTES_PER_SECTOR * sectorOffset);
         PRINT("Sector starting from Address %lu erased. (0x%02X)", startAddress + sectorOffset,
               eraseError);
 
@@ -87,7 +97,7 @@ void eraseSectorFromFlash() {
         data_t readBuffer = {.data = dataRead, .length = FLASH_BYTES_PER_PAGE};
         for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
              pageOffset += FLASH_BYTES_PER_PAGE) {
-            flashReadData(startAddress + pageOffset, &readBuffer);
+            flashReadData(NULL, startAddress + pageOffset, &readBuffer);
             for (size_t byteIndex = 0; byteIndex < FLASH_BYTES_PER_PAGE; byteIndex++) {
                 if (dataRead[byteIndex] != 0xFF) {
                     PRINT("Erase Failed");
@@ -117,7 +127,7 @@ _Noreturn void runTest(void) {
             readFromFlash();
             break;
         case 'b':
-            flashEraseAll();
+            flashEraseAll(NULL);
             break;
         default:
             PRINT("Waiting ...");
