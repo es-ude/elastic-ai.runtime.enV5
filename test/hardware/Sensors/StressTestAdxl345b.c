@@ -6,7 +6,7 @@
 #include "FreeRtosTaskWrapper.h"
 #include "HardwaretestHelper.h"
 #include "Protocol.h"
-#include "controller/enV5HwController.h"
+#include "EnV5HwController.h"
 #include "I2c.h"
 
 // pico-sdk headers
