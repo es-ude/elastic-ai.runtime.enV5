@@ -9,9 +9,11 @@
 
 /* region CONSTANTS */
 
+/*!TODO: add documentation why mask ? */
 const static adxl345bRangeSetting_t adxl345b_2g_range = {0b00001000, 0b00000011, 0.0043f};
 const static adxl345bRangeSetting_t adxl345b_4g_range = {0b00001001, 0b00000111, 0.0087f};
 const static adxl345bRangeSetting_t adxl345b_8g_range = {0b00001010, 0b00001111, 0.0175f};
+/*!TODO: add documentation why mask not 0b00011111? */
 const static adxl345bRangeSetting_t adxl345b_16g_range = {0b00001011, 0b00111111, 0.0345f};
 
 //! measurement range configuration
@@ -62,6 +64,32 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
     return ADXL345B_NO_ERROR;
 }
 
+/* NOTE:
+ * In stream mode, data from measurements of the x-, y-, and z-axes
+are stored in FIFO. When the number of samples in FIFO equals
+the level specified in the samples bits of the ADXL345B_FIFO_CONTROL
+(Address 0x38), the watermark interrupt is set. FIFO continues
+accumulating samples and holds the latest 32 samples from meas-
+urements of the x-, y-, and z-axes, discarding older data as new
+data arrives. The watermark interrupt continues occurring until the
+number of samples in FIFO is less than the value stored in the
+samples bits of the ADXL345B_FIFO_CONTROL register.
+======================TRIGGER MODE==================================
+In trigger mode, FIFO accumulates samples, holding the latest 32
+samples from measurements of the x-, y-, and z-axes. After a
+trigger event occurs and an interrupt is sent to the INT1 or INT2
+pin (determined by the trigger bit in the FIFO_CTL register), FIFO
+keeps the last n samples (where n is the value specified by the
+samples bits in the FIFO_CTL register) and then operates in FIFO
+mode, collecting new samples only when FIFO is not full. A delay of
+at least 5 μs should be present between the trigger event occurring
+and the start of reading data from the FIFO to allow the FIFO to
+discard and retain the necessary samples. Additional trigger events
+cannot be recognized until the trigger mode is reset. To reset the
+trigger mode, set the device to bypass mode and then set the
+device back to trigger mode. Note that the FIFO data should be
+read first because placing the device into bypass mode clears
+FIFO.*/
 adxl345bErrorCode_t adxl345bEnableStreamMode(adxl345bSensorConfiguration_t sensor){
     return ADXL345B_NO_ERROR;
 }
@@ -122,7 +150,7 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
 // anderer Layer dann 2 fuer InStream  dann fuer Intervall die dann andere per Anzahl
 adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis) {
     adxl345bErrorCode_t errorCode;
-    uint8_t interruptSources;
+    volatile uint8_t interruptSources;
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -133,6 +161,26 @@ adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t
             return errorCode;
         }
     } while (!(interruptSources & 0b10000000)); // check if data is ready
+
+
+    /*Register 0x32 to Register 0x37—DATAX0,
+DATAX1, DATAY0, DATAY1, DATAZ0, DATAZ1
+(Read Only)
+These six bytes (Register 0x32 to Register 0x37 'sizeOfResponseBuffer' hold the output data for each axis.
+Register 0x32 and 0x33 hold the output data for the x-axis,
+Register 0x34 and 0x35 hold the output data for the y-axis,
+Register 0x36 and 0x37 hold the output data for the z-axis.
+The output data is twos complement, with DATAx0 as the least significant byte
+and DATAx1 as the most significant byte, where x represent X,
+Y, or Z. The DATA_FORMAT register (Address 0x31) controls the
+format of the data.
+It is recommended that a multiple-byte read of all
+registers be performed to prevent a change in data between reads
+of sequential registers
+
+    !!!!wir wollen aus dem FIFO_CTL auslesen und nicht aus denX,y,z
+
+    hier 2 funktionen draus machen: readxyz und convertxyz*/
 
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_X, responseBuffer,
                                                    sizeOfResponseBuffer);
