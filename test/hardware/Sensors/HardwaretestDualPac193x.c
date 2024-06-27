@@ -1,12 +1,15 @@
 #define SOURCE_FILE "DUAL-PAC193X-Test"
 
-#include "Common.h"
-#include "I2c.h"
-#include "Pac193x.h"
+#include <stdio.h>
+
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
-#include <stdio.h>
+
+#include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "I2c.h"
+#include "Pac193x.h"
 
 /* region HELPER */
 
@@ -26,20 +29,20 @@ static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t c
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = i2c1,
-    .frequency = 400000,
-    .sdaPin = 6,
-    .sclPin = 7,
+    .i2cInstance = I2C_INSTANCE,
+    .frequency = I2C_FREQUENCY_IN_HZ,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
 };
 /* endregion I2C DEFINITION */
 
 /* region SENSOR DEFINITIONS */
 static pac193xSensorConfiguration_t sensor1 = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00001111},
-    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+    .i2c_host = PAC_ONE_HOST,
+    .i2c_slave_address = PAC_ONE_SLAVE,
+    .powerPin = PAC_ONE_POWER_PIN,
+    .usedChannels = PAC_ONE_USED_CHANNELS,
+    .rSense = PAC_ONE_R_SENSE,
 };
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
@@ -47,11 +50,11 @@ static pac193xSensorConfiguration_t sensor1 = {
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
 static pac193xSensorConfiguration_t sensor2 = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_806R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00001111},
-    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+    .i2c_host = PAC_TWO_HOST,
+    .i2c_slave_address = PAC_TWO_SLAVE,
+    .powerPin = PAC_TWO_POWER_PIN,
+    .usedChannels = PAC_TWO_USED_CHANNELS,
+    .rSense = PAC_TWO_R_SENSE,
 };
 #define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
