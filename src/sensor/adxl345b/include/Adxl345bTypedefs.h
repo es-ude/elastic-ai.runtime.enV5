@@ -90,7 +90,16 @@ typedef enum adxl345bRegister {
     ADXL345B_FIFO_CONTROL = 0x38,
     ADXL345B_FIFO_STATUS = 0x39
 } adxl345bRegister_t;
+
 typedef uint8_t adxl345bConfig_t;
+
+/*! bits D7 and D6 set Mode in FIFO_CONTROL  */
+typedef enum adxl345bFIFOMode{
+    ADXL345B_BYPASS = 0b00000000,
+    ADXL345B_FIFO = 0b01000000,
+    ADXL345B_STREAM = 0b10000000,
+    ADXL345B_TRIGGER = 0b11000000,
+}adxl345bFIFOMode_t;
 
 typedef struct adxl345bSensorConfiguration {
     i2c_inst_t *i2c_host;
