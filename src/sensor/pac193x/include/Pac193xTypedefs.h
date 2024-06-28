@@ -1,6 +1,7 @@
 #ifndef ENV5_PAC193X_TYPEDEFS
 #define ENV5_PAC193X_TYPEDEFS
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct i2c_inst i2c_inst_t;
@@ -76,6 +77,7 @@ typedef struct pac193xMeasurements {
 
 typedef struct pac193xEnergyMeasurements {
     uint32_t numberOfAccumulatedValues;
+    bool overflow;
     float energyChannel1;
     float energyChannel2;
     float energyChannel3;

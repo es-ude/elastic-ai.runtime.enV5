@@ -92,16 +92,11 @@ pac193xErrorCode_t pac193xSetChannelsInUse(pac193xSensorConfiguration_t sensor) 
 }
 
 pac193xErrorCode_t pac193xStartAccumulation(pac193xSensorConfiguration_t sensor) {
-    /* disable single shot mode, set sample rate to 1024 samples/s, enable overflow alert
-     * enable alert pin -> not floating => if disable only 8 samples/s*/
-    pac193xControlRegister_t ctrlRegister;
-    ctrlRegister.byte = 0x00;
-    ctrlRegister.sampleRate = PAC193X_1024_SAMPLES_PER_SEC;
-    ctrlRegister.alertPin = 1;
-    ctrlRegister.alertOverflow = 1;
-
+    /* samplerate = 1024, disable sleep, disable single-show-mode,
+     * enable alert, enable overflow alert
+     */
     if (PAC193X_NO_ERROR !=
-        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, ctrlRegister.byte)) {
+        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b00001010)) {
         return PAC193X_INIT_ERROR;
     }
 
@@ -132,16 +127,15 @@ pac193xErrorCode_t pac193xSetSampleRate(pac193xSensorConfiguration_t sensor,
                                         pac193xSampleRate_t sampleRate) {
     pac193xErrorCode_t errorCode;
 
-    pac193xControlRegister_t ctrlRegister;
-    errorCode = pac193xInternalGetDataFromSensor(sensor, &ctrlRegister.byte, 1, PAC193X_CMD_CTRL);
+    uint8_t ctrlRegister;
+    errorCode = pac193xInternalGetDataFromSensor(sensor, &ctrlRegister, 1, PAC193X_CMD_CTRL);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_RECEIVE_DATA_ERROR;
     }
 
-    ctrlRegister.sampleRate = sampleRate;
+    ctrlRegister = (ctrlRegister & 0x3F) | (sampleRate << 6);
 
-    errorCode =
-        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, ctrlRegister.byte);
+    errorCode = pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, ctrlRegister);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -344,40 +338,34 @@ pac193xErrorCode_t pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t 
                                                    pac193xEnergyMeasurements_t *measurements) {
     pac193xErrorCode_t errorCode;
 
-    /* read accumulator counter */
-    uint8_t *responseBuffer = malloc(3);
-    errorCode =
-        pac193xInternalGetDataFromSensor(sensor, responseBuffer, 3, PAC193X_CMD_READ_ACC_COUNT);
+    /* read values counter */
+    uint8_t responseBuffer[28];
+    errorCode = pac193xInternalGetDataFromSensor(sensor, responseBuffer, 3, PAC193X_CMD_CTRL);
     if (errorCode != PAC193X_NO_ERROR) {
-        free(responseBuffer);
         return PAC193X_RECEIVE_DATA_ERROR;
     }
-    measurements->numberOfAccumulatedValues =
-        (uint32_t)pac193xInternalTransformResponseBufferToUInt64(responseBuffer, 3);
-    free(responseBuffer);
 
-    // read accumulated power value ( PAC193X_CMD_READ_VPOWER{1,2,3,4}_ACC )
-    /* 6 bytes for each of the 4 channels */
-    responseBuffer = malloc(24);
-    errorCode =
-        pac193xInternalGetDataFromSensor(sensor, responseBuffer, 24, PAC193X_CMD_READ_VPOWER1_ACC);
-    if (errorCode != PAC193X_NO_ERROR) {
-        free(responseBuffer);
-        return PAC193X_RECEIVE_DATA_ERROR;
-    }
+    measurements->overflow = responseBuffer[0] & 0x01;
+
+    measurements->numberOfAccumulatedValues =
+        pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[1], 3);
+
     measurements->energyChannel1 = pac193xInternalCalculateEnergy(
-        pac193xInternalTransformResponseBufferToUInt64(responseBuffer, 6),
-        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL01)], 0);
+        pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[4], 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL01)],
+        sensor.sampleRate);
     measurements->energyChannel2 = pac193xInternalCalculateEnergy(
-        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 6, 6),
-        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL02)], 0);
+        pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[10], 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL02)],
+        sensor.sampleRate);
     measurements->energyChannel3 = pac193xInternalCalculateEnergy(
-        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 12, 6),
-        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL03)], 0);
+        pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[16], 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL03)],
+        sensor.sampleRate);
     measurements->energyChannel4 = pac193xInternalCalculateEnergy(
-        pac193xInternalTransformResponseBufferToUInt64(responseBuffer + 18, 6),
-        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL04)], 0);
-    free(responseBuffer);
+        pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[22], 6),
+        sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL04)],
+        sensor.sampleRate);
 
     return PAC193X_NO_ERROR;
 }
@@ -409,12 +397,8 @@ pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
         return PAC193X_INIT_ERROR;
     }
 
-    /* enable single-shot mode, disables alert/overflow pin */
-    pac193xControlRegister_t ctrlRegister;
-    ctrlRegister.byte = 0x00;
-    ctrlRegister.singleShotMode = 1;
-    errorCode =
-        pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, ctrlRegister.byte);
+    /* enable single-shot mode, enable slow mode, disable alert/overflow pin */
+    errorCode = pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_CTRL, 0b11010000);
     if (errorCode != PAC193X_NO_ERROR) {
         return PAC193X_INIT_ERROR;
     }
@@ -622,11 +606,10 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
     }
 
     /* retrieve data from sensor */
-    uint8_t *responseBuffer = malloc(properties.sizeOfResponseBuffer);
+    uint8_t responseBuffer[properties.sizeOfResponseBuffer];
     errorCode = pac193xInternalGetDataFromSensor(
         sensor, responseBuffer, properties.sizeOfResponseBuffer, properties.startReadAddress);
     if (errorCode != PAC193X_NO_ERROR) {
-        free(responseBuffer);
         return errorCode;
     }
 
@@ -637,21 +620,19 @@ static pac193xErrorCode_t pac193xInternalGetData(pac193xSensorConfiguration_t se
         rawValue, sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(channel)],
         sensor.sampleRate);
 
-    free(responseBuffer);
     return PAC193X_NO_ERROR;
 }
 
 static uint64_t pac193xInternalTransformResponseBufferToUInt64(const uint8_t *responseBuffer,
                                                                uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("transforming buffer to uint64");
-    uint64_t scalar = responseBuffer[0];
-    for (uint8_t index = 1; index < sizeOfResponseBuffer; index++) {
-        scalar <<= 8;
-        scalar |= (uint64_t)(responseBuffer[index]);
+    pac193xInternalDataBuffer_t converter = {.value = 0};
+    for (size_t index = 0; index < sizeOfResponseBuffer; index++) {
+        converter.raw[sizeOfResponseBuffer - 1 - index] = responseBuffer[index];
     }
 
-    PRINT_DEBUG("output: %llu", scalar);
-    return scalar;
+    PRINT_DEBUG("output: %llu", converter.value);
+    return converter.value;
 }
 
 static float pac193xInternalConvertToFloat(uint64_t input) {
@@ -707,7 +688,7 @@ static float pac193xInternalCalculatePower(uint64_t input, float resistor,
     return powerActual;
 }
 
-static float getSampleRate(uint8_t sampleRate) {
+static float pac193xInternalGetSampleRate(uint8_t sampleRate) {
     switch (sampleRate) {
     case PAC193X_1024_SAMPLES_PER_SEC:
         return 1024.0f;
@@ -725,7 +706,7 @@ static float pac193xInternalCalculateEnergy(uint64_t input, float resistor, uint
     PRINT_DEBUG("calculating energy");
     float powerFSR = 3.2f / resistor;
     float energy = pac193xInternalConvertToFloat(input) * powerFSR /
-                   (pac193xInternalEnergyDenominator * getSampleRate(sampleRate));
+                   (pac193xInternalEnergyDenominator * pac193xInternalGetSampleRate(sampleRate));
     PRINT_DEBUG("output: %f", energy);
     return energy;
 }

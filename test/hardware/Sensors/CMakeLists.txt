@@ -47,6 +47,7 @@ target_link_libraries(hardware-test_pac193x_stream
         pico_time
         i2c_interface
         enV5_hw_configuration
+        enV5_hw_controller
         sensor_lib_pac193x)
 create_enV5_executable(hardware-test_pac193x_stream)
 ##############################################

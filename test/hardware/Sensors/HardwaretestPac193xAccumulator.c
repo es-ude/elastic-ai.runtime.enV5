@@ -7,6 +7,7 @@
 
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "I2c.h"
 #include "Pac193x.h"
 #include "Sleep.h"
@@ -21,21 +22,22 @@ i2cConfiguration_t i2cConfig = {
 /* endregion I2C DEFINITION */
 
 /* region SENSOR DEFINITION */
-static pac193xSensorConfiguration_t sensor1 = {
-    .i2c_host = PAC_ONE_HOST,
-    .i2c_slave_address = PAC_ONE_SLAVE,
-    .powerPin = PAC_ONE_POWER_PIN,
-    .usedChannels = PAC_ONE_USED_CHANNELS,
-    .rSense = PAC_ONE_R_SENSE,
+static pac193xSensorConfiguration_t sensor = {
+    .i2c_host = PAC_TWO_HOST,
+    .i2c_slave_address = PAC_TWO_SLAVE,
+    .powerPin = PAC_TWO_POWER_PIN,
+    .usedChannels = PAC_TWO_USED_CHANNELS,
+    .rSense = PAC_TWO_R_SENSE,
 };
-
-#define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
-#define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
-#define PAC193X_CHANNEL_MCU PAC193X_CHANNEL03
-#define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
+#define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
+#define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
+#define PAC193X_CHANNEL_FPGA_1V PAC193X_CHANNEL03
+#define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
 /* endregion SENSOR DEFINITION */
 
 static void initHardware(void) {
+    env5HwControllerInit();
+
     /* enable print to console */
     stdio_init_all();
     while ((!stdio_usb_connected())) {
@@ -60,7 +62,7 @@ static void initHardware(void) {
     PRINT("===== START PAC193X INIT =====");
     pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(sensor1);
+        errorCode = pac193xInit(sensor);
         if (errorCode == PAC193X_NO_ERROR) {
             PRINT("Initialised PAC193X.\n");
             break;
@@ -72,20 +74,26 @@ static void initHardware(void) {
 
 _Noreturn static void runTest(void) {
     PRINT("===== START TEST =====");
-    pac193xStartAccumulation(sensor1);
-    pac193xSetSampleRate(sensor1, PAC193X_256_SAMPLES_PER_SEC);
+    pac193xStartAccumulation(sensor);
+    pac193xSetSampleRate(sensor, PAC193X_256_SAMPLES_PER_SEC);
+    pac193xRefreshDataAndResetAccumulator(sensor);
+
+    sleep_for_ms(1000);
 
     while (true) {
-        pac193xRefreshData(sensor1);
+        pac193xRefreshData(sensor);
+        sleep_for_ms(10);
         pac193xEnergyMeasurements_t measurements;
-        pac193xErrorCode_t error = pac193xReadEnergyForAllChannels(sensor1, &measurements);
+        pac193xErrorCode_t error = pac193xReadEnergyForAllChannels(sensor, &measurements);
         if (PAC193X_NO_ERROR != error) {
+            PRINT("Error occurred: 0x%02X", error);
+        } else {
+            PRINT("Overflow: %b", measurements.overflow);
             PRINT("Got %lu values:\n\t%f\n\t%f\n\t%f\n\t%f", measurements.numberOfAccumulatedValues,
                   measurements.energyChannel1, measurements.energyChannel2,
                   measurements.energyChannel3, measurements.energyChannel4);
-        } else {
-            PRINT("Error occurred: 0x%02X", error);
         }
+
         PRINT("Sleeping for 2 seconds");
         sleep_for_ms(2000);
     }

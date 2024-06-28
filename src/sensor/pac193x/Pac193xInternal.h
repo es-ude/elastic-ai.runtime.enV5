@@ -5,18 +5,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef union pac193xControlRegister {
-    struct {
-        uint8_t sampleRate : 2;
-        uint8_t sleepMode : 1;
-        uint8_t singleShotMode : 1;
-        uint8_t alertPin : 1;
-        uint8_t alertConversion : 1;
-        uint8_t alertOverflow : 1;
-        uint8_t overlofwDetected : 1;
-    };
-    uint8_t byte;
-} pac193xControlRegister_t;
+typedef union pac193xInternalDataBuffer {
+    uint64_t value;
+    uint8_t raw[8];
+} pac193xInternalDataBuffer_t;
 
 /* region SENSOR COMMUNICATION */
 

@@ -17,6 +17,9 @@
 /*!
  * @brief power up the sensor by setting PWRDN Pin to HIGH
  *
+ * @warning needs ~1.5ms to reach idle state after power up
+ *
+ *
  * @param sensor[in] configuration for sensor to use
  * @return           returns the error code (0 if everything passed)
  */
@@ -35,7 +38,7 @@ pac193xErrorCode_t pac193xPowerDownSensor(pac193xSensorConfiguration_t sensor);
 /*!
  * @brief initializes the power sensor
  *
- * @warning needs ~1.5ms to reach idle state after power up
+ * @warning requires 1ms to reach idle state
  *
  * @important \a pac193xPowerUpSensor has to be called beforehand!
  *
