@@ -20,6 +20,7 @@
  *
  * @return            return the error code (0 if everything passed)
  */
+
 adxl345bErrorCode_t adxl345bInit(adxl345bSensorConfiguration_t sensor);
 /*!
  * @brief send the configuration to the sensor
@@ -36,7 +37,60 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
                                                        adxl345bRegister_t registerToWrite,
                                                        adxl345bConfig_t config);
 
-adxl345bErrorCode_t adxl345bEnableStreamMode(adxl345bSensorConfiguration_t sensor);
+/*!
+ * @brief sets FIFO Mode and interrupt information
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param fifoMode[in] selected mode to be activated
+ * @param triggerCounter[in] number of required samples needed for trigger (max 32)
+ * @return return the error code (0 if everything passed)
+ *
+ * @note changing FIFOMode sets the number of samples in FIFO_CONTROL to 0.
+ * Placing the device into bypass mode clears FIFO
+ * max triggerCounter 32 -> you can read 33 Samples: fifo+(x/y/z)-register
+ */
+adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, adxl345bFIFOMode_t fifoMode, uint8_t triggerCounter);
+
+
+/*!
+ * @brief polls InterruptSource until specified interrupt occurs
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param mask[in] mask to specify which interrupt should be checked
+ *
+ * @return return the error code (0 if everything passed)
+ * @note clears ADXL345B_REGISTER_INTERRUPT_SOURCE except DATA_READY, watermark, and overrun information
+ */
+adxl345bErrorCode_t adxl345bCheckInterruptSource(adxl345bSensorConfiguration_t sensor,
+                                               uint8_t mask);
+
+/*!
+ *@brief convert raw data into g-values of xAxis,yAxis and zAxis
+ *
+ * @param xAxis,yAxis,zAxis[out] actual G values from the sensor
+ * @param responseBufferSizeSix[in]
+ * @return return the error code (0 if everything passed)
+ *
+ */
+adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis, uint8_t *responseBufferSizeSix);
+
+/*!
+ * @brief reads data of xAxis,yAxis and zAxis
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param responseBufferSizeSix[out] -> [6]: memory where data received from the sensor is stored
+ * @return return the error code (0 if everything passed)
+ *
+ * @note read only, raw data needs to be converted into g-values
+ */
+adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor, uint8_t *responseBufferSizeSix);
+
 
 /*!
  * @brief change the measurement range of the sensor
@@ -63,6 +117,7 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
 
 /*!
  * @brief read the actual measurements from the sensor
+ *
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
@@ -72,6 +127,17 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
  */
 adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis);
 
+/*!
+ * @brief reads requested number of data in stream mode
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param data[out] actual G values from the xAxis=[0],yAxis=[1],zAxis=[2]
+ * @param numberOfRequiredData[in] number of required Data
+ * @return
+ */
+adxl345bErrorCode_t adxl345bReadMeasurementsInStream(adxl345bSensorConfiguration_t sensor, float (*data)[3], uint32_t numberOfRequiredData);
 /*!
  * @brief trigger the execution of the self-test procedure
  *
