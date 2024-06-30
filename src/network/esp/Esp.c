@@ -52,11 +52,23 @@ void espInit(void) {
     // reset ESP configuration
     espInternalSoftReset();
 
-    // configure ESP
     while (ESP_NO_ERROR != espSendCommand(AT_DISABLE_ECHO, AT_DISABLE_ECHO_RESPONSE, 100)) {
         PRINT("Could not disable ESP echoing commands! Trying again ...");
     }
     PRINT_DEBUG("Disabled ESP echoing commands successful.");
+
+    /*! @important Default mode for ESP32 module is SoftAP (Soft Access Point) mode.
+     *             Do not remove code to prevent compatibility issues with new hardware!
+     *
+     *  Setting is preserved on ESP32 module
+     */
+    char stationMode[AT_ENABLE_STATION_MODE_LENGTH];
+    snprintf(stationMode, AT_ENABLE_STATION_MODE_LENGTH, AT_ENABLE_STATION_MODE, 1, 0);
+    while (ESP_NO_ERROR != espSendCommand(stationMode, AT_ENABLE_STATION_MODE_RESPONSE, 100)) {
+        PRINT("Could not enable station mode  mode! Trying again ...");
+    }
+    PRINT_DEBUG("Enabled station mode without autoconnect.");
+
     while (ESP_NO_ERROR !=
            espSendCommand(AT_DISABLE_MULTI_CONNECT, AT_DISABLE_MULTI_CONNECT_RESPONSE, 100)) {
         PRINT("Could not set ESP to single connection mode! Trying again ...");
