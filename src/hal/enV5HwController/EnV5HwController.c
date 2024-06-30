@@ -3,18 +3,10 @@
 #include <stdbool.h>
 
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Sleep.h"
-
-#define GPIO_LED0 22
-#define GPIO_LED1 24
-#define GPIO_LED2 25
-
-#define FPGA_VOL_REGULATOR_EN_PIN 23 //! HIGH -> on, LOW -> off
-#define FPGA_MOS_EN_PIN 21           //! LOW -> on, HIGH -> off
-#define FPGA_RESET_CTRL_PIN 12       //! LOW -> on, HIGH -> off
-#define FPGA_BUSY_PIN 15
 
 void env5HwControllerInit() {
     env5HwControllerLedsInit();
@@ -25,30 +17,30 @@ void env5HwControllerInit() {
 /* region LED */
 
 void env5HwControllerLedsInit(void) {
-    gpioInitPin(GPIO_LED0, GPIO_OUTPUT);
-    gpioSetPin(GPIO_LED0, GPIO_PIN_LOW);
+    gpioInitPin(LED0_GPIO, GPIO_OUTPUT);
+    gpioSetPin(LED0_GPIO, GPIO_PIN_LOW);
     PRINT_DEBUG("LED0 initialized.");
 
-    gpioInitPin(GPIO_LED1, GPIO_OUTPUT);
-    gpioSetPin(GPIO_LED1, GPIO_PIN_LOW);
+    gpioInitPin(LED1_GPIO, GPIO_OUTPUT);
+    gpioSetPin(LED1_GPIO, GPIO_PIN_LOW);
     PRINT_DEBUG("LED1 initialized.");
 
-    gpioInitPin(GPIO_LED2, GPIO_OUTPUT);
-    gpioSetPin(GPIO_LED2, GPIO_PIN_LOW);
+    gpioInitPin(LED2_GPIO, GPIO_OUTPUT);
+    gpioSetPin(LED2_GPIO, GPIO_PIN_LOW);
     PRINT_DEBUG("LED2 initialized.");
 }
 
 void env5HwControllerLedsAllOn(void) {
-    gpioSetPin(GPIO_LED0, GPIO_PIN_HIGH);
-    gpioSetPin(GPIO_LED1, GPIO_PIN_HIGH);
-    gpioSetPin(GPIO_LED2, GPIO_PIN_HIGH);
+    gpioSetPin(LED0_GPIO, GPIO_PIN_HIGH);
+    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
+    gpioSetPin(LED2_GPIO, GPIO_PIN_HIGH);
     PRINT_DEBUG("LED's enabled");
 }
 
 void env5HwControllerLedsAllOff(void) {
-    gpioSetPin(GPIO_LED0, GPIO_PIN_LOW);
-    gpioSetPin(GPIO_LED1, GPIO_PIN_LOW);
-    gpioSetPin(GPIO_LED2, GPIO_PIN_LOW);
+    gpioSetPin(LED0_GPIO, GPIO_PIN_LOW);
+    gpioSetPin(LED1_GPIO, GPIO_PIN_LOW);
+    gpioSetPin(LED2_GPIO, GPIO_PIN_LOW);
     PRINT_DEBUG("LED's disabled");
 }
 
