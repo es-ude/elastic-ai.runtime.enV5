@@ -45,12 +45,12 @@ typedef struct publishRequest {
     char *data;
 } publishRequest_t;
 
-spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
-                                       .misoPin = SPI_FLASH_MISO,
-                                       .mosiPin = SPI_FLASH_MOSI,
-                                       .baudrate = SPI_FLASH_BAUDRATE,
-                                       .spiInstance = SPI_FLASH_INSTANCE,
-                                       .csPin = SPI_FLASH_CS};
+spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
+                                       .misoPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
+                                       .baudrate = FLASH_SPI_BAUDRATE,
+                                       .spiInstance = FLASH_SPI_INSTANCE,
+                                       .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
@@ -63,7 +63,7 @@ queue_t testCases;
 
 mutex_t espOccupied;
 
-void initHardware() {
+void initializeCommunication() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwControllerInit();
 
@@ -233,7 +233,7 @@ _Noreturn void runTestTask(void) {
 }
 
 int main() {
-    initHardware();
+    initializeCommunication();
 
     postings = freeRtosQueueWrapperCreate(5, sizeof(posting_t));
     publishRequests = freeRtosQueueWrapperCreate(5, sizeof(publishRequest_t));

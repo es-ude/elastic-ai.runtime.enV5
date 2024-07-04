@@ -44,12 +44,12 @@ char lengthUrl[] = "http://192.168.178.24:5000/length";
  * powering on, resetting or changing the configuration of the FPGA.
  * FPGA needs that bus during reconfiguration and **only** during reconfiguration.
  */
-spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
-                                       .misoPin = SPI_FLASH_MISO,
-                                       .mosiPin = SPI_FLASH_MOSI,
-                                       .baudrate = SPI_FLASH_BAUDRATE,
-                                       .spiInstance = SPI_FLASH_INSTANCE,
-                                       .csPin = SPI_FLASH_CS};
+spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
+                                       .misoPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
+                                       .baudrate = FLASH_SPI_BAUDRATE,
+                                       .spiInstance = FLASH_SPI_INSTANCE,
+                                       .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
@@ -63,7 +63,7 @@ uint8_t acceloratorId[BYTES_MODEL_ID] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x0
                                          0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 #endif
 
-static void initHardware() {
+static void initializeCommunication() {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
@@ -128,6 +128,6 @@ _Noreturn void runTest(void) {
 }
 
 int main() {
-    initHardware();
+    initializeCommunication();
     runTest();
 }

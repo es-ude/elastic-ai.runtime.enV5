@@ -62,56 +62,56 @@
 #define FLASH_BYTES_PER_SECTOR 262144
 #endif // FLASH_BYTES_PER_SECTOR
 
-#ifndef SPI_FLASH_INSTANCE
-#define SPI_FLASH_INSTANCE spi0
+#ifndef FLASH_SPI_INSTANCE
+#define FLASH_SPI_INSTANCE spi0
 #endif // SPI_FLASH_INSTANCE
 
-#ifndef SPI_FLASH_SCK
-#define SPI_FLASH_SCK 2
+#ifndef FLASH_SPI_CLOCK
+#define FLASH_SPI_CLOCK 2
 #endif // SPI_FLASH_SCK
 
-#ifndef SPI_FLASH_MISO
-#define SPI_FLASH_MISO 0
+#ifndef FLASH_SPI_MISO
+#define FLASH_SPI_MISO 0
 #endif // SPI_FLASH_MISO
 
-#ifndef SPI_FLASH_MOSI
-#define SPI_FLASH_MOSI 3
+#ifndef FLASH_SPI_MOSI
+#define FLASH_SPI_MOSI 3
 #endif // SPI_FLASH_MOSI
 
-#ifndef SPI_FLASH_BAUDRATE
-#define SPI_FLASH_BAUDRATE 1000000
+#ifndef FLASH_SPI_BAUDRATE
+#define FLASH_SPI_BAUDRATE 1000000
 #endif // SPI_FLASH_BAUDRATE
 
-#ifndef SPI_FLASH_CS
-#define SPI_FLASH_CS 1
+#ifndef FLASH_SPI_CS
+#define FLASH_SPI_CS 1
 #endif // SPI_FLASH_CS
 
 /* endregion FLASH*/
 
 /* region FPGA */
 /* region SPI CONFIG */
-#ifndef SPI_FPGA_INSTANCE
-#define SPI_FPGA_INSTANCE spi0
+#ifndef FPGA_SPI_INSTANCE
+#define FPGA_SPI_INSTANCE spi0
 #endif // SPI_FPGA_INSTANCE
 
-#ifndef SPI_FPGA_SCK
-#define SPI_FPGA_SCK 18
+#ifndef FPGA_SPI_CLOCK
+#define FPGA_SPI_CLOCK 18
 #endif // SPI_FPGA_SCK
 
-#ifndef SPI_FPGA_MISO
-#define SPI_FPGA_MISO 16
+#ifndef FPGA_SPI_MISO
+#define FPGA_SPI_MISO 16
 #endif // SPI_FPGA_MISO
 
-#ifndef SPI_FPGA_MOSI
-#define SPI_FPGA_MOSI 19
+#ifndef FPGA_SPI_MOSI
+#define FPGA_SPI_MOSI 19
 #endif // SPI_FPGA_MOSI
 
-#ifndef SPI_FPGA_BAUDRATE
-#define SPI_FPGA_BAUDRATE 62000000
+#ifndef FPGA_SPI_BAUDRATE
+#define FPGA_SPI_BAUDRATE 62000000
 #endif // SPI_FPGA_BAUDRATE
 
-#ifndef SPI_FPGA_CS
-#define SPI_FPGA_CS 17
+#ifndef FPGA_SPI_CS
+#define FPGA_SPI_CS 17
 #endif // SPI_FPGA_CS
 /* endregion SPI CONFIG */
 

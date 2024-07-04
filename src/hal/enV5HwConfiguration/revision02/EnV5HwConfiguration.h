@@ -1,6 +1,54 @@
 #ifndef ENV5_HW_CONFIGURATION
 #define ENV5_HW_CONFIGURATION
 
+/* region SPI */
+
+#ifndef SPI_DEFAULT_BAUDRATE
+#define SPI_DEFAULT_BAUDRATE 1000000
+#endif
+
+/* region SPI 0 */
+
+#ifndef SPI0_INSTANCE
+#define SPI0_INSTANCE spi0
+#endif
+
+#ifndef SPI0_MISO
+#define SPI0_MISO 0
+#endif
+
+#ifndef SPI0_MOSI
+#define SPI0_MOSI 3
+#endif
+
+#ifndef SPI0_CLOCK
+#define SPI0_CLOCK 2
+#endif
+
+/* endregion SPI 0 */
+
+/* region SPI 1 */
+
+#ifndef SPI1_INSTANCE
+#define SPI1_INSTANCE spi1
+#endif
+
+#ifndef SPI1_MISO
+#define SPI1_MISO 8
+#endif
+
+#ifndef SPI1_MOSI
+#define SPI1_MOSI 11
+#endif
+
+#ifndef SPI1_CLOCK
+#define SPI1_CLOCK 10
+#endif
+
+/* endregion SPI 1 */
+
+/* endregion SPI */
+
 /* region I2C */
 #ifndef I2C_INSTANCE
 #define I2C_INSTANCE i2c1
@@ -54,84 +102,86 @@
 /* region FLASH*/
 #ifndef FLASH_BYTES_PER_PAGE
 #define FLASH_BYTES_PER_PAGE 256
-#endif // FLASH_BYTES_PER_PAGE
+#endif
 
 #ifndef FLASH_BYTES_PER_SECTOR
 //! Each sector consists of 64kiB (= 65536B)
 #define FLASH_BYTES_PER_SECTOR 65536
-#endif // FLASH_BYTES_PER_SECTOR
+#endif
 
-#ifndef SPI_FLASH_INSTANCE
-#define SPI_FLASH_INSTANCE spi0
-#endif // SPI_FLASH_INSTANCE
+#ifndef FLASH_SPI_INSTANCE
+#define FLASH_SPI_INSTANCE SPI0_INSTANCE
+#endif
 
-#ifndef SPI_FLASH_SCK
-#define SPI_FLASH_SCK 2
-#endif // SPI_FLASH_SCK
+#ifndef FLASH_SPI_CLOCK
+#define FLASH_SPI_CLOCK SPI0_CLOCK
+#endif
 
-#ifndef SPI_FLASH_MISO
-#define SPI_FLASH_MISO 0
-#endif // SPI_FLASH_MISO
+#ifndef FLASH_SPI_MISO
+#define FLASH_SPI_MISO SPI0_MISO
+#endif
 
-#ifndef SPI_FLASH_MOSI
-#define SPI_FLASH_MOSI 3
-#endif // SPI_FLASH_MOSI
+#ifndef FLASH_SPI_MOSI
+#define FLASH_SPI_MOSI SPI0_MOSI
+#endif
 
-#ifndef SPI_FLASH_BAUDRATE
-#define SPI_FLASH_BAUDRATE 1000000
-#endif // SPI_FLASH_BAUDRATE
+#ifndef FLASH_SPI_BAUDRATE
+#define FLASH_SPI_BAUDRATE SPI_DEFAULT_BAUDRATE
+#endif
 
-#ifndef SPI_FLASH_CS
-#define SPI_FLASH_CS 1
-#endif // SPI_FLASH_CS
+#ifndef FLASH_SPI_CS
+#define FLASH_SPI_CS 1
+#endif
 
 /* endregion FLASH*/
 
 /* region FPGA */
+
 /* region SPI CONFIG */
-#ifndef SPI_FPGA_INSTANCE
-#define SPI_FPGA_INSTANCE spi0
-#endif // SPI_FPGA_INSTANCE
+#ifndef FPGA_SPI_INSTANCE
+#define FPGA_SPI_INSTANCE SPI0_INSTANCE
+#endif
 
-#ifndef SPI_FPGA_SCK
-#define SPI_FPGA_SCK 18
-#endif // SPI_FPGA_SCK
+#ifndef FPGA_SPI_CLOCK
+#define FPGA_SPI_CLOCK 18
+#endif
 
-#ifndef SPI_FPGA_MISO
-#define SPI_FPGA_MISO 16
-#endif // SPI_FPGA_MISO
+#ifndef FPGA_SPI_MISO
+#define FPGA_SPI_MISO 16
+#endif
 
-#ifndef SPI_FPGA_MOSI
-#define SPI_FPGA_MOSI 19
-#endif // SPI_FPGA_MOSI
+#ifndef FPGA_SPI_MOSI
+#define FPGA_SPI_MOSI 19
+#endif
 
-#ifndef SPI_FPGA_BAUDRATE
-#define SPI_FPGA_BAUDRATE 62000000
-#endif // SPI_FPGA_BAUDRATE
+#ifndef FPGA_SPI_BAUDRATE
+#define FPGA_SPI_BAUDRATE 62000000
+#endif
 
-#ifndef SPI_FPGA_CS
-#define SPI_FPGA_CS 17
-#endif // SPI_FPGA_CS
+#ifndef FPGA_SPI_CS
+#define FPGA_SPI_CS 17
+#endif
 /* endregion SPI CONFIG */
 
 #ifndef FPGA_VOL_REGULATOR_EN_PIN
 //! HIGH -> on, LOW -> off
 #define FPGA_VOL_REGULATOR_EN_PIN 23
-#endif // FPGA_VOL_REGULATOR_EN_PIN
+#endif
 
 #ifndef FPGA_MOS_EN_PIN
 //! LOW -> on, HIGH -> off
 #define FPGA_MOS_EN_PIN 21
-#endif // FPGA_MOS_EN_PIN
+#endif
 
 #ifndef FPGA_RESET_CTRL_PIN
 //! LOW -> on, HIGH -> off
 #define FPGA_RESET_CTRL_PIN 12
-#endif // FPGA_RESET_CTRL_PIN#define FPGA_BUSY_PIN 15
+#endif
 
 #ifndef FPGA_BUSY_PIN
 #define FPGA_BUSY_PIN 15
-#endif // FPGA_BUSY_PIN
+#endif
+
 /* endregion FPGA */
 
 /* region ADXL345b */
@@ -233,4 +283,33 @@
 #define LED2_GPIO 25
 #endif
 /* endregion LED */
+
+/* region BMI323 */
+
+#ifndef BMI323_SPI_INTERFACE
+#define BMI323_SPI_INTERFACE SPI1_INSTANCE
+#endif
+
+#ifndef BMI323_SPI_BAUDRATE
+#define BMI323_SPI_BAUDRATE SPI_DEFAULT_BAUDRATE
+#endif
+
+#ifndef BMI323_SPI_MISO
+#define BMI323_SPI_MISO SPI1_MISO
+#endif
+
+#ifndef BMI323_SPI_MOSI
+#define BMI323_SPI_MOSI SPI1_MOSI
+#endif
+
+#ifndef BMI323_SPI_CLOCK
+#define BMI323_SPI_CLOCK SPI1_CLOCK
+#endif
+
+#ifndef BMI323_SPI_CHIP_SELECT
+#define BMI323_SPI_CHIP_SELECT 9
+#endif
+
+/* endregion BMI323 */
+
 #endif // ENV5_HW_CONFIGURATION
