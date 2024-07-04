@@ -35,7 +35,7 @@ static pac193xSensorConfiguration_t sensor = {
 #define PAC193X_CHANNEL_FPGA_SRAM PAC193X_CHANNEL04
 /* endregion SENSOR DEFINITION */
 
-static void initHardware(void) {
+static void initializeCommunication(void) {
     env5HwControllerInit();
 
     /* enable print to console */
@@ -100,6 +100,6 @@ _Noreturn static void runTest(void) {
 }
 
 int main(void) {
-    initHardware();
+    initializeCommunication();
     runTest();
 }

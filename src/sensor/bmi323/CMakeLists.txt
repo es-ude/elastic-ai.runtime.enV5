@@ -1,3 +1,5 @@
+include(FetchContent)
+
 FetchContent_Declare(
         bmi323
         GIT_REPOSITORY https://github.com/boschsensortec/BMI323_SensorAPI.git
@@ -6,13 +8,17 @@ FetchContent_Declare(
 FetchContent_Populate(bmi323)
 
 add_library(sensor_lib_bmi323 STATIC
-        ${bmi323_SOURCE_DIR}/bmi3.c
-        ${bmi323_SOURCE_DIR}/bmi323.c
-        ${CMAKE_CURRENT_LIST_DIR}/spi_adapter.c
+        "${bmi323_SOURCE_DIR}/bmi3.c"
+        "${bmi323_SOURCE_DIR}/bmi323.c"
+        "${CMAKE_CURRENT_LIST_DIR}/bmi323_interface.c"
 )
+message("BMI: ${bmi323_SOURCE_DIR}")
 target_include_directories(sensor_lib_bmi323 PUBLIC
-        ${bmi323_SOURCE_DIR}/
+        "${bmi323_SOURCE_DIR}"
+        "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 target_link_libraries(sensor_lib_bmi323 PRIVATE
+        sleep_interface
+        gpio_interface
         spi_interface
 )
