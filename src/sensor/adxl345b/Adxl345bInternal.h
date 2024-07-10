@@ -83,13 +83,27 @@ adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t 
 static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
                                                          int minValue);
 
+/*!
+ * @brief polls InterruptSource until specified interrupt occurs
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param mask[in] mask to specify which interrupt should be checked
+ *
+ * @return return the error code (0 if everything passed)
+ * @note clears ADXL345B_REGISTER_INTERRUPT_SOURCE except DATA_READY, watermark, and overrun information
+ */
+static adxl345bErrorCode_t adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor,
+                                                                uint8_t mask);
+
 //TODO: adde kommentare
 /*!
  * @brief
  * @param range
  * @return
  */
-static adxl345bErrorCode_t adxl345bSetSelectedRange( adxl345bRange_t range );
+static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range );
 
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */

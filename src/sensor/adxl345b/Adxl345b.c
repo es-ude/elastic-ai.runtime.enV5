@@ -64,8 +64,8 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
     return ADXL345B_NO_ERROR;
 }
 
-adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, adxl345bFIFOMode_t fifoMode, uint8_t triggerCounter){
-    uint8_t fifoConfiguration = (fifoMode & 0b11000000) | (triggerCounter & 0b00011111);
+adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, adxl345bFIFOMode_t fifoMode, uint8_t samplesForTrigger){
+    uint8_t fifoConfiguration = (fifoMode & 0b11000000) | (samplesForTrigger & 0b00011111);
     adxl345bErrorCode_t errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_FIFO_CONTROL, fifoConfiguration);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
@@ -73,7 +73,7 @@ adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, ad
     return ADXL345B_NO_ERROR;
 }
 
-static adxl345bErrorCode_t adxl345bSetSelectedRange( adxl345bRange_t range ){
+static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range ){
     switch (range) {
       case ADXL345B_2G_RANGE:
         adxl345bSelectedRange = adxl345b_2g_range;
@@ -94,7 +94,7 @@ static adxl345bErrorCode_t adxl345bSetSelectedRange( adxl345bRange_t range ){
 return ADXL345B_NO_ERROR;}
 
 adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t sensor, adxl345bRange_t newRange ) {
-    adxl345bErrorCode_t errorCode = adxl345bSetSelectedRange(newRange);
+    adxl345bErrorCode_t errorCode = adxl345bInternalSetSelectedRange(newRange);
     if (errorCode != ADXL345B_NO_ERROR) {return errorCode;}
 
     /* right adjusted storage, selected range settings for full resolution */
@@ -124,33 +124,28 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
     return ADXL345B_NO_ERROR;
 }
 
-//TODO: anderer Layer dann 2 fuer InStream  dann fuer Intervall die dann andere per Anzahl
-adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, float *xAxis, float *yAxis, float *zAxis) {
+
+adxl345bErrorCode_t adxl345bReadMeasurementOneShot(adxl345bSensorConfiguration_t sensor, uint8_t* rawDataSizeSix
+) {
     adxl345bErrorCode_t errorCode;
-    uint8_t responseBuffer[6];
 
-    errorCode = adxl345bCheckInterruptSource(sensor, 0b10000000);// check if data is ready
+    errorCode = adxl345bInternalCheckInterruptSource(sensor, 0b10000000);// check if data is ready
     if(errorCode != ADXL345B_NO_ERROR){
         return errorCode;
     }
 
-    errorCode = adxl345bReadDataXYZ(sensor, responseBuffer);
-    if(errorCode != ADXL345B_NO_ERROR){
-        return errorCode;
-    }
-
-    errorCode = adxl345bConvertDataXYZ(xAxis, yAxis, zAxis, responseBuffer);
+    errorCode = adxl345bReadDataXYZ(sensor, rawDataSizeSix);
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl345bReadMeasurementsInStream(adxl345bSensorConfiguration_t sensor, float (*data)[3], uint32_t numberOfRequiredData){
+//TODO: InStream... Demo: Intervall, Anzahl
+adxl345bErrorCode_t adxl345bReadMeasurementsInStream(adxl345bSensorConfiguration_t sensor, uint8_t (*rawData)[6], uint32_t numberOfRequiredData){
     adxl345bErrorCode_t errorCode;
     uint8_t interruptSource;
-    uint8_t responseBuffer[numberOfRequiredData][6];
     uint8_t maxFIFORead;
     uint32_t readData = numberOfRequiredData;
 
-    //set maxFIFORead
+    //check maxFIFORead
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &maxFIFORead, 1);
     if(errorCode != ADXL345B_NO_ERROR){
         return errorCode;
@@ -169,37 +164,34 @@ adxl345bErrorCode_t adxl345bReadMeasurementsInStream(adxl345bSensorConfiguration
             do{
                 errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_STATUS,
                                                                &interruptSource, 1);
+                //sleep 5 μs to ensure data is ready
+                sleep_for_ms(5);
                 if (errorCode != ADXL345B_NO_ERROR) {
                     return errorCode;
                 }
             } while ((interruptSource & 0b00011111) < rest); //check entries until enough data
 
         }else{
-            errorCode = adxl345bCheckInterruptSource(sensor, 0b00000010); //check watermark
+            errorCode = adxl345bInternalCheckInterruptSource(sensor, 0b00000010); //check watermark
             if(errorCode != ADXL345B_NO_ERROR){
                 return errorCode;
             }
         }
 
         for(int i=0; i <= maxFIFORead; i++){
-            errorCode = adxl345bReadDataXYZ(sensor, &responseBuffer[numberOfRequiredData-readData][0]);
+            errorCode = adxl345bReadDataXYZ(sensor, &rawData[numberOfRequiredData - readData][0]);
+            //sleep 5 μs to ensure data is ready
+            sleep_for_ms(5);
             if(errorCode != ADXL345B_NO_ERROR){
                 return errorCode;
             }
         }
         readData -= maxFIFORead;
     }
-
-        //convert Data to x,y,z-Axis
-        for(int i = 0; i < numberOfRequiredData; i++){
-            adxl345bConvertDataXYZ(&data[i][0], &data[i][1], &data[i][2], responseBuffer[i]);
-        }
-
-
     return errorCode;
 }
-adxl345bErrorCode_t adxl345bCheckInterruptSource(adxl345bSensorConfiguration_t sensor,
-                                               uint8_t mask){
+adxl345bErrorCode_t adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor,
+                                                         uint8_t mask){
     adxl345bErrorCode_t errorCode;
     uint8_t interruptSource;
     do{
