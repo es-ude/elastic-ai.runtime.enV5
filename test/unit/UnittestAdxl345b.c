@@ -74,7 +74,7 @@ void adxl345bReadSerialNumberReadCorrectValue(void) {
 
 /* region adxl345bReadMeasurementOneShot */
 
-void adxl345bReadMeasurementsGetSendCommandFail_errorIfHardwarFails(void) {
+void adxl345bReadMeasurementOneShotGetSendCommandFail_errorIfHardwarFails(void) {
     uint8_t rawDataSizeSix[6];
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
@@ -82,7 +82,7 @@ void adxl345bReadMeasurementsGetSendCommandFail_errorIfHardwarFails(void) {
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
-void adxl345bReadMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
+void adxl345bReadMeasurementOneShotGetSendCommandFail_errorIfAckMissing(void) {
     uint8_t rawDataSizeSix[6];
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
@@ -90,7 +90,7 @@ void adxl345bReadMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
-void adxl345bReadMeasurementsGetReceiveDataFail_errorIfHardwarFails(void) {
+void adxl345bReadMeasurementOneShotGetReceiveDataFail_errorIfHardwarFails(void) {
     uint8_t rawDataSizeSix[6];
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
@@ -98,7 +98,7 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfHardwarFails(void) {
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void adxl345bReadMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
+void adxl345bReadMeasurementOneShotGetReceiveDataFail_errorIfAckMissing(void) {
     uint8_t rawDataSizeSix[6];
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
@@ -106,14 +106,14 @@ void adxl345bReadMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
-void adxl345bReadMeasurementsReadSuccessful(void) {
+void adxl345bReadMeasurementOneShotReadSuccessful(void) {
     uint8_t rawDataSizeSix[6];
 
     uint8_t err = adxl345bReadMeasurementOneShot(sensor, rawDataSizeSix);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, err);
 }
 
-void adxl345bReadMeasurementsReadCorrectValue(void) {
+void adxl345bReadMeasurementOneShotReadCorrectValue(void) {
     uint8_t sizeOfRawData = 6;
     uint8_t rawDataSizeSix[sizeOfRawData];
 
@@ -180,12 +180,12 @@ int main(void) {
     RUN_TEST(adxl345bReadSerialNumberReadSuccessful);
     RUN_TEST(adxl345bReadSerialNumberReadCorrectValue);
 
-    RUN_TEST(adxl345bReadMeasurementsGetSendCommandFail_errorIfHardwarFails);
-    RUN_TEST(adxl345bReadMeasurementsGetSendCommandFail_errorIfAckMissing);
-    RUN_TEST(adxl345bReadMeasurementsGetReceiveDataFail_errorIfHardwarFails);
-    RUN_TEST(adxl345bReadMeasurementsGetReceiveDataFail_errorIfAckMissing);
-    RUN_TEST(adxl345bReadMeasurementsReadSuccessful);
-    RUN_TEST(adxl345bReadMeasurementsReadCorrectValue);
+    RUN_TEST(adxl345bReadMeasurementOneShotGetSendCommandFail_errorIfHardwarFails);
+    RUN_TEST(adxl345bReadMeasurementOneShotGetSendCommandFail_errorIfAckMissing);
+    RUN_TEST(adxl345bReadMeasurementOneShotGetReceiveDataFail_errorIfHardwarFails);
+    RUN_TEST(adxl345bReadMeasurementOneShotGetReceiveDataFail_errorIfAckMissing);
+    RUN_TEST(adxl345bReadMeasurementOneShotReadSuccessful);
+    RUN_TEST(adxl345bReadMeasurementOneShotReadCorrectValue);
 
     RUN_TEST(adxl345bConvertDataXYZCorrectValue);
 
