@@ -9,11 +9,10 @@
 
 /* region CONSTANTS */
 
-/*!TODO: add documentation why mask ? */
+/*! For more Information about Mask see Figure 49 on Page 32 of 36 in Datasheet  */
 const static adxl345bRangeSetting_t adxl345b_2g_range = {0b00001000, 0b00000011, 0.0043f};
 const static adxl345bRangeSetting_t adxl345b_4g_range = {0b00001001, 0b00000111, 0.0087f};
 const static adxl345bRangeSetting_t adxl345b_8g_range = {0b00001010, 0b00001111, 0.0175f};
-/*!TODO: add documentation why mask not 0b00011111? */
 const static adxl345bRangeSetting_t adxl345b_16g_range = {0b00001011, 0b00111111, 0.0345f};
 
 //! measurement range configuration
@@ -358,7 +357,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
         }
     }
 
-    /* calculate average of samples without force */
+    /* calculate average of samples with force */
     int sumSamplesWithForceX = 0;
     int sumSamplesWithForceY = 0;
     int sumSamplesWithForceZ = 0;
