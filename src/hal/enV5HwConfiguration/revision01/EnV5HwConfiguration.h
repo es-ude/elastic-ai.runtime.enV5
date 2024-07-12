@@ -89,6 +89,7 @@
 /* endregion FLASH*/
 
 /* region FPGA */
+/* region SPI CONFIG */
 #ifndef SPI_FPGA_INSTANCE
 #define SPI_FPGA_INSTANCE spi0
 #endif // SPI_FPGA_INSTANCE
@@ -112,7 +113,26 @@
 #ifndef SPI_FPGA_CS
 #define SPI_FPGA_CS 17
 #endif // SPI_FPGA_CS
+/* endregion SPI CONFIG */
 
+#ifndef FPGA_VOL_REGULATOR_EN_PIN
+//! HIGH -> on, LOW -> off
+#define FPGA_VOL_REGULATOR_EN_PIN 23
+#endif // FPGA_VOL_REGULATOR_EN_PIN
+
+#ifndef FPGA_MOS_EN_PIN
+//! LOW -> on, HIGH -> off
+#define FPGA_MOS_EN_PIN 21
+#endif // FPGA_MOS_EN_PIN
+
+#ifndef FPGA_RESET_CTRL_PIN
+//! LOW -> on, HIGH -> off
+#define FPGA_RESET_CTRL_PIN 12
+#endif // FPGA_RESET_CTRL_PIN#define FPGA_BUSY_PIN 15
+
+#ifndef FPGA_BUSY_PIN
+#define FPGA_BUSY_PIN 15
+#endif // FPGA_BUSY_PIN
 /* endregion FPGA */
 
 /* region ADXL345b */
@@ -194,5 +214,25 @@
 #endif // SHT_HOST
 
 /* endregion SHT */
+
+/* region HTTP BIN-FILE DOWNLOAD */
+#ifndef HTTP_CHUNK_SIZE
+#define HTTP_CHUNK_SIZE FLASH_BYTES_PER_PAGE
+#endif // HTTP_CHUNK_SIZE
+/* endregion HTTP BIN-FILE DOWNLOAD */
+
+/* region LED */
+#ifndef LED0_GPIO
+#define LED0_GPIO 22
+#endif
+
+#ifndef LED1_GPIO
+#define LED1_GPIO 24
+#endif
+
+#ifndef LED2_GPIO
+#define LED2_GPIO 25
+#endif
+/* endregion LED */
 
 #endif // ENV5_HW_CONFIGURATION

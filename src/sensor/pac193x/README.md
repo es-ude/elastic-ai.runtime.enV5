@@ -33,7 +33,7 @@ int main(void) {
 
     // Example: Read Values from Channel
     pac193xMeasurements_t measurements;
-    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
+    errorCode = pac193xGetMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
     if (errordCode != PAC193X_NO_ERROR) {
         return errorCode;
     }

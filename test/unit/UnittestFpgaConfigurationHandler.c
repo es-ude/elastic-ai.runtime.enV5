@@ -4,19 +4,22 @@
 
 #include "unity.h"
 
+#include "EnV5HwConfiguration.h"
 #include "FlashUnitTest.h"
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
 
-flashConfiguration_t flashConfiguration = {
-    .flashSpiConfiguration = NULL, .flashBytesPerPage = 512, .flashBytesPerSector = 262144};
+flashConfiguration_t flashConfiguration = {.flashSpiConfiguration = NULL,
+                                           .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
+                                           .flashBytesPerSector = FLASH_BYTES_PER_SECTOR};
 
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
 
 void HttpGetCheckUrl(const char *url, HttpResponse_t **data) {
-    char *expectedUrl = malloc(sizeof(baseUrl) + 3);
-    sprintf(expectedUrl, "%s/%i", baseUrl, urlRequestCounter);
+    char *expectedUrl = malloc(sizeof(baseUrl) + 33 * sizeof(char));
+    sprintf(expectedUrl, "%s?chunkNumber=%u&chunkMaxSize=%u", baseUrl, urlRequestCounter,
+            FLASH_BYTES_PER_PAGE);
 
     HttpResponse_t *emptyResponse = malloc(sizeof(HttpResponse_t));
     emptyResponse->length = 0;
@@ -39,7 +42,7 @@ void HttpGetReturnDummyChunk(const char *url, HttpResponse_t **data) {
 }
 
 static void checkFlashData(size_t iterations) {
-    for (uint8_t index = 0; index < iterations; index++) {
+    for (size_t index = 0; index < iterations; index++) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 

@@ -5,6 +5,7 @@ target_link_libraries(hardware-test_freeRTOSTask
         hardware_watchdog
         common_lib
         enV5_hw_controller
+        enV5_hw_configuration
         gpio_interface
         freeRtosUtils)
 create_enV5_executable(hardware-test_freeRTOSTask)

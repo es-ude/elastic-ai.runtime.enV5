@@ -7,8 +7,6 @@
 #include "Posting.h"
 #include "Status.h"
 
-#define MAX_SUBSCRIBER 100
-
 struct mqttHost {
     char *ip;
     char *port;

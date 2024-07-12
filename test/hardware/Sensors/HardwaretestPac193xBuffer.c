@@ -1,31 +1,34 @@
 #define SOURCE_FILE "PAC193X-BUFFER"
 
-#include "Common.h"
-#include "I2c.h"
-#include "Pac193x.h"
-#include "Pac193xTypedefs.h"
+#include <stdio.h>
+
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
-#include <stdio.h>
+
+#include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "I2c.h"
+#include "Pac193x.h"
+#include "Pac193xTypedefs.h"
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = i2c1,
-    .frequency = 400000,
-    .sdaPin = 6,
-    .sclPin = 7,
+    .i2cInstance = I2C_INSTANCE,
+    .frequency = I2C_FREQUENCY_IN_HZ,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
 };
 /* endregion I2C DEFINITION */
 
 /* region SENSOR DEFINITIONS */
 
 static pac193xSensorConfiguration_t sensor1 = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00001111},
-    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+    .i2c_host = PAC_ONE_HOST,
+    .i2c_slave_address = PAC_ONE_SLAVE,
+    .powerPin = PAC_ONE_POWER_PIN,
+    .usedChannels = PAC_ONE_USED_CHANNELS,
+    .rSense = PAC_ONE_R_SENSE,
 };
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_RAW PAC193X_CHANNEL02
@@ -33,11 +36,11 @@ static pac193xSensorConfiguration_t sensor1 = {
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
 
 static pac193xSensorConfiguration_t sensor2 = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_806R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00001111},
-    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
+    .i2c_host = PAC_TWO_HOST,
+    .i2c_slave_address = PAC_TWO_SLAVE,
+    .powerPin = PAC_TWO_POWER_PIN,
+    .usedChannels = PAC_TWO_USED_CHANNELS,
+    .rSense = PAC_TWO_R_SENSE,
 };
 #define PAC193X_CHANNEL_FPGA_IO PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_FPGA_1V8 PAC193X_CHANNEL02
@@ -56,8 +59,8 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
     /* wait to gather samples */
     sleep_ms(2000);
 
-    pac193xPowerMeasurements_t measurements;
-    errorCode = pac193xReadAccumulatedPowerForAllChannels(sensor, &measurements);
+    pac193xEnergyMeasurements_t measurements;
+    errorCode = pac193xReadEnergyForAllChannels(sensor, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
@@ -68,11 +71,11 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
         return;
     }
 
-    PRINT("Performed %lu Measurements:", measurements.counterOfMeasurements);
-    PRINT("  Channel 1: %4.6fWs", measurements.powerChannel1);
-    PRINT("  Channel 2: %4.6fWs", measurements.powerChannel2);
-    PRINT("  Channel 3: %4.6fWs", measurements.powerChannel3);
-    PRINT("  Channel 4: %4.6fWs", measurements.powerChannel4);
+    PRINT("Performed %lu Measurements:", measurements.numberOfAccumulatedValues);
+    PRINT("  Channel 1: %4.6fWs", measurements.energyChannel1);
+    PRINT("  Channel 2: %4.6fWs", measurements.energyChannel2);
+    PRINT("  Channel 3: %4.6fWs", measurements.energyChannel3);
+    PRINT("  Channel 4: %4.6fWs", measurements.energyChannel4);
 }
 
 static void enterBootMode() {
@@ -132,6 +135,4 @@ int main(void) {
             break;
         }
     }
-
-    return 0;
 }

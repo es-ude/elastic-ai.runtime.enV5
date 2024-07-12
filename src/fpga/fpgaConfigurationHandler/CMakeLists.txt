@@ -11,4 +11,5 @@ target_link_libraries(fpga_configuration_handler INTERFACE
         middleware_lib
         network_lib
         http_lib
-        )
+        enV5_hw_configuration
+)

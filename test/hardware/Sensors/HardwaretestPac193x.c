@@ -1,12 +1,15 @@
 #define SOURCE_FILE "PAC193X-Test"
 
-#include "Common.h"
-#include "I2c.h"
-#include "Pac193x.h"
+#include <stdio.h>
+
 #include <hardware/i2c.h>
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
-#include <stdio.h>
+
+#include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "I2c.h"
+#include "Pac193x.h"
 
 /* region HELPER */
 
@@ -26,44 +29,45 @@ _Bool compareFloatsWithinRange(float expected, float actual, float epsilon) {
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = i2c1,
-    .frequency = 400000,
-    .sdaPin = 6,
-    .sclPin = 7,
+    .i2cInstance = I2C_INSTANCE,
+    .frequency = I2C_FREQUENCY_IN_HZ,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
 };
 /* endregion I2C DEFINITION */
 
 /* region SENSOR DEFINITION */
+static pac193xSensorConfiguration_t sensor1 = {
+    .i2c_host = PAC_ONE_HOST,
+    .i2c_slave_address = PAC_ONE_SLAVE,
+    .powerPin = PAC_ONE_POWER_PIN,
+    .usedChannels = PAC_ONE_USED_CHANNELS,
+    .rSense = PAC_ONE_R_SENSE,
+};
+
 #define PAC193X_CHANNEL_SENSORS PAC193X_CHANNEL01
 #define PAC193X_CHANNEL_WIFI PAC193X_CHANNEL04
-
-static pac193xSensorConfiguration_t sensor1 = {
-    .i2c_host = i2c1,
-    .i2c_slave_address = PAC193X_I2C_ADDRESS_499R,
-    .powerPin = -1,
-    .usedChannels = {.uint_channelsInUse = 0b00001111},
-    .rSense = {0.82f, 0.82f, 0.82f, 0.82f},
-};
-/* endregion SENSOR DEFINTION */
+/* endregion SENSOR DEFINITION */
 
 static void getValuesOfChannelWifi() {
     pac193xMeasurements_t measurements;
 
     PRINT("Requesting measurements for wifi board.");
     pac193xErrorCode_t errorCode =
-        pac193xGetAllMeasurementsForChannel(sensor1, PAC193X_CHANNEL_WIFI, &measurements);
+        pac193xGetMeasurementsForChannel(sensor1, PAC193X_CHANNEL_WIFI, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
     }
 
     PRINT("  Measurements:\tVSource=%4.6fV\tVSense=%4.6fmV\tISense=%4.6fmA",
-          measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000);
+          measurements.voltageSource, measurements.voltageSense * 1000,
+          measurements.currentSense * 1000);
 
     PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", sensor1.rSense[1],
-          measurements.voltageSense / (measurements.iSense));
-    if (compareFloatsWithinRange(sensor1.rSense[0], measurements.voltageSense / measurements.iSense,
-                                 0.1f)) {
+          measurements.voltageSense / (measurements.currentSense));
+    if (compareFloatsWithinRange(sensor1.rSense[0],
+                                 measurements.voltageSense / measurements.currentSense, 0.1f)) {
         PRINT("    \033[0;32mPASSED\033[0m");
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!");
@@ -71,9 +75,9 @@ static void getValuesOfChannelWifi() {
 
     PRINT(
         "  Measured Power => %4.6fW; Calculated Power = Voltage_source * Current_Sense => %4.6fW:",
-        measurements.powerActual, measurements.iSense * measurements.voltageSource);
-    if (compareFloatsWithinRange(measurements.powerActual,
-                                 measurements.iSense * measurements.voltageSource, 0.001f)) {
+        measurements.power, measurements.currentSense * measurements.voltageSource);
+    if (compareFloatsWithinRange(measurements.power,
+                                 measurements.currentSense * measurements.voltageSource, 0.001f)) {
         PRINT("    \033[0;32mPASSED\033[0m");
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!");
@@ -85,19 +89,20 @@ static void getValuesOfChannelSensors() {
 
     PRINT("Requesting measurements for sensors.");
     pac193xErrorCode_t errorCode =
-        pac193xGetAllMeasurementsForChannel(sensor1, PAC193X_CHANNEL_SENSORS, &measurements);
+        pac193xGetMeasurementsForChannel(sensor1, PAC193X_CHANNEL_SENSORS, &measurements);
     if (errorCode != PAC193X_NO_ERROR) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
         return;
     }
 
     PRINT("  Measurements:\tVSource=%4.6fV;\tVSense=%4.6fmV;\tISense=%4.6fmA",
-          measurements.voltageSource, measurements.voltageSense * 1000, measurements.iSense * 1000);
+          measurements.voltageSource, measurements.voltageSense * 1000,
+          measurements.currentSense * 1000);
 
     PRINT("  RSense_expected=%4.2fOhm, RSense_actual=%4.2fOhm:", sensor1.rSense[1],
-          measurements.voltageSense / (measurements.iSense));
-    if (compareFloatsWithinRange(sensor1.rSense[0], measurements.voltageSense / measurements.iSense,
-                                 0.1f)) {
+          measurements.voltageSense / (measurements.currentSense));
+    if (compareFloatsWithinRange(sensor1.rSense[0],
+                                 measurements.voltageSense / measurements.currentSense, 0.1f)) {
         PRINT("    \033[0;32mPASSED\033[0m");
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Resistance values do not match!");
@@ -105,9 +110,9 @@ static void getValuesOfChannelSensors() {
 
     PRINT(
         "  Measured Power => %4.6fW; Calculated Power = Voltage_Source * Current_Sense => %4.6fW:",
-        measurements.powerActual, measurements.iSense * measurements.voltageSource);
-    if (compareFloatsWithinRange(measurements.powerActual,
-                                 measurements.iSense * measurements.voltageSource, 0.001f)) {
+        measurements.power, measurements.currentSense * measurements.voltageSource);
+    if (compareFloatsWithinRange(measurements.power,
+                                 measurements.currentSense * measurements.voltageSource, 0.001f)) {
         PRINT("    \033[0;32mPASSED\033[0m");
     } else {
         PRINT("    \033[0;31mFAILED\033[0m; Values do not match!");

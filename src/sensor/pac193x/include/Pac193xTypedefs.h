@@ -1,11 +1,12 @@
 #ifndef ENV5_PAC193X_TYPEDEFS
 #define ENV5_PAC193X_TYPEDEFS
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct i2c_inst i2c_inst_t;
 
-union pac193xUsedChannels {
+typedef union pac193xUsedChannels {
     struct {
         uint8_t channel1 : 1;
         uint8_t channel2 : 1;
@@ -14,10 +15,9 @@ union pac193xUsedChannels {
         uint8_t : 4;
     } struct_channelsInUse;
     uint8_t uint_channelsInUse;
-};
-typedef union pac193xUsedChannels pac193xUsedChannels_t;
+} pac193xUsedChannels_t;
 
-enum {
+typedef enum pac193xI2cAddress {
     PAC193X_I2C_ADDRESS_GND = 0x10,
     PAC193X_I2C_ADDRESS_499R = 0x11,
     PAC193X_I2C_ADDRESS_806R = 0x12,
@@ -34,58 +34,63 @@ enum {
     PAC193X_I2C_ADDRESS_140000R = 0x1D,
     PAC193X_I2C_ADDRESS_226000R = 0x1E,
     PAC193X_I2C_ADDRESS_VDD = 0x1F,
-};
-typedef uint8_t pac193xI2cAddress_t;
+} pac193xI2cAddress_t;
+
+typedef enum pac193xSampleRate {
+    PAC193X_1024_SAMPLES_PER_SEC = 0x00,
+    PAC193X_256_SAMPLES_PER_SEC = 0x01,
+    PAC193X_64_SAMPLES_PER_SEC = 0x02,
+    PAC193X_8_SAMPLES_PER_SEC = 0x03,
+} pac193xSampleRate_t;
 
 typedef struct pac193xSensorConfiguration {
     i2c_inst_t *i2c_host;
     pac193xI2cAddress_t i2c_slave_address;
     uint8_t powerPin;
     float rSense[4];
-    pac193xUsedChannels_t usedChannels; /*!< Channels to be used. \Note Some channels might be
-                                          disabled by the ctrl-register. */
+    pac193xUsedChannels_t
+        usedChannels; /*!< Channels to be used.
+                       * \Note Some channels might be disabled by the ctrl-register.
+                       */
+    pac193xSampleRate_t sampleRate;
 } pac193xSensorConfiguration_t;
 
-enum {
+typedef enum pac193xChannel {
     PAC193X_CHANNEL01 = 0,
     PAC193X_CHANNEL02 = 1,
     PAC193X_CHANNEL03 = 2,
     PAC193X_CHANNEL04 = 3,
-};
-typedef uint8_t pac193xChannel_t;
+} pac193xChannel_t;
 
-struct pac193xSensorId {
+typedef struct pac193xSensorId {
     uint8_t product_id;
     uint8_t manufacturer_id;
     uint8_t revision_id;
-};
-typedef struct pac193xSensorId pac193xSensorId_t;
+} pac193xSensorId_t;
 
-struct pac193xMeasurements {
-    float voltageSource;
-    float voltageSense;
-    float iSense;
-    float powerActual;
-};
-typedef struct pac193xMeasurements pac193xMeasurements_t;
+typedef struct pac193xMeasurements {
+    float voltageSource; //!< Voltage on SENSE+ pin
+    float voltageSense;  //!< Voltage on SENSE- pin
+    float currentSense;
+    float power;
+} pac193xMeasurements_t;
 
-struct pac193xPowerMeasurements {
-    uint32_t counterOfMeasurements;
-    float powerChannel1;
-    float powerChannel2;
-    float powerChannel3;
-    float powerChannel4;
-};
-typedef struct pac193xPowerMeasurements pac193xPowerMeasurements_t;
+typedef struct pac193xEnergyMeasurements {
+    uint32_t numberOfAccumulatedValues;
+    bool overflow;
+    float energyChannel1;
+    float energyChannel2;
+    float energyChannel3;
+    float energyChannel4;
+} pac193xEnergyMeasurements_t;
 
-struct pac193xMeasurementProperties {
+typedef struct pac193xMeasurementProperties {
     uint8_t startReadAddress;
-    float (*calculationFunction)(uint64_t value, float resistor);
+    float (*calculationFunction)(uint64_t value, float resistor, uint8_t sampleRate);
     uint8_t sizeOfResponseBuffer;
-};
-typedef struct pac193xMeasurementProperties pac193xMeasurementProperties_t;
+} pac193xMeasurementProperties_t;
 
-enum {
+typedef enum pac193xRegisterAddress {
     PAC193X_CMD_REFRESH = 0x00,
     PAC193X_CMD_CTRL = 0x01,
     PAC193X_CMD_READ_ACC_COUNT = 0x02,
@@ -127,22 +132,22 @@ enum {
     PAC193X_CMD_READ_PRODUCT_ID = 0xFD,
     PAC193X_CMD_READ_MANUFACTURER_ID = 0xFE,
     PAC193X_CMD_READ_REVISION_ID = 0xFF,
-};
-typedef uint8_t pac193xRegisterAddress_t;
+} pac193xRegisterAddress_t;
 typedef uint8_t pac193xSettings_t;
 
-enum {
+typedef enum pac193xValueToMeasure {
     PAC193X_VSOURCE,
     PAC193X_VSENSE,
-    PAC193X_ISENSE,
+    PAC193X_CURRENT,
     PAC193X_POWER,
     PAC193X_VSOURCE_AVG,
     PAC193X_VSENSE_AVG,
-    PAC193X_ISENSE_AVG
-};
-typedef uint8_t pac193xValueToMeasure_t;
+    PAC193X_CURRENT_AVG,
+    PAC193X_ENERGY,
+    PAC193X_ACCUMULATOR,
+} pac193xValueToMeasure_t;
 
-enum {
+typedef enum pac193xErrorCode {
     PAC193X_NO_ERROR = 0x00,
     PAC193X_SEND_COMMAND_ERROR = 0x01,
     PAC193X_RECEIVE_DATA_ERROR = 0x02,
@@ -152,7 +157,6 @@ enum {
     PAC193X_INVALID_MEASUREMENT = 0x12,
     PAC193X_INVALID_CHANNEL = 0x13,
     PAC193X_UNDEFINED_ERROR = 0x20,
-};
-typedef uint8_t pac193xErrorCode_t;
+} pac193xErrorCode_t;
 
 #endif /* ENV5_PAC193X_TYPEDEFS */

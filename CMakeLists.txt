@@ -30,6 +30,7 @@ if (UNIT_TEST)
     add_subdirectory(test/unit/dummies)
 
     # include our own libraries to test
+    add_subdirectory(src/hal/enV5HwConfiguration)
     add_subdirectory(src/sensor/sht3x)
     add_subdirectory(src/sensor/adxl345b)
     add_subdirectory(src/sensor/pac193x)

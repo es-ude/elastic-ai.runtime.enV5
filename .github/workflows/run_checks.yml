@@ -64,6 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - clang-format
+    strategy:
+      matrix:
+        config: [1, 2]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -78,7 +81,7 @@ jobs:
           sudo apt install -y ninja-build
       - name: Setup CMake
         run: |
-          cmake -B build/unit-tests -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -G Ninja .
+          cmake -B build/unit-tests -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -D REVISION=${{ matrix.config }} -G Ninja .
       - name: Build Targets
         run: |
           cmake --build build/unit-tests -j 4

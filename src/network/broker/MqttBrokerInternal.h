@@ -4,11 +4,11 @@
 #include "Posting.h"
 #include "Subscriber.h"
 
-struct mqttBrokerSubscription {
+typedef struct mqttBrokerSubscription {
     char *topic;
     subscriber_t subscriber;
-};
-typedef struct mqttBrokerSubscription mqttBrokerSubscription_t;
+    struct mqttBrokerSubscription *next;
+} mqttBrokerSubscription_t;
 
 static void mqttBrokerInternalSetBrokerDomain(char *ID);
 

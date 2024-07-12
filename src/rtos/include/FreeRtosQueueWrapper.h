@@ -11,7 +11,7 @@ typedef QueueHandle_t queue_t;
  * \brief create a queue
  *
  * @param numberOfElements number of elements the queue can hold at max
- * @param bytesPerElement number of bytes each element has
+ * @param bytesPerElement number of bytes each element has (0 if bytes is NULL)
  * @return reference to the queue if successful, NULL otherwise
  */
 queue_t freeRtosQueueWrapperCreate(uint8_t numberOfElements, size_t bytesPerElement);
