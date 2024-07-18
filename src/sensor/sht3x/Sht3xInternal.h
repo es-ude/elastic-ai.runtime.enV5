@@ -7,15 +7,11 @@
 
 /* region CONSTANTS */
 
-/*! constant to store the precalculated value for the CRC8 checksum \n
- *  calculation P(x) = x^8 + x^5 + x^4 + 1 = 0b00110001= 0x31
- */
-static const uint16_t sht3xCrc8Polynomial = 0x31;
+/*! constant to store the precalculated value for the CRC8 checksum */
+extern const uint16_t sht3xCrc8Polynomial;
 
-/*! constant to store the denominator used to calculate the temperature in
- * degrees celsius \n calculation : 2^16 - 1
- */
-static const float sht3xDenominator = (1 << 16) - 1.0f;
+/*! constant to store the denominator used to calculate the temperature in degrees celsius */
+extern const float sht3xDenominator;
 
 /* endregion */
 

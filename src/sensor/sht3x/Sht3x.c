@@ -8,6 +8,9 @@
 #include "Sht3xInternal.h"
 #include "Sht3xTypedefs.h"
 
+const uint16_t sht3xCrc8Polynomial = 0x31;       //!< P(x) = x^8 + x^5 + x^4 + 1 = 0b00110001 = 0x31
+const float sht3xDenominator = (1 << 16) - 1.0f; //!<  2^16 - 1 = 0b1111111111111111 = 0xFFFF
+
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
 void sht3xInit(sht3xSensorConfiguration_t sensor) {
