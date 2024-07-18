@@ -1,117 +1,147 @@
 #ifndef ENV5_SHT3X_HEADER
 #define ENV5_SHT3X_HEADER
 
-#include "Sht3xTypedefs.h"
 #include <stdint.h>
+
+#include "Sht3xTypedefs.h"
 
 // tag::prototypes[]
 /*!
  * @brief initializes the temperature sensor
- * @IMPORTANT
- *    - function has to be called before use of the sensor can be used \n
- *    needs max 1.5ms for idle state after power up
- * @IMPORTANT
- *    - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param[in] i2cAddress i2c slave address of the sht3x (see typedefs.h)
- * @return            return the error code (0 if everything passed)
+ * @important function has to be called before use of the sensor can be used \n
+ *            needs max 1.5ms for idle state after power up
+ *
+ * @important We highly recommend using the "enV5_hw_configuration" -library
+ *
+ * @param[in] sensor struct that holds parameters for communication with sensor
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if command can't be sent
  */
-sht3xErrorCode_t sht3xInit(sht3xSensorConfiguration_t sensor);
+void sht3xInit(sht3xSensorConfiguration_t sensor);
 
 /*!
  * @brief read the value of the serial number from the sensor
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param[out] serialNumber memory where the serial number is stored
- * @return                  return the error code (0 if everything passed)
+ * @param[in] sensor struct that holds parameters for communication with sensor
+ *
+ * @returns serialNumber
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-sht3xErrorCode_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor, uint32_t *serialNumber);
+uint32_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor);
 
 /*!
  * @brief read the status register (settings) from the sensor
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param[out] statusRegister memory where the status register is stored
- * @return                    return the error code (0 if everything passed)
- */
-sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
-                                         sht3xStatusRegister_t *statusRegister);
-
-/*!
- * @brief read the temperature \b and the humidity from the sensor
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ * @param[out] statusRegister union that holds the actual values of the status register
  *
- * @param[out] temperature memory where the temperature is stored
- * @param[out] humidity    memory where the temperature is stored
- * @return                 return the error code (0 if everything passed)
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor,
-                                                float *temperature, float *humidity);
+void sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
+                             sht3xStatusRegister_t statusRegister);
 
 /*!
  * @brief read \b only the temperature from the sensor
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param temperature[out] memory where the temperature is stored
- * @return                 return the error code (0 if everything passed)
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ *
+ * @returns temperature in degree celsius
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-sht3xErrorCode_t sht3xGetTemperature(sht3xSensorConfiguration_t sensor, float *temperature);
+float sht3xGetTemperature(sht3xSensorConfiguration_t sensor);
 
 /*!
  * @brief read \b only the humidity from the sensor
- * @IMPORTANT
- *    - due to hardware limitations, the value of the temperature is read and processed
- * @IMPORTANT
- *    - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param sensor[in] configuration for sensor to use
- * @param humidity[out] memory where the humidity is stored
- * @return              return the error code (0 if everything passed)
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ *
+ * @returns temperature in degree celsius
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-sht3xErrorCode_t sht3xGetHumidity(sht3xSensorConfiguration_t sensor, float *humidity);
+float sht3xGetHumidity(sht3xSensorConfiguration_t sensor);
+
+/*!
+ * @brief read the temperature \b and the humidity from the sensor
+ *
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ * @param[out] temperature temperature in degree celsius
+ * @param[out] humidity relative humidity in percent
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
+ */
+void sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor, float *temperature,
+                                    float *humidity);
 
 /*!
  * @brief get the last measured value from the sensor buffer
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param sensor[in] configuration for sensor to use
- * @param temperature[out] memory where the temperature is stored
- * @param humidity[out]    memory where the humidity is stored
- * @return                 return the error code (0 if everything passed)
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ * @param[out] temperature temperature in degree celsius
+ * @param[out] humidity relative humidity in percent
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
+ * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
+ * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
-                                            float *humidity);
+void sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
+                                float *humidity);
 
 /*!
  * @brief enable the heater module of the sensor
  *
  * the heater can be used to check the plausibility of the measured values \n
  * the heater is automatically disabled after a reset
- * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param sensor[in] configuration for sensor to use
- * @return return the error code (0 if everything passed)
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
-sht3xErrorCode_t sht3xEnableHeater(sht3xSensorConfiguration_t sensor);
+void sht3xEnableHeater(sht3xSensorConfiguration_t sensor);
 
 /*!
  * @brief manually disable the heater module of the sensor
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param sensor[in] configuration for sensor to use
- * @return return the error code (0 if everything passed)
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
-sht3xErrorCode_t sht3xDisableHeater(sht3xSensorConfiguration_t sensor);
+void sht3xDisableHeater(sht3xSensorConfiguration_t sensor);
 
 /*!
- * @brief trigger a soft reset of the sensor which recalibrates the sensor
- *        and resets the system controller
- * @IMPORTANT - Hard RESET can be triggered by turning the power off and on again
- * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @brief trigger a soft reset of the sensor which recalibrates the sensor and resets the system
+ * controller
  *
- * @param sensor[in] configuration for sensor to use
- * @return return the error code (0 if everything passed)
+ * @important - Hard RESET can be triggered by turning the power off and on again
+ *
+ * @param[in]  sensor struct that holds parameters for communication with sensor
+ *
+ * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
-sht3xErrorCode_t sht3xSoftReset(sht3xSensorConfiguration_t sensor);
+void sht3xSoftReset(sht3xSensorConfiguration_t sensor);
 // end::prototypes[]
-#endif /*ENV5_SHT3X_HEADER */
+
+#endif /* ENV5_SHT3X_HEADER */
