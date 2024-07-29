@@ -1,7 +1,5 @@
 #define SOURCE_FILE "SHT3X-Test"
 
-#include <stdio.h>
-
 #include "CException.h"
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
