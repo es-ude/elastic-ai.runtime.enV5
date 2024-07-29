@@ -23,7 +23,7 @@ void sht3xInit(sht3xSensorConfiguration_t sensor) {
                                                commandBuffer, sizeOfCommandBuffer);
 
     if (I2C_INIT_ERROR == errorCode) {
-        Throw(SHT3X_INIT_ERROR);
+        Throw(SHT3X_HARDWARE_ERROR);
     } else if (I2C_NO_ERROR != errorCode) {
         Throw(SHT3X_SEND_COMMAND_ERROR);
     }
@@ -41,8 +41,7 @@ uint32_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor) {
            ((uint32_t)(requestBuffer[3]) << 8) | (uint32_t)(requestBuffer[4]);
 }
 
-void sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
-                             sht3xStatusRegister_t statusRegister) {
+sht3xStatusRegister_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor) {
     uint8_t sizeOfResponseBuffer = 3;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -50,7 +49,8 @@ void sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
     sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
     sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
-    statusRegister.config = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
+    return (sht3xStatusRegister_t){.config = ((uint16_t)(responseBuffer[0]) << 8) |
+                                             (uint16_t)(responseBuffer[1])};
 }
 
 float sht3xGetTemperature(sht3xSensorConfiguration_t sensor) {
@@ -138,7 +138,7 @@ static void sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,
 
     if (errorCode == I2C_INIT_ERROR) {
         PRINT_DEBUG("sending request failed, error was %02X", errorCode);
-        Throw(SHT3X_INIT_ERROR);
+        Throw(SHT3X_HARDWARE_ERROR);
     } else if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("sending request failed, error was %02X", errorCode);
         Throw(SHT3X_SEND_COMMAND_ERROR);
@@ -154,7 +154,7 @@ static void sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor
 
     if (errorCode == I2C_INIT_ERROR) {
         PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
-        Throw(SHT3X_INIT_ERROR);
+        Throw(SHT3X_HARDWARE_ERROR);
     } else if (errorCode != I2C_NO_ERROR) {
         PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
         Throw(SHT3X_RECEIVE_DATA_ERROR);

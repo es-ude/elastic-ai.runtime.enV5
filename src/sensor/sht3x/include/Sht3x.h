@@ -16,7 +16,7 @@
  *
  * @param[in] sensor struct that holds parameters for communication with sensor
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if command can't be sent
  */
 void sht3xInit(sht3xSensorConfiguration_t sensor);
@@ -28,7 +28,7 @@ void sht3xInit(sht3xSensorConfiguration_t sensor);
  *
  * @returns serialNumber
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
@@ -39,15 +39,15 @@ uint32_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor);
  * @brief read the status register (settings) from the sensor
  *
  * @param[in]  sensor struct that holds parameters for communication with sensor
- * @param[out] statusRegister union that holds the actual values of the status register
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @returns content of the status register
+ *
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
  */
-void sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
-                             sht3xStatusRegister_t statusRegister);
+sht3xStatusRegister_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor);
 
 /*!
  * @brief read \b only the temperature from the sensor
@@ -56,7 +56,7 @@ void sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
  *
  * @returns temperature in degree celsius
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
@@ -70,7 +70,7 @@ float sht3xGetTemperature(sht3xSensorConfiguration_t sensor);
  *
  * @returns temperature in degree celsius
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
@@ -84,7 +84,7 @@ float sht3xGetHumidity(sht3xSensorConfiguration_t sensor);
  * @param[out] temperature temperature in degree celsius
  * @param[out] humidity relative humidity in percent
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
@@ -99,7 +99,7 @@ void sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor, float *te
  * @param[out] temperature temperature in degree celsius
  * @param[out] humidity relative humidity in percent
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  * @throws SHT3X_RECEIVE_DATA_ERROR if receiving data failed
  * @throws SHT3X_CHECKSUM_ERROR if checksum of received doesn't match
@@ -115,7 +115,7 @@ void sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temper
  *
  * @param[in]  sensor struct that holds parameters for communication with sensor
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
 void sht3xEnableHeater(sht3xSensorConfiguration_t sensor);
@@ -125,7 +125,7 @@ void sht3xEnableHeater(sht3xSensorConfiguration_t sensor);
  *
  * @param[in]  sensor struct that holds parameters for communication with sensor
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
 void sht3xDisableHeater(sht3xSensorConfiguration_t sensor);
@@ -138,7 +138,7 @@ void sht3xDisableHeater(sht3xSensorConfiguration_t sensor);
  *
  * @param[in]  sensor struct that holds parameters for communication with sensor
  *
- * @throws SHT3X_INIT_ERROR if i2c not initialized
+ * @throws SHT3X_HARDWARE_ERROR if i2c not initialized
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
 void sht3xSoftReset(sht3xSensorConfiguration_t sensor);
