@@ -38,24 +38,22 @@ void bmi3_delay_us(uint32_t period, void *intf_ptr) {
     sleep_for_us(period);
 }
 
-int8_t bmi323InterfaceInit(struct bmi3_dev *dev, spiConfiguration_t *spi) {
-    int8_t result = BMI3_OK;
-
-    if (dev != NULL) {
-        dev->read = bmi3_spi_read;
-        dev->write = bmi3_spi_write;
-        dev->intf = BMI3_SPI_INTF;
-        dev->delay_us = bmi3_delay_us;
-        dev->intf_ptr = spi;
-        dev->read_write_len = 8;
-    } else {
-        result = BMI3_E_NULL_PTR;
+int8_t bmi323Init(struct bmi3_dev *dev, spiConfiguration_t *spi) {
+    if (dev == NULL) {
+        return BMI3_E_NULL_PTR;
     }
 
-    return result;
+    dev->read = bmi3_spi_read;
+    dev->write = bmi3_spi_write;
+    dev->intf = BMI3_SPI_INTF;
+    dev->delay_us = bmi3_delay_us;
+    dev->intf_ptr = spi;
+    dev->read_write_len = 8;
+
+    return bmi3_init(dev);
 }
 
-static float getDps(uint8_t range) {
+static float getMaxDpsForRange(uint8_t range) {
     switch (range) {
     case BMI3_GYR_RANGE_125DPS:
         return 125.0f;
@@ -71,8 +69,8 @@ static float getDps(uint8_t range) {
         return 0;
     }
 }
-float bmi323LsbToDps(int16_t rawValue, uint8_t dps, uint8_t bitWidth) {
-    double power = 2;
-    float half_scale = (float)((pow((double)power, (double)bitWidth) / 2.0f));
-    return (getDps(dps) / (half_scale)) * (float)rawValue;
+float bmi323LsbToDps(int16_t rawValue, uint8_t range, uint8_t resolution) {
+    float halfScale = powf(2.0f, resolution) / 2.0f;
+    float dpsRange = getMaxDpsForRange(range);
+    return (dpsRange / halfScale) * ((float)rawValue);
 }
