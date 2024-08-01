@@ -1,8 +1,8 @@
 import os
 from io import BytesIO
-from flask import Flask, send_file
+from flask import Flask, send_file, request
 
-bytes_per_request = 512  # should be matching with the page size of the flash
+bytes_per_request = 256 # should be matching with the page size of the flash
 
 app = Flask(__name__)
 
@@ -19,16 +19,15 @@ def read_slice(position: int, filename: str) -> bytes:
         # print_bytearray(chunk)
     return chunk
 
+@app.route("/getfast", methods=['GET'])
+def get_file_fast():
 
-@app.route("/getfast/<position>")
-def get_file_fast(position: str):
-    """
-    Using positional arguments as parameter did not work!
-    """
+    chunk_number = request.args.get('chunkNumber')
+    chunk_max_size = request.args.get('chunkMaxSize')
     buffer = BytesIO()
     buffer.write(
         read_slice(
-            int(position), "bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin"
+            int(chunk_number), "bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin"
         )
     )
     buffer.seek(0)
@@ -40,15 +39,14 @@ def get_file_fast(position: str):
     )
 
 
-@app.route("/getslow/<position>")
-def get_file_slow(position: str):
-    """
-    Using positional arguments as parameter did not work!
-    """
+@app.route("/getslow", methods=['GET'])
+def get_file_slow():
+    chunk_number = request.args.get('chunkNumber')
+    chunk_max_size = request.args.get('chunkMaxSize')
     buffer = BytesIO()
     buffer.write(
         read_slice(
-            int(position), "bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin"
+            int(chunk_number), "bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin"
         )
     )
     buffer.seek(0)

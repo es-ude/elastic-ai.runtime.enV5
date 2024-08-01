@@ -21,7 +21,7 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
     PRINT_DEBUG("LENGTH: %zu", length);
     PRINT_DEBUG("SECTOR 0: %lu", sectorID);
 
-    uint32_t startAddress = (sectorID - 1) * (flashConfiguration->flashBytesPerSector);
+    uint32_t startAddress = (sectorID) * (flashConfiguration->flashBytesPerSector);
 
     size_t totalNumberOfOccupiedSectors =
         (size_t)ceilf((float)length / (float)(flashConfiguration->flashBytesPerSector));
