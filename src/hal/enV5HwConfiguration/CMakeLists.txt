@@ -1,4 +1,6 @@
-add_library(enV5_hw_configuration INTERFACE)
+add_library(enV5_hw_configuration INTERFACE
+        revision01/EnV5HwConfiguration.h
+        revision02/EnV5HwConfiguration.h)
 
 set(REVISION_FILEPATH ${REVISION} CACHE FILEPATH "Helpervariable needed for casting" FORCE)
 
