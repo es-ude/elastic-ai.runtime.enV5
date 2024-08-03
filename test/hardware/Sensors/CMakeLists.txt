@@ -11,7 +11,9 @@ target_link_libraries(hardware-test_sht3
         enV5_hw_configuration
         enV5_hw_controller
         i2c_interface
-        sensor_lib_sht3x)
+        sensor_lib_sht3x
+
+ )
 create_enV5_executable(hardware-test_sht3)
 ##############################################
 ## region hardware-test_adxl345b

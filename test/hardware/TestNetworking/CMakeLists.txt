@@ -102,3 +102,15 @@ target_link_libraries(hardware-test_HTTP
         hardware-testHelper)
 target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
 create_enV5_executable(hardware-test_HTTP)
+
+################## test_networkStrength ##################
+add_executable(hardware-test_ota HardwaretestOTA.c)
+target_link_libraries(hardware-test_ota
+        common_lib
+        pico_stdlib
+        freeRtosUtils
+        hardware-testHelper
+        ota_lib
+        flashLoader_lib)
+target_compile_definitions(hardware-test_ota PRIVATE DEBUG)
+create_enV5_executable(hardware-test_ota)

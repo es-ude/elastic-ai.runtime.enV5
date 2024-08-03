@@ -1,4 +1,13 @@
 include(FetchContent)
+find_package (Python3 REQUIRED COMPONENTS Interpreter)
+
+function(set_linker_script TARGET script)
+    target_link_directories(${TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/src/hal/flashLoader)
+    pico_set_linker_script(${TARGET} ${CMAKE_SOURCE_DIR}/src/hal/flashLoader/${script})
+
+    pico_add_link_depend(${TARGET} ${CMAKE_SOURCE_DIR}/src/hal/flashLoader/memmap_defines.ld)
+    pico_add_link_depend(${TARGET} ${CMAKE_SOURCE_DIR}/src/hal/flashLoader/memmap_default.ld)
+endfunction()
 
 function(add_cexception)
     FetchContent_Declare(
@@ -70,14 +79,32 @@ function(create_enV5_executable target)
     pico_enable_stdio_usb(${target} 1)
     # disable uart output
     pico_enable_stdio_uart(${target} 0)
+
+    set_linker_script(${target} memmap_application.ld)
+
     # create map/bin/hex/uf2 file etc.
     pico_add_uf2_output(${target})
-    #    # copy u2f files after build to out directory
-    #    file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR})
-    #    add_custom_command(TARGET ${target} POST_BUILD
-    #            COMMAND ${CMAKE_COMMAND} -E copy
-    #            ${CMAKE_BINARY_DIR}/${relative_path}/${target}.uf2
-    #            ${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}-Rev${REVISION}/${relative_path}/${target}.uf2)
+    pico_add_hex_output(${target})
+
+    file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR})
+    file(RELATIVE_PATH revision ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+    set(targetPath ${CMAKE_BINARY_DIR}/${relative_path}/${target})
+    set(outPath ${CMAKE_SOURCE_DIR}/out/${revision}/${relative_path})
+
+    add_custom_command(OUTPUT ${outPath}/${target}-flash.uf2 DEPENDS ${target} flashLoader
+            COMMENT "Building ${target} UF2 image"
+            COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/src/hal/flashLoader/uf2tool.py
+            -o ${outPath}/${target}-flash.uf2 ${CMAKE_BINARY_DIR}/src/hal/flashLoader/flashLoader.uf2 ${targetPath}.uf2
+    )
+    add_custom_target(${target}-flash ALL DEPENDS ${outPath}/${target}-flash.uf2)
+
+    # copy u2f files after build to out directory
+    file(RELATIVE_PATH revision ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+    add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_BINARY_DIR}/${relative_path}/${target}.hex
+            ${outPath}/${target}.hex)
 endfunction()
 
 function(add_dependency_graph)
