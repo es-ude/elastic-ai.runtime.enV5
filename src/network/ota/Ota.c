@@ -59,7 +59,7 @@ _Noreturn void flashHex(void) {
 static const uint32_t FLASH_IMAGE_OFFSET = 128 * 1024;
 
 int currentChunk = 0;
-int currentChar = CHUNK_SIZE + 1;
+int charPos = CHUNK_SIZE + 1;
 char chunkBuffer[CHUNK_SIZE];
 
 //****************************************************************************
@@ -203,11 +203,11 @@ _Noreturn void flashImage(tFlashHeader* header, uint32_t length) {
 }
 
 char* getLine(char* buffer, char *ip) {
-    char c;
+    char currentChar;
     char* ptr = buffer;
     do
     {
-        if (currentChar >= CHUNK_SIZE) {
+        if (charPos >= CHUNK_SIZE) {
             HttpResponse_t *response = NULL;
             char buf[60];
             snprintf(buf, 60, "http://%s/%i", ip, currentChunk);
@@ -215,26 +215,27 @@ char* getLine(char* buffer, char *ip) {
             CEXCEPTION_T exception;
             Try {
                 HTTPGet(buf, &response);
+                
                 strcpy(chunkBuffer, (const char *)response->response);
                 HTTPCleanResponseBuffer(response);
             } Catch(exception) {
-                PRINT("ERROR");
+                PRINT("Error in getting block over HTTP!");
             }
             currentChunk++;
-            currentChar = 0;
+            charPos = 0;
         }
-        c = chunkBuffer[currentChar];
-        currentChar++;
+        currentChar = chunkBuffer[charPos];
+        charPos++;
 
-        if (c == '\r')
+        if (currentChar == '\r')
             continue;
 
-        if((c != '\n'))
-            *ptr++ = c;
+        if((currentChar != '\n'))
+            *ptr++ = currentChar;
         else {
             *ptr++ = 0;
         }
-    } while((c != '\n'));
+    } while((currentChar != '\n'));
     return buffer;
 }
 
@@ -250,8 +251,8 @@ _Noreturn void loadHexHTTP(char *ip) {
             case TYPE_DATA:
                 memcpy(&flashbuf.header.data[offset], rec.data, rec.count);
                 offset += rec.count;
-                offset %= 65536;
                 if((offset % 1024) == 0) {
+                    PRINT("Received block: %lu", offset/1024);
                     gpioSetPin(25, offset/1024 % 2);
                 }
                 break;
@@ -261,11 +262,7 @@ _Noreturn void loadHexHTTP(char *ip) {
             case TYPE_EXTSEG:
             case TYPE_STARTSEG:
             case TYPE_STARTLIN:
-                // Ignore these types.  They aren't important for this demo
-                break;
             case TYPE_EXTLIN:
-                // Move to the start of the data buffer
-                offset = 0;
                 break;
 
             default:

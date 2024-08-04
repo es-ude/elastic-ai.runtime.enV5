@@ -13,7 +13,7 @@ typedef struct {
 static union
 {
     tFlashHeader header;
-    uint8_t      buffer[sizeof(tFlashHeader) + 65536];
+    uint8_t      buffer[sizeof(tFlashHeader) + 2 * 65536];
 } flashbuf;
 
 // Intel HEX record
