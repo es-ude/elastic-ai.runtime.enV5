@@ -1,0 +1,15 @@
+[project]
+name = "elastic-ai.runtime-utils"
+version = "0.0.1"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+dependencies = [
+    "pyserial==3.4",
+]
+
+[tool.setuptools]
+packages = ["python-utils"]
