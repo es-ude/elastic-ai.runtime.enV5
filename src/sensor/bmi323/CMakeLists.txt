@@ -10,14 +10,16 @@ FetchContent_Populate(bmi323)
 add_library(sensor_lib_bmi323 STATIC
         "${bmi323_SOURCE_DIR}/bmi3.c"
         "${bmi323_SOURCE_DIR}/bmi323.c"
-        "${CMAKE_CURRENT_LIST_DIR}/bmi323_interface.c"
+        "${CMAKE_CURRENT_LIST_DIR}/Bmi323.c"
 )
-message("BMI: ${bmi323_SOURCE_DIR}")
-target_include_directories(sensor_lib_bmi323 PUBLIC
+target_include_directories(sensor_lib_bmi323 PRIVATE
         "${bmi323_SOURCE_DIR}"
+)
+target_include_directories(sensor_lib_bmi323 INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 target_link_libraries(sensor_lib_bmi323 PRIVATE
+        CException
         sleep_interface
         gpio_interface
         spi_interface
