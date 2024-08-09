@@ -20,14 +20,15 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Lint Commits
-        uses: wagoid/commitlint-github-action@v5
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          failOnWarnings: true
+          failOnErrors: true
 
   clang-format:
     runs-on: ubuntu-latest
     needs:
       - lint-commits
-    outputs:
-      new_sha: ${{ steps.sha.outputs.SHA }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -46,19 +47,19 @@ jobs:
         run: |
           clang-format --style=file --fallback-style=llvm -i $SRC
       - name: Commit Changes
+        id: auto-commit
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "style(all): apply clang-format to '${{ github.head_ref }}'"
           commit_user_name: github-actions
           commit_user_email: action@github.com
           commit_author: github-actions <action@github.com>
-      - name: Update SHA
-        id: sha
+      - name: Check For Updated Files
+        id: check further execution
+        if: steps.auto-commit.outputs.changes_detected =='true'
         run: |
-          new_sha=$(git rev-parse HEAD)
-          echo "SHA=$new_sha" >> $GITHUB_OUTPUT
-
-
+          echo "Updates detected. Abort Workflow execution!" |
+          exit 1
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -71,7 +72,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.clang-format.outputs.new_sha }}
+          ref: ${{ github.head_ref }}
       - name: Fetch Git Submodules
         run: |
           git submodule update --init --recursive
@@ -99,7 +100,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.clang-format.outputs.new_sha }}
+          ref: ${{ github.head_ref }}
       - name: Setup Environment
         run: |
           sudo apt update && sudo apt install -y ninja-build gcc-arm-none-eabi graphviz
@@ -108,4 +109,4 @@ jobs:
           cmake -B build -D CMAKE_BUILD_TYPE=RELEASE -D REVISION=${{ matrix.config }} -G Ninja .
       - name: Build Targets
         run: |
-          cmake --build build -j 4
+          cmake --build build
