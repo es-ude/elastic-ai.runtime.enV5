@@ -42,7 +42,7 @@ _Noreturn void enterBootModeTask() {
     }
 }
 
-void initHardware() {
+void initializeCommunication() {
     // check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
@@ -61,7 +61,7 @@ void initHardware() {
 }
 
 int main(void) {
-    initHardware();
+    initializeCommunication();
 
     freeRtosTaskWrapperRegisterTask(blinkLed1Task, "blinkLed1Task", 0, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(blinkLed2Task, "blinkLed2Task", 0, FREERTOS_CORE_0);

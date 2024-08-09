@@ -30,7 +30,7 @@ typedef struct message {
     char *content;
 } message_t;
 
-void initHardware() {
+void initializeCommunication() {
     // check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
@@ -91,7 +91,7 @@ _Noreturn void receiverTask() {
 }
 
 int main(void) {
-    initHardware();
+    initializeCommunication();
 
     PRINT("===== CREATE QUEUE =====");
     messageQueue = freeRtosQueueWrapperCreate(5, sizeof(message_t));

@@ -34,19 +34,19 @@ char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
 uint32_t sectorIdForConfig = 1;
 
-spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
-                                       .misoPin = SPI_FLASH_MISO,
-                                       .mosiPin = SPI_FLASH_MOSI,
-                                       .baudrate = SPI_FLASH_BAUDRATE,
-                                       .spiInstance = SPI_FLASH_INSTANCE,
-                                       .csPin = SPI_FLASH_CS};
+spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
+                                       .misoPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
+                                       .baudrate = FLASH_SPI_BAUDRATE,
+                                       .spiInstance = FLASH_SPI_MODULE,
+                                       .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
     .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
 };
 
-static void initHardware(void) {
+static void initializeCommunication(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
     env5HwControllerInit();
 
@@ -159,6 +159,6 @@ _Noreturn static void runTest() {
 }
 
 int main() {
-    initHardware();
+    initializeCommunication();
     runTest();
 }
