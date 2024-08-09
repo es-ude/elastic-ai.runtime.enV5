@@ -1,6 +1,54 @@
 #ifndef ENV5_HW_CONFIGURATION
 #define ENV5_HW_CONFIGURATION
 
+/* region SPI */
+
+#ifndef SPI_DEFAULT_BAUDRATE
+#define SPI_DEFAULT_BAUDRATE 1000000
+#endif
+
+/* region SPI 0 */
+
+#ifndef SPI0_INSTANCE
+#define SPI0_INSTANCE spi0
+#endif
+
+#ifndef SPI0_MISO
+#define SPI0_MISO 0
+#endif
+
+#ifndef SPI0_MOSI
+#define SPI0_MOSI 3
+#endif
+
+#ifndef SPI0_CLOCK
+#define SPI0_CLOCK 2
+#endif
+
+/* endregion SPI 0 */
+
+/* region SPI 1 */
+
+#ifndef SPI1_INSTANCE
+#define SPI1_INSTANCE spi1
+#endif
+
+#ifndef SPI1_MISO
+#define SPI1_MISO 8
+#endif
+
+#ifndef SPI1_MOSI
+#define SPI1_MOSI 11
+#endif
+
+#ifndef SPI1_CLOCK
+#define SPI1_CLOCK 10
+#endif
+
+/* endregion SPI 1 */
+
+/* endregion SPI */
+
 /* region I2C */
 #ifndef I2C_INSTANCE
 #define I2C_INSTANCE i2c1
@@ -91,7 +139,7 @@
 /* region FPGA */
 /* region SPI CONFIG */
 #ifndef FPGA_SPI_INSTANCE
-#define FPGA_SPI_INSTANCE spi0
+#define FPGA_SPI_INSTANCE SPI0_INSTANCE
 #endif // SPI_FPGA_INSTANCE
 
 #ifndef FPGA_SPI_CLOCK
@@ -234,5 +282,33 @@
 #define LED2_GPIO 25
 #endif
 /* endregion LED */
+
+/* region BMI323 */
+
+#ifndef BMI323_SPI_INTERFACE
+#define BMI323_SPI_INTERFACE SPI1_INSTANCE
+#endif
+
+#ifndef BMI323_SPI_BAUDRATE
+#define BMI323_SPI_BAUDRATE SPI_DEFAULT_BAUDRATE
+#endif
+
+#ifndef BMI323_SPI_MISO
+#define BMI323_SPI_MISO SPI1_MISO
+#endif
+
+#ifndef BMI323_SPI_MOSI
+#define BMI323_SPI_MOSI SPI1_MOSI
+#endif
+
+#ifndef BMI323_SPI_CLOCK
+#define BMI323_SPI_CLOCK SPI1_CLOCK
+#endif
+
+#ifndef BMI323_SPI_CHIP_SELECT
+#define BMI323_SPI_CHIP_SELECT 9
+#endif
+
+/* endregion BMI323 */
 
 #endif // ENV5_HW_CONFIGURATION
