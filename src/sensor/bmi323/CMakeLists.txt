@@ -12,10 +12,8 @@ add_library(sensor_lib_bmi323 STATIC
         "${bmi323_SOURCE_DIR}/bmi323.c"
         "${CMAKE_CURRENT_LIST_DIR}/Bmi323.c"
 )
-target_include_directories(sensor_lib_bmi323 PRIVATE
+target_include_directories(sensor_lib_bmi323 PUBLIC
         "${bmi323_SOURCE_DIR}"
-)
-target_include_directories(sensor_lib_bmi323 INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/include"
 )
 target_link_libraries(sensor_lib_bmi323 PRIVATE

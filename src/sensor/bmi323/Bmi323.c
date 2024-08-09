@@ -10,6 +10,7 @@
 #include "CException.h"
 
 #include "Bmi323.h"
+#include "Common.h"
 #include "Sleep.h"
 #include "Spi.h"
 #include "SpiTypedefs.h"
@@ -84,7 +85,7 @@ void bmi323Init(bmi323SensorConfiguration_t *sensor, spiConfiguration_t *spi) {
         sensor->intf_ptr = spi;
         sensor->read_write_len = 8;
 
-        bmi323ProcessErrorCode(bmi3_init(sensor));
+        bmi323ProcessErrorCode(bmi323_init(sensor));
     } else {
         bmi323ProcessErrorCode(BMI3_E_NULL_PTR);
     }
@@ -97,15 +98,15 @@ void bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, dat
     bmi323ProcessErrorCode(bmi323_set_regs(address, data->data, data->length, sensor));
 }
 
-void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features *features) {
+void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *features) {
     bmi323ProcessErrorCode(bmi323_select_sensor(features, sensor));
 }
 void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
-                                  bmi323FeatureConfiguration *config) {
+                                  bmi323FeatureConfiguration_t *config) {
     bmi323ProcessErrorCode(bmi323_set_sensor_config(config, feature, sensor));
 }
 void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
-                                  bmi323FeatureConfiguration *config) {
+                                  bmi323FeatureConfiguration_t *config) {
     bmi323ProcessErrorCode(bmi323_get_sensor_config(config, feature, sensor));
 }
 
@@ -117,7 +118,8 @@ void bmi323SetInterruptConfig(bmi323SensorConfiguration_t *sensor,
                               bmi323InterruptConfig_t *config) {
     bmi323ProcessErrorCode(bmi323_set_int_pin_config(config, sensor));
 }
-void bmi323MapInterrupt(bmi323SensorConfiguration_t *sensor, bmi323InterruptMapping mapping) {
+void bmi323SetInterruptMapping(bmi323SensorConfiguration_t *sensor,
+                               bmi323InterruptMapping_t mapping) {
     bmi323ProcessErrorCode(bmi323_map_interrupt(mapping, sensor));
 }
 uint16_t bmi323GetInterruptStatus(bmi323SensorConfiguration_t *sensor,
@@ -134,10 +136,10 @@ uint16_t bmi323GetInterruptStatus(bmi323SensorConfiguration_t *sensor,
     return interruptState;
 }
 
-void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap *remapping) {
+void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t *remapping) {
     bmi323ProcessErrorCode(bmi3_get_remap_axes(remapping, sensor));
 }
-void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap remapping) {
+void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t remapping) {
     bmi323ProcessErrorCode(bmi3_set_remap_axes(remapping, sensor));
 }
 
@@ -155,16 +157,20 @@ float bmi323GetSensorTime(bmi323SensorConfiguration_t *sensor) {
     return (float)time * BMI3_SENSORTIME_RESOLUTION;
 }
 
-uint16_t bmi323GetTemperature(bmi323SensorConfiguration_t *sensor) {
+float bmi323GetTemperature(bmi323SensorConfiguration_t *sensor) {
     uint16_t temperature;
     bmi323ProcessErrorCode(bmi323_get_temperature_data(&temperature, sensor));
-    return temperature;
+    return (float)temperature / 512.0f + 23.0f;
 }
 
 float bmi323LsbToDps(int16_t rawValue, uint8_t range, uint8_t resolution) {
-    float halfScale = powf(2.0f, resolution) / 2.0f;
+    float maxValue = powf(2.0f, (float)resolution);
+    float halfScale = maxValue / 2.0f;
     float dpsRange = getMaxDpsForRange(range);
-    return (dpsRange / halfScale) * ((float)rawValue);
+    PRINT_DEBUG("maxVal=%f, hScale=%f; dps=%f", maxValue, halfScale, dpsRange);
+    float value = (dpsRange / halfScale) * ((float)rawValue);
+    PRINT_DEBUG("Result=%f");
+    return value;
 }
 
 /* endregion DATA */
@@ -230,6 +236,11 @@ void bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
         bmi323_perform_gyro_sc(selfCalibrationFeature, applyCorrection, results, sensor));
 }
 
+uint16_t bmi323GetSensorStatus(bmi323SensorConfiguration_t *sensor) {
+    uint16_t status;
+    bmi323ProcessErrorCode(bmi323_get_sensor_status(&status, sensor));
+    return status;
+}
 /* endregion COMMANDS */
 
 /* endregion PUBLIC FUNCTIONS */

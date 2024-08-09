@@ -42,6 +42,13 @@ enum bmi323ErrorCodes {
     BMI323_ERROR_FEATURE_ENGINE_STATUS = BMI3_E_FEATURE_ENGINE_STATUS,
 };
 
+enum bmi323StatusRegister {
+    BMI323_POWER_UP_DETECTED = 0x0000,
+    BMI323_DATA_READY_TEMPERATURE = 0x0020,
+    BMI323_DATA_READY_GYROSCOPE = 0x0040,
+    BMI323_DATA_READY_ACCELEROMETER = 0x0080,
+};
+
 /*!
  * @brief struct holding the configuration for the sensor
  * @ingroup bmi323Types
@@ -58,7 +65,7 @@ typedef struct bmi3_int_pin_config bmi323InterruptConfig_t;
  * @brief struct holding mapping for a specific interrupt
  * @ingroup bmi323Types
  */
-typedef struct bmi3_map_int bmi323InterruptMapping;
+typedef struct bmi3_map_int bmi323InterruptMapping_t;
 
 /*!
  * @brief struct holding the configuration for an interrupt register
@@ -73,19 +80,19 @@ typedef enum bmi323InterruptRegister {
  * @brief struct holding the remapped axes Information
  * @ingroup bmi323Types
  */
-typedef struct bmi3_axes_remap bmi323AxesRemap;
+typedef struct bmi3_axes_remap bmi323AxesRemap_t;
 
 /*!
  * @brief struct representing the feature-enable-register
  * @ingroup bmi323Types
  */
-typedef struct bmi3_feature_enable bmi323Features;
+typedef struct bmi3_feature_enable bmi323Features_t;
 
 /*!
  * @brief struct representing the configuration for a special feature
  * @ingroup bmi323Types
  */
-typedef struct bmi3_sens_config bmi323FeatureConfiguration;
+typedef struct bmi3_sens_config bmi323FeatureConfiguration_t;
 
 /*!
  * @brief test results of self-test
@@ -121,7 +128,7 @@ typedef struct bmi3_fifo_sens_axes_data bmi323AxesData_t;
  * @brief struct to hold extracted temperature data from FIFO frame
  * @ingroup bmi323Types
  */
-typedef struct bmi3_fifo_sens_temperature_data bmi323TemperatureData_t;
+typedef struct bmi3_fifo_temperature_data bmi323TemperatureData_t;
 
 /* endregion TYPEDEFS */
 
@@ -231,7 +238,7 @@ void bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, dat
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features *features);
+void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *features);
 
 /*!
  * @brief configure different sensor features
@@ -273,7 +280,7 @@ void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features *fe
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
 void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
-                                  bmi323FeatureConfiguration *config);
+                                  bmi323FeatureConfiguration_t *config);
 
 /*!
  * @brief get configuration of different sensor features
@@ -315,7 +322,7 @@ void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t f
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
 void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
-                                  bmi323FeatureConfiguration *config);
+                                  bmi323FeatureConfiguration_t *config);
 
 /*!
  * @brief get interrupt configuration
@@ -358,7 +365,7 @@ void bmi323SetInterruptConfig(bmi323SensorConfiguration_t *sensor, bmi323Interru
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323MapInterrupt(
+ * void bmi323SetInterruptMapping(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323InterruptMapping mapping
  * );
@@ -369,7 +376,8 @@ void bmi323SetInterruptConfig(bmi323SensorConfiguration_t *sensor, bmi323Interru
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323MapInterrupt(bmi323SensorConfiguration_t *sensor, bmi323InterruptMapping mapping);
+void bmi323SetInterruptMapping(bmi323SensorConfiguration_t *sensor,
+                               bmi323InterruptMapping_t mapping);
 
 /*!
  * @brief set the interrupt configuration of the sensor
@@ -410,7 +418,7 @@ uint16_t bmi323GetInterruptStatus(bmi323SensorConfiguration_t *sensor,
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap *remapping);
+void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t *remapping);
 
 /*!
  * @brief remap axes to represent actual sensor application
@@ -430,7 +438,7 @@ void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap remapping);
+void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t remapping);
 
 /* endregion CONFIG */
 
@@ -487,7 +495,7 @@ void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t feature, bmi323S
  * @ingroup bmi323APIData
  *
  * @code
- * uint16_t bmi323GetTemperature(
+ * float bmi323GetTemperature(
  *          bmi323SensorConfiguration_t * sensor
  * );
  * @endcode
@@ -498,14 +506,14 @@ void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t feature, bmi323S
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-uint16_t bmi323GetTemperature(bmi323SensorConfiguration_t *sensor);
+float bmi323GetTemperature(bmi323SensorConfiguration_t *sensor);
 
 /*!
  * @brief read the current time from the sensor
  * @ingroup bmi323APIData
  *
  * @code
- * uint32_t bmi323GetSensorTime(
+ * float bmi323GetSensorTime(
  *          bmi323SensorConfiguration_t * sensor
  * );
  * @endcode
@@ -784,15 +792,57 @@ void bmi323PerformSelfTest(bmi323SensorConfiguration_t *sensor, uint8_t features
  * @endcode
  *
  * @param[in] sensor struct holding the sensor configuration
- * @param[in] selfCalibrationFeature features to enable for self-calibration
- * @param[in] applyCorrection apply corrections commands
+ * @param[in] selfCalibrationFeature feature to use for self-calibration
+ * @param[in] applyCorrection apply corrections after self-calibration
  * @param[out] results struct holding the results of the self-calibration
+ *
+ *
+ * @verbatim
+ * Self Calibration Feature | Value
+ * -------------------------|------
+ * BMI3_SC_SENSITIVITY_EN   | 1
+ * BMI3_SC_OFFSET_EN        | 2
+ * @endverbatim
+ *
+ * @verbatim
+ * Apply Correction       | Value
+ * -----------------------|------
+ * BMI2_SC_APPLY_CORR_DIS | 0
+ * BMI3_SC_APPLY_CORR_EN  | 4
+ * @endverbatim
  *
  * @throws ErrorCodes see #bmi323ErrorCodes
  */
 void bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
                                            uint8_t selfCalibrationFeature, uint8_t applyCorrection,
                                            bmi323SelfCalibrationResults_t *results);
+
+/*!
+ * @brief get the status from the sensor
+ * @ingroup bmi323APICommands
+ *
+ * @code
+ * void bmi323GetSensorStatus(
+ *      bmi323SensorConfiguration_t *sensor,
+ * );
+ * @endcode
+ *
+ * @param[in] sensor struct holding the sensor configuration
+ *
+ * @returns sensor status
+ *
+ * @verbatim
+ * Value    |  Status
+ * ---------|---------------------
+ * 0x01     |  BMI3_STATUS_POR
+ * 0x20     |  BMI3_STATUS_DRDY_TEMP
+ * 0x40     |  BMI3_STATUS_DRDY_GYR
+ * 0x80     |  BMI3_STATUS_DRDY_ACC
+ * @endverbatim
+ *
+ * @throws ErrorCodes see #bmi323ErrorCodes
+ */
+uint16_t bmi323GetSensorStatus(bmi323SensorConfiguration_t *sensor);
 
 /* endregion COMMANDS */
 

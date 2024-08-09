@@ -82,6 +82,8 @@ target_link_libraries(hardware-test_bmi323
         pico_stdlib
         hardware_spi
 
+        CException
+
         common_lib
         enV5_hw_configuration
         enV5_hw_controller
