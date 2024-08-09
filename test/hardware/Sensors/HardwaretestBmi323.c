@@ -17,7 +17,7 @@
 #define LIMIT 5
 
 spiConfiguration_t spi = {
-    .spiInstance = BMI323_SPI_INTERFACE,
+    .spiInstance = BMI323_SPI_MODULE,
     .misoPin = BMI323_SPI_MISO,
     .mosiPin = BMI323_SPI_MOSI,
     .sckPin = BMI323_SPI_CLOCK,

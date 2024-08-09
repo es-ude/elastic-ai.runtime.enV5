@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 
+#include "hardware/uart.h"
+
 #include "AtCommands.h"
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
@@ -9,7 +11,6 @@
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
 #include "Uart.h"
-#include "hardware/uart.h"
 
 /* region VARIABLES */
 
@@ -31,7 +32,7 @@ void espInit(void) {
      * 6. ChipStatus of `espStatus` is set to `ESP_CHIP_OK`.
      */
 
-    uartConfiguration.uartInstance = UART_INSTANCE;
+    uartConfiguration.uartInstance = UART_MODULE;
     uartConfiguration.txPin = UART_TX_PIN;
     uartConfiguration.rxPin = UART_RX_PIN;
     uartConfiguration.baudrate = UART_BAUDRATE;

@@ -14,7 +14,7 @@
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = I2C_INSTANCE,
+    .i2cInstance = I2C_MODULE,
     .frequency = I2C_FREQUENCY_IN_HZ,
     .sdaPin = I2C_SDA_PIN,
     .sclPin = I2C_SCL_PIN,
@@ -23,7 +23,7 @@ i2cConfiguration_t i2cConfig = {
 
 /* region SENSOR DEFINITION */
 static pac193xSensorConfiguration_t sensor = {
-    .i2c_host = PAC_TWO_HOST,
+    .i2c_host = PAC_TWO_I2C_MODULE,
     .i2c_slave_address = PAC_TWO_SLAVE,
     .powerPin = PAC_TWO_POWER_PIN,
     .usedChannels = PAC_TWO_USED_CHANNELS,

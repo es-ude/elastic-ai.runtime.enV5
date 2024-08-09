@@ -48,7 +48,7 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
                                        .mosiPin = FLASH_SPI_MOSI,
                                        .baudrate = FLASH_SPI_BAUDRATE,
-                                       .spiInstance = FLASH_SPI_INSTANCE,
+                                       .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,

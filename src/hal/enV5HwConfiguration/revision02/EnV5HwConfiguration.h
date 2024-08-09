@@ -9,8 +9,8 @@
 
 /* region SPI 0 */
 
-#ifndef SPI0_INSTANCE
-#define SPI0_INSTANCE spi0
+#ifndef SPI0_MODULE
+#define SPI0_MODULE SPI_INSTANCE(0)
 #endif
 
 #ifndef SPI0_MISO
@@ -29,8 +29,8 @@
 
 /* region SPI 1 */
 
-#ifndef SPI1_INSTANCE
-#define SPI1_INSTANCE spi1
+#ifndef SPI1_MODULE
+#define SPI1_MODULE SPI_INSTANCE(1)
 #endif
 
 #ifndef SPI1_MISO
@@ -50,52 +50,52 @@
 /* endregion SPI */
 
 /* region I2C */
-#ifndef I2C_INSTANCE
-#define I2C_INSTANCE i2c1
-#endif // I2C_INSTANCE
+#ifndef I2C_MODULE
+#define I2C_MODULE I2C_INSTANCE(1)
+#endif
 
 #ifndef I2C_FREQUENCY_IN_HZ
 #define I2C_FREQUENCY_IN_HZ 400000
-#endif // I2C_FREQUENCY_IN_HZ
+#endif
 
 #ifndef I2C_SDA_PIN
 #define I2C_SDA_PIN 6
-#endif // I2C_SDA_PIN
+#endif
 
 #ifndef I2C_SCL_PIN
 #define I2C_SCL_PIN 7
-#endif // I2C_SCL_PIN
+#endif
 
 /* endregion I2C */
 
 /* region UART */
-#ifndef UART_INSTANCE
-#define UART_INSTANCE uart1
-#endif // UART_INSTANCE
+#ifndef UART_MODULE
+#define UART_MODULE UART_INSTANCE(1)
+#endif
 
 #ifndef UART_TX_PIN
 #define UART_TX_PIN 4
-#endif // UART_TX_PIN
+#endif
 
 #ifndef UART_RX_PIN
 #define UART_RX_PIN 5
-#endif // UART_RX_PIN
+#endif
 
 #ifndef UART_BAUDRATE
 #define UART_BAUDRATE 115200
-#endif // UART_BAUDRATE
+#endif
 
 #ifndef UART_DATA_BITS
 #define UART_DATA_BITS 8
-#endif // UART_DATA_BITS
+#endif
 
 #ifndef UART_STOP_BITS
 #define UART_STOP_BITS 1
-#endif // UART_STOP_BITS
+#endif
 
 #ifndef UART_PARITY
 #define UART_PARITY NoneParity
-#endif // UART_PARITY
+#endif
 
 /* endregion UART */
 
@@ -109,8 +109,8 @@
 #define FLASH_BYTES_PER_SECTOR 65536
 #endif
 
-#ifndef FLASH_SPI_INSTANCE
-#define FLASH_SPI_INSTANCE SPI0_INSTANCE
+#ifndef FLASH_SPI_MODULE
+#define FLASH_SPI_MODULE SPI0_MODULE
 #endif
 
 #ifndef FLASH_SPI_CLOCK
@@ -138,8 +138,8 @@
 /* region FPGA */
 
 /* region SPI CONFIG */
-#ifndef FPGA_SPI_INSTANCE
-#define FPGA_SPI_INSTANCE SPI0_INSTANCE
+#ifndef FPGA_SPI_MODULE
+#define FPGA_SPI_MODULE SPI0_MODULE
 #endif
 
 #ifndef FPGA_SPI_CLOCK
@@ -189,11 +189,11 @@
 //! ADXL_SLAVE is the ADXL345B_I2C_ALTERNATE_ADDRESS which can be found in
 //! src/sensor/adxl345b/include/Adxl345bTypedefs.h
 #define ADXL_SLAVE 0x53
-#endif // ADXL_SLAVE
+#endif
 
-#ifndef ADXL_HOST
-#define ADXL_HOST I2C_INSTANCE
-#endif // ADXL_HOST
+#ifndef ADXL_I2C_MODULE
+#define ADXL_I2C_MODULE I2C_MODULE
+#endif
 
 /* endregion ADXL345b */
 
@@ -202,25 +202,25 @@
 //! PAC_ONE_SLAVE is the PAC193X_I2C_ADDRESS_499R which can be found in
 //! src/sensor/pac193x/include/Pac193xTypedefs.h
 #define PAC_ONE_SLAVE 0x11
-#endif // PAC_ONE_SLAVE
+#endif
 
-#ifndef PAC_ONE_HOST
-#define PAC_ONE_HOST I2C_INSTANCE
-#endif // PAC_ONE_HOST
+#ifndef PAC_ONE_I2C_MODULE
+#define PAC_ONE_I2C_MODULE I2C_MODULE
+#endif
 
 #ifndef PAC_ONE_POWER_PIN
 #define PAC_ONE_POWER_PIN -1
-#endif // PAC_ONE_POWER_PIN
+#endif
 
 #ifndef PAC_ONE_R_SENSE
 #define PAC_ONE_R_SENSE                                                                            \
     { 0.82f, 0.82f, 0.82f, 0.82f }
-#endif // PAC_ONE_R_SENSE
+#endif
 
 #ifndef PAC_ONE_USED_CHANNELS
 #define PAC_ONE_USED_CHANNELS                                                                      \
     { .uint_channelsInUse = 0b00001111 }
-#endif // PAC_ONE_USED_CHANNELS
+#endif
 
 /* endregion PAC193x I*/
 
@@ -229,25 +229,25 @@
 //! PAC_TWO_SLAVE is the PAC193X_I2C_ADDRESS_806R which can be found in
 //! src/sensor/pac193x/include/Pac193xTypedefs.h
 #define PAC_TWO_SLAVE 0x12
-#endif // PAC_TWO_SLAVE
+#endif
 
-#ifndef PAC_TWO_HOST
-#define PAC_TWO_HOST I2C_INSTANCE
-#endif // PAC_TWO_HOST
+#ifndef PAC_TWO_I2C_MODULE
+#define PAC_TWO_I2C_MODULE I2C_MODULE
+#endif
 
 #ifndef PAC_TWO_POWER_PIN
 #define PAC_TWO_POWER_PIN -1
-#endif // PAC_TWO_POWER_PIN
+#endif
 
 #ifndef PAC_TWO_R_SENSE
 #define PAC_TWO_R_SENSE                                                                            \
     { 0.82f, 0.82f, 0.82f, 0.82f }
-#endif // PAC_TWO_R_SENSE
+#endif
 
 #ifndef PAC_TWO_USED_CHANNELS
 #define PAC_TWO_USED_CHANNELS                                                                      \
     { .uint_channelsInUse = 0b00001111 }
-#endif // PAC_TWO_USED_CHANNELS
+#endif
 
 /* endregion PAC193x II */
 
@@ -256,11 +256,11 @@
 //! SHT_SLAVE is the SHT3X_I2C_ADDRESS which can be found in
 //! src/sensor/sht3x/include/Sht3xTypedefs.h
 #define SHT_SLAVE 0x44
-#endif // SHT_SLAVE
+#endif
 
-#ifndef SHT_HOST
-#define SHT_HOST I2C_INSTANCE
-#endif // SHT_HOST
+#ifndef SHT_I2C_MODULE
+#define SHT_I2C_MODULE I2C_MODULE
+#endif
 
 /* endregion SHT */
 
@@ -286,8 +286,8 @@
 
 /* region BMI323 */
 
-#ifndef BMI323_SPI_INTERFACE
-#define BMI323_SPI_INTERFACE SPI1_INSTANCE
+#ifndef BMI323_SPI_MODULE
+#define BMI323_SPI_MODULE SPI1_MODULE
 #endif
 
 #ifndef BMI323_SPI_BAUDRATE
@@ -312,4 +312,4 @@
 
 /* endregion BMI323 */
 
-#endif // ENV5_HW_CONFIGURATION
+#endif
