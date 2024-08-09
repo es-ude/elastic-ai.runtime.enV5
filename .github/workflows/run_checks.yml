@@ -55,7 +55,7 @@ jobs:
           commit_user_email: action@github.com
           commit_author: github-actions <action@github.com>
       - name: Check For Updated Files
-        id: check further execution
+        id: check-further-execution
         if: steps.auto-commit.outputs.changes_detected =='true'
         run: |
           echo "Updates detected. Abort Workflow execution!" |
