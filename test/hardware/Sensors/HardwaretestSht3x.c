@@ -13,7 +13,7 @@
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = I2C_INSTANCE,
+    .i2cInstance = I2C_MODULE,
     .frequency = I2C_FREQUENCY_IN_HZ,
     .sdaPin = I2C_SDA_PIN,
     .sclPin = I2C_SCL_PIN,
@@ -21,7 +21,7 @@ i2cConfiguration_t i2cConfig = {
 /* endregion I2C DEFINITION */
 /* region SENSOR DEFINITION */
 static sht3xSensorConfiguration_t sensor = {
-    .i2c_host = SHT_HOST,
+    .i2c_host = SHT_I2C_MODULE,
     .i2c_slave_address = SHT_SLAVE,
 };
 /* endregion SENSOR DEFINITION */

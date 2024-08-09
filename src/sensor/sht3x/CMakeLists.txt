@@ -5,6 +5,7 @@ target_include_directories(sensor_lib_sht3x INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/include
 )
 target_link_libraries(sensor_lib_sht3x PUBLIC
+        pico_stdlib
         CException
 )
 target_link_libraries(sensor_lib_sht3x PRIVATE
