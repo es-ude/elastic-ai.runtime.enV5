@@ -75,3 +75,11 @@ target_link_libraries(unit-test_fpgaConfigurationHandler
         unity)
 add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
 ## endregion
+##############################################
+## region UNIT-TEST: unit-test_xor
+add_executable(unit-test_xor ${CMAKE_CURRENT_LIST_DIR}/UnittestXorChecksum.c)
+target_link_libraries(unit-test_xor
+        checksum-xor
+        unity)
+add_test(unit-test_xor unit-test_xor)
+## endregion

@@ -38,6 +38,7 @@ if (UNIT_TEST)
     add_subdirectory(src/network/http)
     add_subdirectory(src/network/broker)
     add_subdirectory(src/fpga/fpgaConfigurationHandler)
+    add_subdirectory(src/checksum)
 
     # include unit-tests
     add_subdirectory(test/unit)
