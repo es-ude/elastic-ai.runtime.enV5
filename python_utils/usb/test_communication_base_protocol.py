@@ -1,5 +1,5 @@
 import pytest
-from python_utils.usb.communication_protocol import *
+from python_utils.usb.communication_base_protocol import *
 
 
 def test_xor_byte():
@@ -21,6 +21,7 @@ def test_checksum_2():
     expected = bytes(b'\xFF')
     assert actual == expected
 
+
 def test_build_message_1():
     command = 1
     data = bytearray()
@@ -30,6 +31,7 @@ def test_build_message_1():
     actual = comm._build_message(command, data)
     expected = bytearray(b'\x01\x00\x00\x00\x00\x01')
     assert actual == expected
+
 
 def test_build_message_1():
     command = 1
