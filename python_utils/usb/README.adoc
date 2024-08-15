@@ -1,4 +1,4 @@
-
+s
 = Communication Protocol
 
 [.lead]
@@ -35,7 +35,9 @@ The second 128 can be user specific commands.
 | send data to flash        | 4
 | read data from flash      | 5
 | FPGA power | 6
-| inference with data       | 7
+|FPGA LEDs| 7
+| MCU LEDs | 8
+| inference with data       | 9
 |===
 
 === nack
