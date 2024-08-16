@@ -1,13 +1,23 @@
 import time
-from typing import Any, Literal
+from typing import Literal, Callable
 
 import serial
 
 
-_recommended_commands = dict({
-    "nack": 0,
-    "ack": 1,
-})
+class WrongCommand(Exception):
+    ...
+
+
+class SendingNotSuccesful(Exception):
+    ...
+
+
+def get_base_commands() -> dict:
+    base_commands = dict({
+        "nack": 0,
+        "ack": 1,
+    })
+    return base_commands
 
 
 def xor_byte(a: int, b: int) -> int:
@@ -22,21 +32,21 @@ def calculate_checksum(data: bytearray) -> bytes:
     return checksum.to_bytes(length=1, byteorder="little")
 
 
-class Env5SerialCommunication:
-    def __init__(self, device: serial.Serial, commands_lut: dict = _recommended_commands):
+class EnV5BaseProtocolSerialCommunication:
+    def __init__(self, device: serial.Serial, get_commands_lut: Callable[[], dict] = get_base_commands):
         self.serial: serial.Serial = device
-        self.commands: dict[str, int] = commands_lut
-        self.commands_inv: dict[int, str] = {v: k for k, v in commands_lut.items()}
+        self.commands: dict[str, int] = get_commands_lut()
+        self.commands_inv: dict[int, str] = {v: k for k, v in self.commands.items()}
         self.endian: Literal["little", "big"] = "little"
         self.checksum_length: int = 1
-        self.allowed_transmission_fails = 10
+        self.allowed_transmission_fails = 5
 
-    def send(self, command: int, data: bytearray):
+    def _send(self, command: int, payload: bytearray) -> None:
         ack_received: bool = False
         i = 0
         while not ack_received:
             # build message
-            message = self._build_message(command, data)
+            message = self._build_message(command, payload)
 
             # send message
             self.serial.write(message)
@@ -47,12 +57,11 @@ class Env5SerialCommunication:
             # if allowed transmission fails exceeds then
             i += 1
             if i > self.allowed_transmission_fails:
-                return False
-        return True
+                raise SendingNotSuccesful
 
-    def _build_message(self, command: int, data: bytearray) -> bytearray:
+    def _build_message(self, command: int, payload: bytearray) -> bytearray:
         # get payload_size
-        payload_size = len(data)
+        payload_size = len(payload)
 
         # message body
         message = bytearray()
@@ -64,7 +73,7 @@ class Env5SerialCommunication:
         message.extend(payload_size.to_bytes(length=4, signed=False, byteorder=self.endian))
 
         # append data to message body
-        message.extend(data)
+        message.extend(payload)
 
         # append checksum to message body
         message.extend(calculate_checksum(message))
@@ -102,7 +111,7 @@ class Env5SerialCommunication:
         else:
             return False
 
-    def receive(self) -> tuple[int, bytes]:
+    def _receive(self) -> tuple[int, bytes]:
         message_complete = False
         while message_complete:
             # Message body
@@ -117,7 +126,7 @@ class Env5SerialCommunication:
             data_length = int.from_bytes(data_length_raw, byteorder=self.endian, signed=False)
 
             # Read data for data_length
-            data_raw = self.serial.read(data_length)
+            payload_raw = self.serial.read(data_length)
 
             # read checksum
             transmitted_checksum = self.serial.read(self.checksum_length)
@@ -125,7 +134,7 @@ class Env5SerialCommunication:
             # append command, data_length_raw and data_raw to message
             message.extend(command_raw)
             message.extend(data_length_raw)
-            message.extend(data_raw)
+            message.extend(payload_raw)
 
             # calculate checksum on message
             calculated_checksum = calculate_checksum(message)
@@ -139,7 +148,7 @@ class Env5SerialCommunication:
             else:
                 # if checksum correct send ack and return data
                 self._send_ack()
-                return command, data_raw
+                return command, payload_raw
 
     def _send_nack(self) -> None:
         command = self.commands["nack"]

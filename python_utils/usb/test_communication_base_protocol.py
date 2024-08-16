@@ -26,7 +26,7 @@ def test_build_message_1():
     command = 1
     data = bytearray()
     device = serial.Serial()
-    comm = Env5SerialCommunication(device)
+    comm = EnV5BaseProtocolSerialCommunication(device)
 
     actual = comm._build_message(command, data)
     expected = bytearray(b'\x01\x00\x00\x00\x00\x01')
@@ -37,7 +37,7 @@ def test_build_message_1():
     command = 1
     data = bytearray(b'\x01\x00\x01\x00')
     device = serial.Serial()
-    comm = Env5SerialCommunication(device)
+    comm = EnV5BaseProtocolSerialCommunication(device)
 
     actual = comm._build_message(command, data)
     expected = bytearray(b'\x01\x04\x00\x00\x00\x01\x00\x01\x00\x05')
