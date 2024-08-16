@@ -61,7 +61,7 @@ sequenceDiagram
 ....
 sequenceDiagram
     PC-->>enV5: {read skeleton id, NULL}
-    enV5-->>PC: {read skeleton id, skeleton id}
+    enV5-->>PC: {read skeleton id, skeleton id(1 | 16)}
 ....
 
 === get chunk-size for flash
@@ -69,7 +69,7 @@ sequenceDiagram
 ....
 sequenceDiagram
     PC-->>enV5: {get chunk-size for flash, NULL}
-    enV5-->>PC: {get chunk-size for flash, chunk-size}
+    enV5-->>PC: {get chunk-size for flash, chunk-size(4)}
 ....
 
 
@@ -81,7 +81,7 @@ IMPORTANT: Chunk-size has to be requested in advance.
 sequenceDiagram
     PC-->>enV5: {send data to flash, flash sector address(4), size-bytes(4)}
     loop for each chunk
-    PC -->> enV5: {send data to flash, chunk-num(4), chunk}
+    PC -->> enV5: {send data to flash, chunk(4)}
     end
 ....
 
@@ -90,7 +90,7 @@ IMPORTANT: Chunk-size has to be requested in advance.
 [mermaid]
 ....
 sequenceDiagram
-    PC-->>enV5: {read data from flash, flash address(4), size-bytes(4)}
+    PC-->>enV5: {read data from flash, flash start address(4), size-bytes(4)}
     loop for each chunk
     enV5-->>PC: {read data from flash, chunk}
     end
