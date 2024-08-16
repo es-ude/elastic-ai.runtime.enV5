@@ -1,4 +1,3 @@
-s
 = Communication Protocol
 
 [.lead]
@@ -81,7 +80,7 @@ IMPORTANT: Chunk-size has to be requested in advance.
 sequenceDiagram
     PC-->>enV5: {send data to flash, flash sector address(4), size-bytes(4)}
     loop for each chunk
-    PC -->> enV5: {send data to flash, chunk(4)}
+    PC -->> enV5: {send data to flash, chunk}
     end
 ....
 
@@ -90,7 +89,7 @@ IMPORTANT: Chunk-size has to be requested in advance.
 [mermaid]
 ....
 sequenceDiagram
-    PC-->>enV5: {read data from flash, flash start address(4), size-bytes(4)}
+    PC-->>enV5: {read data from flash, flash start address(4), num-bytes(4)}
     loop for each chunk
     enV5-->>PC: {read data from flash, chunk}
     end
@@ -151,7 +150,7 @@ The enV5 **run inference** will
 [mermaid]
 ....
 sequenceDiagram
-    PC-->>enV5: {inference with data, num_inputs(4), num_outputs(4), Bin-file address(4), Skeleton-ID(16)}
+    PC-->>enV5: {inference with data, num_bytes_input(4), num_bytes_outputs(4), Bin-file address(4), Skeleton-ID(16)}
     loop for each chunk
     PC-->>enV5: {inference with data, chunk}
     end
