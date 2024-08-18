@@ -2,48 +2,8 @@
 #define ENV5_USB_PROTOCOL_HEADER
 
 #include <stddef.h>
-#include <stdint.h>
 
-typedef enum usbProtocolErrorCodes {
-    USB_PROTOCOL_OKAY = 0x00,
-    USB_PROTOCOL_ERROR_NOT_INITIALIZED,
-    USB_PROTOCOL_ERROR_INVALID_ID,
-    USB_PROTOCOL_ERROR_NULL_POINTER,
-    USB_PROTOCOL_ERROR_CHECKSUM_FAILED,
-} usbProtocolErrorCodes_t;
-/*!
- * @brief function handling data input
- *
- * @param[out] byteRead buffer to store received byte
- *
- * @returns error code
- * @retval 0 no error occurred
- */
-typedef usbProtocolErrorCodes_t (*usbProtocolReadCommand)(uint8_t *byteRead);
-
-/*!
- * @brief function handling data output
- *
- * @param[in] bytesToSend buffer storing the data to send
- * @param[in] numberOfBytesToSend length of the data buffer in Bytes
- *
- * @returns error code
- * @retval 0 no error occurred
- */
-typedef usbProtocolErrorCodes_t (*usbProtocolSendData)(uint8_t *bytesToSend,
-                                                       size_t numberOfBytesToSend);
-
-/*!
- * @brief function providing the prototype for new command handles
- *
- * @param[in] data pointer to the buffer holding the function payload;
- * @param[in] length size of @p data in Bytes
- * @param[in] sendFunction function pointer to send response
- */
-typedef void (*usbProtocolCommandHandle)(uint8_t *data, size_t length,
-                                         usbProtocolSendData sendFunction);
-
-typedef void *usbProtocolReceiveBuffer;
+#include "UsbProtocolTypedefs.h"
 
 /*!
  * @brief initializes the usb protocol handler
@@ -60,7 +20,7 @@ typedef void *usbProtocolReceiveBuffer;
  *
  * @throws USB_PROTOCOL_ERROR_NULL_POINTER a function provided is not defined
  */
-void usbProtocolInit(usbProtocolReadCommand readFunction, usbProtocolSendData sendFunction);
+void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction);
 
 /*!
  * @brief register a new command
