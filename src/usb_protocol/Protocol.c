@@ -1,13 +1,14 @@
 #define SOURCE_FILE "USB-PROTOCOL"
 
-#include <stdarg.h>
-#include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "CException.h"
 
-#include "DefaultCommands.h"
-#include "include/UsbProtocol.h"
+#include "UsbProtocol.h"
+#include "UsbProtocolTypedefs.h"
+#include "internal/DefaultCommands.h"
+#include "internal/Tools.h"
 
 /* region VARIABLES */
 
@@ -20,8 +21,8 @@ typedef struct receivedCommand {
     size_t payloadLength;
 } receivedCommand_t;
 
-static usbProtocolReadCommand readHandle = NULL;
-static usbProtocolSendData sendHandle = NULL;
+usbProtocolReadData readHandle = NULL;
+usbProtocolSendData sendHandle = NULL;
 static volatile usbProtocolCommandHandle commands[UINT8_C(0xFF)] = {0};
 
 /* endregion VARIABLES */
@@ -43,7 +44,7 @@ static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
 static void checkReadAndSendAreSet(void) {
     if (readHandle == NULL | sendHandle == NULL) {
-        throws(USB_PROTOCOL_ERROR_NOT_INITIALIZED);
+        Throw(USB_PROTOCOL_ERROR_NOT_INITIALIZED);
     }
 }
 
@@ -56,45 +57,6 @@ static void removeCommand(uint8_t command) {
     commands[command] = NULL;
 }
 
-//! @brief calculate XOR based checksum of given byte arrays
-static uint8_t calculateChecksum(int numberOfArguments, va_list data) {
-    uint8_t checksum = 0x00;
-    for (size_t input = 0; input < numberOfArguments; input += 2) {
-        uint8_t *byteArray = va_arg(data, uint8_t *);
-        size_t byteArrayLength = va_arg(data, size_t);
-
-        for (size_t index = 0; index < byteArrayLength; index++) {
-            checksum ^= byteArray[index];
-        }
-    }
-
-    return checksum;
-}
-//! @brief method to get checksum of arbitrary number of byte arrays
-static uint8_t getChecksum(int numberOfArguments, ...) {
-    va_list data;
-    va_start(data, numberOfArguments);
-    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
-    va_end(data);
-
-    return actualChecksum;
-}
-//! @brief calculate checksum and evaluate if it matches the expected
-static bool checksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...) {
-    va_list data;
-    va_start(data, numberOfArguments);
-    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
-    va_end(data);
-
-    return (actualChecksum != expectedChecksum);
-}
-
-//! read arbitrary number of bytes with read-handle
-static void readBytes(uint8_t *data, size_t numberOfBytes) {
-    for (size_t index = 0; index < numberOfBytes; index++) {
-        while (readHandle(&data[index]) != USB_PROTOCOL_OKAY) {}
-    }
-}
 //! read checksum with read-handle
 static uint8_t readChecksum(void) {
     uint8_t checksum = 0;
@@ -127,17 +89,16 @@ static void cleanDataBuffer(receivedCommand_t *buffer) {
 /* region PUBLIC FUNCTIONS */
 
 static void addDefaultFunctions(void) {
-    addCommand(2, sendDeviceId);
-    addCommand(3, sendDataToRam);
-    addCommand(4, readDataFromRam);
-    addCommand(5, sendDataToFlash);
-    addCommand(6, readDataFromFlash);
-    addCommand(7, runInferenceWithRamData);
-    addCommand(8, runInferenceWithFlashData);
-    addCommand(9, runTrainingWithRamData);
-    addCommand(10, runTrainingWithFlashData);
+    addCommand(2, &readSkeletonId);
+    addCommand(3, &getChunkSize);
+    addCommand(4, &sendDataToFlash);
+    addCommand(5, &readDataFromFlash);
+    addCommand(6, &setFpgaPower);
+    addCommand(6, &setFpgaLeds);
+    addCommand(7, &setMcuLeds);
+    addCommand(8, &runInference);
 }
-void usbProtocolInit(usbProtocolReadCommand readFunction, usbProtocolSendData sendFunction) {
+void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
@@ -187,8 +148,8 @@ void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
     checkHandlePointerIsNotNull(handle);
     CEXCEPTION_T exception;
     Try {
-        handle(((receivedCommand_t *)buffer)->payload, ((receivedCommand_t *)buffer)->payloadLength,
-               sendHandle);
+        handle(((receivedCommand_t *)buffer)->payload,
+               ((receivedCommand_t *)buffer)->payloadLength);
         cleanDataBuffer(((receivedCommand_t *)buffer));
     }
     Catch(exception) {
