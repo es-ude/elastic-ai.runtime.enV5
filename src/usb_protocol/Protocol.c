@@ -102,9 +102,9 @@ static void addDefaultFunctions(void) {
     addCommand(4, &sendDataToFlash);
     addCommand(5, &readDataFromFlash);
     addCommand(6, &setFpgaPower);
-    addCommand(6, &setFpgaLeds);
-    addCommand(7, &setMcuLeds);
-    addCommand(8, &runInference);
+    addCommand(7, &setFpgaLeds);
+    addCommand(8, &setMcuLeds);
+    addCommand(9, &runInference);
 }
 void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction) {
     if (readFunction == NULL || sendFunction == NULL) {
@@ -152,7 +152,7 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
     return received;
 }
 
-static void blinkLED2(uint8_t cmd) {
+static void blinkLED1(uint8_t cmd) {
     env5HwControllerLedsAllOff();
     gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
     sleep_for_ms(2000);
@@ -168,15 +168,13 @@ static void blinkLED2(uint8_t cmd) {
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
     receivedCommand_t *input = buffer;
     uint8_t command = input->command;
-    blinkLED2(command);
 
     usbProtocolCommandHandle handle = commands[command];
     checkHandlePointerIsNotNull(handle);
 
     CEXCEPTION_T exception;
     Try {
-        handle(((receivedCommand_t *)buffer)->payload,
-               ((receivedCommand_t *)buffer)->payloadLength);
+        handle(input->payload, input->payloadLength);
         cleanDataBuffer(input);
     }
     Catch(exception) {

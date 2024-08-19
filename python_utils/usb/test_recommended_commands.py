@@ -1,7 +1,8 @@
 import atexit
 import time
+import serial
 
-from python_utils.usb.recommended_commands import *
+from recommended_commands import *
 
 
 def exit_handler(serial_con: serial.Serial):
@@ -9,14 +10,13 @@ def exit_handler(serial_con: serial.Serial):
     print(f"closed {serial_con.port=}")
 
 
-
 def mcu_blink():
     print("Test running")
     for i in range(2):
-        time.sleep(0.5)
+        time.sleep(1)
         enV5RRCP.mcu_leds(False, False, False)
         print("LED off")
-        time.sleep(0.5)
+        time.sleep(1)
         enV5RRCP.mcu_leds(True, False, False)
         print("LED on")
 
@@ -28,16 +28,14 @@ def read_chunksize():
 
 
 if __name__ == "__main__":
-
     print("start")
-    serial_con = serial.Serial("/dev/tty.usbmodem1101")
+    serial_con = serial.Serial("/dev/ttyACM0")
     atexit.register(exit_handler, serial_con)
     print("serial connection done")
 
     enV5RRCP = EnV5RecommendedRemoteControlProtocol(serial_con)
     print("Env5RRCP build")
 
-    mcu_blink()
+    # mcu_blink()
 
-    #read_chunksize()
-
+    read_chunksize()

@@ -38,5 +38,11 @@ bool checksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...) {
     uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
     va_end(data);
 
-    return (actualChecksum != expectedChecksum);
+    return (actualChecksum == expectedChecksum);
+}
+
+bool waitForAcknowledgement(void) {
+    uint8_t ack[6];
+    readBytes(ack, sizeof(ack));
+    return checksumPassed(ack[5], 2, ack, 5) && ack[0] != 0x01;
 }

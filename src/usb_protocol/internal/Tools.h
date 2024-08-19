@@ -23,4 +23,7 @@ uint8_t getChecksum(int numberOfArguments, ...);
 //! @brief calculate checksum and evaluate if it matches the expected
 bool checksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...);
 
+//! @brief wait for acknowledgement;
+bool waitForAcknowledgement(void);
+
 #endif // ENV5_TOOLS_HEADER

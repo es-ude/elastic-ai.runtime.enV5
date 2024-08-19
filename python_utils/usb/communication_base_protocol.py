@@ -4,19 +4,19 @@ from typing import Literal, Callable
 import serial
 
 
-class WrongCommand(Exception):
-    ...
+class WrongCommand(Exception): ...
 
 
-class SendingNotSuccesful(Exception):
-    ...
+class SendingNotSuccesful(Exception): ...
 
 
 def get_base_commands() -> dict:
-    base_commands = dict({
-        "nack": 0,
-        "ack": 1,
-    })
+    base_commands = dict(
+        {
+            "nack": 0,
+            "ack": 1,
+        }
+    )
     return base_commands
 
 
@@ -33,9 +33,12 @@ def xor_calculate_checksum(data: bytearray) -> bytes:
 
 
 class EnV5BaseRemoteControlProtocol:
-    def __init__(self, device: serial.Serial,
-                 get_commands_lut: Callable[[], dict] = get_base_commands,
-                 calculate_checksum: [[bytearray], bytes] = xor_calculate_checksum):
+    def __init__(
+        self,
+        device: serial.Serial,
+        get_commands_lut: Callable[[], dict] = get_base_commands,
+        calculate_checksum: [[bytearray], bytes] = xor_calculate_checksum,
+    ):
         self.serial: serial.Serial = device
         self.commands: dict[str, int] = get_commands_lut()
         self.commands_inv: dict[int, str] = {v: k for k, v in self.commands.items()}
@@ -80,7 +83,9 @@ class EnV5BaseRemoteControlProtocol:
         message.extend(command.to_bytes(length=1, signed=False, byteorder=self.endian))
 
         # append payload_size to message body
-        message.extend(payload_size.to_bytes(length=4, signed=False, byteorder=self.endian))
+        message.extend(
+            payload_size.to_bytes(length=4, signed=False, byteorder=self.endian)
+        )
 
         # append data to message body
         message.extend(payload)
@@ -102,7 +107,9 @@ class EnV5BaseRemoteControlProtocol:
         message.extend(data_length_raw)
 
         # convert data_length to int
-        data_length = int.from_bytes(data_length_raw, byteorder=self.endian, signed=False)
+        data_length = int.from_bytes(
+            data_length_raw, byteorder=self.endian, signed=False
+        )
 
         # If data length > 0 read it
         if data_length > 0:
@@ -136,12 +143,14 @@ class EnV5BaseRemoteControlProtocol:
             print(f"wait for data length")
             # Read data_length + convert to int
             data_length_raw = self.serial.read(4)
-            data_length = int.from_bytes(data_length_raw, byteorder=self.endian, signed=False)
+            data_length = int.from_bytes(
+                data_length_raw, byteorder=self.endian, signed=False
+            )
             message.extend(data_length_raw)
 
             if data_length > 0:
                 # Read data for data_length
-                print("wait for payload")
+                print(f"wait for payload")
                 payload_raw = self.serial.read(data_length)
                 message.extend(payload_raw)
             else:
@@ -161,7 +170,7 @@ class EnV5BaseRemoteControlProtocol:
             if transmitted_checksum != calculated_checksum:
                 # If checksum not correct empty buffer and sent nack
                 while self.serial.readable():
-                    self.serial.reset_input_buffer() # This might be problematic for timing. Maybe move it to other space
+                    self.serial.reset_input_buffer()  # This might be problematic for timing. Maybe move it to other space
                     time.sleep(0.1)
                 self._send_nack()
             else:
@@ -185,5 +194,3 @@ class EnV5BaseRemoteControlProtocol:
 
         # send message
         self.serial.write(message)
-
-
