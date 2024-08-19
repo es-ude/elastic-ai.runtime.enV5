@@ -16,4 +16,6 @@ target_link_libraries(usb-protocol PRIVATE
         enV5_hw_controller
         gpio_interface
         flash_lib
+        middleware_lib
+        stub_v2_lib
 )
