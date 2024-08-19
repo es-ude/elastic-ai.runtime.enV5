@@ -3,45 +3,37 @@
 #include "CException.h"
 #include "pico/stdlib.h"
 
-#include "Common.h"
+#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
+#include "Gpio.h"
 #include "Sleep.h"
 #include "UsbProtocol.h"
 #include "UsbProtocolTypedefs.h"
 
 usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer) {
     *readBuffer = stdio_getchar();
-    PRINT_DEBUG("Received: 0x%02X", *readBuffer);
     return USB_PROTOCOL_OKAY;
 }
 
 usbProtocolErrorCodes_t sendBytesForProtocol(uint8_t *sendBuffer, size_t numOfBytes) {
     for (size_t index = 0; index < numOfBytes; index++) {
         stdio_putchar_raw(sendBuffer[index]);
-        PRINT_DEBUG("Send: 0x%02X", sendBuffer[index]);
     }
     return USB_PROTOCOL_OKAY;
 }
 
-static void blinkLED(void) {
+static void blinkLED(uint exception) {
+    env5HwControllerLedsAllOff();
     env5HwControllerLedsAllOn();
-    sleep_for_ms(500);
+    sleep_for_ms(2000);
     env5HwControllerLedsAllOff();
 
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOn();
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOff();
-
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOn();
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOff();
-
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOn();
-    sleep_for_ms(500);
-    env5HwControllerLedsAllOff();
+    for (uint index = 0; index < exception; index++) {
+        sleep_for_ms(500);
+        gpioSetPin(LED2_GPIO, GPIO_PIN_HIGH);
+        sleep_for_ms(500);
+        gpioSetPin(LED2_GPIO, GPIO_PIN_LOW);
+    }
 }
 
 static void initialize(void) {
@@ -61,7 +53,7 @@ _Noreturn static void loop(void) {
             usbProtocolHandleCommand(received);
         }
         Catch(exception) {
-            blinkLED();
+            blinkLED(exception);
         }
     }
 }

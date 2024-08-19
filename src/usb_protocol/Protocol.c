@@ -5,6 +5,10 @@
 
 #include "CException.h"
 
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
+#include "Gpio.h"
+#include "Sleep.h"
 #include "UsbProtocol.h"
 #include "UsbProtocolTypedefs.h"
 #include "internal/DefaultCommands.h"
@@ -23,7 +27,7 @@ typedef struct receivedCommand {
 
 usbProtocolReadData readHandle = NULL;
 usbProtocolSendData sendHandle = NULL;
-static volatile usbProtocolCommandHandle commands[UINT8_C(0xFF)] = {0};
+static usbProtocolCommandHandle commands[UINT8_C(0xFF)];
 
 /* endregion VARIABLES */
 
@@ -38,7 +42,7 @@ static void checkIdentifierIsInUserRange(uint8_t identifier) {
 //! @brief check handle is not NULL else @throws USB_PROTOCOL_ERROR_NULL_POINTER
 static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
     if (handle == NULL) {
-        Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
+        Throw(USB_PROTOCOL_ERROR_HANDLE_NOT_SET);
     }
 }
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
@@ -71,16 +75,20 @@ static void sendAck(void) {
 }
 //! send NACK
 static void sendNack(void) {
-    uint8_t ack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
-    ack[5] = getChecksum(2, ack, 5);
-    sendHandle(ack, sizeof(ack));
+    uint8_t nack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
+    sendHandle(nack, sizeof(nack));
 
     Throw(USB_PROTOCOL_ERROR_CHECKSUM_FAILED);
 }
 
 //! clean receivedCommand_t buffer
 static void cleanDataBuffer(receivedCommand_t *buffer) {
-    free(buffer->payload);
+    if (buffer == NULL) {
+        return;
+    }
+    if (buffer->payload != NULL) {
+        free(buffer->payload);
+    }
     free(buffer);
 }
 
@@ -143,17 +151,36 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
 
     return received;
 }
+
+static void blinkLED2(uint8_t cmd) {
+    env5HwControllerLedsAllOff();
+    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
+    sleep_for_ms(2000);
+    env5HwControllerLedsAllOff();
+
+    for (uint8_t index = 0; index < cmd; index++) {
+        sleep_for_ms(500);
+        gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
+        sleep_for_ms(500);
+        gpioSetPin(LED1_GPIO, GPIO_PIN_LOW);
+    }
+}
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
-    usbProtocolCommandHandle handle = commands[((receivedCommand_t *)buffer)->command];
+    receivedCommand_t *input = buffer;
+    uint8_t command = input->command;
+    blinkLED2(command);
+
+    usbProtocolCommandHandle handle = commands[command];
     checkHandlePointerIsNotNull(handle);
+
     CEXCEPTION_T exception;
     Try {
         handle(((receivedCommand_t *)buffer)->payload,
                ((receivedCommand_t *)buffer)->payloadLength);
-        cleanDataBuffer(((receivedCommand_t *)buffer));
+        cleanDataBuffer(input);
     }
     Catch(exception) {
-        cleanDataBuffer(((receivedCommand_t *)buffer));
+        cleanDataBuffer(input);
         Throw(exception);
     }
 }

@@ -18,7 +18,7 @@ void readSkeletonId(__attribute__((unused)) const uint8_t *data,
 
 void getChunkSize(__attribute__((unused)) const uint8_t *data,
                   __attribute((unused)) size_t length) {
-    uint32_t payload = FLASH_BYTES_PER_PAGE;
+    uint32_t payload = __builtin_bswap32(FLASH_BYTES_PER_PAGE);
     uint32_t payloadBytes = sizeof(payload);
 
     uint8_t response[BASE_LENGTH + sizeof(uint32_t)];
