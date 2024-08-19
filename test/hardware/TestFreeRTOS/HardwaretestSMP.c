@@ -10,7 +10,7 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-void initHardware() {
+void initializeCommunication() {
     // check if we crash last time -> reboot into boot rom mode
     if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
@@ -44,7 +44,7 @@ _Noreturn void task() {
 }
 
 int main() {
-    initHardware();
+    initializeCommunication();
 
     freeRtosTaskWrapperRegisterTask(enterBootModeTask, "watchdog", 30, FREERTOS_CORE_0);
     freeRtosTaskWrapperRegisterTask(task, "task0", 1, FREERTOS_CORE_0);

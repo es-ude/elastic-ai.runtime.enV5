@@ -1,0 +1,117 @@
+= Gyroscope (BMI323)
+
+== Metrics
+
+[horizontal]
+Type:: Bosch Sensortec _BMI323_
+Usage:: Measure the Orientation based on a Gyroscope ( ±125°/s, ±250°/s, ±500°/s, ±1000°/s, ±2000°/s) +
+Measure the Acceleration (±2, ±4, ±8, ±16g) +
+Measure the Temperature (-40°C to 85°C)
+INFO:: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf[Datasheet]
+
+== Provided Functionality
+
+[IMPORTANT]
+.Disregard Functionality
+--
+Some additional functionality from the original BMI323 library, included from Bosch Sensortec, is not included in this facade.
+
+[%collapsible]
+.Additional Functions provided by BMI323
+====
+- Context Switch
+- FIFO watermark
+- Get Error Status
+- Enhanced Flexibility
+- I3C based communication
+- Alternate Register Access
+- Get DGain Data
+- Get FOC Data
+====
+
+--
+
+.link:./include/Bmi323.h[Bmi323.h] Configuration
+[source,C]
+----
+include::include/Bmi323.h[tags=prototypes_config]
+----
+
+.link:./include/Bmi323.h[Bmi323.h] Data Retrival
+[source,C]
+----
+include::include/Bmi323.h[tags=prototypes_data]
+----
+
+.link:./include/Bmi323.h[Bmi323.h] FIFO Buffer
+[source,C]
+----
+include::include/Bmi323.h[tags=prototypes_fifo]
+----
+
+== Basic Usage Example
+
+.main.c
+[source,c]
+----
+#include "Bmi323.h"
+#include "Spi.h"
+#include "SpiTypedefs.h"
+#include "EnV5HwConfiguration.h"
+#include "CException.h"
+
+spiConfiguration_t spi = {
+    .spiInstance = BMI323_SPI_INTERFACE,
+    .misoPin = BMI323_SPI_MISO,
+    .mosiPin = BMI323_SPI_MOSI,
+    .sckPin = BMI323_SPI_CLOCK,
+    .csPin = BMI323_SPI_CHIP_SELECT,
+    .baudrate = BMI323_SPI_BAUDRATE,
+};
+
+bmi323SensorConfiguration_t bmi323 = {0}; // <1>
+
+int main(void) {
+    CEXCEPTION_T exception;
+    Try  {
+        spiInit(&spi);
+        bmi323Init(&bmi323, &spi); //<2>
+
+        uint8_t chipId[2];
+        data_t idData = {.data = chipId, .length = sizeof(chipId)};
+        bmi323GetRegister(&bmi323, BMI3_REG_CHIP_ID, &idData); //<4>
+    }
+    Catch (exception) { //<3>
+        return exception;
+    }
+
+    return 0;
+}
+----
+
+<1> Sensor Configuration *ALWAYS REQUIRED*
+<2> Initialize Sensor *ALWAYS REQUIRED*
+<3> Handle possible errors
+<4> Read Device ID
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-bmi323-app main.c)
+target_link_libraries(my-bmi323-app
+        hardware_spi # <1>
+        CException # <2>
+        enV5_hw_configuration # <3>
+        spi_interface # <4>
+        sensor_lib_bmi323) # <5>
+create_enV5_executable(my-bmi323-app)
+----
+
+<1> Add the pico-sdk library for SPI support
+<2> Add the CException library for Error Handling
+<3> Add the Hardware Configuration library for easy configuration
+<4> Add the SPI Interface library for easy SPI access
+<5> Add the sensor library
+
+TIP: A more sophisticated example of how to use this sensor is provided with
+link:../../../test/hardware/Sensors/HardwaretestBmi323.c[HardwaretestBmi323.c].
