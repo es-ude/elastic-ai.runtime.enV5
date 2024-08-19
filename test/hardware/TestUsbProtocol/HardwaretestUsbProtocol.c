@@ -7,11 +7,12 @@
 #include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Sleep.h"
-#include "UsbProtocol.h"
-#include "UsbProtocolTypedefs.h"
+#include "UsbProtocolBase.h"
 
-usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer) {
-    *readBuffer = stdio_getchar();
+usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer, size_t numOfBytes) {
+    for (size_t index = 0; index < numOfBytes; index++) {
+        readBuffer[index] = stdio_getchar();
+    }
     return USB_PROTOCOL_OKAY;
 }
 

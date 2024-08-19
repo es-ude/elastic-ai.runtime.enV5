@@ -2,19 +2,17 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "CException.h"
 
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Gpio.h"
 #include "Sleep.h"
-#include "UsbProtocol.h"
-#include "UsbProtocolTypedefs.h"
+#include "UsbProtocolBase.h"
+#include "UsbProtocolCustomCommands.h"
 #include "internal/DefaultCommands.h"
 #include "internal/Tools.h"
 
-/* region VARIABLES */
+/* region TYPEDEFS/VARIABLES/DEFINES */
 
 /*!
  * @brief buffer storing received command and payload to transfer data to handle function
@@ -29,7 +27,10 @@ usbProtocolReadData readHandle = NULL;
 usbProtocolSendData sendHandle = NULL;
 static usbProtocolCommandHandle commands[UINT8_C(0xFF)];
 
-/* endregion VARIABLES */
+//! number of bytes always present in response (command + payload length + checksum)
+#define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))
+
+/* endregion TYPEDEFS/VARIABLES/DEFINES */
 
 /* region INTERNAL FUNCTIONS */
 
@@ -46,7 +47,7 @@ static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
     }
 }
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
-static void checkReadAndSendAreSet(void) {
+static void checkReadAndSendHandleAreAvailable(void) {
     if (readHandle == NULL | sendHandle == NULL) {
         Throw(USB_PROTOCOL_ERROR_NOT_INITIALIZED);
     }
@@ -64,7 +65,9 @@ static void removeCommand(uint8_t command) {
 //! read checksum with read-handle
 static uint8_t readChecksum(void) {
     uint8_t checksum = 0;
-    while (readHandle(&checksum) != USB_PROTOCOL_OKAY) {}
+    if (readHandle(&checksum, 1) != USB_PROTOCOL_OKAY) {
+        Throw(USB_PROTOCOL_ERROR_READ_FAILED);
+    }
     return checksum;
 }
 
@@ -92,10 +95,7 @@ static void cleanDataBuffer(receivedCommand_t *buffer) {
     free(buffer);
 }
 
-/* endregion INTERNAL FUNCTIONS */
-
-/* region PUBLIC FUNCTIONS */
-
+//! add default commands
 static void addDefaultFunctions(void) {
     addCommand(2, &readSkeletonId);
     addCommand(3, &getChunkSize);
@@ -106,6 +106,11 @@ static void addDefaultFunctions(void) {
     addCommand(8, &setMcuLeds);
     addCommand(9, &runInference);
 }
+
+/* endregion INTERNAL FUNCTIONS */
+
+/* region PUBLIC FUNCTIONS */
+
 void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
@@ -115,6 +120,39 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
     sendHandle = sendFunction;
 
     addDefaultFunctions();
+}
+
+usbProtocolMessage_t *usbProtocolCreateMessage(uint8_t command, uint8_t *payload,
+                                               uint32_t payloadLength) {
+    usbProtocolMessage_t *msg = malloc(sizeof(usbProtocolMessage_t));
+    msg->length = BASE_LENGTH + payloadLength;
+
+    uint32_t payloadLengthData = __builtin_bswap32(payloadLength);
+
+    msg->message = calloc(1, msg->length);
+    msg->message[0] = command;
+    memcpy(&(msg->message[1]), &payloadLengthData, sizeof(uint32_t));
+    memcpy(&(msg->message[5]), payload, payloadLength);
+    msg->message[msg->length - 1] = getChecksum(2, msg->message, msg->length - 1);
+
+    return msg;
+}
+void usbProtocolFreeMessageBuffer(usbProtocolMessage_t *buffer) {
+    free(buffer->message);
+    free(buffer);
+}
+bool usbProtocolWaitForAcknowledgement(void) {
+    uint8_t ack[6];
+    readBytes(ack, sizeof(ack));
+    return usbProtocolChecksumPassed(ack[5], 2, ack, 5) && ack[0] != 0x01;
+}
+bool usbProtocolChecksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...) {
+    va_list data;
+    va_start(data, numberOfArguments);
+    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
+    va_end(data);
+
+    return (actualChecksum == expectedChecksum);
 }
 
 void usbProtocolRegisterCommand(size_t identifier, usbProtocolCommandHandle command) {
@@ -128,7 +166,7 @@ void usbProtocolUnregisterCommand(size_t identifier) {
 }
 
 usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
-    checkReadAndSendAreSet();
+    checkReadAndSendHandleAreAvailable();
 
     uint8_t rawCommand[5];
     readBytes(rawCommand, 5);
@@ -142,28 +180,15 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
         received->payload = calloc(received->payloadLength, sizeof(uint8_t));
         readBytes(received->payload, received->payloadLength);
 
-        checksumPassed(readChecksum(), 4, rawCommand, 5, received->payload, received->payloadLength)
+        usbProtocolChecksumPassed(readChecksum(), 4, rawCommand, 5, received->payload,
+                                  received->payloadLength)
             ? sendAck()
             : sendNack();
     } else {
-        checksumPassed(readChecksum(), 2, rawCommand, 5) ? sendAck() : sendNack();
+        usbProtocolChecksumPassed(readChecksum(), 2, rawCommand, 5) ? sendAck() : sendNack();
     }
 
     return received;
-}
-
-static void blinkLED1(uint8_t cmd) {
-    env5HwControllerLedsAllOff();
-    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
-    sleep_for_ms(2000);
-    env5HwControllerLedsAllOff();
-
-    for (uint8_t index = 0; index < cmd; index++) {
-        sleep_for_ms(500);
-        gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
-        sleep_for_ms(500);
-        gpioSetPin(LED1_GPIO, GPIO_PIN_LOW);
-    }
 }
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
     receivedCommand_t *input = buffer;

@@ -139,6 +139,7 @@ class EnV5BaseRemoteControlProtocol:
             command_raw = self.serial.read(1)
             command = int.from_bytes(command_raw, byteorder=self.endian, signed=False)
             message.extend(command_raw)
+            print(f"{command_raw=}")
 
             print(f"wait for data length")
             # Read data_length + convert to int
@@ -147,6 +148,7 @@ class EnV5BaseRemoteControlProtocol:
                 data_length_raw, byteorder=self.endian, signed=False
             )
             message.extend(data_length_raw)
+            print(f"{data_length_raw=}")
 
             if data_length > 0:
                 # Read data for data_length
@@ -155,6 +157,7 @@ class EnV5BaseRemoteControlProtocol:
                 message.extend(payload_raw)
             else:
                 payload_raw = None
+            print(f"{payload_raw=}")
 
             print("wait for checksum")
             # read checksum
@@ -162,10 +165,6 @@ class EnV5BaseRemoteControlProtocol:
 
             # calculate checksum on message
             calculated_checksum = self.calculate_checksum(message)
-
-            print(f"{command_raw=}")
-            print(f"{data_length_raw=}")
-            print(f"{payload_raw=}")
 
             if transmitted_checksum != calculated_checksum:
                 # If checksum not correct empty buffer and sent nack

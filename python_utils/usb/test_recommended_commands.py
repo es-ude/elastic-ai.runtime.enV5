@@ -36,6 +36,6 @@ if __name__ == "__main__":
     enV5RRCP = EnV5RecommendedRemoteControlProtocol(serial_con)
     print("Env5RRCP build")
 
-    # mcu_blink()
+    mcu_blink()
 
     read_chunksize()

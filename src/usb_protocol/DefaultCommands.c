@@ -1,12 +1,10 @@
 #define SOURCE_FILE "USB-PROTOCOL_DEFAULT_COMMANDS"
 
-#include <string.h>
-
+#include "internal/DefaultCommands.h"
 #include "CException.h"
 #include "EnV5HwConfiguration.h"
 #include "Gpio.h"
-#include "internal/DefaultCommands.h"
-#include "internal/Tools.h"
+#include "UsbProtocolCustomCommands.h"
 
 //! number of bytes always present in response (command + payload length + checksum)
 #define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))
@@ -18,19 +16,12 @@ void readSkeletonId(__attribute__((unused)) const uint8_t *data,
 
 void getChunkSize(__attribute__((unused)) const uint8_t *data,
                   __attribute((unused)) size_t length) {
-    uint32_t payload = FLASH_BYTES_PER_PAGE;
-    payload = __builtin_bswap32(payload);
-    uint32_t payloadBytes = sizeof(payload);
-    payloadBytes = __builtin_bswap32(payloadBytes);
+    uint32_t payload = __builtin_bswap32(FLASH_BYTES_PER_PAGE);
 
-    uint8_t response[BASE_LENGTH + sizeof(uint32_t)];
-    response[0] = 3;                                           // set command ID
-    memcpy(&response[1], &payloadBytes, sizeof(payloadBytes)); // set payload size
-    memcpy(&response[5], &payload, sizeof(uint32_t));          // set payload (chunk size)
-    response[9] = getChecksum(2, &response, 9);                // set checksum
-
-    sendHandle(response, sizeof(response));
-    if (waitForAcknowledgement()) {
+    usbProtocolMessage_t *msg = usbProtocolCreateMessage(3, (uint8_t *)&payload, sizeof(payload));
+    sendHandle(msg->message, msg->length);
+    usbProtocolFreeMessageBuffer(msg);
+    if (usbProtocolWaitForAcknowledgement()) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
     }
 }
