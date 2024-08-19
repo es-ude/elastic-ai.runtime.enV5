@@ -11,20 +11,40 @@ INFO:: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets
 
 == Provided Functionality
 
+[IMPORTANT]
+.Disregard Functionality
+--
+Some additional functionality from the original BMI323 library, included from Bosch Sensortec, is not included in this facade.
+
+[%collapsible]
+.Additional Functions provided by BMI323
+====
+- Context Switch
+- FIFO watermark
+- Get Error Status
+- Enhanced Flexibility
+- I3C based communication
+- Alternate Register Access
+- Get DGain Data
+- Get FOC Data
+====
+
+--
+
 .link:./include/Bmi323.h[Bmi323.h] Configuration
-[source, C]
+[source,C]
 ----
 include::include/Bmi323.h[tags=prototypes_config]
 ----
 
 .link:./include/Bmi323.h[Bmi323.h] Data Retrival
-[source, C]
+[source,C]
 ----
 include::include/Bmi323.h[tags=prototypes_data]
 ----
 
 .link:./include/Bmi323.h[Bmi323.h] FIFO Buffer
-[source, C]
+[source,C]
 ----
 include::include/Bmi323.h[tags=prototypes_fifo]
 ----

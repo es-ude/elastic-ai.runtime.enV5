@@ -1,0 +1,176 @@
+= enV5 Remote Control Protocol
+
+[.lead]
+In this file the communication protocol is explained.
+
+The communication is driven by the external device to determine the elasticNodes behavior.
+The communication protocol is as follows. For each communication an ack or nack is sent by the receiver.
+As a default we recommend to throw an error after 5 failed attempts.
+
+The byteorder for number conversion is little endian.
+
+This protocol only works with skeleton V2.
+
+== Transmission
+.Transmission
+[cols="4*", options="header"]
+|===
+| 1 bytes | 4 bytes      | payload-size | Checksum-size
+| command | payload-size | payload         | checksum
+|===
+
+
+== Checksum-function
+1 byte XOR over all command + payload-size + payload bytes
+
+== Commands
+The first 128 are our commands.
+The second 128 can be user specific commands.
+
+.Commands
+[cols="2*", options="header"]
+|===
+| command                   | uint8
+| nack                      | 0
+| ack                       | 1
+| read skeleton id          | 2
+| get chunk-size for flash   | 3
+| send data to flash        | 4
+| read data from flash      | 5
+| FPGA power | 6
+|FPGA LEDs| 7
+| MCU LEDs | 8
+| inference with data       | 9
+|===
+
+=== nack
+The payload for the nack response is empty
+[mermaid]
+....
+sequenceDiagram
+    Sender-->>Receiver: {command, payload}
+    Receiver-->>Sender: {nack , NULL}
+....
+
+=== ack
+The payload for the ack response is empty
+[mermaid]
+....
+sequenceDiagram
+    Sender-->>Receiver: {command, payload}
+    Receiver-->>Sender: {ack , NULL}
+....
+
+=== read skeleton id
+The payload for the nack response is empty
+
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {read skeleton id, NULL}
+    enV5-->>PC: {read skeleton id, skeleton id(16)}
+....
+
+=== get chunk-size for flash
+.Payload
+[cols="1*", options="header"]
+|===
+| 31-0
+| chunk-size
+|===
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {get chunk-size for flash, NULL}
+    enV5-->>PC: {get chunk-size for flash, payload}
+....
+
+
+=== send data to flash
+IMPORTANT: Chunk-size has to be requested in advance.
+
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {send data to flash, flash sector address(4), size-bytes(4)}
+    loop for each chunk
+    PC -->> enV5: {send data to flash, chunk}
+    end
+....
+
+=== read data from flash
+IMPORTANT: Chunk-size has to be requested in advance.
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {read data from flash, flash start address(4), num-bytes(4)}
+    loop for each chunk
+    enV5-->>PC: {read data from flash, chunk}
+    end
+....
+
+=== FPGA power
+[mermaid]
+....
+sequenceDiagram
+    alt Power on
+    PC-->>enV5: {FPGA power, 0xFF}
+    else Power off
+    PC-->>enV5: {FPGA power, 0x00}
+    end
+....
+
+=== FPGA LEDs
+.Payload
+[cols="5*", options="header"]
+|===
+| 7-4 | 3| 2      | 1 | 0
+| NONE| FPGA LED 4 | FPGA LED3 | FPGA LED2         | FPGA LED 1
+|===
+
+Mermaid Diagram
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {FPGA LEDs, payload}
+....
+
+=== MCU LEDs
+.Payload
+[cols="4*", options="header"]
+|===
+| 7-3  | 2      | 1 | 0
+| NONE | MCU LED3 | MCU LED2         | MCU LED 1
+|===
+
+Mermaid Diagram
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {MCU LEDs, payload}
+....
+
+
+=== inference with data
+IMPORTANT: Chunk-size has to be requested in advance.
+
+The enV5 **run inference** will
+
+- Turn the FPGA on, if not on
+- Check the skeleton-id
+- If not correct, set address for next FPGA boot, restart the FPGA and check again
+- Start inference
+
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {inference with data, num_bytes_input(4), num_bytes_outputs(4), Bin-file address(4), Skeleton-ID(16)}
+    loop for each chunk
+    PC-->>enV5: {inference with data, chunk}
+    end
+    Note over enV5: Run inference
+    loop for each chunk
+    enV5-->>PC: {inference with data, chunk}
+    end
+....
+
