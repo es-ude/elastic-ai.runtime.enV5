@@ -1,4 +1,4 @@
-= Communication Protocol
+= enV5 Remote Control Protocol
 
 [.lead]
 In this file the communication protocol is explained.
@@ -6,6 +6,10 @@ In this file the communication protocol is explained.
 The communication is driven by the external device to determine the elasticNodes behavior.
 The communication protocol is as follows. For each communication an ack or nack is sent by the receiver.
 As a default we recommend to throw an error after 5 failed attempts.
+
+The byteorder for number conversion is little endian.
+
+This protocol only works with skeleton V2.
 
 == Transmission
 .Transmission
@@ -40,6 +44,7 @@ The second 128 can be user specific commands.
 |===
 
 === nack
+The payload for the nack response is empty
 [mermaid]
 ....
 sequenceDiagram
@@ -48,6 +53,7 @@ sequenceDiagram
 ....
 
 === ack
+The payload for the ack response is empty
 [mermaid]
 ....
 sequenceDiagram
@@ -56,19 +62,27 @@ sequenceDiagram
 ....
 
 === read skeleton id
+The payload for the nack response is empty
+
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {read skeleton id, NULL}
-    enV5-->>PC: {read skeleton id, skeleton id(1 | 16)}
+    enV5-->>PC: {read skeleton id, skeleton id(16)}
 ....
 
 === get chunk-size for flash
+.Payload
+[cols="1*", options="header"]
+|===
+| 31-0
+| chunk-size
+|===
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {get chunk-size for flash, NULL}
-    enV5-->>PC: {get chunk-size for flash, chunk-size(4)}
+    enV5-->>PC: {get chunk-size for flash, payload}
 ....
 
 

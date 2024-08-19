@@ -3,7 +3,7 @@ from typing import Callable
 
 import serial
 
-from .communication_base_protocol import get_base_commands, EnV5BaseProtocolSerialCommunication, SendingNotSuccesful, WrongCommand
+from .communication_base_protocol import get_base_commands, EnV5BaseRemoteControlProtocol, SendingNotSuccesful, WrongCommand
 
 
 def get_recommended_commands() -> dict:
@@ -21,7 +21,7 @@ def get_recommended_commands() -> dict:
     return recommend_commands
 
 
-class EnV5RecommendedProtocolSerialCommunication(EnV5BaseProtocolSerialCommunication):
+class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
     def __init__(self, device: serial.Serial, get_commands_lut: Callable[[], dict] = get_recommended_commands):
         super().__init__(device=device, get_commands_lut=get_commands_lut)
 
@@ -74,10 +74,7 @@ class EnV5RecommendedProtocolSerialCommunication(EnV5BaseProtocolSerialCommunica
 
         return int.from_bytes(data_raw, byteorder=self.endian, signed=False)
 
-    def send_data_to_flash(self, flash_start_address: int, data: bytearray) -> bool:
-        # get chunk-size
-        chunk_size = self.get_chunk_size_for_flash()
-
+    def send_data_to_flash(self, flash_start_address: int, data: bytearray, chunk_size: int) -> bool:
         # Send initial command
         command = self.commands["send data to flash"]
 
@@ -95,10 +92,7 @@ class EnV5RecommendedProtocolSerialCommunication(EnV5BaseProtocolSerialCommunica
 
         return True
 
-    def read_data_from_flash(self, flash_start_address: int, num_bytes: int) -> bytearray:
-        # get chunk-size
-        chunk_size = self.get_chunk_size_for_flash()
-
+    def read_data_from_flash(self, flash_start_address: int, num_bytes: int, chunk_size) -> bytearray:
         # Send initial command
         command = self.commands["send data to flash"]
 
@@ -142,18 +136,17 @@ class EnV5RecommendedProtocolSerialCommunication(EnV5BaseProtocolSerialCommunica
 
         self._send(command, payload)
 
-    def inference_with_data(self, data: bytearray,
-                            num_bytes_inputs: int,
+    def inference_with_data(self, chunk_size: int,
+                            data: bytearray,
                             num_bytes_outputs: int,
                             bin_file_address: int,
-                            skeleton_id: bytearray) -> bytearray:
-        # request chunk-size in advance
-        chunk_size = self.get_chunk_size_for_flash()
+                            skeleton_id: bytearray,) -> bytearray:
 
         # send starting command
         command = self.commands["inference with data"]
 
         payload = bytearray()
+        num_bytes_inputs = len(data)
         num_bytes_inputs_raw = num_bytes_inputs.to_bytes(length=4, byteorder=self.endian, signed=False)
         num_bytes_outputs_raw = num_bytes_outputs.to_bytes(length=4, byteorder=self.endian, signed=False)
         bin_file_address_raw = bin_file_address.to_bytes(length=4, byteorder=self.endian, signed=False)

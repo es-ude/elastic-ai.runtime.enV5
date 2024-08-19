@@ -25,18 +25,21 @@ def xor_byte(a: int, b: int) -> int:
     return my_xor
 
 
-def calculate_checksum(data: bytearray) -> bytes:
+def xor_calculate_checksum(data: bytearray) -> bytes:
     checksum = data[0]
     for i, byte in enumerate(data[1:]):
         checksum = xor_byte(checksum, byte)
     return checksum.to_bytes(length=1, byteorder="little")
 
 
-class EnV5BaseProtocolSerialCommunication:
-    def __init__(self, device: serial.Serial, get_commands_lut: Callable[[], dict] = get_base_commands):
+class EnV5BaseRemoteControlProtocol:
+    def __init__(self, device: serial.Serial,
+                 get_commands_lut: Callable[[], dict] = get_base_commands,
+                 calculate_checksum: [[bytearray], bytes] = xor_calculate_checksum):
         self.serial: serial.Serial = device
         self.commands: dict[str, int] = get_commands_lut()
         self.commands_inv: dict[int, str] = {v: k for k, v in self.commands.items()}
+        self.calculate_checksum = calculate_checksum
         self.endian: Literal["little", "big"] = "little"
         self.checksum_length: int = 1
         self.allowed_transmission_fails = 5
@@ -76,7 +79,7 @@ class EnV5BaseProtocolSerialCommunication:
         message.extend(payload)
 
         # append checksum to message body
-        message.extend(calculate_checksum(message))
+        message.extend(self.calculate_checksum(message))
         return message
 
     def _receive_ack(self) -> bool:
@@ -103,7 +106,7 @@ class EnV5BaseProtocolSerialCommunication:
         transmitted_checksum = self.serial.read(self.checksum_length)
 
         # Calculate checksum
-        calculated_checksum = calculate_checksum(message)
+        calculated_checksum = self.calculate_checksum(message)
 
         # If checksum equal return true
         if calculated_checksum == transmitted_checksum:
@@ -137,7 +140,7 @@ class EnV5BaseProtocolSerialCommunication:
             message.extend(payload_raw)
 
             # calculate checksum on message
-            calculated_checksum = calculate_checksum(message)
+            calculated_checksum = self.calculate_checksum(message)
 
             if transmitted_checksum != calculated_checksum:
                 # If checksum not correct empty buffer and sent nack
