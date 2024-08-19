@@ -40,27 +40,34 @@ class EnV5BaseRemoteControlProtocol:
         self.commands: dict[str, int] = get_commands_lut()
         self.commands_inv: dict[int, str] = {v: k for k, v in self.commands.items()}
         self.calculate_checksum = calculate_checksum
-        self.endian: Literal["little", "big"] = "little"
+        self.endian: Literal["little", "big"] = "big"
         self.checksum_length: int = 1
         self.allowed_transmission_fails = 5
 
     def _send(self, command: int, payload: bytearray) -> None:
         ack_received: bool = False
         i = 0
+        print("start sending")
         while not ack_received:
             # build message
             message = self._build_message(command, payload)
 
+            print(f"{message=}")
+
+            print("message build")
             # send message
             self.serial.write(message)
 
+            print("message send")
+            print("waiting for ack")
             # receive ack/nack
             ack_received = self._receive_ack()
-
+            print(f"{ack_received=}")
             # if allowed transmission fails exceeds then
             i += 1
             if i > self.allowed_transmission_fails:
                 raise SendingNotSuccesful
+        print("send succesful")
 
     def _build_message(self, command: int, payload: bytearray) -> bytearray:
         # get payload_size
@@ -116,31 +123,40 @@ class EnV5BaseRemoteControlProtocol:
 
     def _receive(self) -> tuple[int, bytes]:
         message_complete = False
-        while message_complete:
+        while not message_complete:
             # Message body
             message = bytearray()
 
+            print(f"wait for command")
             # Read command + convert to int
             command_raw = self.serial.read(1)
             command = int.from_bytes(command_raw, byteorder=self.endian, signed=False)
+            message.extend(command_raw)
 
+            print(f"wait for data length")
             # Read data_length + convert to int
             data_length_raw = self.serial.read(4)
             data_length = int.from_bytes(data_length_raw, byteorder=self.endian, signed=False)
+            message.extend(data_length_raw)
 
-            # Read data for data_length
-            payload_raw = self.serial.read(data_length)
+            if data_length > 0:
+                # Read data for data_length
+                print("wait for payload")
+                payload_raw = self.serial.read(data_length)
+                message.extend(payload_raw)
+            else:
+                payload_raw = None
 
+            print("wait for checksum")
             # read checksum
             transmitted_checksum = self.serial.read(self.checksum_length)
 
-            # append command, data_length_raw and data_raw to message
-            message.extend(command_raw)
-            message.extend(data_length_raw)
-            message.extend(payload_raw)
-
             # calculate checksum on message
             calculated_checksum = self.calculate_checksum(message)
+
+            print(f"{command_raw=}")
+            print(f"{data_length_raw=}")
+            print(f"{payload_raw=}")
 
             if transmitted_checksum != calculated_checksum:
                 # If checksum not correct empty buffer and sent nack

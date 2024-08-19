@@ -7,7 +7,7 @@ The communication is driven by the external device to determine the elasticNodes
 The communication protocol is as follows. For each communication an ack or nack is sent by the receiver.
 As a default we recommend to throw an error after 5 failed attempts.
 
-The byteorder for number conversion is little endian.
+The byteorder for number conversion is big endian.
 
 This protocol only works with skeleton V2.
 
