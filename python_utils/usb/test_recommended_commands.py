@@ -2,6 +2,7 @@ import atexit
 import time
 import serial
 
+from python_utils.usb.helper_utils import get_env5_port
 from recommended_commands import *
 
 
@@ -29,7 +30,7 @@ def read_chunksize():
 
 if __name__ == "__main__":
     print("start")
-    serial_con = serial.Serial("/dev/ttyACM0")
+    serial_con = serial.Serial(get_env5_port())
     atexit.register(exit_handler, serial_con)
     print("serial connection done")
 
