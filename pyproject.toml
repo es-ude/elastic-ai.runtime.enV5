@@ -1,19 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "elastic-ai.runtime-utils"
 version = "0.0.1"
 requires-python = ">= 3.10"
-license = {file = "LICENSE"}
+license = {text = "MIT License"}
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
 ]
-dynamic = ["version"]
 dependencies = [
     "pyserial==3.4",
 ]
 
 [tool.setuptools]
-packages = ["python-utils"]
+packages = ["python_utils"]
 
-[build-system]
-requires = ["setuptools >= 61.0"]
-build-backend = "setuptools.build_meta"
