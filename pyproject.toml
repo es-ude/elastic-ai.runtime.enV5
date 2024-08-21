@@ -2,7 +2,7 @@
 name = "elastic-ai.runtime-utils"
 version = "0.0.1"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {file = "LICENSE"}
 classifiers = [
     "Programming Language :: Python :: 3",
 ]
