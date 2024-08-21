@@ -8,7 +8,9 @@
 #include "Gpio.h"
 #include "Sleep.h"
 #include "UsbProtocolBase.h"
+#include "UsbProtocolCustomCommands.h"
 
+/* region USB-Protocol Read/Send Function */
 usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer, size_t numOfBytes) {
     for (size_t index = 0; index < numOfBytes; index++) {
         readBuffer[index] = stdio_getchar();
@@ -22,6 +24,25 @@ usbProtocolErrorCodes_t sendBytesForProtocol(uint8_t *sendBuffer, size_t numOfBy
     }
     return USB_PROTOCOL_OKAY;
 }
+/* endregion USB-Protocol Read/Send Function */
+
+/* region USB-Protocol Custom Countdown Function */
+
+void countdownHandle(__attribute((unused)) const uint8_t *payload,
+                     __attribute((unused)) size_t payloadLength) {
+    env5HwControllerLedsAllOff();
+    gpioSetPin(LED0_GPIO, GPIO_PIN_HIGH);
+    sleep_for_ms(1000);
+    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
+    sleep_for_ms(1000);
+    gpioSetPin(LED2_GPIO, GPIO_PIN_HIGH);
+    sleep_for_ms(1000);
+    env5HwControllerLedsAllOff();
+    sleep_for_ms(100);
+    env5HwControllerFpgaPowersOn();
+}
+
+/* endregion USB-Protocol Custom Countdown Function */
 
 static void blinkLED(uint exception) {
     env5HwControllerLedsAllOff();
@@ -36,7 +57,6 @@ static void blinkLED(uint exception) {
         gpioSetPin(LED2_GPIO, GPIO_PIN_LOW);
     }
 }
-
 static void initialize(void) {
     env5HwControllerInit();
 
@@ -44,8 +64,9 @@ static void initialize(void) {
     while (!stdio_usb_connected()) {}
 
     usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
-}
 
+    usbProtocolRegisterCommand(0xF1, &countdownHandle);
+}
 _Noreturn static void loop(void) {
     while (true) {
         CEXCEPTION_T exception;
@@ -58,7 +79,6 @@ _Noreturn static void loop(void) {
         }
     }
 }
-
 int main(void) {
     initialize();
     loop();

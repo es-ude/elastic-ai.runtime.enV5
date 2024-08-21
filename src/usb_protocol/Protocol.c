@@ -27,9 +27,6 @@ usbProtocolReadData readHandle = NULL;
 usbProtocolSendData sendHandle = NULL;
 static usbProtocolCommandHandle commands[UINT8_C(0xFF)];
 
-//! number of bytes always present in response (command + payload length + checksum)
-#define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))
-
 /* endregion TYPEDEFS/VARIABLES/DEFINES */
 
 /* region INTERNAL FUNCTIONS */
@@ -122,37 +119,29 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
     addDefaultFunctions();
 }
 
-usbProtocolMessage_t *usbProtocolCreateMessage(uint8_t command, uint8_t *payload,
-                                               uint32_t payloadLength) {
-    usbProtocolMessage_t *msg = malloc(sizeof(usbProtocolMessage_t));
-    msg->length = BASE_LENGTH + payloadLength;
+bool usbProtocolSendMessage(usbProtocolMessage_t *message) {
+    usbProtocolMessageFrame_t *frame;
+    frame = createMessageFrame(message->command, message->payloadLength, message->payload);
+    sendHandle(frame->data, frame->length);
+    freeMessageFrame(frame);
 
-    uint32_t payloadLengthData = __builtin_bswap32(payloadLength);
-
-    msg->message = calloc(1, msg->length);
-    msg->message[0] = command;
-    memcpy(&(msg->message[1]), &payloadLengthData, sizeof(uint32_t));
-    memcpy(&(msg->message[5]), payload, payloadLength);
-    msg->message[msg->length - 1] = getChecksum(2, msg->message, msg->length - 1);
-
-    return msg;
+    return waitForAcknowledgement();
 }
-void usbProtocolFreeMessageBuffer(usbProtocolMessage_t *buffer) {
-    free(buffer->message);
-    free(buffer);
-}
-bool usbProtocolWaitForAcknowledgement(void) {
-    uint8_t ack[6];
-    readBytes(ack, sizeof(ack));
-    return usbProtocolChecksumPassed(ack[5], 2, ack, 5) && ack[0] != 0x01;
-}
-bool usbProtocolChecksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...) {
-    va_list data;
-    va_start(data, numberOfArguments);
-    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
-    va_end(data);
 
-    return (actualChecksum == expectedChecksum);
+bool usbProtocolReadMessage(usbProtocolMessage_t *message) {
+    uint8_t buffer[5];
+    readBytes(buffer, 5);
+    message->command = buffer[0];
+    message->payloadLength = convertBytes(&buffer[1]);
+
+    if (message->payloadLength > 0) {
+        message->payload = calloc(1, message->payloadLength);
+        readBytes(message->payload, message->payloadLength);
+        return checksumPassed(readChecksum(), 4, buffer, sizeof(buffer), message->payload,
+                              message->payloadLength);
+    } else {
+        return checksumPassed(readChecksum(), 2, buffer, sizeof(buffer));
+    }
 }
 
 void usbProtocolRegisterCommand(size_t identifier, usbProtocolCommandHandle command) {
@@ -180,12 +169,11 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
         received->payload = calloc(received->payloadLength, sizeof(uint8_t));
         readBytes(received->payload, received->payloadLength);
 
-        usbProtocolChecksumPassed(readChecksum(), 4, rawCommand, 5, received->payload,
-                                  received->payloadLength)
+        checksumPassed(readChecksum(), 4, rawCommand, 5, received->payload, received->payloadLength)
             ? sendAck()
             : sendNack();
     } else {
-        usbProtocolChecksumPassed(readChecksum(), 2, rawCommand, 5) ? sendAck() : sendNack();
+        checksumPassed(readChecksum(), 2, rawCommand, 5) ? sendAck() : sendNack();
     }
 
     return received;

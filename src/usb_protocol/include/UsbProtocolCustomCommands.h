@@ -12,7 +12,7 @@
  * @brief function providing the prototype for new command handle
  *
  * @important use `sendHandle` and `readHandle` to send/receive data @n
- *            call `usbProtocolWaitForAcknowledgement()` after send!
+ *            call `waitForAcknowledgement()` after send!
  *
  * @catuion byte order on RP2040="Little Endian", byte order for protocol="Big Endian":
  *          convert numbers with `__builtin_bswap32(uint32_t input)` or `__builtin_bswap16(uint16_t
@@ -24,54 +24,36 @@
 typedef void (*usbProtocolCommandHandle)(const uint8_t *payload, size_t payloadLength);
 
 typedef struct usbProtocolMessage {
-    size_t length;
-    uint8_t *message;
+    uint8_t command;
+    size_t payloadLength;
+    uint8_t *payload;
 } usbProtocolMessage_t;
 
 /* endregion TYPEDEFS */
 
-extern usbProtocolReadData readHandle;
-extern usbProtocolSendData sendHandle;
-
 /*!
- * @brief creates a message to be sent
+ * @brief send a message
  *
- * @param[in] command command for the message
- * @param[in] payload payload to be sent
- * @param[in] payloadLength length of the payload to be sent
+ * @param[in] message buffer holding data for a message
  *
- * @returns pointer to a struct holding message and length
- *
- * @important call `usbProtocolFreeMessageBuffer(...)` to remove allocated memory of message after
- * send
- */
-usbProtocolMessage_t *usbProtocolCreateMessage(uint8_t command, uint8_t *payload,
-                                               uint32_t payloadLength);
-
-/*!
- * @brief clear protocol message buffer
- */
-void usbProtocolFreeMessageBuffer(usbProtocolMessage_t *buffer);
-
-/*!
- * @brief wait to receive ack
- *
+ * @returns status of acknowledgement
  * @retval true if ack received
- * @retval false else
+ * @retval else if nack received
  */
-bool usbProtocolWaitForAcknowledgement(void);
+bool usbProtocolSendMessage(usbProtocolMessage_t *message);
 
 /*!
- * @brief method to evaluate checksum of arbitrary number of byte arrays
+ * @brief read a whole message from sender
  *
- * @param[in] expectedChecksum expected checksum
- * @param[in] numberOfArguments number of arguments provided
- * @param[in] ... multiples of `uint8_t *data, size_t length`
+ * @param[out] message buffer to store received message
  *
+ * @returns result of checksum comparison
  * @retval true if checksum matches
  * @retval false else
+ *
+ * @throws USB_PROTOCOL_ERROR_READ_FAILED
  */
-bool usbProtocolChecksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...);
+bool usbProtocolReadMessage(usbProtocolMessage_t *message);
 
 /*!
  * @brief register a new command
