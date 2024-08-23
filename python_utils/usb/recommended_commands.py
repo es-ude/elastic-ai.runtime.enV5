@@ -137,11 +137,11 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
     def fpga_power(self, on: bool) -> None:
         command = self.commands["FPGA power"]
 
-        payload = bytearray()
         if on:
-            payload.extend(b"x\00")
+            data = bytes([0xFF])
         else:
-            payload.extend(b"x\ff")
+            data = bytes([0x00])
+        payload = bytearray(data)
 
         self._send(command, payload)
 
