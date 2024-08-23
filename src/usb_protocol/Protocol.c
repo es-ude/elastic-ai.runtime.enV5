@@ -37,10 +37,16 @@ static void checkIdentifierIsInUserRange(uint8_t identifier) {
         Throw(USB_PROTOCOL_ERROR_INVALID_ID);
     }
 }
-//! @brief check handle is not NULL else @throws USB_PROTOCOL_ERROR_NULL_POINTER
+//! @brief check handle is not NULL else @throws USB_PROTOCOL_ERROR_HANDLE_NOT_SET
 static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
     if (handle == NULL) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_NOT_SET);
+    }
+}
+//! @brief check pointer is not NULL else @throws USB_PROTOCOL_ERROR_NULL_POINTER
+static void checkPointerIsNotNull(void *pointer) {
+    if (pointer == NULL) {
+        Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
 }
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
@@ -68,30 +74,6 @@ static uint8_t readChecksum(void) {
     return checksum;
 }
 
-//! send ACK
-static void sendAck(void) {
-    uint8_t ack[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    sendHandle(ack, sizeof(ack));
-}
-//! send NACK
-static void sendNack(void) {
-    uint8_t nack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
-    sendHandle(nack, sizeof(nack));
-
-    Throw(USB_PROTOCOL_ERROR_CHECKSUM_FAILED);
-}
-
-//! clean receivedCommand_t buffer
-static void cleanDataBuffer(receivedCommand_t *buffer) {
-    if (buffer == NULL) {
-        return;
-    }
-    if (buffer->payload != NULL) {
-        free(buffer->payload);
-    }
-    free(buffer);
-}
-
 //! add default commands
 static void addDefaultFunctions(void) {
     addCommand(2, &readSkeletonId);
@@ -102,6 +84,16 @@ static void addDefaultFunctions(void) {
     addCommand(7, &setFpgaLeds);
     addCommand(8, &setMcuLeds);
     addCommand(9, &runInference);
+}
+
+static void cleanMessageBuffer(usbProtocolMessage_t *message) {
+    if (message != NULL) {
+        if (message->payload != NULL) {
+            free(message->payload);
+        }
+
+        free(message);
+    }
 }
 
 /* endregion INTERNAL FUNCTIONS */
@@ -120,8 +112,8 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
 }
 
 bool usbProtocolSendMessage(usbProtocolMessage_t *message) {
-    usbProtocolMessageFrame_t *frame;
-    frame = createMessageFrame(message->command, message->payloadLength, message->payload);
+    usbProtocolMessageFrame_t *frame = createMessageFrame(
+        message->command, message->payloadLength, message->payload, calculateChecksum(message));
     sendHandle(frame->data, frame->length);
     freeMessageFrame(frame);
 
@@ -129,6 +121,8 @@ bool usbProtocolSendMessage(usbProtocolMessage_t *message) {
 }
 
 bool usbProtocolReadMessage(usbProtocolMessage_t *message) {
+    checkPointerIsNotNull(message);
+
     uint8_t buffer[5];
     readBytes(buffer, 5);
     message->command = buffer[0];
@@ -137,10 +131,14 @@ bool usbProtocolReadMessage(usbProtocolMessage_t *message) {
     if (message->payloadLength > 0) {
         message->payload = calloc(1, message->payloadLength);
         readBytes(message->payload, message->payloadLength);
-        return checksumPassed(readChecksum(), 4, buffer, sizeof(buffer), message->payload,
-                              message->payloadLength);
+    }
+
+    if (!checksumPassed(readChecksum(), message)) {
+        sendNack();
+        return false;
     } else {
-        return checksumPassed(readChecksum(), 2, buffer, sizeof(buffer));
+        sendAck();
+        return true;
     }
 }
 
@@ -157,41 +155,24 @@ void usbProtocolUnregisterCommand(size_t identifier) {
 usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
     checkReadAndSendHandleAreAvailable();
 
-    uint8_t rawCommand[5];
-    readBytes(rawCommand, 5);
+    usbProtocolMessage_t *message = calloc(1, sizeof(usbProtocolMessage_t));
+    usbProtocolReadMessage(message);
 
-    receivedCommand_t *received = calloc(1, sizeof(receivedCommand_t));
-    received->command = rawCommand[0];
-    received->payloadLength =
-        (uint32_t)(rawCommand[1] << 24 | rawCommand[2] << 16 | rawCommand[3] << 8 | rawCommand[4]);
-
-    if (received->payloadLength != 0) {
-        received->payload = calloc(received->payloadLength, sizeof(uint8_t));
-        readBytes(received->payload, received->payloadLength);
-
-        checksumPassed(readChecksum(), 4, rawCommand, 5, received->payload, received->payloadLength)
-            ? sendAck()
-            : sendNack();
-    } else {
-        checksumPassed(readChecksum(), 2, rawCommand, 5) ? sendAck() : sendNack();
-    }
-
-    return received;
+    return message;
 }
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
-    receivedCommand_t *input = buffer;
-    uint8_t command = input->command;
+    usbProtocolMessage_t *message = buffer;
 
-    usbProtocolCommandHandle handle = commands[command];
+    usbProtocolCommandHandle handle = commands[message->command];
     checkHandlePointerIsNotNull(handle);
 
     CEXCEPTION_T exception;
     Try {
-        handle(input->payload, input->payloadLength);
-        cleanDataBuffer(input);
+        handle(message->payload, message->payloadLength);
+        cleanMessageBuffer(message);
     }
     Catch(exception) {
-        cleanDataBuffer(input);
+        cleanMessageBuffer(message);
         Throw(exception);
     }
 }

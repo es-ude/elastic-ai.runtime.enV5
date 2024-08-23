@@ -1,4 +1,3 @@
-
 #include "math.h"
 #include "stdlib.h"
 #include "string.h"
@@ -58,14 +57,14 @@ void getChunkSize(__attribute__((unused)) const uint8_t *data,
     message.command = 3;
     message.payloadLength = sizeof(payload);
     message.payload = (uint8_t *)&payload;
-    if (usbProtocolSendMessage(&message)) {
+    if (!usbProtocolSendMessage(&message)) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
     }
 }
 
 static void eraseFlash(uint32_t startSector, uint32_t length) {
     for (size_t index = 0; index < (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR); index++) {
-        flashEraseSector(&flash, (startSector + index) * FLASH_BYTES_PER_PAGE);
+        flashEraseSector(&flash, startSector + (index * FLASH_BYTES_PER_SECTOR));
     }
 }
 static void receiveData(uint32_t startSector, uint32_t length) {
@@ -81,6 +80,7 @@ static void receiveData(uint32_t startSector, uint32_t length) {
             nackCounter++;
             continue;
         }
+
         flashWritePage(&flash,
                        (startSector * FLASH_BYTES_PER_SECTOR) + (chunkId * FLASH_BYTES_PER_PAGE),
                        message.payload, message.payloadLength);

@@ -1,14 +1,25 @@
 #define SOURCE_FILE "HW-TEST_USB-PROTOCOL"
 
 #include "CException.h"
+#include "hardware/spi.h"
 #include "pico/stdlib.h"
 
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Sleep.h"
+#include "Spi.h"
 #include "UsbProtocolBase.h"
 #include "UsbProtocolCustomCommands.h"
+
+spiConfiguration_t flashSpi = {
+    .spiInstance = FLASH_SPI_MODULE,
+    .baudrate = FLASH_SPI_BAUDRATE,
+    .sckPin = FLASH_SPI_CLOCK,
+    .misoPin = FLASH_SPI_MISO,
+    .mosiPin = FLASH_SPI_MOSI,
+    .csPin = FLASH_SPI_CS,
+};
 
 /* region USB-Protocol Read/Send Function */
 usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer, size_t numOfBytes) {
@@ -39,7 +50,9 @@ void countdownHandle(__attribute((unused)) const uint8_t *payload,
     sleep_for_ms(1000);
     env5HwControllerLedsAllOff();
     sleep_for_ms(100);
-    env5HwControllerFpgaPowersOn();
+    env5HwControllerLedsAllOn();
+    sleep_for_ms(100);
+    env5HwControllerLedsAllOff();
 }
 
 /* endregion USB-Protocol Custom Countdown Function */
@@ -63,8 +76,9 @@ static void initialize(void) {
     stdio_init_all();
     while (!stdio_usb_connected()) {}
 
-    usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
+    spiInit(&flashSpi);
 
+    usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
     usbProtocolRegisterCommand(0xF1, &countdownHandle);
 }
 _Noreturn static void loop(void) {

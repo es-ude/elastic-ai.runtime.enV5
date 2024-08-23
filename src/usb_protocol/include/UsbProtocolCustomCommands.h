@@ -52,6 +52,7 @@ bool usbProtocolSendMessage(usbProtocolMessage_t *message);
  * @retval false else
  *
  * @throws USB_PROTOCOL_ERROR_READ_FAILED
+ * @throws USB_PROTOCOL_ERROR_NULL_POINTER
  */
 bool usbProtocolReadMessage(usbProtocolMessage_t *message);
 

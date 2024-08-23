@@ -1,4 +1,3 @@
-#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -10,21 +9,50 @@
 #include "UsbProtocolCustomCommands.h"
 #include "internal/Tools.h"
 
+typedef union u32_u8 {
+    uint32_t data;
+    uint8_t array[4];
+} u32_u8_t;
+
 //! number of bytes always present in response (command + payload length + checksum)
 #define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))
 
+static uint8_t getChecksum(const uint8_t *array, size_t length) {
+    uint8_t checksum = 0;
+
+    for (size_t index = 0; index < length; index++) {
+        checksum ^= array[index];
+    }
+
+    return checksum;
+}
+uint8_t calculateChecksum(usbProtocolMessage_t *message) {
+    uint8_t checksum = message->command;
+    u32_u8_t payloadData = {.data = __builtin_bswap32(message->payloadLength)};
+    checksum ^= getChecksum(payloadData.array, 4);
+    if (message->payloadLength > 0) {
+        checksum ^= getChecksum(message->payload, message->payloadLength);
+    }
+
+    return checksum;
+}
+bool checksumPassed(uint8_t expectedChecksum, usbProtocolMessage_t *message) {
+    uint8_t actualChecksum = calculateChecksum(message);
+    return (actualChecksum == expectedChecksum);
+}
+
 usbProtocolMessageFrame_t *createMessageFrame(uint8_t command, size_t payloadLength,
-                                              uint8_t *payload) {
+                                              uint8_t *payload, uint8_t checksum) {
     usbProtocolMessageFrame_t *msg = malloc(sizeof(usbProtocolMessage_t));
     msg->length = BASE_LENGTH + payloadLength;
 
-    uint32_t payloadLengthData = __builtin_bswap32(payloadLength);
+    u32_u8_t payloadLengthData = {.data = __builtin_bswap32(payloadLength)};
 
     msg->data = calloc(1, msg->length);
-    msg->data[0] = command;
-    memcpy(&(msg->data[1]), &payloadLengthData, sizeof(uint32_t));
+    memcpy(msg->data, &command, 1);
+    memcpy(&(msg->data[1]), payloadLengthData.array, sizeof(payloadLengthData));
     memcpy(&(msg->data[5]), payload, payloadLength);
-    msg->data[msg->length - 1] = getChecksum(2, msg->data, msg->length - 1);
+    memcpy(&(msg->data[msg->length - 1]), &checksum, 1);
 
     return msg;
 }
@@ -33,9 +61,10 @@ void freeMessageFrame(usbProtocolMessageFrame_t *buffer) {
     free(buffer);
 }
 bool waitForAcknowledgement(void) {
-    usbProtocolMessage_t ack;
-    usbProtocolReadMessage(&ack);
-    return ack.command == 0x01;
+    uint8_t ack[6];
+    readHandle(ack, 6);
+
+    return ack[0] == 0x01;
 }
 uint32_t convertBytes(const uint8_t data[4]) {
     return data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
@@ -47,32 +76,11 @@ void readBytes(uint8_t *data, size_t numberOfBytes) {
     }
 }
 
-bool checksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...) {
-    va_list data;
-    va_start(data, numberOfArguments);
-    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
-    va_end(data);
-
-    return (actualChecksum == expectedChecksum);
+void sendAck(void) {
+    uint8_t ack[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    sendHandle(ack, sizeof(ack));
 }
-uint8_t calculateChecksum(int numberOfArguments, va_list data) {
-    uint8_t checksum = 0x00;
-    for (size_t input = 0; input < numberOfArguments; input += 2) {
-        uint8_t *byteArray = va_arg(data, uint8_t *);
-        size_t byteArrayLength = va_arg(data, size_t);
-
-        for (size_t index = 0; index < byteArrayLength; index++) {
-            checksum ^= byteArray[index];
-        }
-    }
-
-    return checksum;
-}
-uint8_t getChecksum(int numberOfArguments, ...) {
-    va_list data;
-    va_start(data, numberOfArguments);
-    uint8_t actualChecksum = calculateChecksum(numberOfArguments, data);
-    va_end(data);
-
-    return actualChecksum;
+void sendNack(void) {
+    uint8_t nack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
+    sendHandle(nack, sizeof(nack));
 }

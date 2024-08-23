@@ -20,6 +20,7 @@ extern usbProtocolSendData sendHandle;
  * @param[in] command command for the message
  * @param[in] payload payload to be sent
  * @param[in] payloadLength length of the payload to be sent
+ * @param[in] checksum checksum for data to send
  *
  * @returns pointer to a struct holding message and length
  *
@@ -27,7 +28,7 @@ extern usbProtocolSendData sendHandle;
  * send
  */
 usbProtocolMessageFrame_t *createMessageFrame(uint8_t command, size_t payloadLength,
-                                              uint8_t *payload);
+                                              uint8_t *payload, uint8_t checksum);
 
 /*!
  * @brief clear protocol message buffer
@@ -42,6 +43,14 @@ void freeMessageFrame(usbProtocolMessageFrame_t *buffer);
  */
 bool waitForAcknowledgement(void);
 
+//! convert a byte array to uint32_t
+uint32_t convertBytes(const uint8_t data[4]);
+
+//! read arbitrary number of bytes with read-handle
+void readBytes(uint8_t *data, size_t numberOfBytes);
+
+//! @brief calculate XOR based checksum of given message
+uint8_t calculateChecksum(usbProtocolMessage_t *message);
 /*!
  * @brief method to evaluate checksum of arbitrary number of byte arrays
  *
@@ -52,18 +61,12 @@ bool waitForAcknowledgement(void);
  * @retval true if checksum matches
  * @retval false else
  */
-bool checksumPassed(uint8_t expectedChecksum, int numberOfArguments, ...);
+bool checksumPassed(uint8_t expectedChecksum, usbProtocolMessage_t *message);
 
-//! convert a byte array to uint32_t
-uint32_t convertBytes(const uint8_t data[4]);
+//! send ACK
+void sendAck(void);
 
-//! read arbitrary number of bytes with read-handle
-void readBytes(uint8_t *data, size_t numberOfBytes);
-
-//! @brief calculate XOR based checksum of given byte arrays
-uint8_t calculateChecksum(int numberOfArguments, va_list data);
-
-//! @brief method to get checksum of arbitrary number of byte arrays
-uint8_t getChecksum(int numberOfArguments, ...);
+//! send NACK
+void sendNack(void);
 
 #endif // ENV5_TOOLS_HEADER
