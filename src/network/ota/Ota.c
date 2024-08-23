@@ -21,8 +21,6 @@
 #include "Gpio.h"
 #include "HTTP.h"
 #include "FlashLoader.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
 #include "hardware/flash.h"
 #include "hardware/structs/watchdog.h"
 #include "hardware/sync.h"
@@ -30,36 +28,11 @@
 #include "pico/flash.h"
 #include <string.h>
 #include "Ota.h"
-#include "Protocol.h"
 
-#define CHUNK_SIZE 1000
+#define CHUNK_SIZE 1024
 
-char ip[20];
-queue_t commandPostings;
-
-void deliverCommand(posting_t posting) {
-    freeRtosQueueWrapperPush(commandPostings, posting.data);
-}
-
-_Noreturn void flashHex(void) {
-    commandPostings = freeRtosQueueWrapperCreate(5, 20);
-    
-    protocolSubscribeForCommand("FlashImage", (subscriber_t){.deliver = deliverCommand});
-
-    char post[20];
-    while (!freeRtosQueueWrapperPop(commandPostings, &post)) {
-        freeRtosTaskWrapperTaskSleep(1000);
-    }
-    strcpy(ip, post);
-
-    loadHexHTTP(ip);
-}
-
-// Offset within flash of the new app image to be flashed by the flashloader
-static const uint32_t FLASH_IMAGE_OFFSET = 128 * 1024;
-
-int currentChunk = 0;
-int charPos = CHUNK_SIZE + 1;
+int currentChunk;
+int charPos;
 char chunkBuffer[CHUNK_SIZE];
 
 //****************************************************************************
@@ -159,16 +132,14 @@ int processRecord(const char* line, tRecord* record) {
     return success;
 }
 
-static void eraseAndProgramFlash(void *param) {
-    const flashParameter *mop = (const flashParameter *)param;
-    flash_range_erase(FLASH_IMAGE_OFFSET, mop->eraseLength);
-    flash_range_program(FLASH_IMAGE_OFFSET, (uint8_t*)mop->header, mop->totalLength);
+static void eraseAndProgramFlash(void *params) {
+    const flashParameter *flashParams = (const flashParameter *)params;
+    flash_range_erase(flashParams->flashOffset, flashParams->eraseLength);
+    flash_range_program(flashParams->flashOffset, (uint8_t*)flashParams->header,
+                        flashParams->totalLength);
 }
 
-//****************************************************************************
-// Store the given image in flash then reboot into the flashloader to replace
-// the current application with the new image.
-_Noreturn void flashImage(tFlashHeader* header, uint32_t length) {
+void flashImage(tFlashHeader *header, uint32_t length, applicationFlashPosition pos, char name[20]) {
     // Calculate length of header plus length of data
     uint32_t totalLength = sizeof(tFlashHeader) + length;
 
@@ -179,22 +150,29 @@ _Noreturn void flashImage(tFlashHeader* header, uint32_t length) {
     header->magic1 = FLASH_MAGIC1;
     header->magic2 = FLASH_MAGIC2;
     header->length = length;
+    header->isProgram = PROGRAM_IS_PRESENT;
+    strncpy(header->name, name, 19);
     header->crc32  = crc32(header->data, length, 0xffffffff);
 
     PRINT("Storing new image in flash");
 
     status = save_and_disable_interrupts();
 
-    flashParameter par = {.eraseLength=eraseLength, .totalLength=totalLength, .header=header};
+    uint32_t flashImageOffset = pos * 128 * 1024;
+    
+    flashParameter par = {.eraseLength=eraseLength, .totalLength=totalLength, .header=header, .flashOffset=flashImageOffset};
     flash_safe_execute(eraseAndProgramFlash, &par, UINT32_MAX);
 
     restore_interrupts(status);
-    PRINT("Rebooting into flash loader in 1 second");
+}
 
+_Noreturn void restartToApplication(applicationFlashPosition pos) {
+    PRINT("Rebooting into flash loader in 1 second");
+    PRINT("To position %u", pos);
     // Set up watchdog scratch registers so that the flashloader knows
     // what to do after the reset
     watchdog_hw->scratch[0] = FLASH_MAGIC1;
-    watchdog_hw->scratch[1] = XIP_BASE + FLASH_IMAGE_OFFSET;
+    watchdog_hw->scratch[1] = XIP_BASE + pos * 128 * 1024;
     watchdog_reboot(0x00000000, 0x00000000, 1000);
 
     // Wait for the reset
@@ -209,13 +187,11 @@ char* getLine(char* buffer, char *ip) {
     {
         if (charPos >= CHUNK_SIZE) {
             HttpResponse_t *response = NULL;
-            char buf[60];
-            snprintf(buf, 60, "http://%s/%i", ip, currentChunk);
-
+            char buf[100];
+            snprintf(buf, 100, "%s?chunkNumber=%i", ip, currentChunk);
             CEXCEPTION_T exception;
             Try {
                 HTTPGet(buf, &response);
-                
                 strcpy(chunkBuffer, (const char *)response->response);
                 HTTPCleanResponseBuffer(response);
             } Catch(exception) {
@@ -239,26 +215,31 @@ char* getLine(char* buffer, char *ip) {
     return buffer;
 }
 
-_Noreturn void loadHexHTTP(char *ip) {
+void loadHexHTTP(char *ip, applicationFlashPosition pos, char name[20]) {
     uint32_t      offset = 0;
     char          line[1024];
     uint32_t      count = 0;
-
+    char addr[100];
+    sprintf(addr, "%s%s", ip, name);
+    currentChunk = 0;
+    charPos = CHUNK_SIZE + 1;
+    
     while (true) {
         tRecord rec;
-        if(processRecord(getLine(line, ip), &rec)) {
+        if(processRecord(getLine(line, addr), &rec)) {
             switch(rec.type) {
             case TYPE_DATA:
                 memcpy(&flashbuf.header.data[offset], rec.data, rec.count);
                 offset += rec.count;
                 if((offset % 1024) == 0) {
-                    PRINT("Received block: %lu", offset/1024);
+//                    PRINT("Received block: %lu", offset/1024);
                     gpioSetPin(25, offset/1024 % 2);
                 }
                 break;
             case TYPE_EOF:
                 gpioSetPin(25, 0);
-                flashImage(&flashbuf.header, offset);
+                flashImage(&flashbuf.header, offset, pos, name);
+                return;
             case TYPE_EXTSEG:
             case TYPE_STARTSEG:
             case TYPE_STARTLIN:

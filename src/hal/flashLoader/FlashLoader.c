@@ -293,7 +293,7 @@ void flashFirmware(const tFlashHeader* header, uint32_t eraseLength)
         {
             // Invalidate the start of the flash image to prevent it being
             // picked up again (prevents cyclic flashing if the image is bad)
-            flash_range_erase(flashoffset(header), 4096);
+//            flash_range_erase(flashoffset(header), 4096);
 
             // Indicate to the application that it has been updated
             watchdog_hw->scratch[0] = FLASH_APP_UPDATED;
@@ -408,6 +408,8 @@ int main(void)
     {
         header = (const tFlashHeader*)image;
 
+        watchdog_hw->scratch[3] = header->name[0];
+        
         if((header->magic1 == FLASH_MAGIC1) &&
            (header->magic2 == FLASH_MAGIC2) &&
            (crc32(header->data, header->length, 0xffffffff) == header->crc32) &&
