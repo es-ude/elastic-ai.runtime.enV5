@@ -49,13 +49,18 @@ def read_chunksize():
     return chunk_size
 
 
-def send_blink_file():
+def send_blink_file() -> (int, bytearray):
     with open(
         "./bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin",
         "rb",
     ) as fpga_config:
         bin_file: bytes = fpga_config.read()
     enV5RRCP.send_data_to_flash(0, bytearray(bin_file), chunk_size)
+    return len(bin_file), bin_file
+
+
+def read_blink_file() -> bytearray:
+    return enV5RRCP.read_data_from_flash(0, file_length, chunk_size)
 
 
 if __name__ == "__main__":
@@ -75,5 +80,7 @@ if __name__ == "__main__":
     chunk_size = read_chunksize()
     print(f"{chunk_size=}")
     enV5RRCP.fpga_power(on=False)
-    send_blink_file()
+    file_length, expected_content = send_blink_file()
+    actual_content = read_blink_file()
+    print(f"MATCH: {actual_content == expected_content}")
     enV5RRCP.fpga_power(on=True)
