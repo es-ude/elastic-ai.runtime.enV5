@@ -48,7 +48,7 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
             if i + 1 == num_chunks:
                 data_chunk = data[chunk_size * i :]
             else:
-                data_chunk = data[chunk_size * i : chunk_size * (i + 1) - 1]
+                data_chunk = data[chunk_size * i : chunk_size * (i + 1)]
             payload.extend(data_chunk)
             self._send(command, payload)
 
@@ -87,6 +87,7 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
         rec_command, data_raw = self._receive()
 
         if rec_command != command:
+            print(f"{rec_command=}")
             raise WrongCommand
 
         return int.from_bytes(data_raw, byteorder=self.endian, signed=False)
