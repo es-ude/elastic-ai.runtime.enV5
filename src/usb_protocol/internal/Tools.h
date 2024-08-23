@@ -43,8 +43,10 @@ void freeMessageFrame(usbProtocolMessageFrame_t *buffer);
  */
 bool waitForAcknowledgement(void);
 
+//! convert uin32_t to big endian encoded byte array
+void convertUint32ToByteArray(uint32_t in, uint8_t out[4]);
 //! convert a byte array to uint32_t
-uint32_t convertBytes(const uint8_t data[4]);
+uint32_t convertByteArrayToUint32(const uint8_t in[4]);
 
 //! read arbitrary number of bytes with read-handle
 void readBytes(uint8_t *data, size_t numberOfBytes);

@@ -120,7 +120,7 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
         self, flash_start_address: int, num_bytes: int, chunk_size
     ) -> bytearray:
         # Send initial command
-        command = self.commands["send data to flash"]
+        command = self.commands["read data from flash"]
 
         payload = bytearray()
         payload.extend(

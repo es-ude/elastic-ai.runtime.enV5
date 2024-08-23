@@ -9,6 +9,7 @@
 #include "EnV5HwController.h"
 #include "Flash.h"
 #include "Gpio.h"
+#include "Sleep.h"
 #include "Spi.h"
 #include "include/UsbProtocolCustomCommands.h"
 #include "internal/DefaultCommands.h"
@@ -52,11 +53,12 @@ void readSkeletonId(__attribute__((unused)) const uint8_t *data,
 
 void getChunkSize(__attribute__((unused)) const uint8_t *data,
                   __attribute((unused)) size_t length) {
-    uint32_t payload = __builtin_bswap32(FLASH_BYTES_PER_PAGE);
+    uint8_t payload[4];
+    convertUint32ToByteArray(FLASH_BYTES_PER_PAGE, payload);
     usbProtocolMessage_t message;
     message.command = 3;
     message.payloadLength = sizeof(payload);
-    message.payload = (uint8_t *)&payload;
+    message.payload = payload;
     if (!usbProtocolSendMessage(&message)) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
     }
@@ -91,8 +93,8 @@ static void receiveData(uint32_t startSector, uint32_t length) {
     }
 }
 void sendDataToFlash(const uint8_t *data, __attribute((unused)) size_t length) {
-    uint32_t sectorAddress = convertBytes(&data[0]);
-    uint32_t bytesToReceive = convertBytes(&data[4]);
+    uint32_t sectorAddress = convertByteArrayToUint32(&data[0]);
+    uint32_t bytesToReceive = convertByteArrayToUint32(&data[4]);
 
     eraseFlash(sectorAddress, bytesToReceive);
     receiveData(sectorAddress, bytesToReceive);
@@ -102,43 +104,39 @@ static void sendData(uint32_t startAddress, uint32_t length) {
     size_t bytesToSend = length;
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
-    while (chunkId <= (size_t)(ceilf((float)length / FLASH_BYTES_PER_PAGE))) {
-        usbProtocolMessage_t message;
-        message.command = 5;
-        if (bytesToSend > FLASH_BYTES_PER_PAGE) {
-            message.payloadLength = FLASH_BYTES_PER_PAGE;
-            uint8_t data[FLASH_BYTES_PER_PAGE];
-            data_t buffer = {
-                .length = FLASH_BYTES_PER_PAGE,
-                .data = data,
-            };
-            flashReadData(&flash, startAddress + (chunkId * FLASH_BYTES_PER_PAGE), &buffer);
-            message.payload = data;
-
-            bytesToSend -= FLASH_BYTES_PER_PAGE;
-        } else {
-            message.payloadLength = bytesToSend;
-            uint8_t data[bytesToSend];
-            data_t buffer = {
-                .length = bytesToSend,
-                .data = data,
-            };
-            flashReadData(&flash, startAddress + (chunkId * FLASH_BYTES_PER_PAGE), &buffer);
-            message.payload = data;
+    while (chunkId < (size_t)(ceilf((float)length / FLASH_BYTES_PER_PAGE))) {
+        if (nackCounter >= MAX_RETRIES) {
+            Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
         }
 
+        uint8_t data[FLASH_BYTES_PER_PAGE];
+        data_t buffer = {
+            .length = FLASH_BYTES_PER_PAGE,
+            .data = data,
+        };
+        if (bytesToSend >= FLASH_BYTES_PER_PAGE) {
+            bytesToSend -= FLASH_BYTES_PER_PAGE;
+        } else {
+            buffer.length = bytesToSend;
+            bytesToSend = 0;
+        }
+        flashReadData(&flash, startAddress + (chunkId * FLASH_BYTES_PER_PAGE), &buffer);
+
+        usbProtocolMessage_t message;
+        message.command = 5;
+        message.payload = buffer.data;
+        message.payloadLength = buffer.length;
         if (!usbProtocolSendMessage(&message)) {
             nackCounter++;
             continue;
         }
-
         chunkId++;
         nackCounter = 0;
     }
 }
 void readDataFromFlash(const uint8_t *data, __attribute((unused)) size_t length) {
-    uint32_t startAddress = convertBytes(&data[0]);
-    uint32_t bytesToReceive = convertBytes(&data[4]);
+    uint32_t startAddress = convertByteArrayToUint32(&data[0]);
+    uint32_t bytesToReceive = convertByteArrayToUint32(&data[4]);
 
     sendData(startAddress, bytesToReceive);
 }
@@ -207,9 +205,9 @@ static void receiveInput(uint8_t *buffer, size_t bufferLength) {
     }
 }
 void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
-    uint32_t inputLength = convertBytes(&data[0]);
-    uint32_t outputLength = convertBytes(&data[4]);
-    uint32_t acceleratorAddress = convertBytes(&data[8]);
+    uint32_t inputLength = convertByteArrayToUint32(&data[0]);
+    uint32_t outputLength = convertByteArrayToUint32(&data[4]);
+    uint32_t acceleratorAddress = convertByteArrayToUint32(&data[8]);
     uint8_t acceleratorId[16];
     memcpy(acceleratorId, &data[12], 16);
 

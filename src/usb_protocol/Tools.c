@@ -9,11 +9,6 @@
 #include "UsbProtocolCustomCommands.h"
 #include "internal/Tools.h"
 
-typedef union u32_u8 {
-    uint32_t data;
-    uint8_t array[4];
-} u32_u8_t;
-
 //! number of bytes always present in response (command + payload length + checksum)
 #define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))
 
@@ -28,8 +23,9 @@ static uint8_t getChecksum(const uint8_t *array, size_t length) {
 }
 uint8_t calculateChecksum(usbProtocolMessage_t *message) {
     uint8_t checksum = message->command;
-    u32_u8_t payloadData = {.data = __builtin_bswap32(message->payloadLength)};
-    checksum ^= getChecksum(payloadData.array, 4);
+    uint8_t payloadLengthBytes[4];
+    convertUint32ToByteArray(message->payloadLength, payloadLengthBytes);
+    checksum ^= getChecksum(payloadLengthBytes, 4);
     if (message->payloadLength > 0) {
         checksum ^= getChecksum(message->payload, message->payloadLength);
     }
@@ -46,11 +42,12 @@ usbProtocolMessageFrame_t *createMessageFrame(uint8_t command, size_t payloadLen
     usbProtocolMessageFrame_t *msg = malloc(sizeof(usbProtocolMessage_t));
     msg->length = BASE_LENGTH + payloadLength;
 
-    u32_u8_t payloadLengthData = {.data = __builtin_bswap32(payloadLength)};
+    uint8_t payloadLengthBA[4];
+    convertUint32ToByteArray(payloadLength, payloadLengthBA);
 
-    msg->data = calloc(1, msg->length);
+    msg->data = calloc(msg->length, sizeof(uint8_t));
     memcpy(msg->data, &command, 1);
-    memcpy(&(msg->data[1]), payloadLengthData.array, sizeof(payloadLengthData));
+    memcpy(&(msg->data[1]), payloadLengthBA, sizeof(payloadLengthBA));
     memcpy(&(msg->data[5]), payload, payloadLength);
     memcpy(&(msg->data[msg->length - 1]), &checksum, 1);
 
@@ -66,8 +63,13 @@ bool waitForAcknowledgement(void) {
 
     return ack[0] == 0x01;
 }
-uint32_t convertBytes(const uint8_t data[4]) {
-    return data[0] << 24 | data[1] << 16 | data[2] << 8 | data[3];
+
+void convertUint32ToByteArray(uint32_t in, uint8_t out[4]) {
+    uint32_t bigEndianIn = __builtin_bswap32(in);
+    memcpy(out, &bigEndianIn, 4);
+}
+uint32_t convertByteArrayToUint32(const uint8_t in[4]) {
+    return in[0] << 24 | in[1] << 16 | in[2] << 8 | in[3];
 }
 
 void readBytes(uint8_t *data, size_t numberOfBytes) {

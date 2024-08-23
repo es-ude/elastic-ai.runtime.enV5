@@ -126,7 +126,7 @@ bool usbProtocolReadMessage(usbProtocolMessage_t *message) {
     uint8_t buffer[5];
     readBytes(buffer, 5);
     message->command = buffer[0];
-    message->payloadLength = convertBytes(&buffer[1]);
+    message->payloadLength = convertByteArrayToUint32(&buffer[1]);
 
     if (message->payloadLength > 0) {
         message->payload = calloc(1, message->payloadLength);
@@ -156,7 +156,9 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
     checkReadAndSendHandleAreAvailable();
 
     usbProtocolMessage_t *message = calloc(1, sizeof(usbProtocolMessage_t));
-    usbProtocolReadMessage(message);
+    if (!usbProtocolReadMessage(message)) {
+        Throw(USB_PROTOCOL_ERROR_CHECKSUM_FAILED);
+    }
 
     return message;
 }
