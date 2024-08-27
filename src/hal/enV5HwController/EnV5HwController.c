@@ -79,7 +79,7 @@ void env5HwControllerFpgaPowersOff(void) {
     gpioSetPin(FPGA_VOL_REGULATOR_EN_PIN, GPIO_PIN_LOW); // turn the voltage regulator off
     gpioSetPin(FPGA_MOS_EN_PIN, GPIO_PIN_HIGH);          // turn the MOS-FETS off
     sleep_for_ms(1);
-    
+
     PRINT_DEBUG("FPGA Powered Off.");
 }
 
