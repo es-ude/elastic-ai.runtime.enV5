@@ -39,7 +39,7 @@ bool checksumPassed(uint8_t expectedChecksum, usbProtocolMessage_t *message) {
 
 usbProtocolMessageFrame_t *createMessageFrame(uint8_t command, size_t payloadLength,
                                               uint8_t *payload, uint8_t checksum) {
-    usbProtocolMessageFrame_t *msg = malloc(sizeof(usbProtocolMessage_t));
+    usbProtocolMessageFrame_t *msg = malloc(sizeof(usbProtocolMessageFrame_t));
     msg->length = BASE_LENGTH + payloadLength;
 
     uint8_t payloadLengthBA[4];

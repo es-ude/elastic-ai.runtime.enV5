@@ -79,7 +79,7 @@ static void initialize(void) {
     spiInit(&flashSpi);
 
     usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
-    usbProtocolRegisterCommand(0xF1, &countdownHandle);
+    usbProtocolRegisterCommand(241, &countdownHandle);
 }
 _Noreturn static void loop(void) {
     while (true) {
