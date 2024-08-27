@@ -39,13 +39,15 @@ static flashConfiguration_t flash = {
 
 void readSkeletonId(__attribute__((unused)) const uint8_t *data,
                     __attribute((unused)) size_t length) {
-    uint8_t skeletonId[16];
+    uint8_t skeletonId[16] = {0};
+    //    uint8_t skeletonId[16] = {0x32, 0x34, 0x30, 0x38, 0x32, 0x33, 0x45, 0x43,
+    //                              0x48, 0x4F, 0x53, 0x45, 0x52, 0x56, 0x45, 0x52};
     modelGetId(skeletonId);
 
-    usbProtocolMessage_t message;
+    usbProtocolMessage_t message = {0};
     message.command = 2;
-    message.payloadLength = 16;
     message.payload = skeletonId;
+    message.payloadLength = sizeof(skeletonId);
     if (!usbProtocolSendMessage(&message)) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
     }
@@ -214,9 +216,13 @@ void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint8_t networkInput[inputLength];
     receiveInput(networkInput, inputLength);
 
-    if (modelDeploy(acceleratorAddress, acceleratorId)) {
-        uint8_t networkOutput[outputLength];
-        modelPredict(networkInput, inputLength, networkOutput, outputLength);
-        sendOutput(networkOutput, outputLength);
-    }
+    gpioSetPin(LED0_GPIO, GPIO_PIN_HIGH);
+    modelDeploy(acceleratorAddress, acceleratorId);
+
+    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
+    uint8_t networkOutput[outputLength];
+    modelPredict(networkInput, inputLength, networkOutput, outputLength);
+
+    gpioSetPin(LED2_GPIO, GPIO_PIN_HIGH);
+    sendOutput(networkOutput, outputLength);
 }

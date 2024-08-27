@@ -1,9 +1,16 @@
 import atexit
 import time
-import serial
+from time import sleep
+
+from serial import Serial
 
 from helper_utils import get_env5_port
 from recommended_commands import *
+
+echo_server: (str, bytes) = (
+    "./bitfile_scripts/bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_stub_skeleton_v2.bin",
+    b"\x32\x34\x30\x38\x32\x33\x45\x43\x48\x4F\x53\x45\x52\x56\x45\x52",  # == 240823ECHOSERVER
+)
 
 
 def get_my_custom_commands() -> dict:
@@ -26,9 +33,9 @@ class CustomCommands(EnV5RecommendedRemoteControlProtocol):
         self._send(command, payload)
 
 
-def exit_handler(serial_con: serial.Serial):
+def exit_handler(cdc_port: Serial):
     serial_con.close()
-    print(f"closed {serial_con.port=}")
+    print(f"closed {cdc_port.port=}")
 
 
 def mcu_blink():
@@ -43,31 +50,18 @@ def mcu_blink():
         print("LED off")
 
 
-def read_chunksize():
-    print("Test running")
-    chunk_size = enV5RRCP.get_chunk_size_for_flash()
-    return chunk_size
-
-
-def send_blink_file() -> (int, bytearray):
-    with open(
-        "./bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin",
-        "rb",
-    ) as fpga_config:
+def upload_binary(bin_file: str) -> (int, bytearray):
+    with open(bin_file, "rb") as fpga_config:
         bin_file: bytes = fpga_config.read()
     enV5RRCP.send_data_to_flash(0, bytearray(bin_file), chunk_size)
     return len(bin_file), bin_file
 
 
-def read_blink_file() -> bytearray:
-    return enV5RRCP.read_data_from_flash(0, file_length, chunk_size)
-
-
 if __name__ == "__main__":
-    print("start")
+    print("START")
     serial_con = serial.Serial(get_env5_port())
     atexit.register(exit_handler, serial_con)
-    print("serial connection done")
+    print("serial connection established")
 
     # enV5_cc = CustomCommands(serial_con)
     # enV5_cc.mcu_blink()
@@ -77,10 +71,24 @@ if __name__ == "__main__":
 
     # mcu_blink()
 
-    chunk_size = read_chunksize()
+    chunk_size = enV5RRCP.get_chunk_size_for_flash()
     print(f"{chunk_size=}")
-    enV5RRCP.fpga_power(on=False)
-    file_length, expected_content = send_blink_file()
-    actual_content = read_blink_file()
-    print(f"MATCH: {actual_content == expected_content}")
+
+    # enV5RRCP.fpga_power(on=False)
+    # file_length, expected_content = upload_binary(echo_server[0])
+    # actual_content = enV5RRCP.read_data_from_flash(0, file_length, chunk_size)
+    # print(f"MATCH: {actual_content == expected_content}")
     enV5RRCP.fpga_power(on=True)
+
+    actual_skeleton_id = enV5RRCP.read_skeleton_id()
+    print(f"MATCH: {actual_skeleton_id == echo_server[1]}")
+
+    # enV5RRCP.fpga_leds(True, True, True, True)
+    # sleep(5)
+    # enV5RRCP.fpga_leds(False, False, False, False)
+
+    # test_input: bytes = b"\xFF\x00\xFF\00\xFF"
+    # result = enV5RRCP.inference_with_data(
+    #     chunk_size, bytearray(test_input), 5, 0, bytearray(echo_server[1])
+    # )
+    # print(f"{result=}")
