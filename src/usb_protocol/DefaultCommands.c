@@ -191,6 +191,7 @@ static void sendOutput(uint8_t *buffer, size_t bufferLength) {
 static void receiveInput(uint8_t *buffer, size_t bufferLength) {
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
+    uint8_t *next = buffer;
     while (chunkId < (size_t)ceilf((float)bufferLength / FLASH_BYTES_PER_PAGE)) {
         if (nackCounter >= MAX_RETRIES) {
             Throw(USB_PROTOCOL_ERROR_READ_FAILED);
@@ -201,11 +202,13 @@ static void receiveInput(uint8_t *buffer, size_t bufferLength) {
             nackCounter++;
             continue;
         }
-        memcpy(buffer + (chunkId * FLASH_BYTES_PER_PAGE), message.payload, message.payloadLength);
-        free(message.payload);
+        memcpy(next, message.payload, message.payloadLength);
 
         chunkId++;
+        next += message.payloadLength;
         nackCounter = 0;
+
+        free(message.payload);
     }
 }
 void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
@@ -223,5 +226,5 @@ void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint8_t networkOutput[outputLength];
     modelPredict(networkInput, inputLength, networkOutput, outputLength);
 
-    sendOutput(networkOutput, outputLength);
+    sendOutput(networkInput, outputLength);
 }
