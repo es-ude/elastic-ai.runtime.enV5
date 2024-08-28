@@ -8,18 +8,8 @@
 #include "EnV5HwController.h"
 #include "Gpio.h"
 #include "Sleep.h"
-#include "Spi.h"
 #include "UsbProtocolBase.h"
 #include "UsbProtocolCustomCommands.h"
-
-spiConfiguration_t flashSpi = {
-    .spiInstance = FLASH_SPI_MODULE,
-    .baudrate = FLASH_SPI_BAUDRATE,
-    .sckPin = FLASH_SPI_CLOCK,
-    .misoPin = FLASH_SPI_MISO,
-    .mosiPin = FLASH_SPI_MOSI,
-    .csPin = FLASH_SPI_CS,
-};
 
 /* region USB-Protocol Read/Send Function */
 usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer, size_t numOfBytes) {
@@ -75,8 +65,6 @@ static void initialize(void) {
 
     stdio_init_all();
     while (!stdio_usb_connected()) {}
-
-    spiInit(&flashSpi);
 
     usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
     usbProtocolRegisterCommand(241, &countdownHandle);

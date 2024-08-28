@@ -148,7 +148,9 @@ void setFpgaPower(const uint8_t *data, __attribute((unused)) size_t length) {
 }
 
 void setFpgaLeds(const uint8_t *data, __attribute((unused)) size_t length) {
+    middlewareInit();
     middlewareSetFpgaLeds(data[0]);
+    middlewareDeinit();
 }
 
 void setMcuLeds(const uint8_t *data, __attribute((unused)) size_t length) {
@@ -216,13 +218,10 @@ void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint8_t networkInput[inputLength];
     receiveInput(networkInput, inputLength);
 
-    gpioSetPin(LED0_GPIO, GPIO_PIN_HIGH);
     modelDeploy(acceleratorAddress, acceleratorId);
 
-    gpioSetPin(LED1_GPIO, GPIO_PIN_HIGH);
     uint8_t networkOutput[outputLength];
     modelPredict(networkInput, inputLength, networkOutput, outputLength);
 
-    gpioSetPin(LED2_GPIO, GPIO_PIN_HIGH);
     sendOutput(networkOutput, outputLength);
 }

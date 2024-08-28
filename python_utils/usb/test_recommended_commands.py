@@ -1,6 +1,7 @@
 import atexit
 import time
 from time import sleep
+from unittest import expectedFailure
 
 from serial import Serial
 
@@ -71,21 +72,27 @@ if __name__ == "__main__":
 
     # mcu_blink()
 
+    enV5RRCP.mcu_leds(False, False, False)
+
     chunk_size = enV5RRCP.get_chunk_size_for_flash()
     print(f"{chunk_size=}")
 
     # enV5RRCP.fpga_power(on=False)
+    #
     # file_length, expected_content = upload_binary(echo_server[0])
+    #
     # actual_content = enV5RRCP.read_data_from_flash(0, file_length, chunk_size)
-    # print(f"MATCH: {actual_content == expected_content}")
+    # print(f"MATCH: {actual_content == bytearray(expected_content)}")
+
     enV5RRCP.fpga_power(on=True)
+    sleep(0.1)
 
     actual_skeleton_id = enV5RRCP.read_skeleton_id()
     print(f"MATCH: {actual_skeleton_id == echo_server[1]}")
 
-    # enV5RRCP.fpga_leds(True, True, True, True)
-    # sleep(5)
-    # enV5RRCP.fpga_leds(False, False, False, False)
+    enV5RRCP.fpga_leds(True, True, True, True)
+    sleep(5)
+    enV5RRCP.fpga_leds(False, False, False, False)
 
     # test_input: bytes = b"\xFF\x00\xFF\00\xFF"
     # result = enV5RRCP.inference_with_data(
