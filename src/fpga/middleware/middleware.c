@@ -22,9 +22,8 @@ void middlewareDeinit() {
 #define ADDR_MULTI_BOOT 0x0005
 
 void middlewareConfigureFpga(uint32_t address) {
-    uint8_t configAddress[3] = {(uint8_t)(0x000000FF & address),
-                                (uint8_t)((0x0000FF00 & address) >> 8),
-                                (uint8_t)((0x00FF0000 & address) >> 16)};
+    uint8_t configAddress[3] = {(uint8_t)(address), (uint8_t)(address >> 8),
+                                (uint8_t)(address >> 16)};
 
     qxiWriteBlocking(ADDR_MULTI_BOOT, configAddress, 3);
 }
