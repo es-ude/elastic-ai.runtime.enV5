@@ -2,6 +2,9 @@ import time
 from typing import Literal, Callable
 
 import serial
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WrongCommand(Exception): ...
@@ -38,39 +41,48 @@ class EnV5BaseRemoteControlProtocol:
         device: serial.Serial,
         get_commands_lut: Callable[[], dict] = get_base_commands,
         calculate_checksum: [[bytearray], bytes] = xor_calculate_checksum,
+        _logger: logging.Logger = logger
     ):
         self.serial: serial.Serial = device
         self.commands: dict[str, int] = get_commands_lut()
         self.commands_inv: dict[int, str] = {v: k for k, v in self.commands.items()}
         self.calculate_checksum = calculate_checksum
-        self.endian: Literal["little", "big"] = "big"
         self.checksum_length: int = 1
+        self.endian: Literal["little", "big"] = "big"
         self.allowed_transmission_fails = 5
+        self.logger = _logger
+
+    def set_logger_level(self, level: str):
+        allowed_levels = ["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"]
+        if level in allowed_levels:
+            self.logger.setLevel(level)
+        else:
+            raise Exception(f"Logging level must be INFO, DEBUG, WARNING, ERROR or CRITICAL. You chose {level}.")
 
     def _send(self, command: int, payload: bytearray) -> None:
         ack_received: bool = False
         i = 0
-        print("start sending")
+        self.logger.debug("start sending")
         while not ack_received:
             # build message
             message = self._build_message(command, payload)
 
-            print(f"{message=}")
+            self.logger.debug(f"{message=}")
 
-            print("message build")
+            self.logger.debug("message build")
             # send message
             self.serial.write(message)
 
-            print("message send")
-            print("waiting for ack")
+            self.logger.debug("message send")
+            self.logger.debug("waiting for ack")
             # receive ack/nack
             ack_received = self._receive_ack()
-            print(f"{ack_received=}")
+            self.logger.debug(f"{ack_received=}")
             # if allowed transmission fails exceeds then
             i += 1
             if i > self.allowed_transmission_fails:
                 raise SendingNotSuccesful
-        print("send succesful")
+        self.logger.debug("send succesful")
 
     def _build_message(self, command: int, payload: bytearray) -> bytearray:
         # get payload_size
@@ -134,32 +146,32 @@ class EnV5BaseRemoteControlProtocol:
             # Message body
             message = bytearray()
 
-            print(f"wait for command")
+            self.logger.debug(f"wait for command")
             # Read command + convert to int
             command_raw = self.serial.read(1)
             command = int.from_bytes(command_raw, byteorder=self.endian, signed=False)
             message.extend(command_raw)
-            print(f"{command_raw=}")
+            self.logger.debug(f"{command_raw=}")
 
-            print(f"wait for data length")
+            self.logger.debug(f"wait for data length")
             # Read data_length + convert to int
             data_length_raw = self.serial.read(4)
             data_length = int.from_bytes(
                 data_length_raw, byteorder=self.endian, signed=False
             )
             message.extend(data_length_raw)
-            print(f"{data_length_raw=}")
+            self.logger.debug(f"{data_length_raw=}")
 
             if data_length > 0:
                 # Read data for data_length
-                print(f"wait for payload")
+                self.logger.debug(f"wait for payload")
                 payload_raw = self.serial.read(data_length)
                 message.extend(payload_raw)
             else:
                 payload_raw = None
-            print(f"{payload_raw=}")
+            self.logger.debug(f"{payload_raw=}")
 
-            print("wait for checksum")
+            self.logger.debug("wait for checksum")
             # read checksum
             transmitted_checksum = self.serial.read(self.checksum_length)
 
@@ -167,17 +179,20 @@ class EnV5BaseRemoteControlProtocol:
             calculated_checksum = self.calculate_checksum(message)
 
             if transmitted_checksum != calculated_checksum:
+                self.logger.debug("checksum wrong")
                 # If checksum not correct empty buffer and sent nack
                 while self.serial.readable():
                     self.serial.reset_input_buffer()  # This might be problematic for timing. Maybe move it to other space
                     time.sleep(0.1)
                 self._send_nack()
             else:
+                self.logger.debug("checksum correct")
                 # if checksum correct send ack and return data
                 self._send_ack()
                 return command, payload_raw
 
     def _send_nack(self) -> None:
+        self.logger.error("send nack")
         command = self.commands["nack"]
         no_data = bytearray()
 
@@ -186,6 +201,7 @@ class EnV5BaseRemoteControlProtocol:
         self.serial.write(message)
 
     def _send_ack(self) -> None:
+        self.logger.debug("send ack")
         command = self.commands["ack"]
         no_data = bytearray()
 

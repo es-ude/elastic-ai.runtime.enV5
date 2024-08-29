@@ -4,8 +4,9 @@ from recommended_commands import EnV5RecommendedRemoteControlProtocol
 
 
 class UserRemoteControl:
-    def __init__(self, device: serial.Serial):
+    def __init__(self, device: serial.Serial, logging_level: str = "INFO"):
         self.enV5RCP = EnV5RecommendedRemoteControlProtocol(device)
+        self.enV5RCP.set_logger_level(logging_level)
         self.chunk_size = self.enV5RCP.get_chunk_size_for_flash()
 
     def fpga_leds(self, led1: bool, led2: bool, led3: bool, led4: bool) -> None:

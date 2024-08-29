@@ -6,7 +6,6 @@ import serial
 from communication_base_protocol import (
     get_base_commands,
     EnV5BaseRemoteControlProtocol,
-    SendingNotSuccesful,
     WrongCommand,
 )
 
@@ -87,7 +86,6 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
         rec_command, data_raw = self._receive()
 
         if rec_command != command:
-            print(f"{rec_command=}")
             raise WrongCommand
 
         return int.from_bytes(data_raw, byteorder=self.endian, signed=False)
