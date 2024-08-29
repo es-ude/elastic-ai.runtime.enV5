@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+#define APPLICATION_NAME_MAX_LENGTH 40
+
 static const uint32_t FLASH_MAGIC1 = 0x00000005; // Randomly picked numbers
 static const uint32_t FLASH_MAGIC2 = 0x00000001;
 
@@ -22,7 +24,8 @@ typedef struct
     uint32_t magic2;
     uint32_t length;
     uint32_t crc32;
-    char name[20];
+    uint8_t sectors;
+    char name[APPLICATION_NAME_MAX_LENGTH];
     uint32_t isProgram;
     uint8_t  data[];
 }tFlashHeader;

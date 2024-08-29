@@ -14,20 +14,21 @@
 // This code is for demonstration purposes.  There is not very much
 // error-checking and attempts have been made to keep the final code size
 // small (e.g. not using printf)
-#include <sys/cdefs.h>
+#include "Ota.h"
 #include "CException.h"
 #include "Common.h"
 #include "EnV5HwController.h"
+#include "FlashLoader.h"
 #include "Gpio.h"
 #include "HTTP.h"
-#include "FlashLoader.h"
 #include "hardware/flash.h"
 #include "hardware/structs/watchdog.h"
 #include "hardware/sync.h"
 #include "hardware/watchdog.h"
 #include "pico/flash.h"
+#include <malloc.h>
 #include <string.h>
-#include "Ota.h"
+#include <sys/cdefs.h>
 
 #define CHUNK_SIZE 1024
 
@@ -139,40 +140,48 @@ static void eraseAndProgramFlash(void *params) {
                         flashParams->totalLength);
 }
 
-void flashImage(tFlashHeader *header, uint32_t length, applicationFlashPosition pos, char name[20]) {
+void flashImage(tFlashHeader *header, uint32_t length, uint8_t pos, char name[APPLICATION_NAME_MAX_LENGTH]) {
     // Calculate length of header plus length of data
     uint32_t totalLength = sizeof(tFlashHeader) + length;
 
     // Round erase length up to next 4096 byte boundary
     uint32_t eraseLength = (totalLength + 4095) & 0xfffff000;
     uint32_t status;
+    
+    uint8_t sectors = length / 64 / 1024 + 1;
 
+    if (pos + sectors > 16) {
+        return;
+    }
+    
     header->magic1 = FLASH_MAGIC1;
     header->magic2 = FLASH_MAGIC2;
     header->length = length;
+    header->sectors = sectors;
     header->isProgram = PROGRAM_IS_PRESENT;
-    strncpy(header->name, name, 19);
+    strncpy(header->name, name, APPLICATION_NAME_MAX_LENGTH - 1);
     header->crc32  = crc32(header->data, length, 0xffffffff);
 
     PRINT("Storing new image in flash");
-
-    status = save_and_disable_interrupts();
-
-    uint32_t flashImageOffset = pos * 128 * 1024;
     
+    uint32_t flashImageOffset = (16 + pos) * 64 * 1024;
+        
+    PRINT("Offset: %lu", flashImageOffset);
+    status = save_and_disable_interrupts();
     flashParameter par = {.eraseLength=eraseLength, .totalLength=totalLength, .header=header, .flashOffset=flashImageOffset};
     flash_safe_execute(eraseAndProgramFlash, &par, UINT32_MAX);
-
     restore_interrupts(status);
+    
 }
 
-_Noreturn void restartToApplication(applicationFlashPosition pos) {
+_Noreturn void restartToApplication(uint8_t pos) {
     PRINT("Rebooting into flash loader in 1 second");
     PRINT("To position %u", pos);
     // Set up watchdog scratch registers so that the flashloader knows
     // what to do after the reset
     watchdog_hw->scratch[0] = FLASH_MAGIC1;
-    watchdog_hw->scratch[1] = XIP_BASE + pos * 128 * 1024;
+    watchdog_hw->scratch[1] = XIP_BASE + (16 + pos) * 64 * 1024;
+    
     watchdog_reboot(0x00000000, 0x00000000, 1000);
 
     // Wait for the reset
@@ -189,14 +198,25 @@ char* getLine(char* buffer, char *ip) {
             HttpResponse_t *response = NULL;
             char buf[100];
             snprintf(buf, 100, "%s?chunkNumber=%i", ip, currentChunk);
-            CEXCEPTION_T exception;
-            Try {
-                HTTPGet(buf, &response);
-                strcpy(chunkBuffer, (const char *)response->response);
-                HTTPCleanResponseBuffer(response);
-            } Catch(exception) {
-                PRINT("Error in getting block over HTTP!");
+
+            uint8_t attempts = 0;
+            while (true) {
+                CEXCEPTION_T exception;
+                Try {
+                    HTTPGet(buf, &response);
+                    strcpy(chunkBuffer, (const char *)response->response);
+                    HTTPCleanResponseBuffer(response);
+                    break;
+                } Catch(exception) {
+                    PRINT("Error in getting block %i over HTTP!", currentChunk);
+                    attempts++;
+                    if (attempts > 3) {
+                        PRINT("Could not get application over HTTP!");
+                        break;
+                    }
+                }
             }
+
             currentChunk++;
             charPos = 0;
         }
@@ -215,7 +235,37 @@ char* getLine(char* buffer, char *ip) {
     return buffer;
 }
 
-void loadHexHTTP(char *ip, applicationFlashPosition pos, char name[20]) {
+tFlashHeader getApplicationHeader(uint8_t sector) {
+    tFlashHeader* header = (tFlashHeader*)(XIP_BASE + (16 + sector) * 64 * 1024);
+    if (header->isProgram== PROGRAM_IS_PRESENT)
+        return *header;
+    return ((tFlashHeader) {.name="NULL"});
+}
+
+char *getStoredApplications() {
+    char *result = malloc(16 * (APPLICATION_NAME_MAX_LENGTH + 5));
+    char * buf = malloc(APPLICATION_NAME_MAX_LENGTH + 5);
+    strcpy(result,"");
+    
+    for (int i = 0; i < 16; i++) {
+        tFlashHeader header = getApplicationHeader(i);
+        for (int j = i + 1; j < i + header.sectors; j++) {
+            if(getApplicationHeader(j).isProgram) {
+                strcpy(header.name, "NULL");
+            }
+        }
+        if (strcmp(header.name, "NULL") != 0) {
+            sprintf(buf, "%i-%i:%s,", i, i + header.sectors, header.name);
+            strcat(result, buf);
+        }
+    }
+    if (strlen(result) == 0)
+        strcat(result, "NULL");
+    free(buf);
+    return result;
+}
+
+void loadHexHTTP(char *ip, uint8_t sector, char name[APPLICATION_NAME_MAX_LENGTH]) {
     uint32_t      offset = 0;
     char          line[1024];
     uint32_t      count = 0;
@@ -232,13 +282,12 @@ void loadHexHTTP(char *ip, applicationFlashPosition pos, char name[20]) {
                 memcpy(&flashbuf.header.data[offset], rec.data, rec.count);
                 offset += rec.count;
                 if((offset % 1024) == 0) {
-//                    PRINT("Received block: %lu", offset/1024);
                     gpioSetPin(25, offset/1024 % 2);
                 }
                 break;
             case TYPE_EOF:
                 gpioSetPin(25, 0);
-                flashImage(&flashbuf.header, offset, pos, name);
+                flashImage(&flashbuf.header, offset, sector, name);
                 return;
             case TYPE_EXTSEG:
             case TYPE_STARTSEG:

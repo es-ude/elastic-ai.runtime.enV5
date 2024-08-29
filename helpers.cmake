@@ -37,7 +37,7 @@ function(add_runtime_c)
     FetchContent_Declare(
             elastic_ai_runtime_c
             GIT_REPOSITORY https://github.com/es-ude/elastic-ai.runtime.c.git
-            GIT_TAG v2.6.0
+            GIT_TAG v2.7.0
     )
     FetchContent_Populate(elastic_ai_runtime_c)
 
