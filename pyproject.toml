@@ -5,7 +5,7 @@ description = ""
 authors = ["Department Embedded Systems - University Duisburg Essen"]
 license = "MIT"
 readme = "README.adoc"
-packages = [{include = "python_utils", to="elasticai.runtime.env5.utils"}]
+packages = [{include = "python_utils", to="elasticairuntime.env5.utils"}]
 
 [tool.poetry.dependencies]
 python = ">= 3.10"
