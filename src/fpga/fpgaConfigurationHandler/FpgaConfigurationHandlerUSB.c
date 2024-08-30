@@ -44,7 +44,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaUsb(flashConfiguration_t *flashC
     fpgaConfigurationHandlerWaitForStartRequest();
     uint32_t totalLength = fpgaConfigurationHandlerGetFileLength();
     fpgaConfigurationHandlerGetChunks(flashConfiguration, totalLength,
-                                      (sectorID - 1) * (flashConfiguration->flashBytesPerSector));
+                                      sectorID * (flashConfiguration->flashBytesPerSector));
 
     printf("o");
     return FPGA_RECONFIG_NO_ERROR;

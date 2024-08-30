@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 from flask import Flask, send_file, request
 
-bytes_per_request = 256 # should be matching with the page size of the flash
+bytes_per_request = 512 # should be matching with the page size of the flash
 
 app = Flask(__name__)
 

@@ -66,7 +66,7 @@ void initHardwareTest(void) {
     fpgaConfigurationHandlerInitialize();
 }
 
-void downloadConfiguration(bool useFast) {
+void downloadConfigurationHTTP(bool useFast) {
     fpgaConfigurationHandlerError_t error;
     char url[125];
     strcpy(url, baseUrl);
@@ -166,7 +166,7 @@ _Noreturn void configurationTest(void) {
             PRINT("FPGA Power: OFF");
             break;
         case 'd':
-            downloadConfiguration(true);
+            downloadConfigurationHTTP(true);
             break;
         case 'r':
             readConfiguration(true);
@@ -175,7 +175,7 @@ _Noreturn void configurationTest(void) {
             verifyConfiguration(true);
             break;
         case 'D':
-            downloadConfiguration(false);
+            downloadConfigurationHTTP(false);
             break;
         case 'R':
             readConfiguration(false);
