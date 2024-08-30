@@ -60,6 +60,7 @@ function(add_basic_functionality)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/flash)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/fpga)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/filesystem)
+    add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/usb_protocol)
 endfunction()
 
 function(add_sensor_libraries)

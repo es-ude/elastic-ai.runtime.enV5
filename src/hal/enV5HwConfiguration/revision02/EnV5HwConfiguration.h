@@ -101,12 +101,12 @@
 
 /* region FLASH*/
 #ifndef FLASH_BYTES_PER_PAGE
-#define FLASH_BYTES_PER_PAGE 256
+#define FLASH_BYTES_PER_PAGE 512
 #endif
 
 #ifndef FLASH_BYTES_PER_SECTOR
-//! Each sector consists of 64kiB (= 65536B)
-#define FLASH_BYTES_PER_SECTOR 65536
+//! Each sector consists of 256kB (= 262144B)
+#define FLASH_BYTES_PER_SECTOR 262144
 #endif
 
 #ifndef FLASH_SPI_MODULE
