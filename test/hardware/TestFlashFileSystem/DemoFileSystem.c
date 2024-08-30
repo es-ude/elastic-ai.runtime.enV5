@@ -4,8 +4,8 @@ IMPORTANT THINGS:
 - each entry has 5 attributes: ID, start sector, size, isConfig and number of sectors
 - first use initFileSystem() to check if file system exits and reconstruct it
   otherwise it just initializes all required values
-- always use findFittingStartSector() to check if your file fits. If it does, the sector to be used is
-  stored in the variable nextFileSector
+- always use findFittingStartSector() to check if your file fits. If it does, the sector to be used
+is stored in the variable nextFileSector
 - nextFileSector is the number of the sector you should write your file to. This is to be converted
   into an actual address.
 
@@ -13,11 +13,11 @@ IMPORTANT THINGS:
 
 #define SOURCE_FILE "CONFIGURE-HWTEST"
 
+#include "stdlib.h"
 #include <malloc.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "stdlib.h"
 #include <string.h>
 
 #include "hardware/spi.h"
@@ -28,13 +28,12 @@ IMPORTANT THINGS:
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
+#include "FileSystem.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
-#include "FileSystem.h"
 
 #include <Sleep.h>
-
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
                                        .misoPin = SPI_FLASH_MISO,
@@ -49,7 +48,7 @@ flashConfiguration_t flashConfig = {
 };
 
 const char *baseUrl = "http://192.168.2.21:5000";
-//const char *baseUrl = "http://192.168.203.223:5000";
+// const char *baseUrl = "http://192.168.203.223:5000";
 
 size_t blinkFastLength = 86116;
 size_t blinkSlowLength = 85540;
@@ -76,7 +75,8 @@ void downloadConfigurationHTTP(bool useFast) {
     strcpy(url, baseUrl);
 
     if (useFast) {
-        numberOfRequiredSectors = (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
+        numberOfRequiredSectors =
+            (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
 
         // STUFF FOR FILE SYSTEM ------------------------------------
         if (!findFittingStartSector(numberOfRequiredSectors)) {
@@ -87,15 +87,16 @@ void downloadConfigurationHTTP(bool useFast) {
 
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url);
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
-                                                                     blinkFastLength, nextFileSector);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+            &flashConfig, url, blinkFastLength, nextFileSector);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
         }
 
     } else {
-        numberOfRequiredSectors = (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
+        numberOfRequiredSectors =
+            (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
 
         // STUFF FOR FILE SYSTEM -----------------------------------------
         if (!findFittingStartSector(numberOfRequiredSectors)) {
@@ -107,8 +108,8 @@ void downloadConfigurationHTTP(bool useFast) {
 
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
-        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig, url,
-                                                                     blinkSlowLength, nextFileSector);
+        error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+            &flashConfig, url, blinkSlowLength, nextFileSector);
         if (error != FPGA_RECONFIG_NO_ERROR) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
@@ -120,10 +121,11 @@ void downloadConfigurationHTTP(bool useFast) {
 void downloadConfigurationUSB(bool useFast) {
     uint8_t numberOfRequiredSectors;
     if (useFast) {
-        numberOfRequiredSectors = (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
-    }
-    else {
-        numberOfRequiredSectors = (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
+        numberOfRequiredSectors =
+            (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
+    } else {
+        numberOfRequiredSectors =
+            (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
     }
 
     if (!findFittingStartSector(numberOfRequiredSectors)) {
@@ -131,7 +133,8 @@ void downloadConfigurationUSB(bool useFast) {
         return;
     }
 
-    printf("Please exit Minicom and start /bitfile_scripts/BitfileFlasher.py with the file path you selected \n (U = blink_fast / u = blink_slow)\n");
+    printf("Please exit Minicom and start /bitfile_scripts/BitfileFlasher.py with the file path "
+           "you selected \n (U = blink_fast / u = blink_slow)\n");
     while (stdio_usb_connected()) {}
 
     fpgaConfigurationHandlerError_t error =
@@ -166,7 +169,6 @@ void readConfiguration(uint32_t sector) {
     printf("\n");
     printf("\n");
 
-
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
     while (page < numberOfPages) {
         pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
@@ -181,7 +183,7 @@ void readConfiguration(uint32_t sector) {
 uint32_t getInput() {
     char mystring[4] = {0};
 
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < 4; i++) {
         char c = getchar_timeout_us(UINT32_MAX);
         if (c == 13) {
             break;
