@@ -1,0 +1,92 @@
+= Temperature Sensor
+:src-dir: ../../..
+
+== Metrics
+
+[horizontal]
+Type:: SHT3X
+Usage::
+Measure the current temperature +
+Measure the current humidity
+Info:: https://www.mouser.de/pdfdocs/SHT3x-DIS.pdf[Datasheet]
+
+== Provided Functionality
+
+.link:include/Sht3x.h[Sht3x.h]
+[source,C]
+----
+include::include/Sht3x.h[tags=prototypes]
+----
+
+== Basic Usage Example
+
+.main.c
+[source,c]
+----
+#include "CException.h"
+#include "hardware/i2c.h"
+
+#include "Common.h"
+#include "I2c.h"
+#include "Sht3x.h"
+#include "EnV5HwConfiguration.h"
+
+i2cConfiguration_t i2cConfig = {
+    .i2cInstance = I2C_INSTANCE,
+    .frequency = I2C_FREQUENCY_IN_HZ,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
+};
+sht3xSensorConfiguration_t sensor = {
+    .i2c_host = SHT_HOST,
+    .i2c_slave_address = SHT_SLAVE,
+};
+
+int main(void) {
+    i2cErrorCode = i2cInit(&i2cConfig); //<1>
+    if (i2cErrorCode != I2C_NO_ERROR) {
+        PRINT("Initialise I2C failed!");
+        return i2cErrorCode;
+    }
+
+    CEXCEPTION_T exception;
+    Try {
+        sht3xInit(sensor); //<2>
+        float temperature, humidity;
+        sht3xGetTemperatureAndHumidity(&temperature, &humidity); //<3>
+    }
+    Catch (exception) { //<4>
+        return exception;
+    }
+
+    return 0;
+}
+----
+
+<1> Initilaize I2C
+<2> Initialize Sensor
+<3> Read Temperature and Humidity
+<4> Handle possible errors
+
+.CMakeLists.txt
+[source,CMake]
+----
+add_executable(my-sht3x-app main.c)
+target_link_libraries(my-sht3x-app
+        pico_stdlib
+        pico_stdio_usb
+        hardware_i2c # <1>
+
+        common_lib
+        enV5_hw_configuration
+        i2c_interface
+        sensor_lib_sht3x # <2>
+)
+create_enV5_executable(my-sht3x-app)
+----
+
+<1> Add the pico-sdk library for I2C support
+<2> Add the sensor library
+
+TIP: A more sophisticated example of how to use this sensor is provided with
+link:{src-dir}/test/hardware/Sensors/HardwaretestSht3x.c[HardwaretestSht3x.c].

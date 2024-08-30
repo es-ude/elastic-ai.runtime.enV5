@@ -1,33 +1,41 @@
-import os
+from pathlib import Path
 from io import BytesIO
 from flask import Flask, send_file, request
 
-bytes_per_request = 512 # should be matching with the page size of the flash
+app: Flask = Flask(__name__)
+bin_file_source_dir: Path = Path(__file__).resolve().parent
 
-app = Flask(__name__)
 
 
 def print_bytearray(arr: bytes):
     print("0x" + " 0x".join("%02X" % b for b in arr))
 
 
-def read_slice(position: int, filename: str) -> bytes:
+def read_slice(position: int, filename: Path, max_length: int = 512) -> bytes:
     with open(filename, "rb") as file:
-        file.seek(position * bytes_per_request, 0)
-        chunk: bytes = file.read(bytes_per_request)
-        # print(f"Chunk {position}:")
-        # print_bytearray(chunk)
+        file.seek(position * max_length, 0)
+        chunk: bytes = file.read(max_length)
     return chunk
 
 @app.route("/getfast", methods=['GET'])
 def get_file_fast():
 
-    chunk_number = request.args.get('chunkNumber')
-    chunk_max_size = request.args.get('chunkMaxSize')
+@app.route("/getfast")
+def get_file_fast():
+    chunk_size = request.args.get("chunkMaxSize", type=int)
+    chunk_number = request.args.get("chunkNumber", type=int)
+
+    print(f"chunk_size: {chunk_size}, chunk_number: {chunk_number}")
+
+
     buffer = BytesIO()
     buffer.write(
         read_slice(
-            int(chunk_number), "bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin"
+            chunk_number,
+            bin_file_source_dir.joinpath(
+                "bitfiles/env5_bitfiles/blink/blink_fast/led_test.bin"
+            ),
+            chunk_size,
         )
     )
     buffer.seek(0)
@@ -39,14 +47,19 @@ def get_file_fast():
     )
 
 
-@app.route("/getslow", methods=['GET'])
+@app.route("/getslow")
 def get_file_slow():
-    chunk_number = request.args.get('chunkNumber')
-    chunk_max_size = request.args.get('chunkMaxSize')
+    chunk_size = request.args.get("chunkMaxSize", type=int)
+    chunk_number = request.args.get("chunkNumber", type=int)
+
     buffer = BytesIO()
     buffer.write(
         read_slice(
-            int(chunk_number), "bitfile_scripts/bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin"
+            chunk_number,
+            bin_file_source_dir.joinpath(
+                "bitfiles/env5_bitfiles/blink/blink_slow/led_test.bin"
+            ),
+            chunk_size,
         )
     )
     buffer.seek(0)
@@ -58,15 +71,19 @@ def get_file_slow():
     )
 
 
-@app.route("/getecho/<position>")
-def get_file_echo(position: str):
-    """
-    Using positional arguments as parameter did not work!
-    """
+@app.route("/getecho")
+def get_file_echo():
+    chunk_size = request.args.get("chunkMaxSize", type=int)
+    chunk_number = request.args.get("chunkNumber", type=int)
+
     buffer = BytesIO()
     buffer.write(
         read_slice(
-            int(position), "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig.bin"
+            chunk_number,
+            bin_file_source_dir.joinpath(
+                "bitfiles/env5_bitfiles/echo_server/env5_top_reconfig.bin"
+            ),
+            chunk_size,
         )
     )
     buffer.seek(0)
@@ -76,32 +93,6 @@ def get_file_echo(position: str):
         download_name="bitfile.bin",
         mimetype="application/octet-stream",
     )
-
-
-@app.route("/getconfig/<position>")
-def get_bin_file(position: str):
-    """
-    Using positional arguments as parameter did not work!
-    """
-    buffer = BytesIO()
-    buffer.write(
-        read_slice(
-            int(position), "./../config.bin"
-        )
-    )
-    buffer.seek(0)
-    return send_file(
-        buffer,
-        as_attachment=True,
-        download_name="bitfile.bin",
-        mimetype="application/octet-stream",
-    )
-
-
-@app.route("/length")
-def get_bin_file_length():
-    size = os.path.getsize("./../config.bin")
-    return str(size)
 
 
 @app.route("/check")

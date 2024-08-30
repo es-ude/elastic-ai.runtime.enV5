@@ -3,6 +3,7 @@
 add_executable(unit-test_sht3x ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c)
 target_link_libraries(unit-test_sht3x
         sensor_lib_sht3x
+        i2c_interface
         unity)
 add_test(unit-test_sht3x unit-test_sht3x)
 ## endregion
