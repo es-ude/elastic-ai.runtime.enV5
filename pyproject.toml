@@ -14,7 +14,4 @@ dependencies = [
     "pyserial==3.4",
 ]
 
-[tool.setuptools.find]
-include = ["python_utils"]
-
-
+[project.entry-points."python_utils"]
