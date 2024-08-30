@@ -1,6 +1,6 @@
 import serial
 
-from recommended_commands import EnV5RecommendedRemoteControlProtocol
+from .recommended_commands import EnV5RecommendedRemoteControlProtocol
 
 
 class UserRemoteControl:
