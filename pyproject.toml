@@ -1,19 +1,17 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "elastic-ai.runtime-utils"
+[tool.poetry]
+name = "elasticai.runtime.env5"
 version = "0.1.0"
-requires-python = ">= 3.10"
-license = {text = "MIT License"}
-classifiers = [
-    "Programming Language :: Python :: 3.10",
-]
-dependencies = [
-    "pyserial==3.4",
-]
+description = ""
+authors = ["Department Embedded Systems - University Duisburg Essen"]
+license = "MIT"
+readme = "README.adoc"
+packages = [{include = "elasticai/runtime", from="python_utils" }]
 
-[tool.setuptools]
-packages = ["python_utils"]
+[tool.poetry.dependencies]
+python = ">= 3.10"
+pyserial = "3.4"
 
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
