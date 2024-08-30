@@ -1,12 +1,9 @@
-import os.path
 from pathlib import Path
-from time import sleep
 
 import serial
-from serial.tools import list_ports
 import atexit
 
-from python_utils.usb import UserRemoteControl, get_env5_port
+from python_utils.elasticai.runtime.env5.usb import UserRemoteControl, get_env5_port
 
 echo_server: (str, bytes) = (
     "./bitfile_scripts/bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_stub_skeleton_v2.bin",

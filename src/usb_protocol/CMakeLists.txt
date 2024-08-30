@@ -14,8 +14,11 @@ target_link_libraries(usb-protocol PUBLIC
 )
 target_link_libraries(usb-protocol PRIVATE
         enV5_hw_controller
+        enV5_hw_configuration
+        hardware_spi
         gpio_interface
         flash_lib
         middleware_lib
         stub_v2_lib
+        sleep_interface
 )

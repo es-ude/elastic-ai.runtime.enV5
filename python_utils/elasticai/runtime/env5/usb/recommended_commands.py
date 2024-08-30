@@ -3,7 +3,7 @@ from typing import Callable
 
 import serial
 
-from communication_base_protocol import (
+from .communication_base_protocol import (
     get_base_commands,
     EnV5BaseRemoteControlProtocol,
     WrongCommand,
