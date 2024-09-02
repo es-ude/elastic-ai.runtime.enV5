@@ -226,5 +226,5 @@ void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint8_t networkOutput[outputLength];
     modelPredict(networkInput, inputLength, networkOutput, outputLength);
 
-    sendOutput(networkInput, outputLength);
+    sendOutput(networkOutput, outputLength);
 }
