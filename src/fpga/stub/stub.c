@@ -72,6 +72,6 @@ static void startCompute(void) {
     middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, cmd, 1);
 }
 static void stopCompute(void) {
-    uint8_t cmd[1] = {0x01};
+    uint8_t cmd[1] = {0x00};
     middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, cmd, 1);
 }
