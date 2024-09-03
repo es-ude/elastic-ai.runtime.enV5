@@ -20,6 +20,10 @@
 #include "bmi323_defs.h"
 #include "bmi3_defs.h"
 
+#ifndef GRAVITY_EARTH
+#define GRAVITY_EARTH (9.80665f)
+#endif
+
 /* region INTERNAL FUNCTIONS */
 
 static void bmi323ProcessErrorCode(int8_t errorCode) {
@@ -70,6 +74,20 @@ static float getMaxDpsForRange(uint8_t range) {
     }
 }
 
+static float getMaxMps2ForRange(uint8_t range) {
+    switch (range) {
+    case BMI3_ACC_RANGE_16G:
+        return 16.0f;
+    case BMI3_ACC_RANGE_8G:
+        return 8.0f;
+    case BMI3_ACC_RANGE_4G:
+        return 4.0f;
+    case BMI3_ACC_RANGE_2G:
+        return 2.0f;
+    default:
+        return 0;
+    }
+}
 /* endregion INTERNAL FUNCTIONS */
 
 /* region PUBLIC FUNCTIONS */
@@ -169,7 +187,17 @@ float bmi323LsbToDps(int16_t rawValue, uint8_t range, uint8_t resolution) {
     float dpsRange = getMaxDpsForRange(range);
     PRINT_DEBUG("maxVal=%f, hScale=%f; dps=%f", maxValue, halfScale, dpsRange);
     float value = (dpsRange / halfScale) * ((float)rawValue);
-    PRINT_DEBUG("Result=%f");
+    PRINT_DEBUG("Result=%f", value);
+    return value;
+}
+
+float bmi323LsbToMps2(int16_t rawValue, uint8_t range, uint8_t resolution) {
+    float maxValue = powf(2.0f, (float)resolution);
+    float halfScale = maxValue / 2.0f;
+    float mps2Range = getMaxMps2ForRange(range);
+    PRINT_DEBUG("maxVal=%f, hScale=%f; mps2=%f", maxValue, halfScale, mps2Range);
+    float value = (GRAVITY_EARTH * (float)rawValue * mps2Range) / halfScale;
+    PRINT_DEBUG("Result=%f", value);
     return value;
 }
 
