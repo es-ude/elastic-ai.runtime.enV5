@@ -547,6 +547,26 @@ float bmi323GetSensorTime(bmi323SensorConfiguration_t *sensor);
  * @returns value in degree per second
  */
 float bmi323LsbToDps(int16_t rawValue, uint8_t range, uint8_t resolution);
+
+/*!
+ * @brief convert raw value to meter per second squared (MPS2)
+ * @ingroup bmi323APIData
+ *
+ * @code
+ * float bmi323LsbToMps2(
+ *       int16_t rawValue,
+ *       uint8_t range,
+ *       uint8_t resolution
+ * );
+ * @endcode
+ *
+ * @param[in] rawValue raw value to be converted
+ * @param[in] range mps2 range for value conversion
+ * @param[in] resolution bit width of the raw value
+ *
+ * @returns value in meter per second squared
+ */
+float bmi323LsbToMps2(int16_t rawValue, uint8_t range, uint8_t resolution);
 // end::prototypes_data[]
 /* endregion DATA */
 
