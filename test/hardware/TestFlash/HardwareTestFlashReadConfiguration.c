@@ -13,12 +13,12 @@
 #include "Flash.h"
 #include "Spi.h"
 
-spiConfiguration_t spiToFlashConfig = {.sckPin = SPI_FLASH_SCK,
-                                       .misoPin = SPI_FLASH_MISO,
-                                       .mosiPin = SPI_FLASH_MOSI,
-                                       .baudrate = SPI_FLASH_BAUDRATE,
-                                       .spiInstance = SPI_FLASH_INSTANCE,
-                                       .csPin = SPI_FLASH_CS};
+spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
+                                       .misoPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
+                                       .baudrate = FLASH_SPI_BAUDRATE,
+                                       .spiInstance = FLASH_SPI_MODULE,
+                                       .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
