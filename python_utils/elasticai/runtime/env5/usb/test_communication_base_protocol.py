@@ -1,7 +1,3 @@
-import pytest
-from python_utils.usb.communication_base_protocol import *
-
-
 def test_xor_byte():
     a = 255
     b = 254
