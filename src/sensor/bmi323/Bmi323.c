@@ -119,13 +119,13 @@ void bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, dat
 void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *features) {
     bmi323ProcessErrorCode(bmi323_select_sensor(features, sensor));
 }
-void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
+void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
                                   bmi323FeatureConfiguration_t *config) {
-    bmi323ProcessErrorCode(bmi323_set_sensor_config(config, feature, sensor));
+    bmi323ProcessErrorCode(bmi323_set_sensor_config(config, numberOfFeatures, sensor));
 }
-void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
+void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
                                   bmi323FeatureConfiguration_t *config) {
-    bmi323ProcessErrorCode(bmi323_get_sensor_config(config, feature, sensor));
+    bmi323ProcessErrorCode(bmi323_get_sensor_config(config, numberOfFeatures, sensor));
 }
 
 void bmi323GetInterruptConfig(bmi323SensorConfiguration_t *sensor,
@@ -165,8 +165,9 @@ void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
 
 /* region DATA */
 
-void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t feature, bmi323SensorData_t *data) {
-    bmi323ProcessErrorCode(bmi323_get_sensor_data(data, feature, sensor));
+void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
+                   bmi323SensorData_t *data) {
+    bmi323ProcessErrorCode(bmi323_get_sensor_data(data, numberOfFeatures, sensor));
 }
 
 float bmi323GetSensorTime(bmi323SensorConfiguration_t *sensor) {
