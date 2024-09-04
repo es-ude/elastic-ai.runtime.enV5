@@ -25,7 +25,7 @@
  * @brief possible error codes for the API
  * @ingroup bmi323Types
  */
-enum bmi323ErrorCodes {
+typedef enum bmi323ErrorCodes {
     BMI323_ERROR_NULL_PTR = BMI3_E_NULL_PTR,
     BMI323_ERROR_COM_FAIL = BMI3_E_COM_FAIL,
     BMI323_ERROR_DEV_NOT_FOUND = BMI3_E_DEV_NOT_FOUND,
@@ -40,14 +40,7 @@ enum bmi323ErrorCodes {
     BMI323_ERROR_INVALID_ST_SELECTION = BMI3_E_INVALID_ST_SELECTION,
     BMI323_ERROR_OUT_OF_RANGE = BMI3_E_OUT_OF_RANGE,
     BMI323_ERROR_FEATURE_ENGINE_STATUS = BMI3_E_FEATURE_ENGINE_STATUS,
-};
-
-enum bmi323StatusRegister {
-    BMI323_POWER_UP_DETECTED = 0x0000,
-    BMI323_DATA_READY_TEMPERATURE = 0x0020,
-    BMI323_DATA_READY_GYROSCOPE = 0x0040,
-    BMI323_DATA_READY_ACCELEROMETER = 0x0080,
-};
+} bmi323ErrorCodes_t;
 
 /*!
  * @brief struct holding the configuration for the sensor
@@ -248,14 +241,14 @@ void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *
  * @code
  * void bmi323SetSensorConfiguration (
  *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t feature,
+ *      uint8_t numberOfFeatures,
  *      bmi323FeatureConfiguration *config
  * );
  * @endcode
  *
  * @param[in] sensor struct holding the sensor configuration
- * @param[in] feature sensor feature to configure
- * @param[in] config feature configuration
+ * @param[in] numberOfFeatures number of sensor features to configure
+ * @param[in] config array containing one or more feature configurations
  *
  * @Features
  * @verbatim
@@ -280,7 +273,7 @@ void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
+void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
                                   bmi323FeatureConfiguration_t *config);
 
 /*!
@@ -290,14 +283,14 @@ void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t f
  * @code
  * void bmi323GetSensorConfiguration(
  *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t feature,
+ *      uint8_t numberOfFeatures,
  *      bmi323FeatureConfiguration *config
  * );
  * @endcode
  *
  * @param[in] sensor struct holding the sensor configuration
- * @param[in] feature sensor feature to configure
- * @param[out] config feature configuration
+ * @param[in] numberOfFeatures number of sensor features to read configuration from
+ * @param[out] config  array containing one or more feature configurations
  *
  * @Features
  * @verbatim
@@ -322,7 +315,7 @@ void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t f
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t feature,
+void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
                                   bmi323FeatureConfiguration_t *config);
 
 /*!
@@ -458,14 +451,14 @@ void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  * @code
  * void bmi323GetData(
  *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t feature,
+ *      uint8_t numberOfFeatures,
  *      bmi323SensorData_t *data
  * );
  * @endcode
  *
  * @param[in] sensor struct holding the sensor configuration
- * @param[in] feature sensor feature to read from
- * @param[out]data buffer to store the read data
+ * @param[in] numberOfFeatures number of sensor features to read from
+ * @param[out]data array holding the buffer to store the read data
  *
  * @Features
  * @verbatim
@@ -490,7 +483,8 @@ void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  *
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t feature, bmi323SensorData_t *data);
+void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
+                   bmi323SensorData_t *data);
 
 /*!
  * @brief read temperature from the sensor
@@ -787,14 +781,14 @@ void bmi323SoftReset(bmi323SensorConfiguration_t *sensor);
  * @endcode
  *
  * @param[in] sensor struct holding the sensor configuration
- * @param[in] feature sensor features to test
+ * @param[in] features sensor features to test
  * @param[out] results results of the performed tests
  *
  * @verbatim
  * feature              |  Value
  * -------------------- |--------
  * BMI3_ST_ACCEL_ONLY   |      1
- * BMI3_ST_ACCEL_ONLY   |      2
+ * BMI3_ST_GYRO_ONLY    |      2
  * BMI3_ST_BOTH_ACC_GYR |      3
  * @endverbatim
  *
