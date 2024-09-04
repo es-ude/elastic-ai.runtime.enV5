@@ -32,6 +32,7 @@ module.exports = {
                      'fpga',
                      'workflow',
                      'readme',
+                     'cmake',
                    ]
                  ],
     'subject-empty' : [ 2, "never" ],
