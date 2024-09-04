@@ -312,4 +312,10 @@
 
 /* endregion BMI323 */
 
+/* region PICO OTA */
+
+#define PICO_FLASH_SIZE_BYTES (16000000)
+
+/* endregion PICO OTA */
+
 #endif

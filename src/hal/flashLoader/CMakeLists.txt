@@ -16,6 +16,8 @@ target_link_libraries(flashLoader PUBLIC
         pico_platform
         pico_standard_link
         pico_divider
+        pico_binary_info
+        enV5_hw_configuration
 )
 
 pico_add_uf2_output(flashLoader)
