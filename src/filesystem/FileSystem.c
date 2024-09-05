@@ -86,9 +86,6 @@ void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t
     uint8_t id = currentID;
     currentID++;
     fileSystem[numberOfEntries].id = id;
-    /*for (int i = 0; i <= sizeof(*name); i++) {
-        //fileSystem[numberOfEntries].name[i] = name[i];
-    }*/
     fileSystem[numberOfEntries].startSector = sector;
     fileSystem[numberOfEntries].size = size;
     fileSystem[numberOfEntries].isConfig = isConfig;
