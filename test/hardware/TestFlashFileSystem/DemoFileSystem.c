@@ -13,11 +13,11 @@ is stored in the variable nextFileSector
 
 #define SOURCE_FILE "DEMO_FILESYSTEM"
 
-#include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "hardware/spi.h"
@@ -40,8 +40,7 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .mosiPin = FLASH_SPI_MISO,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
-                                       .csPin = FLASH_SPI_CS
-};
+                                       .csPin = FLASH_SPI_CS};
 
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
@@ -136,7 +135,7 @@ void downloadConfigurationUSB(bool useFast) {
     }
 
     PRINT("Please exit Minicom and start /bitfile_scripts/BitfileFlasher.py with the file path "
-           "you selected \n (U = blink_fast / u = blink_slow)\n");
+          "you selected \n (U = blink_fast / u = blink_slow)\n");
     while (stdio_usb_connected()) {}
 
     fpgaConfigurationHandlerError_t error =
