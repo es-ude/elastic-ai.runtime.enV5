@@ -1,5 +1,10 @@
-#ifndef FILESYSTEMINTERNAL_H
-#define FILESYSTEMINTERNAL_H
+#ifndef ENV5_FILESYSTEM_INTERNAL_HEADER
+#define ENV5_FILESYSTEM_INTERNAL_HEADER
+
+static fileSystemEntry fileSystem[];
+static size_t fileSystemLength;
+static uint8_t numberOfEntries;
+static uint8_t currentID;
 
 static void writeFileToSector(flashConfiguration_t *flashConfig, uint8_t currentSector,
                               uint8_t newSector);
@@ -19,4 +24,4 @@ static void deleteFileSystemEntry(flashConfiguration_t *flashConfig, uint8_t ind
 static int compareStartSectors(const void *a, const void *b);
 static int compareIDs(const void *a, const void *b);
 
-#endif // FILESYSTEMINTERNAL_H
+#endif

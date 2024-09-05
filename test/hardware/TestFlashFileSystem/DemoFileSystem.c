@@ -11,9 +11,9 @@ is stored in the variable nextFileSector
 
 */
 
-#define SOURCE_FILE "CONFIGURE-HWTEST"
+#define SOURCE_FILE "DEMO_FILESYSTEM"
 
-#include "stdlib.h"
+#include <stdlib.h>
 #include <malloc.h>
 #include <math.h>
 #include <stdint.h>
@@ -40,7 +40,9 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .mosiPin = FLASH_SPI_MISO,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
-                                       .csPin = FLASH_SPI_CS};
+                                       .csPin = FLASH_SPI_CS
+};
+
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
     .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
@@ -64,8 +66,8 @@ void initDemo() {
     networkTryToConnectToNetworkUntilSuccessful();
 
     sleep_for_ms(1000);
-    printf("\n");
-    printf("===== File System Demo =====\n");
+    PRINT("\n");
+    PRINT("===== File System Demo =====\n");
 }
 
 void downloadConfigurationHTTP(bool useFast) {
@@ -79,10 +81,10 @@ void downloadConfigurationHTTP(bool useFast) {
             (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
 
         // STUFF FOR FILE SYSTEM ------------------------------------
-        if (!findFittingStartSector(numberOfRequiredSectors)) {
+        if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
             return;
         }
-        addNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
         // ----------------------------------------------------------
 
         strcat(url, "/getfast");
@@ -99,11 +101,10 @@ void downloadConfigurationHTTP(bool useFast) {
             (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
 
         // STUFF FOR FILE SYSTEM -----------------------------------------
-        if (!findFittingStartSector(numberOfRequiredSectors)) {
-            printf("Not enough space...\n Aborting...\n");
+        if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
+            PRINT("Not enough space...\n Aborting...\n");
             return;
         }
-        addNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
         // ----------------------------------------------------------------
 
         strcat(url, "/getslow");
@@ -116,6 +117,7 @@ void downloadConfigurationHTTP(bool useFast) {
         }
     }
     PRINT("Download Successful!");
+    filesystemAddNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
 }
 
 void downloadConfigurationUSB(bool useFast) {
@@ -128,12 +130,12 @@ void downloadConfigurationUSB(bool useFast) {
             (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
     }
 
-    if (!findFittingStartSector(numberOfRequiredSectors)) {
-        printf("File does not fit. Check flash usage.\n");
+    if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
+        PRINT("File does not fit. Check flash usage.\n");
         return;
     }
 
-    printf("Please exit Minicom and start /bitfile_scripts/BitfileFlasher.py with the file path "
+    PRINT("Please exit Minicom and start /bitfile_scripts/BitfileFlasher.py with the file path "
            "you selected \n (U = blink_fast / u = blink_slow)\n");
     while (stdio_usb_connected()) {}
 
@@ -145,12 +147,12 @@ void downloadConfigurationUSB(bool useFast) {
         PRINT("Error 0x%02X occurred during download.", error);
         return;
     }
-    printf("Download Successful!\n");
+    PRINT("Download Successful!\n");
 
     if (useFast) {
-        addNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
     } else {
-        addNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
     }
 }
 
@@ -164,10 +166,10 @@ void readConfiguration(uint32_t sector) {
 
     numberOfPages = 5;
 
-    printf("Sector: %d\n", sector);
-    printf("Start Address: %d\n", startAddress);
-    printf("\n");
-    printf("\n");
+    PRINT("Sector: %d\n", sector);
+    PRINT("Start Address: %d\n", startAddress);
+    PRINT("\n");
+    PRINT("\n");
 
     data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
     while (page < numberOfPages) {
@@ -196,25 +198,25 @@ uint32_t getInput() {
 }
 
 void printHelp() {
-    printf("\n");
-    printf("---------------------------------------------\n");
-    printf("You can use the following commands:\n");
-    printf("\n");
-    printf("O or o: Output current File System sorted by Sector / ID\n");
-    printf("f: Print current flash usage and number of free sectors\n");
-    printf("m: Move file to a different sector\n");
-    printf("E: Erase entire flash (use with caution)\n");
-    printf("e: Erase file by ID\n");
-    printf("D or d: Download fast or slow blinking config via HTTP\n");
-    printf("U or u: Download fast or slow blinking config via USB\n");
-    printf("P or p: Power FPGA on or off\n");
-    printf("r: read data of sector\n");
-    printf("---------------------------------------------\n");
-    printf("\n");
+    PRINT("\n");
+    PRINT("---------------------------------------------\n");
+    PRINT("You can use the following commands:\n");
+    PRINT("\n");
+    PRINT("O or o: Output current File System sorted by Sector / ID\n");
+    PRINT("f: Print current flash usage and number of free sectors\n");
+    PRINT("m: Move file to a different sector\n");
+    PRINT("E: Erase entire flash (use with caution)\n");
+    PRINT("e: Erase file by ID\n");
+    PRINT("D or d: Download fast or slow blinking config via HTTP\n");
+    PRINT("U or u: Download fast or slow blinking config via USB\n");
+    PRINT("P or p: Power FPGA on or off\n");
+    PRINT("r: read data of sector\n");
+    PRINT("---------------------------------------------\n");
+    PRINT("\n");
 }
 
 _Noreturn void fileSystemDemo(void) {
-    printf("Enter 'h' for help.\n");
+    PRINT("Enter 'h' for help.\n");
 
     while (1) {
         char input = getchar_timeout_us(UINT32_MAX);
@@ -222,23 +224,23 @@ _Noreturn void fileSystemDemo(void) {
         switch (input) {
         case 'E':
             flashEraseAll(&flashConfig);
-            printf("ERASED!\n");
+            PRINT("ERASED!\n");
             break;
         case 'e':
-            printf("Which File do you want to erase? Enter ID: \n");
+            PRINT("Which File do you want to erase? Enter ID: \n");
             uint8_t erase_id = getInput();
-            if (eraseFileByID(&flashConfig, erase_id)) {
-                printf("Erased File with ID %d.\n", erase_id);
+            if (filesystemEraseFileByID(&flashConfig, erase_id)) {
+                PRINT("Erased File with ID %d.\n", erase_id);
             }
             break;
 
         case 'P':
             env5HwControllerFpgaPowersOn();
-            printf("FPGA Power: ON\n");
+            PRINT("FPGA Power: ON\n");
             break;
         case 'p':
             env5HwControllerFpgaPowersOff();
-            printf("FPGA Power: OFF\n");
+            PRINT("FPGA Power: OFF\n");
             break;
 
         case 'U':
@@ -255,48 +257,48 @@ _Noreturn void fileSystemDemo(void) {
             break;
 
         case 'r':
-            printf("Which Sector do you want to read?\n");
+            PRINT("Which Sector do you want to read?\n");
             uint32_t read_sector = getInput();
             readConfiguration(read_sector);
             break;
         case 'm':
-            printf("Which File do you want to move? Enter ID: \n");
+            PRINT("Which File do you want to move? Enter ID: \n");
             uint32_t ID = getInput();
 
-            printf("Enter new Sector: \n");
+            PRINT("Enter new Sector: \n");
             uint32_t newSector = getInput();
-            moveFileToSector(&flashConfig, ID, newSector);
+            filesystemMoveFileToSector(&flashConfig, ID, newSector);
             break;
         case 'f':
-            printf("Number of free Sectors: %d\n", getNumberOfFreeSectors());
+            PRINT("Number of free Sectors: %d\n", filesystemGetNumberOfFreeSectors());
             for (int i = 0; i < sizeof(sectorFree); i++) {
-                printf("%d", sectorFree[i]);
+                PRINT("%d", sectorFree[i]);
                 if (i == 5) {
-                    printf(" | ");
+                    PRINT(" | ");
                 }
             }
-            printf("\n");
-            printf("\n");
+            PRINT("\n");
+            PRINT("\n");
             break;
         case 'O':
-            sortFileSystemByStartSector();
-            printFileSystem();
+            filesystemSortFileSystemByStartSector();
+            filesystemPrintFileSystem();
             break;
         case 'o':
-            sortFileSystemByID();
-            printFileSystem();
+            filesystemSortFileSystemByID();
+            filesystemPrintFileSystem();
             break;
         case 'h':
             printHelp();
             break;
         default:
-            printf("Enter 'h' for help.\n");
+            PRINT("Enter 'h' for help.\n");
         }
     }
 }
 
 int main() {
     initDemo();
-    initFileSystem(flashConfig);
+    filesystemInit(flashConfig);
     fileSystemDemo();
 }
