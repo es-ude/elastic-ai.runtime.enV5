@@ -100,18 +100,10 @@
 /* endregion UART */
 
 /* region FLASH*/
-#ifndef FLASH_BYTES_PER_PAGE
-//! depends on part number
-#define FLASH_BYTES_PER_PAGE 512
-#endif
-
-#ifndef FLASH_BYTES_PER_SECTOR
-//! Each sector consists of 256kB (= 262144B)
-#define FLASH_BYTES_PER_SECTOR 262144
-#endif
-
 #ifndef FLASH_SPI_MODULE
-#define FLASH_SPI_MODULE SPI_INSTANCE(0)
+
+//SPI_INSTANCE(0) mochte er nicht
+#define FLASH_SPI_MODULE spi0
 #endif
 
 #ifndef FLASH_SPI_CLOCK

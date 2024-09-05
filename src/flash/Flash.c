@@ -16,8 +16,72 @@
 #include "Sleep.h"
 #include "Spi.h"
 #include "SpiTypedefs.h"
+#include "stdio.h"
 
 /* region PUBLIC HEADER FUNCTIONS */
+
+static uint8_t publicConfig[8];
+
+uint8_t FLASH_BYTES_PER_PAGE;
+uint8_t FLASH_BYTES_PER_SECTOR;
+uint32_t FLASH_NUMBER_OF_SECTORS;
+uint32_t FLASH_NUMBER_OF_BYTES;
+
+void readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRead, uint8_t length) {
+    data_t buffer = {.data = publicConfig, .length = length};
+    flashReadConfig(flashConfig, registerToRead, &buffer);
+}
+
+int getBytesPerSector() {
+    // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
+    if (!publicConfig[4] == 0x00) {
+        printf("FLASH IS NOT SUPPORTED. ABORTING...");
+        return 0;
+    }
+    return 256144;
+
+}
+int getBytesPerPage() {
+    // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
+    if (!publicConfig[4] == 0x00) {
+        printf("FLASH IS NOT SUPPORTED. ABORTING...");
+        return 0;
+    }
+    return 512;
+}
+
+int getBytesInFlash() {
+    // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
+    if (!publicConfig[4] == 0x00) {
+        printf("FLASH IS NOT SUPPORTED. ABORTING...");
+        return 0;
+    }
+
+    uint32_t oneMB = 1048576;
+    // Flash Size: 128MB
+    if (publicConfig[1] == 0x20 && publicConfig[2] == 0x18) {
+        return 128 * oneMB;
+    }
+
+    // Flash Size: 256MB
+    if (publicConfig[1] == 0x02 && publicConfig[2] == 0x19) {
+        return 256 * oneMB;
+    }
+
+}
+int getNumberOfSectors() {
+    return getBytesInFlash() / getBytesPerSector();
+}
+
+
+void flashInit(flashConfiguration_t *flashConfig) {
+    readConfigByLength(flashConfig, FLASH_READ_ID, 8);
+
+    FLASH_BYTES_PER_PAGE = getBytesPerPage(flashConfig);
+    FLASH_BYTES_PER_SECTOR = getBytesPerSector(flashConfig);
+    FLASH_NUMBER_OF_BYTES = getBytesInFlash(flashConfig);
+    FLASH_NUMBER_OF_SECTORS = getNumberOfSectors(flashConfig);
+}
 
 int flashReadConfig(flashConfiguration_t *config, commands_t registerToRead, data_t *dataBuffer) {
     uint8_t cmd[] = {registerToRead};
