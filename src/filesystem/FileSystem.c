@@ -81,7 +81,8 @@ bool filesystemFindFittingStartSector(uint8_t numberOfRequiredSectors) {
     return false;
 }
 
-void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size, uint8_t isConfig) {
+void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size,
+                                     uint8_t isConfig) {
     uint8_t sector = nextFileSector;
     uint8_t id = currentID;
     currentID++;
@@ -123,7 +124,7 @@ void filesystemMoveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, u
     for (int i = 0; i < requiredSectors; i++) {
         if (sectorFree[newSector + i] == 0) {
             PRINT("Sector %d already contains data. Do you want to overwrite? y/n\n",
-                   newSector + i);
+                  newSector + i);
             scanf("%c", &input);
 
             if (input == 'n') {
