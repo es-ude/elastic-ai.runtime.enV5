@@ -17,9 +17,6 @@ def read_slice(position: int, filename: Path, max_length: int = 512) -> bytes:
         chunk: bytes = file.read(max_length)
     return chunk
 
-@app.route("/getfast", methods=['GET'])
-def get_file_fast():
-
 @app.route("/getfast")
 def get_file_fast():
     chunk_size = request.args.get("chunkMaxSize", type=int)

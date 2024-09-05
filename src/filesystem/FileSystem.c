@@ -1,3 +1,5 @@
+#define SOURCE_FILE "FILESYSTEM"
+
 #include "math.h"
 
 #include "Common.h"
@@ -10,18 +12,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint8_t numberOfEntries = 0;
-uint8_t sectorFree[10];
-uint8_t currentID = 100;
+static uint8_t numberOfEntries = 0;
+static uint8_t currentID = 100;
 
-uint32_t nextFileSystemSector;
-fileSystemEntry fileSystem[60];
-size_t fileSystemLength = sizeof(fileSystem) / sizeof(fileSystemEntry);
-uint8_t entrySize = 8;
+static uint32_t nextFileSystemSector;
+static fileSystemEntry fileSystem[60];
+static size_t fileSystemLength = sizeof(fileSystem) / sizeof(fileSystemEntry);
+static uint8_t entrySize = 8;
 
 uint32_t nextFileSector = 0;
+uint8_t sectorFree[10];
 
-void initFileSystem(flashConfiguration_t flashConfig) {
+void filesystemInit(flashConfiguration_t flashConfig) {
     if (checkIfFileSystemExists(&flashConfig)) {
         checkNumberOfEntries(&flashConfig);
 
@@ -59,7 +61,7 @@ void initFileSystem(flashConfiguration_t flashConfig) {
     sectorFree[nextFileSystemSector] = 0;
 }
 
-bool findFittingStartSector(uint8_t numberOfRequiredSectors) {
+bool filesystemFindFittingStartSector(uint8_t numberOfRequiredSectors) {
     uint32_t tempNewFileSector = nextFileSector;
     uint8_t counter = 0;
 
@@ -79,7 +81,7 @@ bool findFittingStartSector(uint8_t numberOfRequiredSectors) {
     return false;
 }
 
-void addNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size, uint8_t isConfig) {
+void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size, uint8_t isConfig) {
     uint8_t sector = nextFileSector;
     uint8_t id = currentID;
     currentID++;
@@ -102,11 +104,13 @@ void addNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size, uin
 
     // update number of entries
     ++numberOfEntries;
+    PRINT("SLOW");
+    while (1) {}
     writeFileSystemToFlash(flashConfig);
 }
 
-void moveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t newSector) {
-    fileSystemEntry *entry = getEntryByID(ID);
+void filesystemMoveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t newSector) {
+    fileSystemEntry *entry = filesystemGetEntryByID(ID);
     uint8_t currentSector = entry->startSector;
     int index = getIndexBySector(currentSector);
     if (index == -1) {
@@ -116,17 +120,17 @@ void moveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t new
 
     uint8_t requiredSectors = fse.numberOfSectors;
     char input;
-    printf("Number of required sectors: %d\n", requiredSectors);
+    PRINT("Number of required sectors: %d\n", requiredSectors);
 
     // Check what to do, if sector isn't empty
     for (int i = 0; i < requiredSectors; i++) {
         if (sectorFree[newSector + i] == 0) {
-            printf("Sector %d already contains data. Do you want to overwrite? y/n\n",
+            PRINT("Sector %d already contains data. Do you want to overwrite? y/n\n",
                    newSector + i);
             scanf("%c", &input);
 
             if (input == 'n') {
-                printf("Aborting...\n");
+                PRINT("Aborting...\n");
                 return;
             }
 
@@ -138,7 +142,7 @@ void moveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t new
         }
     }
 
-    printf("Writing File with ID %d to sector %d... \n", ID, newSector);
+    PRINT("Writing File with ID %d to sector %d... \n", ID, newSector);
     writeFileToSector(flashConfig, currentSector, newSector);
     updateEntrySector(currentSector, newSector);
     for (int i = 0; i < fse.numberOfSectors; i++) {
@@ -148,10 +152,10 @@ void moveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t new
     writeFileSystemToFlash(flashConfig);
 }
 
-bool eraseFileByID(flashConfiguration_t *flashConfig, uint8_t id) {
-    fileSystemEntry *entry = getEntryByID(id);
+bool filesystemEraseFileByID(flashConfiguration_t *flashConfig, uint8_t id) {
+    fileSystemEntry *entry = filesystemGetEntryByID(id);
     if (entry == NULL) {
-        printf("No entry with this ID. Aborting...\n");
+        PRINT("No entry with this ID. Aborting...\n");
         return false;
     }
 
@@ -165,18 +169,18 @@ bool eraseFileByID(flashConfiguration_t *flashConfig, uint8_t id) {
     return true;
 }
 
-void printFileSystem() {
-    printf("\n");
-    printf("---File System---\n");
-    printf("Number of entries: %i\n", numberOfEntries);
-    printf("\n");
+void filesystemPrintFileSystem() {
+    PRINT("\n");
+    PRINT("---File System---\n");
+    PRINT("Number of entries: %i\n", numberOfEntries);
+    PRINT("\n");
     for (int i = 0; i < numberOfEntries; i++) {
         printFileSystemEntry(fileSystem[i]);
     }
-    printf("\n");
+    PRINT("\n");
 }
 
-uint8_t getNumberOfFreeSectors() {
+uint8_t filesystemGetNumberOfFreeSectors() {
     uint8_t count = 0;
     for (int i = 0; i < sizeof(sectorFree); i++) {
         if (sectorFree[i] == 1) {
@@ -186,7 +190,7 @@ uint8_t getNumberOfFreeSectors() {
     return count;
 }
 
-fileSystemEntry *getEntryByID(uint8_t id) {
+fileSystemEntry *filesystemGetEntryByID(uint8_t id) {
     for (int i = 0; i < numberOfEntries; i++) {
         if (fileSystem[i].id == id) {
             return &fileSystem[i];
@@ -195,32 +199,32 @@ fileSystemEntry *getEntryByID(uint8_t id) {
     return NULL;
 }
 
-fileSystemEntry *getEntryByIndex(uint8_t index) {
+fileSystemEntry *filesystemGetEntryByIndex(uint8_t index) {
     for (int i = 0; i <= numberOfEntries; i++) {
-        printf("%d, %d\n", i, index);
+        PRINT("%d, %d\n", i, index);
         if (i == index) {
             return &fileSystem[i];
         }
     }
-    printf("No entry found at this index.");
+    PRINT("No entry found at this index.");
     return NULL;
 }
 
-fileSystemEntry *getEntryBySector(uint8_t sector) {
+fileSystemEntry *filesystemGetEntryBySector(uint8_t sector) {
     for (int i = 0; i <= numberOfEntries; i++) {
         if (fileSystem[i].startSector == sector) {
             return &fileSystem[i];
         }
     }
-    printf("No entry found with this address...\n");
+    PRINT("No entry found with this address...\n");
     return NULL;
 }
 
-void sortFileSystemByStartSector() {
+void filesystemSortFileSystemByStartSector() {
     qsort(fileSystem, numberOfEntries, sizeof(fileSystemEntry), compareStartSectors);
 }
 
-void sortFileSystemByID() {
+void filesystemSortFileSystemByID() {
     qsort(fileSystem, numberOfEntries, sizeof(fileSystemEntry), compareIDs);
 }
 
@@ -239,7 +243,7 @@ void inc() {
 }
 
 void updateEntrySector(uint8_t oldSector, uint8_t newSector) {
-    fileSystemEntry *fse = getEntryBySector(oldSector);
+    fileSystemEntry *fse = filesystemGetEntryBySector(oldSector);
     fse->startSector = newSector;
 }
 
@@ -268,13 +272,13 @@ int getIndexBySector(uint8_t sector) {
             return i;
         }
     }
-    printf("No entry found with this address...\n");
+    PRINT("No entry found with this address...\n");
     return -1;
 }
 
 void writeFileToSector(flashConfiguration_t *flashConfig, uint8_t currentSector,
                        uint8_t newSector) {
-    fileSystemEntry fse = *getEntryBySector(currentSector);
+    fileSystemEntry fse = *filesystemGetEntryBySector(currentSector);
 
     uint32_t currentAddress = (currentSector) * (flashConfig->flashBytesPerSector);
     uint32_t newAddress = (newSector) * (flashConfig->flashBytesPerSector);
@@ -333,12 +337,12 @@ void fileSystemEntryToByteArray(fileSystemEntry *data, uint8_t *byteArray, uint8
 }
 
 void printFileSystemEntry(fileSystemEntry entry) {
-    printf("ID:                %d\n", entry.id);
-    printf("Start Sector:      %d\n", entry.startSector);
-    printf("Size:              %d\n", entry.size);
-    printf("isConfig:          %d\n", entry.isConfig);
-    printf("Number of Sectors: %d\n", entry.numberOfSectors);
-    printf("---\n");
+    PRINT("ID:                %d\n", entry.id);
+    PRINT("Start Sector:      %d\n", entry.startSector);
+    PRINT("Size:              %d\n", entry.size);
+    PRINT("isConfig:          %d\n", entry.isConfig);
+    PRINT("Number of Sectors: %d\n", entry.numberOfSectors);
+    PRINT("---\n");
 }
 
 bool checkIfFileSystemExists(flashConfiguration_t *flashConfig) {
@@ -351,8 +355,8 @@ bool checkIfFileSystemExists(flashConfiguration_t *flashConfig) {
         flashReadData(flashConfig, sectorStartAddress, &entryBuffer);
 
         if (entryBuffer.data[0] != 255) {
-            printf("\n");
-            printf("FileSystem found in sector %d.\n", i);
+            PRINT("\n");
+            PRINT("FileSystem found in sector %d.\n", i);
             nextFileSystemSector = i;
 
             inc();
@@ -363,9 +367,9 @@ bool checkIfFileSystemExists(flashConfiguration_t *flashConfig) {
         free(entryBuffer.data);
         sectorStartAddress += i * FLASH_BYTES_PER_SECTOR;
     }
-    printf("\n");
-    printf("No FileSystem found...\n");
-    printf("\n");
+    PRINT("\n");
+    PRINT("No FileSystem found...\n");
+    PRINT("\n");
     return false;
 }
 
@@ -421,8 +425,8 @@ void checkNumberOfEntries(flashConfiguration_t *flashConfig) {
         currentEntry++;
         free(entryBuffer.data);
     }
-    printf("Number of entries: %d\n", currentEntry);
-    printf("\n");
+    PRINT("Number of entries: %d\n", currentEntry);
+    PRINT("\n");
     numberOfEntries = currentEntry;
     // nextFileSector = currentEntry-1;
 }
@@ -437,7 +441,7 @@ void deleteFileSystemEntry(flashConfiguration_t *flashConfig, uint8_t index) {
 
 void writeFileSystemToFlash(flashConfiguration_t *flashConfig) {
     // Clear old data from pages to be used by new file system
-    printf("Writing new File System to Sector %i\n", nextFileSystemSector);
+    PRINT("Writing new File System to Sector %i\n", nextFileSystemSector);
 
     // Erase new sector before writing
     uint32_t newAddress = nextFileSystemSector * FLASH_BYTES_PER_SECTOR;
@@ -472,7 +476,7 @@ void writeFileSystemToFlash(flashConfiguration_t *flashConfig) {
     }
     inc();
 
-    printf("DONE...\n");
+    PRINT("DONE...\n");
 }
 
 int compareStartSectors(const void *a, const void *b) {
