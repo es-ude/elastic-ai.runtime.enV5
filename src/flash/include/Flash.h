@@ -7,25 +7,19 @@
 #include "SpiTypedefs.h"
 
 // tag::prototypes[]
-extern uint8_t FLASH_BYTES_PER_PAGE;
-extern uint8_t FLASH_BYTES_PER_SECTOR;
-extern uint32_t FLASH_NUMBER_OF_SECTORS;
-extern uint32_t FLASH_NUMBER_OF_BYTES;
+
 
 /*! @brief initialize all needed definitions when working with the flash
  *
  * @param config configuration of the Flash Chip
  * @return none
  */
-void flashInit(flashConfiguration_t *flashConfig);
+void flashInit(spiConfiguration_t *spiToFlashConfig);
 
-int getBytesPerSector();
-
-int getBytesPerPage();
-
-int getBytesInFlash();
-
-int getNumberOfSectors();
+uint32_t flashGetBytesPerSector();
+uint32_t flashGetBytesPerPage();
+uint32_t flashGetNumberOfBytes();
+uint32_t flashGetNumberOfSectors();
 
 
 /*! @brief read number of bytes from the flash config and store inside
@@ -33,7 +27,7 @@ int getNumberOfSectors();
  * @param config configuration of the Flash Chip
  * @return none
  */
-void readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRead, uint8_t length);
+uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t registerToRead, uint8_t length);
 
 /*! @brief read a configuration register of the flash
  *
@@ -42,7 +36,7 @@ void readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRea
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadConfig(flashConfiguration_t *config, commands_t registerToRead, data_t *dataBuffer);
+int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToRead, data_t *dataBuffer);
 
 /*! @brief write to the config register of the flash
  *
@@ -60,7 +54,7 @@ int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, size_
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(flashConfiguration_t *config, uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(const flashConfiguration_t *config, uint32_t startAddress, data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *

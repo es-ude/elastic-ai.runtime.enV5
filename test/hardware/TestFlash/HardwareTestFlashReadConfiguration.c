@@ -13,8 +13,6 @@
 #include "Flash.h"
 #include "Spi.h"
 
-flashConfiguration_t flashConfig;
-
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
                                        .mosiPin = FLASH_SPI_MOSI,
@@ -24,18 +22,18 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
 flashConfiguration_t flashConfig;
 
 void initializeFlashConfig() {
+    flashInit(&spiToFlashConfig);
     flashConfig.flashSpiConfiguration = &spiToFlashConfig;
-    flashConfig.flashBytesPerPage = getBytesPerPage();   // Assign value at runtime
-    flashConfig.flashBytesPerSector = getBytesPerSector(); // Assign value at runtime
+    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
+    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
 }
-
 
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 
 void initializeConsoleOutput(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {
+    while (!stdio_usb_connected()) {
         // wait for serial console to connect
     }
 }
@@ -43,9 +41,8 @@ void initializeConsoleOutput(void) {
 void initializeHardware(void) {
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
-    flashInit(&flashConfig);
-
     spiInit(&spiToFlashConfig);
+    initializeFlashConfig();
 }
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
@@ -54,7 +51,7 @@ void enableQuadSPI(void) {
 void readConfig(uint8_t registerToRead) {
     uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
-    flashReadConfig(&flashConfig, registerToRead, &buffer);
+    flashReadConfig(&spiToFlashConfig, registerToRead, &buffer);
     PRINT("CONFIG: 0x%02X", configRegister);
 }
 
@@ -73,10 +70,14 @@ _Noreturn void runTest(void) {
             enableQuadSPI();
             break;
         case 'z':
-            printf("%i\n", FLASH_BYTES_PER_SECTOR);
-            printf("%i\n", FLASH_BYTES_PER_PAGE);
-            printf("%i\n", FLASH_NUMBER_OF_BYTES);
-            printf("%i\n", FLASH_NUMBER_OF_SECTORS);
+            printf("Bytes per sector: %i\n", flashGetBytesPerSector());
+            printf("Bytes per page: %i\n", flashGetBytesPerPage());
+            printf("Total number of bytes: %i\n", flashGetNumberOfBytes());
+            printf("Number of sectors: %i\n", flashGetNumberOfSectors());
+            break;
+        case 'x':
+            printf("Bytes per sector: %i\n", flashConfig.flashBytesPerSector);
+            printf("Bytes per page: %i\n", flashConfig.flashBytesPerPage);
             break;
         default:
             PRINT("Waiting ...");
