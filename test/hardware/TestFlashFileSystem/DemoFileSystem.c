@@ -19,11 +19,11 @@ is stored in the variable nextFileSector
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <Sleep.h>
 
 #include "hardware/spi.h"
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
-
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
@@ -32,8 +32,6 @@ is stored in the variable nextFileSector
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
-
-#include <Sleep.h>
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
