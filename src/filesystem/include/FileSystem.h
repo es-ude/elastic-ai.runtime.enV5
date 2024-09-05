@@ -19,7 +19,8 @@ extern uint8_t sectorFree[10];
 
 void filesystemInit(flashConfiguration_t flashConfig);
 bool filesystemFindFittingStartSector(uint8_t numberOfRequiredSectors);
-void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size, uint8_t isConfig);
+void filesystemAddNewFileSystemEntry(flashConfiguration_t *flashConfig, uint32_t size,
+                                     uint8_t isConfig);
 void filesystemMoveFileToSector(flashConfiguration_t *flashConfig, uint8_t ID, uint8_t newSector);
 bool filesystemEraseFileByID(flashConfiguration_t *flashConfig, uint8_t id);
 void filesystemPrintFileSystem();
