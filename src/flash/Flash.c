@@ -47,23 +47,25 @@ uint32_t flashGetNumberOfSectors() {
     return FLASH_NUMBER_OF_SECTORS;
 }
 
-int flashReadConfig(spiConfiguration_t *spiToFlashConfig, const commands_t registerToRead, data_t *dataBuffer) {
+int flashReadConfig(spiConfiguration_t *spiToFlashConfig, const commands_t registerToRead,
+                    data_t *dataBuffer) {
     uint8_t cmd[] = {registerToRead};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
     spiInit(spiToFlashConfig);
-    int readBytes =
-        spiWriteCommandAndReadBlocking(spiToFlashConfig, &command, dataBuffer);
+    int readBytes = spiWriteCommandAndReadBlocking(spiToFlashConfig, &command, dataBuffer);
     spiDeinit(spiToFlashConfig);
     return readBytes;
 }
-uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, const uint8_t registerToRead, const uint8_t length) {
+uint8_t *readConfigByLength(spiConfiguration_t *spiToFlashConfig, const uint8_t registerToRead,
+                            const uint8_t length) {
     data_t buffer = {.data = config, .length = length};
     flashReadConfig(spiToFlashConfig, registerToRead, &buffer);
     return config;
 }
 
-int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, const size_t bytesToWrite) {
+int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite,
+                     const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_CONFIG_REGISTER};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = configToWrite, .length = bytesToWrite};
@@ -80,7 +82,8 @@ int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, const
     return bytesWritten;
 }
 
-int flashReadData(const flashConfiguration_t *config, const uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(const flashConfiguration_t *config, const uint32_t startAddress,
+                  data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
@@ -141,7 +144,6 @@ int flashWritePage(flashConfiguration_t *config, const uint32_t startAddress, ui
     return bytesWritten;
 }
 /* endregion PUBLIC HEADER FUNCTIONS */
-
 
 /* region INTERNAL HEADER FUNCTIONS */
 
@@ -206,12 +208,12 @@ static void calculateBytesInFlash(const uint8_t config[]) {
 
     // Flash Size: 256MB
     if (config[1] == 0x02 && config[2] == 0x19) {
-        FLASH_NUMBER_OF_BYTES =  256 * oneMB;
+        FLASH_NUMBER_OF_BYTES = 256 * oneMB;
         return;
     }
 
     printf("FLASH IS NOT SUPPORTED. ABORTING NO CASE BYTES IN FLASH...\n");
-    FLASH_NUMBER_OF_BYTES =  0;
+    FLASH_NUMBER_OF_BYTES = 0;
 }
 static void calculateNumberOfSectors() {
     FLASH_NUMBER_OF_SECTORS = FLASH_NUMBER_OF_BYTES / FLASH_BYTES_PER_SECTOR;

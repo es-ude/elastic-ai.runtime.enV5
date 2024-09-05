@@ -8,7 +8,6 @@
 
 // tag::prototypes[]
 
-
 /*! @brief initialize all needed definitions when working with the flash
  *
  * @param config configuration of the Flash Chip
@@ -21,13 +20,13 @@ uint32_t flashGetBytesPerPage();
 uint32_t flashGetNumberOfBytes();
 uint32_t flashGetNumberOfSectors();
 
-
 /*! @brief read number of bytes from the flash config and store inside
  *
  * @param config configuration of the Flash Chip
  * @return none
  */
-uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t registerToRead, uint8_t length);
+uint8_t *readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t registerToRead,
+                            uint8_t length);
 
 /*! @brief read a configuration register of the flash
  *
@@ -36,7 +35,8 @@ uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t regist
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToRead, data_t *dataBuffer);
+int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToRead,
+                    data_t *dataBuffer);
 
 /*! @brief write to the config register of the flash
  *

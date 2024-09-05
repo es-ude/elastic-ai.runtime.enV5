@@ -102,7 +102,7 @@
 /* region FLASH*/
 #ifndef FLASH_SPI_MODULE
 
-//SPI_INSTANCE(0) mochte er nicht
+// SPI_INSTANCE(0) mochte er nicht
 #define FLASH_SPI_MODULE spi0
 #endif
 
