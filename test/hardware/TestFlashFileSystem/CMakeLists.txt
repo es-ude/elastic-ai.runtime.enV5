@@ -8,5 +8,5 @@ target_link_libraries(demo_file_system
         enV5_hw_controller
         enV5_hw_configuration
         fpga_configuration_handler
-        file_system)
+        filesystem_lib)
 create_enV5_executable(demo_file_system)
