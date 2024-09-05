@@ -155,6 +155,7 @@ void mqttBrokerReceive(char *response) {
                 current->subscriber.deliver(posting);
                 return;
             }
+            current = current->next;
         }
         PRINT_DEBUG("Received data for topic '%s', without active subscription!", posting.topic);
         free(posting.topic);

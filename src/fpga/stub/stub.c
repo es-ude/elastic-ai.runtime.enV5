@@ -42,19 +42,14 @@ void modelPredict(int8_t *inputs, size_t num_inputs, int8_t *result, size_t num_
     middlewareUserlogicEnable();
 
     // send input
-    middlewareWriteBlocking(ADDR_SKELETON_INPUTS + 0, (uint8_t *)(inputs), num_inputs);
+    middlewareWriteBlocking(ADDR_SKELETON_INPUTS, inputs, num_inputs);
 
     // run computation
     startCompute();
     while (middlewareUserlogicGetBusyStatus()) {}
     stopCompute();
 
-    // read output
-    for (int i = 0; i < num_results; i++) {
-        middlewareReadBlocking(ADDR_SKELETON_INPUTS + 0 + i, (uint8_t *)(&result) + i, 1);
-        middlewareReadBlocking(ADDR_SKELETON_INPUTS + 0 + i, (uint8_t *)(&result) + i, 1);
-    }
-
+    middlewareReadBlocking(ADDR_SKELETON_INPUTS, result, num_results);
     middlewareUserlogicDisable();
     middlewareDeinit();
 }
@@ -72,6 +67,6 @@ static void startCompute(void) {
     middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, cmd, 1);
 }
 static void stopCompute(void) {
-    uint8_t cmd[1] = {0x01};
+    uint8_t cmd[1] = {0x00};
     middlewareWriteBlocking(ADDR_COMPUTATION_ENABLE, cmd, 1);
 }

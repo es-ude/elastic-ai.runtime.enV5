@@ -47,6 +47,7 @@ else ()
 
     # include pico-sdk
     set(PICO_SDK_FETCH_FROM_GIT on)
+    set(PICO_SDK_FETCH_FROM_GIT_TAG "2.0.0")
     set(PICO_BOARD none)
     set(PICO_PLATFORM rp2040)
     set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_SOURCE_DIR}/picotool)
