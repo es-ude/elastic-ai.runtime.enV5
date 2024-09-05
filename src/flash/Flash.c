@@ -63,80 +63,80 @@ uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, const uint8_t 
     return config;
 }
 
-int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, const size_t bytesToWrite) {
+int flashWriteConfig(spiConfiguration_t *config, uint8_t *configToWrite, const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_CONFIG_REGISTER};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = configToWrite, .length = bytesToWrite};
 
-    spiInit(config->flashSpiConfiguration);
-    flashEnableWrite(config->flashSpiConfiguration);
+    spiInit(config);
+    flashEnableWrite(config);
 
     int bytesWritten =
-        spiWriteCommandAndDataBlocking(config->flashSpiConfiguration, &command, &dataToWrite);
+        spiWriteCommandAndDataBlocking(config, &command, &dataToWrite);
 
     flashWaitForDone(config);
-    spiDeinit(config->flashSpiConfiguration);
+    spiDeinit(config);
 
     return bytesWritten;
 }
 
-int flashReadData(const flashConfiguration_t *config, const uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(spiConfiguration_t *config, const uint32_t startAddress, data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config->flashSpiConfiguration);
+    spiInit(config);
     int bytesRead =
-        spiWriteCommandAndReadBlocking(config->flashSpiConfiguration, &command, dataBuffer);
-    spiDeinit(config->flashSpiConfiguration);
+        spiWriteCommandAndReadBlocking(config, &command, dataBuffer);
+    spiDeinit(config);
     return bytesRead;
 }
 
-flashErrorCode_t flashEraseAll(flashConfiguration_t *config) {
+flashErrorCode_t flashEraseAll(spiConfiguration_t *config) {
     uint8_t cmd[] = {FLASH_BULK_ERASE};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config->flashSpiConfiguration);
-    flashEnableWrite(config->flashSpiConfiguration);
+    spiInit(config);
+    flashEnableWrite(config);
 
-    spiWriteCommandBlocking(config->flashSpiConfiguration, &command);
+    spiWriteCommandBlocking(config, &command);
     sleep_for_ms(33000);
     flashWaitForDone(config);
     flashErrorCode_t eraseError = flashEraseErrorOccurred(config);
-    spiDeinit(config->flashSpiConfiguration);
+    spiDeinit(config);
 
     return eraseError;
 }
-flashErrorCode_t flashEraseSector(flashConfiguration_t *config, const uint32_t address) {
+flashErrorCode_t flashEraseSector(spiConfiguration_t *config, const uint32_t address) {
     uint8_t cmd[] = {FLASH_ERASE_SECTOR, address >> 16 & 0xFF, address >> 8 & 0xFF, address & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config->flashSpiConfiguration);
-    flashEnableWrite(config->flashSpiConfiguration);
+    spiInit(config);
+    flashEnableWrite(config);
 
-    spiWriteCommandBlocking(config->flashSpiConfiguration, &command);
+    spiWriteCommandBlocking(config, &command);
 
     flashWaitForDone(config);
     flashErrorCode_t eraseError = flashEraseErrorOccurred(config);
-    spiDeinit(config->flashSpiConfiguration);
+    spiDeinit(config);
 
     return eraseError;
 }
 
-int flashWritePage(flashConfiguration_t *config, const uint32_t startAddress, uint8_t *data,
+int flashWritePage(spiConfiguration_t *config, const uint32_t startAddress, uint8_t *data,
                    const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_PAGE, startAddress >> 16 & 0xFF, startAddress >> 8 & 0xFF,
                      startAddress & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = data, .length = bytesToWrite};
 
-    spiInit(config->flashSpiConfiguration);
-    flashEnableWrite(config->flashSpiConfiguration);
+    spiInit(config);
+    flashEnableWrite(config);
 
     int bytesWritten =
-        spiWriteCommandAndDataBlocking(config->flashSpiConfiguration, &command, &dataToWrite);
+        spiWriteCommandAndDataBlocking(config, &command, &dataToWrite);
 
     flashWaitForDone(config);
-    spiDeinit(config->flashSpiConfiguration);
+    spiDeinit(config);
 
     return bytesWritten;
 }
