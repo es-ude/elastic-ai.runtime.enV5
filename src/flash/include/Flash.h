@@ -7,6 +7,34 @@
 #include "SpiTypedefs.h"
 
 // tag::prototypes[]
+extern uint8_t FLASH_BYTES_PER_PAGE;
+extern uint8_t FLASH_BYTES_PER_SECTOR;
+extern uint32_t FLASH_NUMBER_OF_SECTORS;
+extern uint32_t FLASH_NUMBER_OF_BYTES;
+
+/*! @brief initialize all needed definitions when working with the flash
+ *
+ * @param config configuration of the Flash Chip
+ * @return none
+ */
+void flashInit(flashConfiguration_t *flashConfig);
+
+int getBytesPerSector();
+
+int getBytesPerPage();
+
+int getBytesInFlash();
+
+int getNumberOfSectors();
+
+
+/*! @brief read number of bytes from the flash config and store inside
+ *
+ * @param config configuration of the Flash Chip
+ * @return none
+ */
+void readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRead, uint8_t length);
+
 /*! @brief read a configuration register of the flash
  *
  * @param config configuration of the Flash Chip
