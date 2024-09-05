@@ -45,7 +45,7 @@ int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToR
  * @param bytesToWrite length of the configuration to write
  * @return number of written bytes
  */
-int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, size_t bytesToWrite);
+int flashWriteConfig(spiConfiguration_t *config, uint8_t *configToWrite, size_t bytesToWrite);
 
 /*! @brief read data from the flash storage
  *
@@ -54,7 +54,7 @@ int flashWriteConfig(flashConfiguration_t *config, uint8_t *configToWrite, size_
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(const flashConfiguration_t *config, uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(spiConfiguration_t *config, uint32_t startAddress, data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *
@@ -62,7 +62,7 @@ int flashReadData(const flashConfiguration_t *config, uint32_t startAddress, dat
  *
  * @return of if noe error occurred
  */
-flashErrorCode_t flashEraseAll(flashConfiguration_t *config);
+flashErrorCode_t flashEraseAll(spiConfiguration_t *config);
 
 /*! @brief erases sector of the flash
  *
@@ -70,7 +70,7 @@ flashErrorCode_t flashEraseAll(flashConfiguration_t *config);
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
-flashErrorCode_t flashEraseSector(flashConfiguration_t *config, uint32_t address);
+flashErrorCode_t flashEraseSector(spiConfiguration_t *config, uint32_t address);
 
 /*! @brief writes up to one page of bytes to the flash
  *
@@ -81,7 +81,7 @@ flashErrorCode_t flashEraseSector(flashConfiguration_t *config, uint32_t address
  * @param bytesToWrite length of the data buffer
  * @return number of bytes written to the flash
  */
-int flashWritePage(flashConfiguration_t *config, uint32_t startAddress, uint8_t *data,
+int flashWritePage(spiConfiguration_t *config, uint32_t startAddress, uint8_t *data,
                    size_t bytesToWrite);
 // end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */
