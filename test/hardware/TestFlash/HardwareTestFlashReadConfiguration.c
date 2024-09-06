@@ -46,7 +46,7 @@ void initializeHardware(void) {
 }
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
-    flashWriteConfig(&flashConfig, config, sizeof(config));
+    flashWriteConfig(&spiToFlashConfig, config, sizeof(config));
 }
 void readConfig(uint8_t registerToRead) {
     uint8_t configRegister;

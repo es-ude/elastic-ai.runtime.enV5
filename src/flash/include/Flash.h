@@ -35,7 +35,7 @@ uint8_t *readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t regist
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToRead,
+int flashReadConfig(spiConfiguration_t *spiConfig, commands_t registerToRead,
                     data_t *dataBuffer);
 
 /*! @brief write to the config register of the flash
@@ -45,7 +45,7 @@ int flashReadConfig(spiConfiguration_t *spiToFlashConfig, commands_t registerToR
  * @param bytesToWrite length of the configuration to write
  * @return number of written bytes
  */
-int flashWriteConfig(spiConfiguration_t *config, uint8_t *configToWrite, size_t bytesToWrite);
+int flashWriteConfig(spiConfiguration_t *spiConfig, uint8_t *configToWrite, size_t bytesToWrite);
 
 /*! @brief read data from the flash storage
  *
