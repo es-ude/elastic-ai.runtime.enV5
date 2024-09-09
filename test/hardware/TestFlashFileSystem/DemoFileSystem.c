@@ -35,7 +35,7 @@ is stored in the variable nextFileSector
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
-                                       .mosiPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
@@ -46,8 +46,17 @@ flashConfiguration_t flashConfig = {
     .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
 };
 
+filesystemConfiguration_t filesystemConfiguration = {
+    .numberOfEntries = 0,
+    .currentID = 100,
+    .entrySize = 8,
+    .nextFileSector = 0
+};
+
 const char *baseUrl = "http://192.168.2.21:5000";
 // const char *baseUrl = "http://192.168.203.223:5000";
+//const char *baseUrl = "http://134.91.202.201:5000";
+
 
 size_t blinkFastLength = 86116;
 size_t blinkSlowLength = 85540;
@@ -68,20 +77,18 @@ void initDemo() {
 }
 
 void downloadConfigurationHTTP(bool useFast) {
-    uint8_t numberOfRequiredSectors;
     fpgaConfigurationHandlerError_t error;
     char url[125];
     strcpy(url, baseUrl);
 
     if (useFast) {
-        numberOfRequiredSectors =
-            (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
 
         // STUFF FOR FILE SYSTEM ------------------------------------
-        if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
+        int32_t nextFileSector = filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
+        if (nextFileSector < 0) {
             return;
         }
-        filesystemAddNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkFastLength, 1);
         // ----------------------------------------------------------
 
         strcat(url, "/getfast");
@@ -94,15 +101,14 @@ void downloadConfigurationHTTP(bool useFast) {
         }
 
     } else {
-        numberOfRequiredSectors =
-            (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
 
-        // STUFF FOR FILE SYSTEM -----------------------------------------
-        if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
+        // region STUFF FOR FILE SYSTEM
+        int32_t nextFileSector = filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
+        if (nextFileSector < 0) {
             PRINT("Not enough space...\n Aborting...\n");
             return;
         }
-        // ----------------------------------------------------------------
+        // endregion
 
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
@@ -114,20 +120,14 @@ void downloadConfigurationHTTP(bool useFast) {
         }
     }
     PRINT("Download Successful!");
-    filesystemAddNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
+    filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkSlowLength, 1);
 }
 
 void downloadConfigurationUSB(bool useFast) {
-    uint8_t numberOfRequiredSectors;
-    if (useFast) {
-        numberOfRequiredSectors =
-            (uint8_t)ceilf((float)blinkFastLength / (float)FLASH_BYTES_PER_SECTOR);
-    } else {
-        numberOfRequiredSectors =
-            (uint8_t)ceilf((float)blinkSlowLength / (float)FLASH_BYTES_PER_SECTOR);
-    }
+    uint32_t numberOfRequiredBytes = useFast ? blinkFastLength : blinkSlowLength;
 
-    if (!filesystemFindFittingStartSector(numberOfRequiredSectors)) {
+    int32_t startSector = filesystemFindFittingStartSector(&filesystemConfiguration, numberOfRequiredBytes);
+    if (startSector < 0) {
         PRINT("File does not fit. Check flash usage.\n");
         return;
     }
@@ -137,7 +137,7 @@ void downloadConfigurationUSB(bool useFast) {
     while (stdio_usb_connected()) {}
 
     fpgaConfigurationHandlerError_t error =
-        fpgaConfigurationHandlerDownloadConfigurationViaUsb(&flashConfig, nextFileSector);
+        fpgaConfigurationHandlerDownloadConfigurationViaUsb(&flashConfig, startSector);
     while (!stdio_usb_connected()) {}
     sleep_for_ms(10000);
     if (error != FPGA_RECONFIG_NO_ERROR) {
@@ -147,9 +147,9 @@ void downloadConfigurationUSB(bool useFast) {
     PRINT("Download Successful!\n");
 
     if (useFast) {
-        filesystemAddNewFileSystemEntry(&flashConfig, blinkFastLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkFastLength, 1);
     } else {
-        filesystemAddNewFileSystemEntry(&flashConfig, blinkSlowLength, 1);
+        filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkSlowLength, 1);
     }
 }
 
@@ -226,7 +226,7 @@ _Noreturn void fileSystemDemo(void) {
         case 'e':
             PRINT("Which File do you want to erase? Enter ID: \n");
             uint8_t erase_id = getInput();
-            if (filesystemEraseFileByID(&flashConfig, erase_id)) {
+            if (filesystemEraseFileByID(&flashConfig, &filesystemConfiguration, erase_id)) {
                 PRINT("Erased File with ID %d.\n", erase_id);
             }
             break;
@@ -264,9 +264,9 @@ _Noreturn void fileSystemDemo(void) {
 
             PRINT("Enter new Sector: \n");
             uint32_t newSector = getInput();
-            filesystemMoveFileToSector(&flashConfig, ID, newSector);
+            filesystemMoveFileToSector(&flashConfig, &filesystemConfiguration, ID, newSector);
             break;
-        case 'f':
+        /*case 'f':
             PRINT("Number of free Sectors: %d\n", filesystemGetNumberOfFreeSectors());
             for (int i = 0; i < sizeof(sectorFree); i++) {
                 PRINT("%d", sectorFree[i]);
@@ -276,14 +276,14 @@ _Noreturn void fileSystemDemo(void) {
             }
             PRINT("\n");
             PRINT("\n");
-            break;
+            break;*/
         case 'O':
             filesystemSortFileSystemByStartSector();
-            filesystemPrintFileSystem();
+            filesystemPrintFileSystem(&filesystemConfiguration);
             break;
         case 'o':
             filesystemSortFileSystemByID();
-            filesystemPrintFileSystem();
+            filesystemPrintFileSystem(&filesystemConfiguration);
             break;
         case 'h':
             printHelp();
@@ -296,6 +296,6 @@ _Noreturn void fileSystemDemo(void) {
 
 int main() {
     initDemo();
-    filesystemInit(flashConfig);
+    filesystemInit(&flashConfig, &filesystemConfiguration);
     fileSystemDemo();
 }
