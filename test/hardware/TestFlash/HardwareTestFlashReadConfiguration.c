@@ -22,10 +22,11 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
 flashConfiguration_t flashConfig;
 
 void initializeFlashConfig() {
-    flashInit(&spiToFlashConfig);
     flashConfig.flashSpiConfiguration = &spiToFlashConfig;
+    flashInit(&flashConfig);
     flashConfig.flashBytesPerPage = flashGetBytesPerPage();
     flashConfig.flashBytesPerSector = flashGetBytesPerSector();
+    PRINT_DEBUG("Flash Config initialized.");
 }
 
 static const uint32_t startAddress = 0x00000000;
@@ -46,12 +47,12 @@ void initializeHardware(void) {
 }
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
-    flashWriteConfig(&spiToFlashConfig, config, sizeof(config));
+    flashWriteConfig(&flashConfig, config, sizeof(config));
 }
 void readConfig(uint8_t registerToRead) {
     uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
-    flashReadConfig(&spiToFlashConfig, registerToRead, &buffer);
+    flashReadConfig(&flashConfig, registerToRead, &buffer);
     PRINT("CONFIG: 0x%02X", configRegister);
 }
 
