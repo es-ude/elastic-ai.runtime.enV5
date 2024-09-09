@@ -47,7 +47,8 @@ uint32_t flashGetNumberOfSectors() {
     return FLASH_NUMBER_OF_SECTORS;
 }
 
-int flashReadConfig(flashConfiguration_t *flashConfig, const commands_t registerToRead, data_t *dataBuffer) {
+int flashReadConfig(flashConfiguration_t *flashConfig, const commands_t registerToRead,
+                    data_t *dataBuffer) {
     uint8_t cmd[] = {registerToRead};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
@@ -58,13 +59,15 @@ int flashReadConfig(flashConfiguration_t *flashConfig, const commands_t register
     return readBytes;
 }
 
-uint8_t* readConfigByLength(flashConfiguration_t *flashConfig, const uint8_t registerToRead, const uint8_t length) {
+uint8_t *readConfigByLength(flashConfiguration_t *flashConfig, const uint8_t registerToRead,
+                            const uint8_t length) {
     data_t buffer = {.data = configReadback, .length = length};
     flashReadConfig(flashConfig, registerToRead, &buffer);
     return configReadback;
 }
 
-int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite, const size_t bytesToWrite) {
+int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite,
+                     const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_CONFIG_REGISTER};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = configToWrite, .length = bytesToWrite};
@@ -81,7 +84,8 @@ int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite, 
     return bytesWritten;
 }
 
-int flashReadData(flashConfiguration_t *flashConfig, const uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(flashConfiguration_t *flashConfig, const uint32_t startAddress,
+                  data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
@@ -144,7 +148,6 @@ int flashWritePage(flashConfiguration_t *flashConfig, const uint32_t startAddres
 }
 /* endregion PUBLIC HEADER FUNCTIONS */
 
-
 /* region INTERNAL HEADER FUNCTIONS */
 
 static void flashEnableWrite(spiConfiguration_t *spiConfig) {
@@ -168,7 +171,6 @@ static void flashWaitForDone(flashConfiguration_t *flashConfig) {
         flashReadConfig(flashConfig, FLASH_READ_STATUS_REGISTER, &buffer);
     } while (configRegister & 0x01);
 }
-
 
 static void calculateBytesPerSector(const uint8_t *config) {
     // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
@@ -209,12 +211,12 @@ static void calculateBytesInFlash(const uint8_t *config) {
 
     // Flash Size: 256MB
     if (config[1] == 0x02 && config[2] == 0x19) {
-        FLASH_NUMBER_OF_BYTES =  256 * oneMB;
+        FLASH_NUMBER_OF_BYTES = 256 * oneMB;
         return;
     }
 
     printf("FLASH IS NOT SUPPORTED. ABORTING NO CASE BYTES IN FLASH...\n");
-    FLASH_NUMBER_OF_BYTES =  0;
+    FLASH_NUMBER_OF_BYTES = 0;
 }
 static void calculateNumberOfSectors() {
     FLASH_NUMBER_OF_SECTORS = FLASH_NUMBER_OF_BYTES / FLASH_BYTES_PER_SECTOR;
