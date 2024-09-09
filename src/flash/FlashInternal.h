@@ -8,9 +8,9 @@ static uint32_t FLASH_BYTES_PER_SECTOR;
 static uint32_t FLASH_NUMBER_OF_SECTORS;
 static uint32_t FLASH_NUMBER_OF_BYTES;
 
-static void calculateBytesPerSector(const uint8_t *configPointer);
-static void calculateBytesPerPage(const uint8_t *configPointer);
-static void calculateBytesInFlash(const uint8_t *configPointer);
+static void calculateBytesPerSector(const uint8_t *config);
+static void calculateBytesPerPage(const uint8_t *config);
+static void calculateBytesInFlash(const uint8_t *config);
 static void calculateNumberOfSectors();
 
 /*!
@@ -19,8 +19,8 @@ static void calculateNumberOfSectors();
  */
 static void flashEnableWrite(spiConfiguration_t *spiConfig);
 
-static flashErrorCode_t flashEraseErrorOccurred(spiConfiguration_t *spiConfig);
+static flashErrorCode_t flashEraseErrorOccurred(flashConfiguration_t *flashConfig);
 
-static void flashWaitForDone(spiConfiguration_t *config);
+static void flashWaitForDone(flashConfiguration_t *flashConfig);
 
 #endif /* ENV5_FLASH_INTERNAL_HEADER */

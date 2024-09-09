@@ -13,7 +13,7 @@
  * @param config configuration of the Flash Chip
  * @return none
  */
-void flashInit(spiConfiguration_t *spiToFlashConfig);
+void flashInit(flashConfiguration_t *flashConfig);
 
 uint32_t flashGetBytesPerSector();
 uint32_t flashGetBytesPerPage();
@@ -25,7 +25,7 @@ uint32_t flashGetNumberOfSectors();
  * @param config configuration of the Flash Chip
  * @return none
  */
-uint8_t *readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t registerToRead,
+uint8_t *readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRead,
                             uint8_t length);
 
 /*! @brief read a configuration register of the flash
@@ -35,7 +35,7 @@ uint8_t *readConfigByLength(spiConfiguration_t *spiToFlashConfig, uint8_t regist
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadConfig(spiConfiguration_t *spiConfig, commands_t registerToRead,
+int flashReadConfig(flashConfiguration_t *flashConfig, commands_t registerToRead,
                     data_t *dataBuffer);
 
 /*! @brief write to the config register of the flash
@@ -45,7 +45,7 @@ int flashReadConfig(spiConfiguration_t *spiConfig, commands_t registerToRead,
  * @param bytesToWrite length of the configuration to write
  * @return number of written bytes
  */
-int flashWriteConfig(spiConfiguration_t *spiConfig, uint8_t *configToWrite, size_t bytesToWrite);
+int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite, size_t bytesToWrite);
 
 /*! @brief read data from the flash storage
  *
@@ -54,7 +54,7 @@ int flashWriteConfig(spiConfiguration_t *spiConfig, uint8_t *configToWrite, size
  * @param dataBuffer buffer to store read out data
  * @return number of read bytes
  */
-int flashReadData(spiConfiguration_t *config, uint32_t startAddress, data_t *dataBuffer);
+int flashReadData(flashConfiguration_t *flashConfig, uint32_t startAddress, data_t *dataBuffer);
 
 /*! \brief erases the whole flash memory
  *
@@ -62,7 +62,7 @@ int flashReadData(spiConfiguration_t *config, uint32_t startAddress, data_t *dat
  *
  * @return of if noe error occurred
  */
-flashErrorCode_t flashEraseAll(spiConfiguration_t *config);
+flashErrorCode_t flashEraseAll(flashConfiguration_t *flashConfig);
 
 /*! @brief erases sector of the flash
  *
@@ -70,7 +70,7 @@ flashErrorCode_t flashEraseAll(spiConfiguration_t *config);
  * @param address address where the sector starts
  * @return 0 if no error occurred
  */
-flashErrorCode_t flashEraseSector(spiConfiguration_t *config, uint32_t address);
+flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfig, uint32_t address);
 
 /*! @brief writes up to one page of bytes to the flash
  *
@@ -81,7 +81,7 @@ flashErrorCode_t flashEraseSector(spiConfiguration_t *config, uint32_t address);
  * @param bytesToWrite length of the data buffer
  * @return number of bytes written to the flash
  */
-int flashWritePage(spiConfiguration_t *config, uint32_t startAddress, uint8_t *data,
+int flashWritePage(flashConfiguration_t *flashConfig, uint32_t startAddress, uint8_t *data,
                    size_t bytesToWrite);
 // end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */

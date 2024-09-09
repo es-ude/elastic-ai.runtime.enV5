@@ -25,8 +25,8 @@ static uint32_t FLASH_NUMBER_OF_SECTORS;
 static uint32_t FLASH_NUMBER_OF_BYTES;
 
 /* region PUBLIC HEADER FUNCTIONS */
-void flashInit(spiConfiguration_t *spiToFlashConfig) {
-    const uint8_t *config = readConfigByLength(spiToFlashConfig, FLASH_READ_ID, 33);
+void flashInit(flashConfiguration_t *flashConfig) {
+    const uint8_t *config = readConfigByLength(flashConfig, FLASH_READ_ID, 33);
 
     calculateBytesPerPage(config);
     calculateBytesPerSector(config);
@@ -47,96 +47,98 @@ uint32_t flashGetNumberOfSectors() {
     return FLASH_NUMBER_OF_SECTORS;
 }
 
-int flashReadConfig(spiConfiguration_t *spiConfig, const commands_t registerToRead, data_t *dataBuffer) {
+int flashReadConfig(flashConfiguration_t *flashConfig, const commands_t registerToRead, data_t *dataBuffer) {
     uint8_t cmd[] = {registerToRead};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(spiConfig);
+    spiInit(flashConfig->flashSpiConfiguration);
     int readBytes =
-        spiWriteCommandAndReadBlocking(spiConfig, &command, dataBuffer);
-    spiDeinit(spiConfig);
+        spiWriteCommandAndReadBlocking(flashConfig->flashSpiConfiguration, &command, dataBuffer);
+    spiDeinit(flashConfig->flashSpiConfiguration);
     return readBytes;
 }
-uint8_t* readConfigByLength(spiConfiguration_t *spiToFlashConfig, const uint8_t registerToRead, const uint8_t length) {
+
+uint8_t* readConfigByLength(flashConfiguration_t *flashConfig, const uint8_t registerToRead, const uint8_t length) {
     data_t buffer = {.data = configReadback, .length = length};
-    flashReadConfig(spiToFlashConfig, registerToRead, &buffer);
+    flashReadConfig(flashConfig, registerToRead, &buffer);
     return configReadback;
 }
 
-int flashWriteConfig(spiConfiguration_t *spiConfig, uint8_t *configToWrite, const size_t bytesToWrite) {
+int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite, const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_CONFIG_REGISTER};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = configToWrite, .length = bytesToWrite};
 
-    spiInit(spiConfig);
-    flashEnableWrite(spiConfig);
+    spiInit(flashConfig->flashSpiConfiguration);
+    flashEnableWrite(flashConfig->flashSpiConfiguration);
 
     int bytesWritten =
-        spiWriteCommandAndDataBlocking(spiConfig, &command, &dataToWrite);
+        spiWriteCommandAndDataBlocking(flashConfig->flashSpiConfiguration, &command, &dataToWrite);
 
-    flashWaitForDone(spiConfig);
-    spiDeinit(spiConfig);
+    flashWaitForDone(flashConfig);
+    spiDeinit(flashConfig->flashSpiConfiguration);
 
     return bytesWritten;
 }
 
-int flashReadData(spiConfiguration_t *config, const uint32_t startAddress, data_t *dataBuffer) {
+int flashReadData(flashConfiguration_t *flashConfig, const uint32_t startAddress, data_t *dataBuffer) {
     uint8_t cmd[] = {FLASH_READ, startAddress >> 16, startAddress >> 8, startAddress};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config);
+    spiInit(flashConfig->flashSpiConfiguration);
     int bytesRead =
-        spiWriteCommandAndReadBlocking(config, &command, dataBuffer);
-    spiDeinit(config);
+        spiWriteCommandAndReadBlocking(flashConfig->flashSpiConfiguration, &command, dataBuffer);
+    spiDeinit(flashConfig->flashSpiConfiguration);
     return bytesRead;
 }
 
-flashErrorCode_t flashEraseAll(spiConfiguration_t *config) {
+flashErrorCode_t flashEraseAll(flashConfiguration_t *flashConfig) {
     uint8_t cmd[] = {FLASH_BULK_ERASE};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config);
-    flashEnableWrite(config);
+    spiInit(flashConfig->flashSpiConfiguration);
+    flashEnableWrite(flashConfig->flashSpiConfiguration);
 
-    spiWriteCommandBlocking(config, &command);
+    spiWriteCommandBlocking(flashConfig->flashSpiConfiguration, &command);
     sleep_for_ms(33000);
-    flashWaitForDone(config);
-    flashErrorCode_t eraseError = flashEraseErrorOccurred(config);
-    spiDeinit(config);
+    flashWaitForDone(flashConfig);
+    flashErrorCode_t eraseError = flashEraseErrorOccurred(flashConfig);
+    spiDeinit(flashConfig->flashSpiConfiguration);
 
     return eraseError;
 }
-flashErrorCode_t flashEraseSector(spiConfiguration_t *config, const uint32_t address) {
+
+flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfig, const uint32_t address) {
     uint8_t cmd[] = {FLASH_ERASE_SECTOR, address >> 16 & 0xFF, address >> 8 & 0xFF, address & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
 
-    spiInit(config);
-    flashEnableWrite(config);
+    spiInit(flashConfig->flashSpiConfiguration);
+    flashEnableWrite(flashConfig->flashSpiConfiguration);
 
-    spiWriteCommandBlocking(config, &command);
+    spiWriteCommandBlocking(flashConfig->flashSpiConfiguration, &command);
 
-    flashWaitForDone(config);
-    flashErrorCode_t eraseError = flashEraseErrorOccurred(config);
-    spiDeinit(config);
+    flashWaitForDone(flashConfig);
+    flashErrorCode_t eraseError = flashEraseErrorOccurred(flashConfig);
+    spiDeinit(flashConfig->flashSpiConfiguration);
 
     return eraseError;
 }
 
-int flashWritePage(spiConfiguration_t *config, const uint32_t startAddress, uint8_t *data,
+int flashWritePage(flashConfiguration_t *flashConfig, const uint32_t startAddress, uint8_t *data,
                    const size_t bytesToWrite) {
     uint8_t cmd[] = {FLASH_WRITE_PAGE, startAddress >> 16 & 0xFF, startAddress >> 8 & 0xFF,
                      startAddress & 0xFF};
     data_t command = {.data = cmd, .length = sizeof(cmd)};
     data_t dataToWrite = {.data = data, .length = bytesToWrite};
 
-    spiInit(config);
-    flashEnableWrite(config);
+    spiInit(flashConfig->flashSpiConfiguration);
+    flashEnableWrite(flashConfig->flashSpiConfiguration);
 
     int bytesWritten =
-        spiWriteCommandAndDataBlocking(config, &command, &dataToWrite);
+        spiWriteCommandAndDataBlocking(flashConfig->flashSpiConfiguration, &command, &dataToWrite);
 
-    flashWaitForDone(config);
-    spiDeinit(config);
+    flashWaitForDone(flashConfig);
+    spiDeinit(flashConfig->flashSpiConfiguration);
 
     return bytesWritten;
 }
@@ -152,47 +154,47 @@ static void flashEnableWrite(spiConfiguration_t *spiConfig) {
     spiWriteCommandBlocking(spiConfig, &command);
 }
 
-static flashErrorCode_t flashEraseErrorOccurred(spiConfiguration_t *spiConfig) {
+static flashErrorCode_t flashEraseErrorOccurred(flashConfiguration_t *flashConfig) {
     uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
-    flashReadConfig(spiConfig, FLASH_READ_STATUS_REGISTER, &buffer);
+    flashReadConfig(flashConfig, FLASH_READ_STATUS_REGISTER, &buffer);
     return ((configRegister >> 5) & 1) ? FLASH_ERASE_ERROR : FLASH_NO_ERROR;
 }
 
-static void flashWaitForDone(spiConfiguration_t *spiConfig) {
+static void flashWaitForDone(flashConfiguration_t *flashConfig) {
     uint8_t configRegister;
     do {
         data_t buffer = {.data = &configRegister, .length = 1};
-        flashReadConfig(spiConfig, FLASH_READ_STATUS_REGISTER, &buffer);
+        flashReadConfig(flashConfig, FLASH_READ_STATUS_REGISTER, &buffer);
     } while (configRegister & 0x01);
 }
 
 
-static void calculateBytesPerSector(const uint8_t *configPointer) {
+static void calculateBytesPerSector(const uint8_t *config) {
     // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
-    if (configPointer[4] != 0x00) {
+    if (config[4] != 0x00) {
         printf("FLASH IS NOT SUPPORTED. ABORTING BYTES PER SECTOR...\n");
         FLASH_BYTES_PER_SECTOR = 0;
         return;
     }
     FLASH_BYTES_PER_SECTOR = 262144;
 }
-static void calculateBytesPerPage(const uint8_t *configPointer) {
+static void calculateBytesPerPage(const uint8_t *config) {
     // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
-    if (configPointer[32] == 0x08) {
+    if (config[32] == 0x08) {
         FLASH_BYTES_PER_PAGE = 256;
         return;
     }
-    if (configPointer[32] == 0x09) {
+    if (config[32] == 0x09) {
         FLASH_BYTES_PER_PAGE = 512;
         return;
     }
     printf("FLASH IS NOT SUPPORTED. ABORTING BYTES PER PAGE...\n");
     FLASH_BYTES_PER_PAGE = 0;
 }
-static void calculateBytesInFlash(const uint8_t *configPointer) {
+static void calculateBytesInFlash(const uint8_t *config) {
     // 0x00 means flash has uniform sectors. Only flash modules with uniform sectors are supported.
-    if (configPointer[4] != 0x00) {
+    if (config[4] != 0x00) {
         printf("FLASH IS NOT SUPPORTED. ABORTING BYTES IN FLASH...\n");
         FLASH_NUMBER_OF_BYTES = 0;
         return;
@@ -200,13 +202,13 @@ static void calculateBytesInFlash(const uint8_t *configPointer) {
 
     const int oneMB = 1048576;
     // Flash Size: 128MB
-    if (configPointer[1] == 0x20 && configPointer[2] == 0x18) {
+    if (config[1] == 0x20 && config[2] == 0x18) {
         FLASH_NUMBER_OF_BYTES = 128 * oneMB;
         return;
     }
 
     // Flash Size: 256MB
-    if (configPointer[1] == 0x02 && configPointer[2] == 0x19) {
+    if (config[1] == 0x02 && config[2] == 0x19) {
         FLASH_NUMBER_OF_BYTES =  256 * oneMB;
         return;
     }
