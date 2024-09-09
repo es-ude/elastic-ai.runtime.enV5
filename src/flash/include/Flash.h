@@ -45,7 +45,8 @@ int flashReadConfig(flashConfiguration_t *flashConfig, commands_t registerToRead
  * @param bytesToWrite length of the configuration to write
  * @return number of written bytes
  */
-int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite, size_t bytesToWrite);
+int flashWriteConfig(flashConfiguration_t *flashConfig, uint8_t *configToWrite,
+                     size_t bytesToWrite);
 
 /*! @brief read data from the flash storage
  *
