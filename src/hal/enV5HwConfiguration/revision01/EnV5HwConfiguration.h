@@ -257,7 +257,7 @@
 
 /* region HTTP BIN-FILE DOWNLOAD */
 #ifndef HTTP_CHUNK_SIZE
-#define HTTP_CHUNK_SIZE FLASH_BYTES_PER_PAGE
+#define HTTP_CHUNK_SIZE
 #endif
 /* endregion HTTP BIN-FILE DOWNLOAD */
 
