@@ -97,13 +97,28 @@ static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int 
 static adxl345bErrorCode_t adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor,
                                                                 uint8_t mask);
 
+/*!
+ * @brief reads raw data of xAxis,yAxis and zAxis
+ *
+ * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *              - there must be at least 5 μs between the end of reading the data registers and the start of a new read
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to be at least 6 bytes
+ * @return return the error code (0 if everything passed)
+ *
+ * @note read only, raw data needs to be converted into g-values
+ */
+static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor, uint8_t *dataResponseBuffer);
+
+
 //TODO: adde kommentare
 /*!
- * @brief
- * @param range
- * @return
+ * @brief stores selected Range Information in static parameter
+ * @param range range to be selected
+ * @return return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range );
+static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range);
 
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */
