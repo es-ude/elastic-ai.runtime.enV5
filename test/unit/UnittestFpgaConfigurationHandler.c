@@ -10,8 +10,8 @@
 #include "httpDummy.h"
 
 flashConfiguration_t flashConfiguration = {.flashSpiConfiguration = NULL,
-                                           .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-                                           .flashBytesPerSector = FLASH_BYTES_PER_SECTOR};
+                                           .flashBytesPerPage = flashGetBytesPerPage(),
+                                           .flashBytesPerSector = flashGetBytesPerSector()};
 
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
@@ -19,7 +19,7 @@ uint8_t urlRequestCounter;
 void HttpGetCheckUrl(const char *url, HttpResponse_t **data) {
     char *expectedUrl = malloc(sizeof(baseUrl) + 33 * sizeof(char));
     sprintf(expectedUrl, "%s?chunkNumber=%u&chunkMaxSize=%u", baseUrl, urlRequestCounter,
-            FLASH_BYTES_PER_PAGE);
+            flashGetBytesPerPage());
 
     HttpResponse_t *emptyResponse = malloc(sizeof(HttpResponse_t));
     emptyResponse->length = 0;
