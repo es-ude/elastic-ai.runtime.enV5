@@ -14,8 +14,8 @@ typedef union fileSystemEntry {
         uint8_t startSector;
         uint8_t isConfig;
         uint8_t numberOfSectors;
-    }entry;
-}fileSystemEntry_t;
+    } entry;
+} fileSystemEntry_t;
 
 typedef struct filesystemConfiguration {
     flashConfiguration_t *flash;
@@ -29,16 +29,18 @@ typedef struct filesystemConfiguration {
 
     uint8_t numberOfEntries;
     uint8_t fileID;
-}filesystemConfiguration_t;
+} filesystemConfiguration_t;
 
 void filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t *filesystemConfig);
 
-int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesystemConfig, uint32_t numberOfRequiredBytes);
+int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesystemConfig,
+                                         uint32_t numberOfRequiredBytes);
 
-void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig, uint32_t startSector, uint32_t size,
-                                     uint8_t isConfig);
+void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                     uint32_t startSector, uint32_t size, uint8_t isConfig);
 
-void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint8_t ID, uint8_t newSector);
+void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint8_t ID,
+                                uint8_t newSector);
 
 bool filesystemEraseFileByID(filesystemConfiguration_t *filesystemConfig, uint8_t id);
 
@@ -46,9 +48,11 @@ uint8_t filesystemGetNumberOfFreeSectors();
 
 fileSystemEntry_t *filesystemGetEntryByID(filesystemConfiguration_t *filesystemConfig, uint8_t id);
 
-fileSystemEntry_t *filesystemGetEntryByIndex(filesystemConfiguration_t *filesystemConfig, uint8_t index);
+fileSystemEntry_t *filesystemGetEntryByIndex(filesystemConfiguration_t *filesystemConfig,
+                                             uint8_t index);
 
-fileSystemEntry_t *filesystemGetEntryBySector(filesystemConfiguration_t *filesystemConfig, uint8_t sector);
+fileSystemEntry_t *filesystemGetEntryBySector(filesystemConfiguration_t *filesystemConfig,
+                                              uint8_t sector);
 
 void filesystemSortFileSystemByStartSector();
 

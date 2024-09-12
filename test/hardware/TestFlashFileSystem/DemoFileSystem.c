@@ -36,8 +36,8 @@ flashConfiguration_t flashConfig = {
 filesystemConfiguration_t filesystemConfiguration;
 
 const char *baseUrl = "http://192.168.2.21:5000";
-//const char *baseUrl = "http://192.168.203.223:5000";
-//const char *baseUrl = "http://134.91.202.139:5000";
+// const char *baseUrl = "http://192.168.203.223:5000";
+// const char *baseUrl = "http://134.91.202.139:5000";
 
 size_t blinkFastLength = 86116;
 size_t blinkSlowLength = 85540;
@@ -67,11 +67,13 @@ void downloadConfigurationHTTP(bool useFast) {
     if (useFast) {
 
         /* region FUNCTIONS NEEDED FOR FILE SYSTEM */
-        int32_t nextFileSector = filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
+        int32_t nextFileSector =
+            filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
         if (nextFileSector < 0) {
             return;
         }
-        //filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkFastLength, 1);
+        // filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkFastLength,
+        // 1);
         /* end region */
 
         strcat(url, "/getfast");
@@ -86,7 +88,8 @@ void downloadConfigurationHTTP(bool useFast) {
     } else {
 
         // region STUFF FOR FILE SYSTEM
-        int32_t nextFileSector = filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
+        int32_t nextFileSector =
+            filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
         if (nextFileSector < 0) {
             PRINT("Not enough space...\n Aborting...\n");
             return;
@@ -103,13 +106,14 @@ void downloadConfigurationHTTP(bool useFast) {
         }
     }
     PRINT("Download Successful!");
-    //filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkSlowLength, 1);
+    // filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkSlowLength, 1);
 }
 
 void downloadConfigurationUSB(bool useFast) {
 
     uint32_t numberOfRequiredBytes = useFast ? blinkFastLength : blinkSlowLength;
-    int32_t startSector = filesystemFindFittingStartSector(&filesystemConfiguration, numberOfRequiredBytes);
+    int32_t startSector =
+        filesystemFindFittingStartSector(&filesystemConfiguration, numberOfRequiredBytes);
 
     if (startSector < 0) {
         PRINT("File does not fit. Check flash usage.\n");
@@ -135,7 +139,7 @@ void downloadConfigurationUSB(bool useFast) {
     if (useFast) {
         filesystemAddNewFileSystemEntry(&filesystemConfiguration, startSector, blinkFastLength, 1);
     } else {
-        filesystemAddNewFileSystemEntry(&filesystemConfiguration,startSector, blinkSlowLength, 1);
+        filesystemAddNewFileSystemEntry(&filesystemConfiguration, startSector, blinkSlowLength, 1);
     }
 }
 
