@@ -1,79 +1,83 @@
 #define SOURCE_FILE "SHT3X-Test"
 
+#include "CException.h"
+#include "hardware/i2c.h"
+#include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
+
 #include "Common.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "I2c.h"
 #include "Sht3x.h"
-#include <hardware/i2c.h>
-#include <pico/bootrom.h>
-#include <pico/stdio_usb.h>
-#include <stdio.h>
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
-    .i2cInstance = i2c1,
-    .frequency = 400000,
-    .sdaPin = 6,
-    .sclPin = 7,
+    .i2cInstance = I2C_MODULE,
+    .frequency = I2C_FREQUENCY_IN_HZ,
+    .sdaPin = I2C_SDA_PIN,
+    .sclPin = I2C_SCL_PIN,
 };
 /* endregion I2C DEFINITION */
-
 /* region SENSOR DEFINITION */
 static sht3xSensorConfiguration_t sensor = {
-    .i2c_slave_address = SHT3X_I2C_ADDRESS,
-    .i2c_host = i2c1,
+    .i2c_host = SHT_I2C_MODULE,
+    .i2c_slave_address = SHT_SLAVE,
 };
 /* endregion SENSOR DEFINITION */
 
-static void getTemperatureAndHumidity() {
-    float temperature, humidity;
-
-    sht3xErrorCode_t sht_errorCode =
+static void getTemperatureAndHumidity(void) {
+    CEXCEPTION_T exception;
+    Try {
+        float temperature, humidity;
         sht3xGetTemperatureAndHumidity(sensor, &temperature, &humidity);
-    if (sht_errorCode == SHT3X_NO_ERROR) {
         PRINT("Temperature: %4.2f°C\tHumidity: %4.2f%%RH", temperature, humidity);
-    } else {
-        PRINT("ErrorCode: %02X", sht_errorCode);
+    }
+    Catch(exception) {
+        PRINT("ErrorCode: %02X", exception);
     }
 }
 
-static void getTemperature() {
-    float temperature;
-
-    sht3xErrorCode_t sht_errorCode = sht3xGetTemperature(sensor, &temperature);
-    if (sht_errorCode == SHT3X_NO_ERROR) {
+static void getTemperature(void) {
+    CEXCEPTION_T exception;
+    Try {
+        float temperature = sht3xGetTemperature(sensor);
         PRINT("Temperature: %4.2f°C", temperature);
-    } else {
-        PRINT("ErrorCode: %02X", sht_errorCode);
+    }
+    Catch(exception) {
+        PRINT("ErrorCode: %02X", exception);
     }
 }
 
-static void getHumidity() {
-    float humidity;
-
-    sht3xErrorCode_t sht_errorCode = sht3xGetHumidity(sensor, &humidity);
-    if (sht_errorCode == SHT3X_NO_ERROR) {
+static void getHumidity(void) {
+    CEXCEPTION_T exception;
+    Try {
+        float humidity = sht3xGetHumidity(sensor);
         PRINT("Humidity: %4.2f%%RH", humidity);
-    } else {
-        PRINT("ErrorCode: %02X", sht_errorCode);
+    }
+    Catch(exception) {
+        PRINT("ErrorCode: %02X", exception);
     }
 }
 
-static void getSerialNumber() {
-    uint32_t serialNumber;
-
-    sht3xErrorCode_t sht_errorCode = sht3xReadSerialNumber(sensor, &serialNumber);
-    if (sht_errorCode == SHT3X_NO_ERROR) {
+static void getSerialNumber(void) {
+    CEXCEPTION_T exception;
+    Try {
+        uint32_t serialNumber = sht3xReadSerialNumber(sensor);
         PRINT("Serial number: %li", serialNumber);
-    } else {
-        PRINT("ErrorCode: %02X", sht_errorCode);
+    }
+    Catch(exception) {
+        PRINT("ErrorCode: %02X", exception);
     }
 }
 
-static void enterBootMode() {
+static void enterBootMode(void) {
     reset_usb_boot(0, 0);
 }
 
-int main(void) {
+static void initHardware(void) {
+    env5HwControllerInit();
+
     /* enable print to console output */
     stdio_init_all();
     // wait for user console to connect
@@ -95,17 +99,20 @@ int main(void) {
 
     /* initialize SHT3X sensor */
     PRINT("===== START INIT =====");
-    sht3xErrorCode_t sht_errorCode;
     while (1) {
-        sht_errorCode = sht3xInit(sensor);
-        if (sht_errorCode == SHT3X_NO_ERROR) {
+        CEXCEPTION_T exception;
+        Try {
+            sht3xInit(sensor);
             PRINT("Initialise SHT3X");
             break;
         }
-        PRINT("Initialise SHT3X failed; sht3x_ERROR: %02X", sht_errorCode);
-        sleep_ms(500);
+        Catch(exception) {
+            PRINT("Initialise SHT3X failed; sht3x_ERROR: %02X", exception);
+            sleep_ms(500);
+        }
     }
-
+}
+static _Noreturn void runTest(void) {
     /* test functions of sht3x */
     PRINT("===== START TEST =====");
     PRINT("Please enter a (Temp&Humi), t (Temp), h (Humi), s (serialNo), b "
@@ -135,6 +142,8 @@ int main(void) {
             break;
         }
     }
-
-    return 0;
+}
+int main(void) {
+    initHardware();
+    runTest();
 }

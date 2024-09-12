@@ -1,215 +1,132 @@
 #define SOURCE_FILE "src/sht3x/sht3x.c"
 
-#include "Sht3x.h"
+#include "CException.h"
+
 #include "Common.h"
 #include "I2c.h"
 #include "Sht3xInternal.h"
-#include "Sht3xTypedefs.h"
-#include "Sleep.h"
+#include "include/Sht3x.h"
+#include "include/Sht3xTypedefs.h"
+
+const uint16_t sht3xCrc8Polynomial = 0x31;       //!< P(x) = x^8 + x^5 + x^4 + 1 = 0b00110001 = 0x31
+const float sht3xDenominator = (1 << 16) - 1.0f; //!<  2^16 - 1 = 0b1111111111111111 = 0xFFFF
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-sht3xErrorCode_t sht3xInit(sht3xSensorConfiguration_t sensor) {
-    /* sleep to make sure the sensor is fully initialized */
-    sleep_for_ms(2);
-
-    /* check if SHT3X is on the Bus by requesting serial number without processing
-     */
+void sht3xInit(sht3xSensorConfiguration_t sensor) {
+    /* check if SHT3X is on the Bus by requesting serial number without processing */
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = (SHT3X_CMD_READ_STATUS >> 8);
     commandBuffer[1] = (SHT3X_CMD_READ_STATUS & 0xFF);
-
-    /* if i2cConfig returns error -> sensor not available on bus */
     i2cErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
                                                commandBuffer, sizeOfCommandBuffer);
-    if (errorCode != I2C_NO_ERROR) {
-        return SHT3X_INIT_ERROR;
-    }
 
-    return SHT3X_NO_ERROR;
+    if (I2C_INIT_ERROR == errorCode) {
+        Throw(SHT3X_HARDWARE_ERROR);
+    } else if (I2C_NO_ERROR != errorCode) {
+        Throw(SHT3X_SEND_COMMAND_ERROR);
+    }
 }
 
-sht3xErrorCode_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor, uint32_t *serialNumber) {
+uint32_t sht3xReadSerialNumber(sht3xSensorConfiguration_t sensor) {
     uint8_t sizeOfRequestBuffer = 6;
     uint8_t requestBuffer[sizeOfRequestBuffer];
 
-    sht3xErrorCode_t errorCode =
-        sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_SERIALNUMBER);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_SERIALNUMBER);
+    sht3xInternalReceiveDataFromSensor(sensor, requestBuffer, sizeOfRequestBuffer);
+    sht3xInternalPerformChecksumCheck(requestBuffer, sizeOfRequestBuffer);
 
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, requestBuffer, sizeOfRequestBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(requestBuffer, sizeOfRequestBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    *serialNumber = ((uint32_t)(requestBuffer[0]) << 24) | ((uint32_t)(requestBuffer[1]) << 16) |
-                    ((uint32_t)(requestBuffer[3]) << 8) | (uint32_t)(requestBuffer[4]);
-
-    return SHT3X_NO_ERROR;
+    return ((uint32_t)(requestBuffer[0]) << 24) | ((uint32_t)(requestBuffer[1]) << 16) |
+           ((uint32_t)(requestBuffer[3]) << 8) | (uint32_t)(requestBuffer[4]);
 }
 
-sht3xErrorCode_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor,
-                                         sht3xStatusRegister_t *statusRegister) {
+sht3xStatusRegister_t sht3xReadStatusRegister(sht3xSensorConfiguration_t sensor) {
     uint8_t sizeOfResponseBuffer = 3;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3xErrorCode_t errorCode = sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_STATUS);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_READ_STATUS);
+    sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
+    sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    statusRegister->config = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
-
-    return SHT3X_NO_ERROR;
+    return (sht3xStatusRegister_t){.config = ((uint16_t)(responseBuffer[0]) << 8) |
+                                             (uint16_t)(responseBuffer[1])};
 }
 
-sht3xErrorCode_t sht3xGetTemperature(sht3xSensorConfiguration_t sensor, float *temperature) {
+float sht3xGetTemperature(sht3xSensorConfiguration_t sensor) {
     uint8_t sizeOfResponseBuffer = 3;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3xErrorCode_t errorCode =
-        sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
+    sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
     uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
-    *temperature = sht3xInternalCalculateTemperature(rawTemperature);
-
-    return SHT3X_NO_ERROR;
+    return sht3xInternalCalculateTemperature(rawTemperature);
 }
 
-sht3xErrorCode_t sht3xGetHumidity(sht3xSensorConfiguration_t sensor, float *humidity) {
+float sht3xGetHumidity(sht3xSensorConfiguration_t sensor) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3xErrorCode_t errorCode =
-        sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
+    sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
     uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
-    *humidity = sht3xInternalCalculateHumidity(rawHumidity);
-
-    return SHT3X_NO_ERROR;
+    return sht3xInternalCalculateHumidity(rawHumidity);
 }
 
-sht3xErrorCode_t sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor,
-                                                float *temperature, float *humidity) {
+void sht3xGetTemperatureAndHumidity(sht3xSensorConfiguration_t sensor, float *temperature,
+                                    float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3xErrorCode_t errorCode =
-        sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_MEASURE_CLOCKSTRETCH_LOW);
+    sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
+    sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
     uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
     *temperature = sht3xInternalCalculateTemperature(rawTemperature);
 
     uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
     *humidity = sht3xInternalCalculateHumidity(rawHumidity);
-
-    return SHT3X_NO_ERROR;
 }
 
-sht3xErrorCode_t sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
-                                            float *humidity) {
+void sht3xReadMeasurementBuffer(sht3xSensorConfiguration_t sensor, float *temperature,
+                                float *humidity) {
     uint8_t sizeOfResponseBuffer = 6;
     uint8_t responseBuffer[sizeOfResponseBuffer];
 
-    sht3xErrorCode_t errorCode = sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_FETCH_DATA);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
-
-    errorCode = sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
-    if (errorCode != SHT3X_NO_ERROR) {
-        return errorCode;
-    }
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_FETCH_DATA);
+    sht3xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
+    sht3xInternalPerformChecksumCheck(responseBuffer, sizeOfResponseBuffer);
 
     uint16_t rawTemperature = ((uint16_t)(responseBuffer[0]) << 8) | (uint16_t)(responseBuffer[1]);
     *temperature = sht3xInternalCalculateTemperature(rawTemperature);
 
     uint16_t rawHumidity = ((uint16_t)(responseBuffer[3]) << 8) | (uint16_t)(responseBuffer[4]);
     *humidity = sht3xInternalCalculateHumidity(rawHumidity);
-
-    return SHT3X_NO_ERROR;
 }
 
-sht3xErrorCode_t sht3xEnableHeater(sht3xSensorConfiguration_t sensor) {
-    return sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_HEATER_ENABLE);
+void sht3xEnableHeater(sht3xSensorConfiguration_t sensor) {
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_HEATER_ENABLE);
 }
 
-sht3xErrorCode_t sht3xDisableHeater(sht3xSensorConfiguration_t sensor) {
-    return sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_HEATER_DISABLE);
+void sht3xDisableHeater(sht3xSensorConfiguration_t sensor) {
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_HEATER_DISABLE);
 }
 
-sht3xErrorCode_t sht3xSoftReset(sht3xSensorConfiguration_t sensor) {
-    return sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_SOFT_RESET);
+void sht3xSoftReset(sht3xSensorConfiguration_t sensor) {
+    sht3xInternalSendRequestToSensor(sensor, SHT3X_CMD_SOFT_RESET);
 }
 
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
 
-static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,
-                                                         sht3xCommand_t command) {
+static void sht3xInternalSendRequestToSensor(sht3xSensorConfiguration_t sensor,
+                                             sht3xCommand_t command) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = (command >> 8);
@@ -219,31 +136,33 @@ static sht3xErrorCode_t sht3xInternalSendRequestToSensor(sht3xSensorConfiguratio
     sht3xErrorCode_t errorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
                                                  commandBuffer, sizeOfCommandBuffer);
 
-    if (errorCode == I2C_NO_ERROR) {
-        return SHT3X_NO_ERROR;
+    if (errorCode == I2C_INIT_ERROR) {
+        PRINT_DEBUG("sending request failed, error was %02X", errorCode);
+        Throw(SHT3X_HARDWARE_ERROR);
+    } else if (errorCode != I2C_NO_ERROR) {
+        PRINT_DEBUG("sending request failed, error was %02X", errorCode);
+        Throw(SHT3X_SEND_COMMAND_ERROR);
     }
-
-    PRINT_DEBUG("sending request failed, error was %02X", errorCode);
-    return SHT3X_SEND_COMMAND_ERROR;
 }
 
-static sht3xErrorCode_t sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor,
-                                                           uint8_t *responseBuffer,
-                                                           uint8_t sizeOfResponseBuffer) {
+static void sht3xInternalReceiveDataFromSensor(sht3xSensorConfiguration_t sensor,
+                                               uint8_t *responseBuffer,
+                                               uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("receiving data from sensor");
     sht3xErrorCode_t errorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address,
                                              responseBuffer, sizeOfResponseBuffer);
 
-    if (errorCode == I2C_NO_ERROR) {
-        return SHT3X_NO_ERROR;
+    if (errorCode == I2C_INIT_ERROR) {
+        PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
+        Throw(SHT3X_HARDWARE_ERROR);
+    } else if (errorCode != I2C_NO_ERROR) {
+        PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
+        Throw(SHT3X_RECEIVE_DATA_ERROR);
     }
-
-    PRINT_DEBUG("receiving data failed, error was %02X", errorCode);
-    return SHT3X_RECEIVE_DATA_ERROR;
 }
 
-static sht3xErrorCode_t sht3xInternalPerformChecksumCheck(const uint8_t *responseBuffer,
-                                                          uint8_t sizeOfResponseBuffer) {
+static void sht3xInternalPerformChecksumCheck(const uint8_t *responseBuffer,
+                                              uint8_t sizeOfResponseBuffer) {
     PRINT_DEBUG("performing checksum check");
     uint8_t numberOfTriplets = sizeOfResponseBuffer / 3;
     uint8_t group = 0;
@@ -256,14 +175,13 @@ static sht3xErrorCode_t sht3xInternalPerformChecksumCheck(const uint8_t *respons
         if (transmittedChecksum != calculatedChecksum) {
             PRINT_DEBUG("checksum failed, input: %i, calculated: %i", transmittedChecksum,
                         calculatedChecksum);
-            return SHT3X_CHECKSUM_ERROR;
+            Throw(SHT3X_CHECKSUM_ERROR);
         }
 
         group++;
     }
 
-    PRINT_DEBUG("checksum passed");
-    return SHT3X_NO_ERROR;
+    PRINT_DEBUG("checksum matches!");
 }
 
 static uint8_t sht3xInternalCalculateChecksum(const uint8_t *dataBuffer) {
