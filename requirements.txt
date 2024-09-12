@@ -7,3 +7,4 @@ platformdirs==4.0.0
 pre-commit==3.5.0
 PyYAML==6.0.1
 virtualenv==20.24.7
+pyserial==3.4

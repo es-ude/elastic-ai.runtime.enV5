@@ -23,7 +23,8 @@ void deliver(posting_t posting) {
 void _Noreturn receiverTask(void) {
     PRINT("===== STARTING TEST =====");
 
-    protocolSubscribeForData("integTestTwin", "testSub", (subscriber_t){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "testSub1", (subscriber_t){.deliver = deliver});
+    protocolSubscribeForData("integTestTwin", "testSub2", (subscriber_t){.deliver = deliver});
 
     while (1) {
         posting_t post;
