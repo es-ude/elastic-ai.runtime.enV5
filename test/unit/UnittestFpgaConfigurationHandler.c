@@ -9,9 +9,7 @@
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
 
-flashConfiguration_t flashConfiguration = {.flashSpiConfiguration = NULL,
-                                           .flashBytesPerPage = flashGetBytesPerPage(),
-                                           .flashBytesPerSector = flashGetBytesPerSector()};
+flashConfiguration_t flashConfiguration;
 
 char baseUrl[] = "http://test.me.domain";
 uint8_t urlRequestCounter;
@@ -54,6 +52,10 @@ static void checkFlashData(size_t iterations) {
 }
 
 void setUp(void) {
+    flashConfiguration.flashSpiConfiguration = NULL;
+    flashConfiguration.flashBytesPerPage = flashGetBytesPerPage();
+    flashConfiguration.flashBytesPerSector = flashGetBytesPerSector();
+
     flashSetUpDummyStorage(flashConfiguration.flashBytesPerSector);
     urlRequestCounter = 0;
 }
