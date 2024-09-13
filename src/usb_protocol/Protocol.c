@@ -37,18 +37,21 @@ static void checkIdentifierIsInUserRange(uint8_t identifier) {
         Throw(USB_PROTOCOL_ERROR_INVALID_ID);
     }
 }
+
 //! @brief check handle is not NULL else @throws USB_PROTOCOL_ERROR_HANDLE_NOT_SET
 static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
     if (handle == NULL) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_NOT_SET);
     }
 }
+
 //! @brief check pointer is not NULL else @throws USB_PROTOCOL_ERROR_NULL_POINTER
 static void checkPointerIsNotNull(void *pointer) {
     if (pointer == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
 }
+
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
 static void checkReadAndSendHandleAreAvailable(void) {
     if (readHandle == NULL | sendHandle == NULL) {
@@ -60,6 +63,7 @@ static void checkReadAndSendHandleAreAvailable(void) {
 static void addCommand(uint8_t command, usbProtocolCommandHandle handle) {
     commands[command] = handle;
 }
+
 //! @brief set command pointer to NULL
 static void removeCommand(uint8_t command) {
     commands[command] = NULL;
@@ -84,6 +88,7 @@ static void addDefaultFunctions(void) {
     addCommand(7, &setFpgaLeds);
     addCommand(8, &setMcuLeds);
     addCommand(9, &runInference);
+    addCommand(10, &deployModel);
 }
 
 static void cleanMessageBuffer(usbProtocolMessage_t *message) {
@@ -147,6 +152,7 @@ void usbProtocolRegisterCommand(size_t identifier, usbProtocolCommandHandle comm
     checkIdentifierIsInUserRange(identifier);
     addCommand(identifier, command);
 }
+
 void usbProtocolUnregisterCommand(size_t identifier) {
     checkIdentifierIsInUserRange(identifier);
     removeCommand(identifier);
@@ -162,6 +168,7 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
 
     return message;
 }
+
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
     usbProtocolMessage_t *message = buffer;
 
@@ -178,5 +185,4 @@ void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
         Throw(exception);
     }
 }
-
 /* endregion PUBLIC FUNCTIONS */
