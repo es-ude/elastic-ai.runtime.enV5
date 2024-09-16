@@ -220,7 +220,6 @@ void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint32_t inputLength = convertByteArrayToUint32(&data[0]);
     uint32_t outputLength = convertByteArrayToUint32(&data[4]);
 
-
     uint8_t networkInput[inputLength];
     receiveInput(networkInput, inputLength);
 
