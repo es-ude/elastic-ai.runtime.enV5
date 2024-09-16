@@ -1,4 +1,6 @@
 import math
+from pathlib import Path
+from sys import byteorder
 from typing import Callable
 
 import serial
@@ -21,6 +23,7 @@ def get_recommended_commands() -> dict:
             "FPGA LEDs": 7,
             "MCU LEDs": 8,
             "inference with data": 9,
+            "deploy model": 10,
         }
     )
     return recommend_commands
@@ -164,13 +167,39 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
 
         self._send(command, payload)
 
+    def deploy_model(self, flash_start_address: int, skeleton_id: bytearray) -> bool:
+        command = self.commands["deploy model"]
+
+        payload = bytearray()
+
+        payload.extend(flash_start_address.to_bytes(length=4, byteorder=self.endian, signed=False))
+        payload.extend(skeleton_id)
+
+        self._send(command, payload)
+
+        command_rec, data = self._receive()
+        if command_rec == command:
+            if int.from_bytes(data) == 1:
+                return True
+        return False
+
+    def send_and_deploy_model(self,
+                              chunksize: int,
+                              binfile_path: Path,
+                              flash_start_address: int,
+                              skeleton_id: bytearray) -> bool:
+        with open(binfile_path, "rb") as file:
+            binfile: bytes = file.read()
+        finished = self.send_data_to_flash(flash_start_address, bytearray(binfile), chunksize)
+        if finished:
+            return self.deploy_model(flash_start_address, skeleton_id)
+        return False
+
     def inference_with_data(
         self,
         chunk_size: int,
         data: bytearray,
         num_bytes_outputs: int,
-        bin_file_address: int,
-        skeleton_id: bytearray,
     ) -> bytearray:
 
         # send starting command
@@ -184,14 +213,9 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
         num_bytes_outputs_raw = num_bytes_outputs.to_bytes(
             length=4, byteorder=self.endian, signed=False
         )
-        bin_file_address_raw = bin_file_address.to_bytes(
-            length=4, byteorder=self.endian, signed=False
-        )
 
         payload.extend(num_bytes_inputs_raw)
         payload.extend(num_bytes_outputs_raw)
-        payload.extend(bin_file_address_raw)
-        payload.extend(skeleton_id)
 
         self._send(command, payload)
 
