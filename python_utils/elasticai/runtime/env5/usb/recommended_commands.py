@@ -1,11 +1,12 @@
 import math
 from pathlib import Path
 from sys import byteorder
+from time import sleep
 from typing import Callable
 
 import serial
 
-from .communication_base_protocol import (
+from python_utils.elasticai.runtime.env5.usb.communication_base_protocol import (
     get_base_commands,
     EnV5BaseRemoteControlProtocol,
     WrongCommand,
@@ -181,18 +182,6 @@ class EnV5RecommendedRemoteControlProtocol(EnV5BaseRemoteControlProtocol):
         if command_rec == command:
             if int.from_bytes(data) == 1:
                 return True
-        return False
-
-    def send_and_deploy_model(self,
-                              chunksize: int,
-                              binfile_path: Path,
-                              flash_start_address: int,
-                              skeleton_id: bytearray) -> bool:
-        with open(binfile_path, "rb") as file:
-            binfile: bytes = file.read()
-        finished = self.send_data_to_flash(flash_start_address, bytearray(binfile), chunksize)
-        if finished:
-            return self.deploy_model(flash_start_address, skeleton_id)
         return False
 
     def inference_with_data(
