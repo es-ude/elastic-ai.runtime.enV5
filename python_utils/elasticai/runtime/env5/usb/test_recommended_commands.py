@@ -7,7 +7,7 @@ from unittest import expectedFailure
 from serial import Serial
 
 from helper_utils import get_env5_port
-from recommended_commands import *
+from python_utils.elasticai.runtime.env5.usb.recommended_commands import *
 
 echo_server: (str, bytes) = (
     "../bitfile_scripts/bitfiles/env5_bitfiles/echo_server/env5_top_reconfig_stub_skeleton_v2.bin",
