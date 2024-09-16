@@ -62,7 +62,6 @@ def upload_binary(bin_file: str) -> (int, bytearray):
 if __name__ == "__main__":
 
     binfile_path = pathlib.Path(echo_server[0])
-    binfile_path = pathlib.Path("/Users/leo/work/elastic-ai.creator/tests/system_tests/echo_server/build_dir_output_3/.autobuild/output/env5_top_reconfig.bin")
     flash_start_address = 0
 
     print("START")
