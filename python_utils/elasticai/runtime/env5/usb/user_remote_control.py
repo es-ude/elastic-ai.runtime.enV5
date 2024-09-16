@@ -31,7 +31,6 @@ class UserRemoteControl:
         return self._enV5RCP.read_data_from_flash(flash_start_address, num_bytes, self.chunk_size)
 
     def send_and_deploy_model(self,
-                              chunksize: int,
                               binfile_path: Path,
                               flash_start_address: int,
                               skeleton_id: bytearray) -> bool:
@@ -39,7 +38,7 @@ class UserRemoteControl:
         sleep(0.1)
         with open(binfile_path, "rb") as file:
             binfile: bytes = file.read()
-        finished = self._enV5RCP.send_data_to_flash(flash_start_address, bytearray(binfile), chunksize)
+        finished = self._enV5RCP.send_data_to_flash(flash_start_address, bytearray(binfile), self.chunk_size)
         if finished:
             self._enV5RCP.fpga_power(on=True)
             sleep(0.1)
