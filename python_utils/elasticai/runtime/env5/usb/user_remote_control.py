@@ -52,6 +52,7 @@ class UserRemoteControl:
                             data: bytearray,
                             num_bytes_outputs: int) -> bytearray:
         self._enV5RCP.fpga_power(on=True)
+        sleep(0.1)
         return self._enV5RCP.inference_with_data(self.chunk_size, data, num_bytes_outputs)
 
 
