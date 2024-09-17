@@ -8,6 +8,7 @@
 #include "FlashUnitTest.h"
 #include "FpgaConfigurationHandler.h"
 #include "httpDummy.h"
+#include "Flash.h"
 
 flashConfiguration_t flashConfiguration;
 
