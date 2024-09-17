@@ -58,8 +58,6 @@ void mqttBrokerConnectToBrokerUntilSuccessful(char *brokerDomain, char *clientID
  */
 void mqttBrokerConnectToBroker(char *brokerDomain, char *clientID);
 
-void publishLong(posting_t posting);
-
 /*!
  * @brief disconnect from MQTT broker
  * @param force[bool] if set disconnect comment will force disconnect
