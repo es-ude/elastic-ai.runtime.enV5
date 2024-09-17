@@ -78,7 +78,7 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 
 static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page) {
     char *url = malloc(strlen(baseUrl) + 36 * sizeof(char));
-    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, HTTP_CHUNK_SIZE);
+    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, flashGetBytesPerPage());
     return url;
 }
 

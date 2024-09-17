@@ -29,6 +29,7 @@
 #include "Network.h"
 #include "Spi.h"
 #include "middleware.h"
+#include "Flash.h"
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";
@@ -40,11 +41,15 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
-};
+flashConfiguration_t flashConfig;
+
+void initializeFlashConfig() {
+    flashConfig.flashSpiConfiguration = &spiToFlashConfig;
+    flashInit(&flashConfig);
+    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
+    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
+    PRINT_DEBUG("Flash Config initialized.");
+}
 
 static void initializeCommunication(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage
