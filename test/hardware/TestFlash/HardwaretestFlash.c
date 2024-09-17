@@ -68,8 +68,8 @@ void writeToFlash() {
          pageOffset += flashConfig.flashBytesPerPage) {
         data[0] = pageCounter;
         pageCounter++;
-        int successfulWrittenBytes =
-            flashWritePage(&flashConfig, startAddress + pageOffset, data, flashConfig.flashBytesPerPage);
+        int successfulWrittenBytes = flashWritePage(&flashConfig, startAddress + pageOffset, data,
+                                                    flashConfig.flashBytesPerPage);
         PRINT("Address 0x%02lX: %i Bytes Written", startAddress + pageOffset,
               successfulWrittenBytes);
     }
@@ -86,8 +86,8 @@ void readFromFlash() {
     }
 }
 void eraseSectorFromFlash(flashConfiguration_t flashConfig) {
-    int sectorsToErase =
-        (int)ceilf((float)(pageLimit * flashConfig.flashBytesPerPage) / flashConfig.flashBytesPerSector);
+    int sectorsToErase = (int)ceilf((float)(pageLimit * flashConfig.flashBytesPerPage) /
+                                    flashConfig.flashBytesPerSector);
 
     for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * flashConfig.flashBytesPerSector;
          sectorOffset += flashConfig.flashBytesPerSector) {

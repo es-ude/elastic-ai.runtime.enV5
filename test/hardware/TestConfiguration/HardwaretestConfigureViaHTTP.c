@@ -113,7 +113,8 @@ void readConfiguration(bool useFast) {
     data_t pageBuffer = {.data = NULL, .length = flashConfig.flashBytesPerPage};
     do {
         pageBuffer.data = calloc(flashConfig.flashBytesPerPage, sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage), &pageBuffer);
+        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage),
+                      &pageBuffer);
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;
@@ -140,7 +141,8 @@ void verifyConfiguration(bool useFast) {
         }
 
         pageBuffer.data = calloc(flashConfig.flashBytesPerPage, sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage), &pageBuffer);
+        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage),
+                      &pageBuffer);
 
         for (size_t index = 0; index < flashConfig.flashBytesPerPage; index++) {
             printf("%02X", pageBuffer.data[index]);
