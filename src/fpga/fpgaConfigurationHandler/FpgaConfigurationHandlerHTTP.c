@@ -39,7 +39,7 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
     do {
         PRINT_DEBUG("PAGE: %zu", page);
 
-        char *url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
+        char *url = fpgaConfigurationHandlerGenerateUrl(flashConfiguration, baseUrl, page);
         PRINT_DEBUG("URL: %s", url);
 
         HttpResponse_t *httpResponse = NULL;
