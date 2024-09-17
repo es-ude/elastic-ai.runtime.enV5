@@ -76,9 +76,9 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 
 /* region INTERNAL FUNCTION IMPLEMENTATIONS */
 
-static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page) {
+static char *fpgaConfigurationHandlerGenerateUrl(flashConfiguration_t *flashConfiguration, char *baseUrl, size_t page) {
     char *url = malloc(strlen(baseUrl) + 36 * sizeof(char));
-    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, flashGetBytesPerPage());
+    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, flashConfiguration->flashBytesPerPage);
     return url;
 }
 
