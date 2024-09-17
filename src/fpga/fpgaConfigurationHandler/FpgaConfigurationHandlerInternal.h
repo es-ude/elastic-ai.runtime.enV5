@@ -8,7 +8,7 @@
 
 /* region HTTP */
 
-static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page);
+static char *fpgaConfigurationHandlerGenerateUrl(flashConfiguration_t *flashConfiguration, char *baseUrl, size_t page);
 static void fpgaConfigurationHandlerFreeUrl(char *url);
 
 /* endregion HTTP */
