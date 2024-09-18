@@ -19,7 +19,7 @@
 fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationViaHttp(
     flashConfiguration_t *flashConfiguration, char *baseUrl, size_t length, uint32_t sectorID) {
     PRINT_DEBUG("LENGTH: %zu", length);
-    PRINT_DEBUG("SECTOR 0: %lu", sectorID);
+    PRINT_DEBUG("SECTOR 0: %u", sectorID);
 
     uint32_t startAddress = (sectorID) * (flashConfiguration->flashBytesPerSector);
 
@@ -79,7 +79,7 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 static char *fpgaConfigurationHandlerGenerateUrl(flashConfiguration_t *flashConfiguration,
                                                  char *baseUrl, size_t page) {
     char *url = malloc(strlen(baseUrl) + 36 * sizeof(char));
-    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page,
+    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%u", baseUrl, page,
             flashConfiguration->flashBytesPerPage);
     return url;
 }

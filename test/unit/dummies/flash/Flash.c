@@ -8,7 +8,6 @@
 
 uint8_t *flashStorage;
 size_t flashStorageLength;
-bool flashInitCalled = false;
 
 /* region UNIT TEST SETUP */
 void flashSetUpDummyStorage(size_t lengthInBytes) {

@@ -33,8 +33,6 @@ static spiConfiguration_t flashSpi = {
 
 static flashConfiguration_t flash = {
     .flashSpiConfiguration = &flashSpi,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
 };
 
 void readSkeletonId(__attribute__((unused)) const uint8_t *data,
@@ -56,7 +54,7 @@ void readSkeletonId(__attribute__((unused)) const uint8_t *data,
 void getChunkSize(__attribute__((unused)) const uint8_t *data,
                   __attribute((unused)) size_t length) {
     uint8_t payload[4];
-    convertUint32ToByteArray(FLASH_BYTES_PER_PAGE, payload);
+    convertUint32ToByteArray(flashGetBytesPerPage(), payload);
     usbProtocolMessage_t message;
     message.command = 3;
     message.payloadLength = sizeof(payload);
@@ -67,14 +65,15 @@ void getChunkSize(__attribute__((unused)) const uint8_t *data,
 }
 
 static void eraseFlash(uint32_t startSector, uint32_t length) {
-    for (size_t index = 0; index < (size_t)ceilf((float)length / FLASH_BYTES_PER_SECTOR); index++) {
-        flashEraseSector(&flash, startSector + (index * FLASH_BYTES_PER_SECTOR));
+    for (size_t index = 0; index < (size_t)ceilf((float)length / (float)flashGetBytesPerSector());
+         index++) {
+        flashEraseSector(&flash, startSector + (index * flashGetBytesPerSector()));
     }
 }
 static void receiveData(uint32_t startSector, uint32_t length) {
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
-    while (chunkId < (size_t)(ceilf((float)length / FLASH_BYTES_PER_PAGE))) {
+    while (chunkId < (size_t)(ceilf((float)length / (float)flashGetBytesPerPage()))) {
         if (nackCounter >= MAX_RETRIES) {
             Throw(USB_PROTOCOL_ERROR_CHECKSUM_FAILED);
         }
@@ -85,9 +84,9 @@ static void receiveData(uint32_t startSector, uint32_t length) {
             continue;
         }
 
-        flashWritePage(&flash,
-                       (startSector * FLASH_BYTES_PER_SECTOR) + (chunkId * FLASH_BYTES_PER_PAGE),
-                       message.payload, message.payloadLength);
+        flashWritePage(
+            &flash, (startSector * flashGetBytesPerSector()) + (chunkId * flashGetBytesPerPage()),
+            message.payload, message.payloadLength);
         free(message.payload);
 
         chunkId++;
@@ -106,23 +105,23 @@ static void sendData(uint32_t startAddress, uint32_t length) {
     size_t bytesToSend = length;
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
-    while (chunkId < (size_t)(ceilf((float)length / FLASH_BYTES_PER_PAGE))) {
+    while (chunkId < (size_t)(ceilf((float)length / (float)flashGetBytesPerPage()))) {
         if (nackCounter >= MAX_RETRIES) {
             Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
         }
 
-        uint8_t data[FLASH_BYTES_PER_PAGE];
+        uint8_t data[flashGetBytesPerPage()];
         data_t buffer = {
-            .length = FLASH_BYTES_PER_PAGE,
+            .length = flashGetBytesPerPage(),
             .data = data,
         };
-        if (bytesToSend >= FLASH_BYTES_PER_PAGE) {
-            bytesToSend -= FLASH_BYTES_PER_PAGE;
+        if (bytesToSend >= flashGetBytesPerPage()) {
+            bytesToSend -= flashGetBytesPerPage();
         } else {
             buffer.length = bytesToSend;
             bytesToSend = 0;
         }
-        flashReadData(&flash, startAddress + (chunkId * FLASH_BYTES_PER_PAGE), &buffer);
+        flashReadData(&flash, startAddress + (chunkId * flashGetBytesPerPage()), &buffer);
 
         usbProtocolMessage_t message;
         message.command = 5;
@@ -163,21 +162,21 @@ static void sendOutput(uint8_t *buffer, size_t bufferLength) {
     size_t bytesToSend = bufferLength;
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
-    while (chunkId < (size_t)ceilf((float)bufferLength / FLASH_BYTES_PER_PAGE)) {
+    while (chunkId < (size_t)ceilf((float)bufferLength / (float)flashGetBytesPerPage())) {
         if (nackCounter >= MAX_RETRIES) {
             Throw(USB_PROTOCOL_ERROR_HANDLE_EXECUTION_FAILED);
         }
 
         usbProtocolMessage_t message;
         message.command = 9;
-        if (bytesToSend >= FLASH_BYTES_PER_PAGE) {
-            bytesToSend -= FLASH_BYTES_PER_PAGE;
+        if (bytesToSend >= flashGetBytesPerPage()) {
+            bytesToSend -= flashGetBytesPerPage();
 
-            message.payloadLength = FLASH_BYTES_PER_PAGE;
-            message.payload = buffer + (chunkId * FLASH_BYTES_PER_PAGE);
+            message.payloadLength = flashGetBytesPerPage();
+            message.payload = buffer + (chunkId * flashGetBytesPerPage());
         } else {
             message.payloadLength = bytesToSend;
-            message.payload = buffer + (chunkId * FLASH_BYTES_PER_PAGE);
+            message.payload = buffer + (chunkId * flashGetBytesPerPage());
         }
 
         if (!usbProtocolSendMessage(&message)) {
@@ -192,7 +191,7 @@ static void receiveInput(uint8_t *buffer, size_t bufferLength) {
     size_t chunkId = 0;
     uint8_t nackCounter = 0;
     uint8_t *next = buffer;
-    while (chunkId < (size_t)ceilf((float)bufferLength / FLASH_BYTES_PER_PAGE)) {
+    while (chunkId < (size_t)ceilf((float)bufferLength / (float)flashGetBytesPerPage())) {
         if (nackCounter >= MAX_RETRIES) {
             Throw(USB_PROTOCOL_ERROR_READ_FAILED);
         }
