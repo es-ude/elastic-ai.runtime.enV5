@@ -51,9 +51,7 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+    .spiConfiguration = &spiToFlashConfig,
 };
 
 #if BYTES_MODEL_ID == 1
@@ -76,6 +74,8 @@ static void initializeCommunication() {
 
     espInit(); // initialize Wi-Fi chip
     networkTryToConnectToNetworkUntilSuccessful();
+
+    flashInit(&flashConfig);
 }
 
 static void loadConfigToFlashViaHttp(uint32_t sectorId) {

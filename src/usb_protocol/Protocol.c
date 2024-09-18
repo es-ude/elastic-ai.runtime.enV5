@@ -23,9 +23,11 @@ typedef struct receivedCommand {
     size_t payloadLength;
 } receivedCommand_t;
 
-usbProtocolReadData readHandle = NULL;
-usbProtocolSendData sendHandle = NULL;
+usbProtocolReadData usbProtocolReadHandle = NULL;
+usbProtocolSendData usbProtocolSendHandle = NULL;
 static usbProtocolCommandHandle commands[UINT8_C(0xFF)];
+
+flashConfiguration_t *usbProtocolFlashConfig;
 
 /* endregion TYPEDEFS/VARIABLES/DEFINES */
 
@@ -54,7 +56,7 @@ static void checkPointerIsNotNull(void *pointer) {
 
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
 static void checkReadAndSendHandleAreAvailable(void) {
-    if (readHandle == NULL | sendHandle == NULL) {
+    if (usbProtocolReadHandle == NULL | usbProtocolSendHandle == NULL) {
         Throw(USB_PROTOCOL_ERROR_NOT_INITIALIZED);
     }
 }
@@ -72,7 +74,7 @@ static void removeCommand(uint8_t command) {
 //! read checksum with read-handle
 static uint8_t readChecksum(void) {
     uint8_t checksum = 0;
-    if (readHandle(&checksum, 1) != USB_PROTOCOL_OKAY) {
+    if (usbProtocolReadHandle(&checksum, 1) != USB_PROTOCOL_OKAY) {
         Throw(USB_PROTOCOL_ERROR_READ_FAILED);
     }
     return checksum;
@@ -105,13 +107,15 @@ static void cleanMessageBuffer(usbProtocolMessage_t *message) {
 
 /* region PUBLIC FUNCTIONS */
 
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction) {
+void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
+                     flashConfiguration_t *flashConfiguration) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
 
-    readHandle = readFunction;
-    sendHandle = sendFunction;
+    usbProtocolReadHandle = readFunction;
+    usbProtocolSendHandle = sendFunction;
+    usbProtocolFlashConfig = flashConfiguration;
 
     addDefaultFunctions();
 }
@@ -119,7 +123,7 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
 bool usbProtocolSendMessage(usbProtocolMessage_t *message) {
     usbProtocolMessageFrame_t *frame = createMessageFrame(
         message->command, message->payloadLength, message->payload, calculateChecksum(message));
-    sendHandle(frame->data, frame->length);
+    usbProtocolSendHandle(frame->data, frame->length);
     freeMessageFrame(frame);
 
     return waitForAcknowledgement();

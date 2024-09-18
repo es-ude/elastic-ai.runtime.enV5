@@ -59,7 +59,7 @@ void freeMessageFrame(usbProtocolMessageFrame_t *buffer) {
 }
 bool waitForAcknowledgement(void) {
     uint8_t ack[6];
-    readHandle(ack, 6);
+    usbProtocolReadHandle(ack, 6);
 
     return ack[0] == 0x01;
 }
@@ -73,16 +73,16 @@ uint32_t convertByteArrayToUint32(const uint8_t in[4]) {
 }
 
 void readBytes(uint8_t *data, size_t numberOfBytes) {
-    if (readHandle(data, numberOfBytes) != USB_PROTOCOL_OKAY) {
+    if (usbProtocolReadHandle(data, numberOfBytes) != USB_PROTOCOL_OKAY) {
         Throw(USB_PROTOCOL_ERROR_READ_FAILED);
     }
 }
 
 void sendAck(void) {
-    uint8_t ack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
-    sendHandle(ack, sizeof(ack));
+    uint8_t ack[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    usbProtocolSendHandle(ack, sizeof(ack));
 }
 void sendNack(void) {
-    uint8_t nack[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    sendHandle(nack, sizeof(nack));
+    uint8_t nack[6] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x01};
+    usbProtocolSendHandle(nack, sizeof(nack));
 }
