@@ -17,7 +17,7 @@ uint8_t urlRequestCounter;
 void HttpGetCheckUrl(const char *url, HttpResponse_t **data) {
     char *expectedUrl = malloc(sizeof(baseUrl) + 33 * sizeof(char));
     sprintf(expectedUrl, "%s?chunkNumber=%u&chunkMaxSize=%u", baseUrl, urlRequestCounter,
-            flashGetBytesPerPage());
+            flashGetBytesPerPage(NULL));
 
     HttpResponse_t *emptyResponse = malloc(sizeof(HttpResponse_t));
     emptyResponse->length = 0;
@@ -28,11 +28,11 @@ void HttpGetCheckUrl(const char *url, HttpResponse_t **data) {
     urlRequestCounter++;
 }
 void HttpGetReturnDummyChunk(const char *url, HttpResponse_t **data) {
-    uint8_t *dummyData = calloc(1, flashConfiguration.flashBytesPerPage);
+    uint8_t *dummyData = calloc(1, flashConfiguration.bytesPerPage);
     dummyData[0] = urlRequestCounter;
 
     HttpResponse_t *httpResponse = malloc(sizeof(HttpResponse_t));
-    httpResponse->length = flashConfiguration.flashBytesPerPage;
+    httpResponse->length = flashConfiguration.bytesPerPage;
     httpResponse->response = dummyData;
 
     *data = httpResponse;
@@ -45,7 +45,8 @@ static void checkFlashData(size_t iterations, size_t offset) {
         data_t readBuffer = {.length = 1, .data = &readData};
 
         flashReadData(&flashConfiguration,
-                      (offset * flashGetBytesPerSector()) + (flashGetBytesPerPage() * index),
+                      (offset * flashGetBytesPerSector(NULL)) +
+                          (flashGetBytesPerPage(NULL) * index),
                       &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
@@ -53,11 +54,11 @@ static void checkFlashData(size_t iterations, size_t offset) {
 }
 
 void setUp(void) {
-    flashConfiguration.flashSpiConfiguration = NULL;
-    flashConfiguration.flashBytesPerPage = flashGetBytesPerPage();
-    flashConfiguration.flashBytesPerSector = flashGetBytesPerSector();
+    flashConfiguration.spiConfiguration = NULL;
+    flashConfiguration.bytesPerPage = flashGetBytesPerPage(NULL);
+    flashConfiguration.bytesPerSector = flashGetBytesPerSector(NULL);
 
-    flashSetUpDummyStorage(2 * flashConfiguration.flashBytesPerSector);
+    flashSetUpDummyStorage(2 * flashConfiguration.bytesPerSector);
     urlRequestCounter = 0;
 }
 
@@ -69,20 +70,20 @@ void test_downloadViaHttpUrlCorrect() {
     size_t pages = 10;
     httpGetFunctionToUse = HttpGetCheckUrl;
     fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 0);
+        &flashConfiguration, baseUrl, pages * flashConfiguration.bytesPerPage, 0);
 }
 void test_downloadViaHttpOrderCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
     fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 0);
+        &flashConfiguration, baseUrl, pages * flashConfiguration.bytesPerPage, 0);
     checkFlashData(pages, 0x0000);
 }
 void test_downloadViaHttpIntoFollowingSector() {
     size_t pages = 20;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
     fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
+        &flashConfiguration, baseUrl, pages * flashConfiguration.bytesPerPage, 1);
     checkFlashData(pages, 0x0001);
 }
 

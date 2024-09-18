@@ -28,7 +28,7 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .csPin = FLASH_SPI_CS};
 
 flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
+    .spiConfiguration = &spiToFlashConfig,
 };
 
 filesystemConfiguration_t filesystemConfiguration;
@@ -50,6 +50,7 @@ void initDemo() {
     /*espInit();
     networkTryToConnectToNetworkUntilSuccessful();*/
 
+    flashInit(&flashConfig);
     filesystemInit(&flashConfig, &filesystemConfiguration);
 
     sleep_for_ms(1000);
@@ -145,9 +146,9 @@ void readConfiguration(uint32_t sector) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
 
-    startAddress = sector * flashGetBytesPerSector();
+    startAddress = sector * flashGetBytesPerSector(NULL);
 
-    numberOfPages = flashGetBytesPerSector() / flashGetBytesPerPage();
+    numberOfPages = flashGetBytesPerSector(NULL) / flashGetBytesPerPage(NULL);
 
     numberOfPages = 5;
 
@@ -156,11 +157,12 @@ void readConfiguration(uint32_t sector) {
     PRINT("\n");
     PRINT("\n");
 
-    data_t pageBuffer = {.data = NULL, .length = flashGetBytesPerPage()};
+    data_t pageBuffer = {.data = NULL, .length = flashGetBytesPerPage(NULL)};
     while (page < numberOfPages) {
-        pageBuffer.data = calloc(flashGetBytesPerPage(), sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * flashGetBytesPerPage()), &pageBuffer);
-        PRINT("Address: 0x%06lX", startAddress + (page * flashGetBytesPerPage()));
+        pageBuffer.data = calloc(flashGetBytesPerPage(NULL), sizeof(uint8_t));
+        flashReadData(&flashConfig, startAddress + (page * flashGetBytesPerPage(NULL)),
+                      &pageBuffer);
+        PRINT("Address: 0x%06lX", startAddress + (page * flashGetBytesPerPage(NULL)));
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;

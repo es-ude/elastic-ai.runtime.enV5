@@ -23,9 +23,11 @@ typedef struct receivedCommand {
     size_t payloadLength;
 } receivedCommand_t;
 
-usbProtocolReadData readHandle = NULL;
-usbProtocolSendData sendHandle = NULL;
+usbProtocolReadData usbProtocolReadHandle = NULL;
+usbProtocolSendData usbProtocolSendHandle = NULL;
 static usbProtocolCommandHandle commands[UINT8_C(0xFF)];
+
+flashConfiguration_t *usbProtocolFlashConfig;
 
 /* endregion TYPEDEFS/VARIABLES/DEFINES */
 
@@ -37,21 +39,24 @@ static void checkIdentifierIsInUserRange(uint8_t identifier) {
         Throw(USB_PROTOCOL_ERROR_INVALID_ID);
     }
 }
+
 //! @brief check handle is not NULL else @throws USB_PROTOCOL_ERROR_HANDLE_NOT_SET
 static void checkHandlePointerIsNotNull(usbProtocolCommandHandle handle) {
     if (handle == NULL) {
         Throw(USB_PROTOCOL_ERROR_HANDLE_NOT_SET);
     }
 }
+
 //! @brief check pointer is not NULL else @throws USB_PROTOCOL_ERROR_NULL_POINTER
 static void checkPointerIsNotNull(void *pointer) {
     if (pointer == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
 }
+
 //! @brief check read/send handle are initialized else @throws USB_PROTOCOL_ERROR_NOT_INITIALIZED
 static void checkReadAndSendHandleAreAvailable(void) {
-    if (readHandle == NULL | sendHandle == NULL) {
+    if (usbProtocolReadHandle == NULL | usbProtocolSendHandle == NULL) {
         Throw(USB_PROTOCOL_ERROR_NOT_INITIALIZED);
     }
 }
@@ -60,6 +65,7 @@ static void checkReadAndSendHandleAreAvailable(void) {
 static void addCommand(uint8_t command, usbProtocolCommandHandle handle) {
     commands[command] = handle;
 }
+
 //! @brief set command pointer to NULL
 static void removeCommand(uint8_t command) {
     commands[command] = NULL;
@@ -68,7 +74,7 @@ static void removeCommand(uint8_t command) {
 //! read checksum with read-handle
 static uint8_t readChecksum(void) {
     uint8_t checksum = 0;
-    if (readHandle(&checksum, 1) != USB_PROTOCOL_OKAY) {
+    if (usbProtocolReadHandle(&checksum, 1) != USB_PROTOCOL_OKAY) {
         Throw(USB_PROTOCOL_ERROR_READ_FAILED);
     }
     return checksum;
@@ -100,13 +106,15 @@ static void cleanMessageBuffer(usbProtocolMessage_t *message) {
 
 /* region PUBLIC FUNCTIONS */
 
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction) {
+void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
+                     flashConfiguration_t *flashConfiguration) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
 
-    readHandle = readFunction;
-    sendHandle = sendFunction;
+    usbProtocolReadHandle = readFunction;
+    usbProtocolSendHandle = sendFunction;
+    usbProtocolFlashConfig = flashConfiguration;
 
     addDefaultFunctions();
 }
@@ -114,7 +122,7 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
 bool usbProtocolSendMessage(usbProtocolMessage_t *message) {
     usbProtocolMessageFrame_t *frame = createMessageFrame(
         message->command, message->payloadLength, message->payload, calculateChecksum(message));
-    sendHandle(frame->data, frame->length);
+    usbProtocolSendHandle(frame->data, frame->length);
     freeMessageFrame(frame);
 
     return waitForAcknowledgement();
@@ -147,6 +155,7 @@ void usbProtocolRegisterCommand(size_t identifier, usbProtocolCommandHandle comm
     checkIdentifierIsInUserRange(identifier);
     addCommand(identifier, command);
 }
+
 void usbProtocolUnregisterCommand(size_t identifier) {
     checkIdentifierIsInUserRange(identifier);
     removeCommand(identifier);
@@ -162,6 +171,7 @@ usbProtocolReceiveBuffer usbProtocolWaitForCommand(void) {
 
     return message;
 }
+
 void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
     usbProtocolMessage_t *message = buffer;
 

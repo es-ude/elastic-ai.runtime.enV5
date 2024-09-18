@@ -19,13 +19,12 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig;
+flashConfiguration_t flashConfig = {
+    .spiConfiguration = &spiToFlashConfig,
+};
 
 void initializeFlashConfig() {
-    flashConfig.flashSpiConfiguration = &spiToFlashConfig;
     flashInit(&flashConfig);
-    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
-    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
     PRINT_DEBUG("Flash Config initialized.");
 }
 
@@ -45,10 +44,12 @@ void initializeHardware(void) {
     spiInit(&spiToFlashConfig);
     initializeFlashConfig();
 }
+
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
     flashWriteConfig(&flashConfig, config, sizeof(config));
 }
+
 void readConfig(uint8_t registerToRead) {
     uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
@@ -71,14 +72,14 @@ _Noreturn void runTest(void) {
             enableQuadSPI();
             break;
         case 'z':
-            printf("Bytes per sector: %i\n", flashGetBytesPerSector());
-            printf("Bytes per page: %i\n", flashGetBytesPerPage());
-            printf("Total number of bytes: %i\n", flashGetNumberOfBytes());
-            printf("Number of sectors: %i\n", flashGetNumberOfSectors());
+            printf("Bytes per sector: %i\n", flashGetBytesPerSector(&flashConfig));
+            printf("Bytes per page: %i\n", flashGetBytesPerPage(&flashConfig));
+            printf("Total number of bytes: %i\n", flashGetNumberOfBytes(&flashConfig));
+            printf("Number of sectors: %i\n", flashGetNumberOfSectors(&flashConfig));
             break;
         case 'x':
-            printf("Bytes per sector: %i\n", flashConfig.flashBytesPerSector);
-            printf("Bytes per page: %i\n", flashConfig.flashBytesPerPage);
+            printf("Bytes per sector: %i\n", flashConfig.bytesPerSector);
+            printf("Bytes per page: %i\n", flashConfig.bytesPerPage);
             break;
         default:
             PRINT("Waiting ...");

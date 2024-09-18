@@ -41,10 +41,10 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
 flashConfiguration_t flashConfig;
 
 void initializeFlashConfig() {
-    flashConfig.flashSpiConfiguration = &spiToFlashConfig;
+    flashConfig.spiConfiguration = &spiToFlashConfig;
     flashInit(&flashConfig);
-    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
-    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
+    flashConfig.bytesPerPage = flashGetBytesPerPage(NULL);
+    flashConfig.bytesPerSector = flashGetBytesPerSector(NULL);
     PRINT_DEBUG("Flash Config initialized.");
 }
 
@@ -103,18 +103,17 @@ void readConfiguration(bool useFast) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = (blinkFast - 1) * flashConfig.flashBytesPerSector;
-        numberOfPages = (size_t)ceilf((float)blinkFastLength / flashConfig.flashBytesPerPage);
+        startAddress = (blinkFast - 1) * flashConfig.bytesPerSector;
+        numberOfPages = (size_t)ceilf((float)blinkFastLength / flashConfig.bytesPerPage);
     } else {
-        startAddress = (blinkSlow - 1) * flashConfig.flashBytesPerSector;
-        numberOfPages = (size_t)ceilf((float)blinkSlowLength / flashConfig.flashBytesPerPage);
+        startAddress = (blinkSlow - 1) * flashConfig.bytesPerSector;
+        numberOfPages = (size_t)ceilf((float)blinkSlowLength / flashConfig.bytesPerPage);
     }
 
-    data_t pageBuffer = {.data = NULL, .length = flashConfig.flashBytesPerPage};
+    data_t pageBuffer = {.data = NULL, .length = flashConfig.bytesPerPage};
     do {
-        pageBuffer.data = calloc(flashConfig.flashBytesPerPage, sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage),
-                      &pageBuffer);
+        pageBuffer.data = calloc(flashConfig.bytesPerPage, sizeof(uint8_t));
+        flashReadData(&flashConfig, startAddress + (page * flashConfig.bytesPerPage), &pageBuffer);
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;
@@ -124,14 +123,14 @@ void verifyConfiguration(bool useFast) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
     if (useFast) {
-        startAddress = (blinkFast - 1) * flashConfig.flashBytesPerSector;
-        numberOfPages = (size_t)ceilf((float)blinkFastLength / flashConfig.flashBytesPerPage);
+        startAddress = (blinkFast - 1) * flashConfig.bytesPerSector;
+        numberOfPages = (size_t)ceilf((float)blinkFastLength / flashConfig.bytesPerPage);
     } else {
-        startAddress = (blinkSlow - 1) * flashConfig.flashBytesPerSector;
-        numberOfPages = (size_t)ceilf((float)blinkSlowLength / flashConfig.flashBytesPerPage);
+        startAddress = (blinkSlow - 1) * flashConfig.bytesPerSector;
+        numberOfPages = (size_t)ceilf((float)blinkSlowLength / flashConfig.bytesPerPage);
     }
 
-    data_t pageBuffer = {.data = NULL, .length = flashConfig.flashBytesPerPage};
+    data_t pageBuffer = {.data = NULL, .length = flashConfig.bytesPerPage};
     stdio_flush();
 
     do {
@@ -140,11 +139,10 @@ void verifyConfiguration(bool useFast) {
             continue;
         }
 
-        pageBuffer.data = calloc(flashConfig.flashBytesPerPage, sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * flashConfig.flashBytesPerPage),
-                      &pageBuffer);
+        pageBuffer.data = calloc(flashConfig.bytesPerPage, sizeof(uint8_t));
+        flashReadData(&flashConfig, startAddress + (page * flashConfig.bytesPerPage), &pageBuffer);
 
-        for (size_t index = 0; index < flashConfig.flashBytesPerPage; index++) {
+        for (size_t index = 0; index < flashConfig.bytesPerPage; index++) {
             printf("%02X", pageBuffer.data[index]);
         }
 

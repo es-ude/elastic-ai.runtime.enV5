@@ -26,17 +26,17 @@ void flashInit(flashConfiguration_t *flashConfig) {
     // Just here to satisfy the compiler
 }
 
-uint32_t flashGetBytesPerSector() {
+size_t flashGetBytesPerSector(flashConfiguration_t *flashConfig) {
     return 262144; // == 256KiB
 }
-uint32_t flashGetBytesPerPage() {
+size_t flashGetBytesPerPage(flashConfiguration_t *flashConfig) {
     return 512; // == 512B
 }
-uint32_t flashGetNumberOfBytes() {
+size_t flashGetNumberOfBytes(flashConfiguration_t *flashConfig) {
     return 134217728; // == 128MiB
 }
-uint32_t flashGetNumberOfSectors() {
-    return (uint32_t)(flashGetNumberOfBytes() / flashGetBytesPerSector());
+size_t flashGetNumberOfSectors(flashConfiguration_t *flashConfig) {
+    return (uint32_t)(flashGetNumberOfBytes(NULL) / flashGetBytesPerSector(NULL));
 }
 
 int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer) {
@@ -60,13 +60,13 @@ flashErrorCode_t flashEraseAll(flashConfiguration_t *flashConfiguration) {
     return FLASH_NO_ERROR;
 }
 flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfiguration, uint32_t address) {
-    for (size_t index = 0; index < address + (flashConfiguration->flashBytesPerSector); index++) {
+    for (size_t index = 0; index < address + (flashConfiguration->bytesPerSector); index++) {
         flashStorage[index] = 0xFF;
     }
     return FLASH_NO_ERROR;
 }
 flashErrorCode_t flashErasePage(flashConfiguration_t *flashConfiguration, uint32_t address) {
-    for (size_t index = 0; index < address + (flashConfiguration->flashBytesPerPage); index++) {
+    for (size_t index = 0; index < address + (flashConfiguration->bytesPerPage); index++) {
         flashStorage[index] = 0xFF;
     }
     return FLASH_NO_ERROR;

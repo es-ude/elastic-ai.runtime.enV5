@@ -41,13 +41,10 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig;
+flashConfiguration_t flashConfig = {.spiConfiguration = &spiToFlashConfig};
 
 void initializeFlashConfig() {
-    flashConfig.flashSpiConfiguration = &spiToFlashConfig;
     flashInit(&flashConfig);
-    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
-    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
     PRINT_DEBUG("Flash Config initialized.");
 }
 

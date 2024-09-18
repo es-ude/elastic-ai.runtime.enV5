@@ -15,18 +15,10 @@
  */
 void flashInit(flashConfiguration_t *flashConfig);
 
-uint32_t flashGetBytesPerSector();
-uint32_t flashGetBytesPerPage();
-uint32_t flashGetNumberOfBytes();
-uint32_t flashGetNumberOfSectors();
-
-/*! @brief read number of bytes from the flash config and store inside
- *
- * @param config configuration of the Flash Chip
- * @return none
- */
-uint8_t *readConfigByLength(flashConfiguration_t *flashConfig, uint8_t registerToRead,
-                            uint8_t length);
+size_t flashGetBytesPerSector(flashConfiguration_t *flashConfig);
+size_t flashGetBytesPerPage(flashConfiguration_t *flashConfig);
+size_t flashGetNumberOfBytes(flashConfiguration_t *flashConfig);
+size_t flashGetNumberOfSectors(flashConfiguration_t *flashConfig);
 
 /*! @brief read a configuration register of the flash
  *
