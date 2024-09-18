@@ -101,9 +101,7 @@
 
 /* region FLASH*/
 #ifndef FLASH_SPI_MODULE
-
-// SPI_INSTANCE(0) mochte er nicht
-#define FLASH_SPI_MODULE spi0
+#define FLASH_SPI_MODULE SPI0_MODULE
 #endif
 
 #ifndef FLASH_SPI_CLOCK
