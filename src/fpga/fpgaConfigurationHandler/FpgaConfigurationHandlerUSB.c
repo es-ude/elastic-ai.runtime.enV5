@@ -44,7 +44,7 @@ fpgaConfigurationHandlerDownloadConfigurationViaUsb(flashConfiguration_t *flashC
     fpgaConfigurationHandlerWaitForStartRequest();
     uint32_t totalLength = fpgaConfigurationHandlerGetFileLength();
     fpgaConfigurationHandlerGetChunks(flashConfiguration, totalLength,
-                                      sectorID * flashConfiguration->flashBytesPerSector);
+                                      sectorID * flashConfiguration->bytesPerSector);
 
     printf("o");
     return FPGA_RECONFIG_NO_ERROR;
@@ -76,17 +76,16 @@ static uint32_t fpgaConfigurationHandlerGetFileLength() {
 static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfiguration,
                                               uint32_t totalLength, uint32_t startAddress) {
     size_t numberOfSectors =
-        (size_t)ceilf((float)totalLength / (float)(flashConfiguration->flashBytesPerSector));
+        (size_t)ceilf((float)totalLength / (float)(flashConfiguration->bytesPerSector));
     size_t sector = 0;
     do {
-        uint32_t sectorStartAddress =
-            startAddress + sector * (flashConfiguration->flashBytesPerSector);
+        uint32_t sectorStartAddress = startAddress + sector * (flashConfiguration->bytesPerSector);
         flashEraseSector(flashConfiguration, sectorStartAddress);
         sector++;
     } while (sector < numberOfSectors);
 
     size_t numberOfPages =
-        (size_t)ceilf((float)totalLength / (float)(flashConfiguration->flashBytesPerPage));
+        (size_t)ceilf((float)totalLength / (float)(flashConfiguration->bytesPerPage));
     size_t page = 0;
     while (page < numberOfPages) {
         // send id of fragment
@@ -108,7 +107,7 @@ static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfigu
         }
         // store data to flash
         flashWritePage(flashConfiguration,
-                       startAddress + (page * (flashConfiguration->flashBytesPerPage)), data,
+                       startAddress + (page * (flashConfiguration->bytesPerPage)), data,
                        sizeof(data));
         printf("ack");
 

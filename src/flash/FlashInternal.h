@@ -3,15 +3,11 @@
 
 #include "FlashTypedefs.h"
 
-static uint32_t FLASH_BYTES_PER_PAGE;
-static uint32_t FLASH_BYTES_PER_SECTOR;
-static uint32_t FLASH_NUMBER_OF_SECTORS;
-static uint32_t FLASH_NUMBER_OF_BYTES;
+static size_t calculateBytesPerSector(const uint8_t *config);
 
-static void calculateBytesPerSector(const uint8_t *config);
-static void calculateBytesPerPage(const uint8_t *config);
-static void calculateBytesInFlash(const uint8_t *config);
-static void calculateNumberOfSectors();
+static size_t calculateBytesPerPage(const uint8_t *config);
+
+static size_t calculateBytesInFlash(const uint8_t *config);
 
 /*!
  * \brief flash enable write has to be sent before every write/erase operation

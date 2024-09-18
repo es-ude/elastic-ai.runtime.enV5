@@ -6,10 +6,19 @@
 
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
+#include "Flash.h"
 #include "Gpio.h"
 #include "Sleep.h"
 #include "UsbProtocolBase.h"
 #include "UsbProtocolCustomCommands.h"
+
+spiConfiguration_t spiToFlash = {.spiInstance = FLASH_SPI_MODULE,
+                                 .baudrate = FLASH_SPI_BAUDRATE,
+                                 .sckPin = FLASH_SPI_CLOCK,
+                                 .misoPin = FLASH_SPI_MISO,
+                                 .mosiPin = FLASH_SPI_MOSI,
+                                 .csPin = FLASH_SPI_CS};
+flashConfiguration_t flashConfig = {.spiConfiguration = &spiToFlash};
 
 /* region USB-Protocol Read/Send Function */
 usbProtocolErrorCodes_t readByteForProtocol(uint8_t *readBuffer, size_t numOfBytes) {
@@ -60,15 +69,19 @@ static void blinkLED(uint exception) {
         gpioSetPin(LED2_GPIO, GPIO_PIN_LOW);
     }
 }
+
 static void initialize(void) {
     env5HwControllerInit();
 
     stdio_init_all();
     while (!stdio_usb_connected()) {}
 
-    usbProtocolInit(readByteForProtocol, sendBytesForProtocol);
+    flashInit(&flashConfig);
+
+    usbProtocolInit(readByteForProtocol, sendBytesForProtocol, &flashConfig);
     usbProtocolRegisterCommand(241, &countdownHandle);
 }
+
 _Noreturn static void loop(void) {
     while (true) {
         CEXCEPTION_T exception;
@@ -81,6 +94,7 @@ _Noreturn static void loop(void) {
         }
     }
 }
+
 int main(void) {
     initialize();
     loop();

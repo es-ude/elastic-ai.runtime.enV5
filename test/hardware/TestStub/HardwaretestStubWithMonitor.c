@@ -51,13 +51,10 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig;
+flashConfiguration_t flashConfig = {.spiConfiguration = &spiToFlashConfig};
 
 void initializeFlashConfig() {
-    flashConfig.flashSpiConfiguration = &spiToFlashConfig;
     flashInit(&flashConfig);
-    flashConfig.flashBytesPerPage = flashGetBytesPerPage();
-    flashConfig.flashBytesPerSector = flashGetBytesPerSector();
     PRINT_DEBUG("Flash Config initialized.");
 }
 
@@ -94,6 +91,7 @@ void initializeCommunication() {
 void deliver(posting_t posting) {
     freeRtosQueueWrapperPushFromInterrupt(postings, &posting);
 }
+
 downloadRequest_t parseDownloadRequest(char *data) {
     PRINT("RECEIVED FLASH REQUEST");
 
@@ -119,6 +117,7 @@ downloadRequest_t parseDownloadRequest(char *data) {
 
     return (downloadRequest_t){.url = url, .startSectorId = position, .fileSizeInBytes = length};
 }
+
 _Noreturn void handleReceiveTasks(void) {
     freeRtosTaskWrapperTaskSleep(500);
     protocolSubscribeForCommand("FLASH", (subscriber_t){.deliver = deliver});
@@ -188,6 +187,7 @@ bool successfullyDownloadBinFile(char *url, size_t lengthOfBinFile, uint32_t sta
     freeRtosQueueWrapperPush(publishRequests, &downloadDonePosting);
     return false;
 }
+
 void blinkFpgaLeds(void) {
     middlewareSetFpgaLeds(0b00000000);
     freeRtosTaskWrapperTaskSleep(500);
@@ -208,6 +208,7 @@ void blinkFpgaLeds(void) {
     strcpy(testDonePosting.data, "DONE");
     freeRtosQueueWrapperPush(publishRequests, &testDonePosting);
 }
+
 _Noreturn void runTestTask(void) {
     while (1) {
         downloadRequest_t downloadRequest;
