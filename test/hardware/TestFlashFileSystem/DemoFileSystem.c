@@ -29,8 +29,6 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
 
 flashConfiguration_t flashConfig = {
     .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
 };
 
 filesystemConfiguration_t filesystemConfiguration;
@@ -147,22 +145,22 @@ void readConfiguration(uint32_t sector) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
 
-    startAddress = sector * FLASH_BYTES_PER_SECTOR;
+    startAddress = sector * flashGetBytesPerSector();
 
-    numberOfPages = FLASH_BYTES_PER_SECTOR / FLASH_BYTES_PER_PAGE;
+    numberOfPages = flashGetBytesPerSector() / flashGetBytesPerPage();
 
     numberOfPages = 5;
 
-    PRINT("Sector: %d\n", sector);
-    PRINT("Start Address: %d\n", startAddress);
+    PRINT("Sector: %lu\n", sector);
+    PRINT("Start Address: %lu\n", startAddress);
     PRINT("\n");
     PRINT("\n");
 
-    data_t pageBuffer = {.data = NULL, .length = FLASH_BYTES_PER_PAGE};
+    data_t pageBuffer = {.data = NULL, .length = flashGetBytesPerPage()};
     while (page < numberOfPages) {
-        pageBuffer.data = calloc(FLASH_BYTES_PER_PAGE, sizeof(uint8_t));
-        flashReadData(&flashConfig, startAddress + (page * FLASH_BYTES_PER_PAGE), &pageBuffer);
-        PRINT("Address: 0x%06lX", startAddress + (page * FLASH_BYTES_PER_PAGE));
+        pageBuffer.data = calloc(flashGetBytesPerPage(), sizeof(uint8_t));
+        flashReadData(&flashConfig, startAddress + (page * flashGetBytesPerPage()), &pageBuffer);
+        PRINT("Address: 0x%06lX", startAddress + (page * flashGetBytesPerPage()));
         PRINT_BYTE_ARRAY("Configuration: ", pageBuffer.data, pageBuffer.length);
         free(pageBuffer.data);
         page++;
@@ -180,7 +178,7 @@ uint32_t getInput() {
         mystring[i] = c;
     }
     mystring[4] = '\0';
-    uint32_t sector = atoi(mystring);
+    uint32_t sector = strtol(mystring, NULL, 10);
     return sector;
 }
 
@@ -205,7 +203,7 @@ void printHelp() {
 void printFileSystemEntry(fileSystemEntry_t entry) {
     PRINT("ID:                %d\n", entry.entry.id);
     PRINT("Start Sector:      %d\n", entry.entry.startSector);
-    PRINT("Size:              %d\n", entry.entry.size);
+    PRINT("Size:              %lu\n", entry.entry.size);
     PRINT("isConfig:          %d\n", entry.entry.isConfig);
     PRINT("Number of Sectors: %d\n", entry.entry.numberOfSectors);
     PRINT("---\n");
@@ -299,7 +297,7 @@ _Noreturn void fileSystemDemo() {
         case 'z':
             printf("%i\n", filesystemConfiguration.filesystemStartSector);
             printf("%i\n", filesystemConfiguration.filesystemEndSector);
-            printf("%i\n", filesystemConfiguration.nextFileSystemSector);
+            printf("%lu\n", filesystemConfiguration.nextFileSystemSector);
             printf("\n");
             printf("%i\n", filesystemConfiguration.numberOfEntries);
             printf("%i\n", filesystemConfiguration.fileID);

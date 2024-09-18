@@ -4,7 +4,6 @@
 
 #include "unity.h"
 
-#include "EnV5HwConfiguration.h"
 #include "Flash.h"
 #include "FlashUnitTest.h"
 #include "FpgaConfigurationHandler.h"
@@ -40,12 +39,13 @@ void HttpGetReturnDummyChunk(const char *url, HttpResponse_t **data) {
     urlRequestCounter++;
 }
 
-static void checkFlashData(size_t iterations) {
+static void checkFlashData(size_t iterations, size_t offset) {
     for (size_t index = 0; index < iterations; index++) {
         uint8_t readData;
         data_t readBuffer = {.length = 1, .data = &readData};
 
-        flashReadData(&flashConfiguration, 0x00 + flashConfiguration.flashBytesPerPage * index,
+        flashReadData(&flashConfiguration,
+                      (offset * flashGetBytesPerSector()) + (flashGetBytesPerPage() * index),
                       &readBuffer);
 
         TEST_ASSERT_EQUAL_UINT8(index, readData);
@@ -57,7 +57,7 @@ void setUp(void) {
     flashConfiguration.flashBytesPerPage = flashGetBytesPerPage();
     flashConfiguration.flashBytesPerSector = flashGetBytesPerSector();
 
-    flashSetUpDummyStorage(flashConfiguration.flashBytesPerSector);
+    flashSetUpDummyStorage(2 * flashConfiguration.flashBytesPerSector);
     urlRequestCounter = 0;
 }
 
@@ -66,17 +66,24 @@ void tearDown(void) {
 }
 
 void test_downloadViaHttpUrlCorrect() {
-    size_t pages = 15;
+    size_t pages = 10;
     httpGetFunctionToUse = HttpGetCheckUrl;
     fpgaConfigurationHandlerDownloadConfigurationViaHttp(
-        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 0);
 }
 void test_downloadViaHttpOrderCorrect() {
     size_t pages = 15;
     httpGetFunctionToUse = HttpGetReturnDummyChunk;
     fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 0);
+    checkFlashData(pages, 0x0000);
+}
+void test_downloadViaHttpIntoFollowingSector() {
+    size_t pages = 20;
+    httpGetFunctionToUse = HttpGetReturnDummyChunk;
+    fpgaConfigurationHandlerDownloadConfigurationViaHttp(
         &flashConfiguration, baseUrl, pages * flashConfiguration.flashBytesPerPage, 1);
-    checkFlashData(pages);
+    checkFlashData(pages, 0x0001);
 }
 
 int main() {
@@ -84,6 +91,7 @@ int main() {
 
     RUN_TEST(test_downloadViaHttpUrlCorrect);
     RUN_TEST(test_downloadViaHttpOrderCorrect);
+    RUN_TEST(test_downloadViaHttpIntoFollowingSector);
 
     return UNITY_END();
 }
