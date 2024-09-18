@@ -23,6 +23,23 @@ void flashRemoveDummyStorage(void) {
 
 /* region PUBLIC HEADER FUNCTIONS */
 
+void flashInit(flashConfiguration_t *flashConfig) {
+    // Just here to satisfy the compiler
+}
+
+uint32_t flashGetBytesPerSector() {
+    return 262144; // == 256KiB
+}
+uint32_t flashGetBytesPerPage() {
+    return 512; // == 512B
+}
+uint32_t flashGetNumberOfBytes() {
+    return 134217728; // == 128MiB
+}
+uint32_t flashGetNumberOfSectors() {
+    return (uint32_t)(flashGetNumberOfBytes() / flashGetBytesPerSector());
+}
+
 int flashReadId(flashConfiguration_t *flashConfiguration, data_t *dataBuffer) {
     dataBuffer->data[0] = 0x01;
     dataBuffer->data[1] = 0x17;
@@ -64,4 +81,5 @@ int flashWritePage(flashConfiguration_t *flashConfiguration, uint32_t startAddre
 
     return (int)bytesToWrite;
 }
+
 /* region PUBLIC HEADER FUNCTIONS */
