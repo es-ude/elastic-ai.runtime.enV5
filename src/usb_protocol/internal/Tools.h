@@ -6,13 +6,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "Flash.h"
+
 typedef struct usbProtocolMessageFrame {
     size_t length;
     uint8_t *data;
 } usbProtocolMessageFrame_t;
 
-extern usbProtocolReadData readHandle;
-extern usbProtocolSendData sendHandle;
+extern usbProtocolReadData usbProtocolReadHandle;
+extern usbProtocolSendData usbProtocolSendHandle;
+extern flashConfiguration_t *usbProtocolFlashConfig;
 
 /*!
  * @brief creates a message to be sent
@@ -45,6 +48,7 @@ bool waitForAcknowledgement(void);
 
 //! convert uin32_t to big endian encoded byte array
 void convertUint32ToByteArray(uint32_t in, uint8_t out[4]);
+
 //! convert a byte array to uint32_t
 uint32_t convertByteArrayToUint32(const uint8_t in[4]);
 

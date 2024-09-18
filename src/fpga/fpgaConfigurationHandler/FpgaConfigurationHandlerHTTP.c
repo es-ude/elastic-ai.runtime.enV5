@@ -19,27 +19,25 @@
 fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationViaHttp(
     flashConfiguration_t *flashConfiguration, char *baseUrl, size_t length, uint32_t sectorID) {
     PRINT_DEBUG("LENGTH: %zu", length);
-    PRINT_DEBUG("SECTOR 0: %lu", sectorID);
+    PRINT_DEBUG("SECTOR 0: %u", sectorID);
 
-    uint32_t startAddress = (sectorID) * (flashConfiguration->flashBytesPerSector);
+    uint32_t startAddress = (sectorID) * (flashConfiguration->bytesPerSector);
 
     size_t totalNumberOfOccupiedSectors =
-        (size_t)ceilf((float)length / (float)(flashConfiguration->flashBytesPerSector));
+        (size_t)ceilf((float)length / (float)(flashConfiguration->bytesPerSector));
     for (size_t sector = 0; sector < totalNumberOfOccupiedSectors; sector++) {
-        uint32_t sectorStartAddress =
-            startAddress + sector * (flashConfiguration->flashBytesPerSector);
+        uint32_t sectorStartAddress = startAddress + sector * (flashConfiguration->bytesPerSector);
         flashEraseSector(flashConfiguration, sectorStartAddress);
     }
 
     CEXCEPTION_T exception;
-    size_t numberOfPages =
-        (size_t)ceilf((float)length / (float)(flashConfiguration->flashBytesPerPage));
+    size_t numberOfPages = (size_t)ceilf((float)length / (float)(flashConfiguration->bytesPerPage));
     PRINT_DEBUG("TOTAL PAGES: %zu", numberOfPages);
     size_t page = 0;
     do {
         PRINT_DEBUG("PAGE: %zu", page);
 
-        char *url = fpgaConfigurationHandlerGenerateUrl(baseUrl, page);
+        char *url = fpgaConfigurationHandlerGenerateUrl(flashConfiguration, baseUrl, page);
         PRINT_DEBUG("URL: %s", url);
 
         HttpResponse_t *httpResponse = NULL;
@@ -48,8 +46,7 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 
             uint8_t *bitfileChunk = httpResponse->response;
             size_t chunkLength = httpResponse->length;
-            uint32_t pageStartAddress =
-                startAddress + (page * (flashConfiguration->flashBytesPerPage));
+            uint32_t pageStartAddress = startAddress + (page * (flashConfiguration->bytesPerPage));
             if (flashWritePage(flashConfiguration, pageStartAddress, bitfileChunk, chunkLength) !=
                 chunkLength) {
                 Throw(FLASH_ERASE_ERROR);
@@ -76,9 +73,11 @@ fpgaConfigurationHandlerError_t fpgaConfigurationHandlerDownloadConfigurationVia
 
 /* region INTERNAL FUNCTION IMPLEMENTATIONS */
 
-static char *fpgaConfigurationHandlerGenerateUrl(char *baseUrl, size_t page) {
+static char *fpgaConfigurationHandlerGenerateUrl(flashConfiguration_t *flashConfiguration,
+                                                 char *baseUrl, size_t page) {
     char *url = malloc(strlen(baseUrl) + 36 * sizeof(char));
-    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%zu", baseUrl, page, HTTP_CHUNK_SIZE);
+    sprintf(url, "%s?chunkNumber=%zu&chunkMaxSize=%u", baseUrl, page,
+            flashConfiguration->bytesPerPage);
     return url;
 }
 
