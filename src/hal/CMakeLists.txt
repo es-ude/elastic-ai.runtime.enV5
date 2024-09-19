@@ -1,5 +1,6 @@
 add_subdirectory(gpio)
 add_subdirectory(sleep)
+add_subdirectory(timeFacade)
 
 add_subdirectory(i2c)
 add_subdirectory(spi)
