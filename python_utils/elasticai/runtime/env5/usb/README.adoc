@@ -62,13 +62,17 @@ sequenceDiagram
 ....
 
 === read skeleton id
+IMPORTANT: Model needs to be deployed in advance.
+
 The payload for the nack response is empty
 
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {read skeleton id, NULL}
+    enV5-->>PC: ack/nack
     enV5-->>PC: {read skeleton id, skeleton id(16)}
+    PC-->>enV5: ack/nack
 ....
 
 === get chunk-size for flash
@@ -82,30 +86,39 @@ sequenceDiagram
 ....
 sequenceDiagram
     PC-->>enV5: {get chunk-size for flash, NULL}
+    enV5-->>PC: ack/nack
     enV5-->>PC: {get chunk-size for flash, payload}
+    PC-->>enV5: ack/nack
 ....
 
 
 === send data to flash
 IMPORTANT: Chunk-size has to be requested in advance.
 
+IMPORTANT: Turn off FPGA in advance.
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {send data to flash, flash sector address(4), size-bytes(4)}
+    enV5-->>PC: ack/nack
     loop for each chunk
     PC -->> enV5: {send data to flash, chunk}
+    enV5-->>PC: ack/nack
     end
 ....
 
 === read data from flash
 IMPORTANT: Chunk-size has to be requested in advance.
+
+IMPORTANT: Turn off FPGA in advance.
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {read data from flash, flash start address(4), num-bytes(4)}
+    enV5-->>PC: ack/nack
     loop for each chunk
     enV5-->>PC: {read data from flash, chunk}
+    PC-->>enV5: ack/nack
     end
 ....
 
@@ -115,8 +128,10 @@ sequenceDiagram
 sequenceDiagram
     alt Power on
     PC-->>enV5: {FPGA power, 0xFF}
+    enV5-->>PC: ack/nack
     else Power off
     PC-->>enV5: {FPGA power, 0x00}
+    enV5-->>PC: ack/nack
     end
 ....
 
@@ -133,6 +148,7 @@ Mermaid Diagram
 ....
 sequenceDiagram
     PC-->>enV5: {FPGA LEDs, payload}
+    enV5-->>PC: ack/nack
 ....
 
 === MCU LEDs
@@ -148,29 +164,54 @@ Mermaid Diagram
 ....
 sequenceDiagram
     PC-->>enV5: {MCU LEDs, payload}
+    enV5-->>PC: ack/nack
 ....
 
 
 === inference with data
 IMPORTANT: Chunk-size has to be requested in advance.
 
-The enV5 **run inference** will
-
-- Turn the FPGA on, if not on
-- Check the skeleton-id
-- If not correct, set address for next FPGA boot, restart the FPGA and check again
-- Start inference
+IMPORTANT: Deploy model in advance
 
 [mermaid]
 ....
 sequenceDiagram
     PC-->>enV5: {inference with data, num_bytes_input(4), num_bytes_outputs(4), Bin-file address(4), Skeleton-ID(16)}
+    enV5-->>PC: ack/nack
     loop for each chunk
     PC-->>enV5: {inference with data, chunk}
+    enV5-->>PC: ack/nack
     end
     Note over enV5: Run inference
     loop for each chunk
     enV5-->>PC: {inference with data, chunk}
+    PC-->>enV5: ack/nack
     end
 ....
 
+
+=== deploy model
+IMPORTANT: Chunk-size has to be requested in advance.
+
+IMPORTANT: Model needs to be send to flash in advance.
+
+IMPORTANT: FPGA needs to be turned on.
+
+.payload
+[cols="2*", options="header"]
+|===
+| 7-1  | 0
+| NONE | true/false
+|===
+Payload is true if models skeleton id is correct. Otherwise, false is returned
+
+[mermaid]
+....
+sequenceDiagram
+    PC-->>enV5: {deploy model, Bin-file address(4), Skeleton-ID(16)}
+    enV5-->>PC: ack/nack
+    Note over enV5: Call stub for model deployment
+    Note over enV5: Get skeleton-id of deployed model with stub
+    enV5-->>PC: {deploy model, payload(1)}
+    PC-->>enV5: ack/nack
+....

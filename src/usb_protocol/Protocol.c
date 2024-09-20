@@ -2,7 +2,6 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "CException.h"
 
@@ -90,6 +89,7 @@ static void addDefaultFunctions(void) {
     addCommand(7, &setFpgaLeds);
     addCommand(8, &setMcuLeds);
     addCommand(9, &runInference);
+    addCommand(10, &deployModel);
 }
 
 static void cleanMessageBuffer(usbProtocolMessage_t *message) {
@@ -188,5 +188,4 @@ void usbProtocolHandleCommand(usbProtocolReceiveBuffer buffer) {
         Throw(exception);
     }
 }
-
 /* endregion PUBLIC FUNCTIONS */

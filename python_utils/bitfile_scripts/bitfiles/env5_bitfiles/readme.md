@@ -7,13 +7,13 @@
 - You can turn on and off LEDs
 - You can read the LED status
 - You can read the ID of the design
-- Provides userlogic space, 
-  - A buffer you can write data to and then read data out 
+- Provides userlogic space,
+  - A buffer you can write data to and then read data out
 
 ## [Blink](blink)
 
 - Blink the FPGA LEDs, based on different clock frequency
-  - [slow](blink/blink_slow/) -> 100MHz clock 
+  - [slow](blink/blink_slow/) -> 100MHz clock
   - [fast](blink/blink_fast/) -> 32MHz clock
 - **No** communication interface to the MCU
 - **No** middelware
