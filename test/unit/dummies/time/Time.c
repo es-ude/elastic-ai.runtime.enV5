@@ -3,12 +3,12 @@
 #include "Time.h"
 #include "Common.h"
 
-uint64_t get_current_time_in_us(void) {
+uint64_t timeUS64(void) {
     // Satisfy the compiler
-    PRINT("Call get_current_time_in_us");
+    PRINT("Call timeUS64");
 }
 
-uint32_t get_current_time_in_ms(void) {
+uint32_t timeMS32(void) {
     // Satisfy the compiler
-    PRINT("Call get_current_time_in_ms");
+    PRINT("Call timeMS32");
 }
