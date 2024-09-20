@@ -1,13 +1,15 @@
-#include "Time.h"
+#define SOURCE_FILE "TIME-LIB"
 
-#include "pico/time.h"
 #include <stdint.h>
 
+#include "hardware/timer.h"
+
+#include "Time.h"
+
 uint64_t timeUs64(void) {
-    return (uint64_t)get_absolute_time();
+    return time_us_64();
 }
 
 uint32_t timeMs32(void) {
-    uint64_t time = (uint64_t)get_absolute_time();
-    return us_to_ms(time);
+    return time_us_32();
 }

@@ -4,11 +4,11 @@
 #include "Common.h"
 
 uint64_t timeUS64(void) {
-    // Satisfy the compiler
     PRINT("Call timeUS64");
+    return 10;
 }
 
 uint32_t timeMS32(void) {
-    // Satisfy the compiler
     PRINT("Call timeMS32");
+    return 100;
 }
