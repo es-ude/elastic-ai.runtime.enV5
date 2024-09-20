@@ -13,4 +13,5 @@ void setFpgaLeds(const uint8_t *data, size_t length);
 void setMcuLeds(const uint8_t *data, size_t length);
 void runInference(const uint8_t *data, size_t length);
 void deployModel(const uint8_t *data, size_t length);
+
 #endif // ENV5_DEFAULT_COMMANDS_HEADER
