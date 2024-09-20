@@ -24,6 +24,7 @@
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
+#include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "HTTP.h"
 #include "Network.h"
@@ -40,11 +41,12 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
-};
+flashConfiguration_t flashConfig = {.spiConfiguration = &spiToFlashConfig};
+
+void initializeFlashConfig() {
+    flashInit(&flashConfig);
+    PRINT_DEBUG("Flash Config initialized.");
+}
 
 static void initializeCommunication(void) {
     // Should always be called first thing to prevent unique behavior, like current leakage

@@ -6,6 +6,7 @@ app: Flask = Flask(__name__)
 bin_file_source_dir: Path = Path(__file__).resolve().parent
 
 
+
 def print_bytearray(arr: bytes):
     print("0x" + " 0x".join("%02X" % b for b in arr))
 
@@ -16,13 +17,13 @@ def read_slice(position: int, filename: Path, max_length: int = 512) -> bytes:
         chunk: bytes = file.read(max_length)
     return chunk
 
-
 @app.route("/getfast")
 def get_file_fast():
     chunk_size = request.args.get("chunkMaxSize", type=int)
     chunk_number = request.args.get("chunkNumber", type=int)
 
     print(f"chunk_size: {chunk_size}, chunk_number: {chunk_number}")
+
 
     buffer = BytesIO()
     buffer.write(

@@ -100,18 +100,8 @@
 /* endregion UART */
 
 /* region FLASH*/
-#ifndef FLASH_BYTES_PER_PAGE
-//! depends on part number
-#define FLASH_BYTES_PER_PAGE 512
-#endif
-
-#ifndef FLASH_BYTES_PER_SECTOR
-//! Each sector consists of 256kB (= 262144B)
-#define FLASH_BYTES_PER_SECTOR 262144
-#endif
-
 #ifndef FLASH_SPI_MODULE
-#define FLASH_SPI_MODULE SPI_INSTANCE(0)
+#define FLASH_SPI_MODULE SPI0_MODULE
 #endif
 
 #ifndef FLASH_SPI_CLOCK
@@ -265,7 +255,7 @@
 
 /* region HTTP BIN-FILE DOWNLOAD */
 #ifndef HTTP_CHUNK_SIZE
-#define HTTP_CHUNK_SIZE FLASH_BYTES_PER_PAGE
+#define HTTP_CHUNK_SIZE
 #endif
 /* endregion HTTP BIN-FILE DOWNLOAD */
 

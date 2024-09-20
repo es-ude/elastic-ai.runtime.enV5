@@ -5,9 +5,10 @@
 #include <stdint.h>
 
 typedef struct flashConfiguration {
-    spiConfiguration_t *flashSpiConfiguration;
-    uint32_t flashBytesPerSector;
-    uint32_t flashBytesPerPage;
+    spiConfiguration_t *spiConfiguration;
+    size_t size;
+    size_t bytesPerSector;
+    size_t bytesPerPage;
 } flashConfiguration_t;
 
 typedef enum flashErrorCode {
