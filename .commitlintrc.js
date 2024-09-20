@@ -33,6 +33,8 @@ module.exports = {
                      'workflow',
                      'readme',
                      'cmake',
+                     'config',
+                     'usb-protocol',
                    ]
                  ],
     'subject-empty' : [ 2, "never" ],
