@@ -33,6 +33,7 @@ module.exports = {
                      'workflow',
                      'readme',
                      'cmake',
+                     'config',
                    ]
                  ],
     'subject-empty' : [ 2, "never" ],
