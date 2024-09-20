@@ -6,7 +6,7 @@
 #include "Common.h"
 #include "I2c.h"
 #include "Sleep.h"
-#include "Time.h"
+#include "TimeFacade.h"
 
 /* region CONSTANTS */
 
@@ -131,19 +131,20 @@ adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t
     }
 
     uint32_t startTime;
+    uint64_t milliseconds = (uint64_t) seconds * 1000;
     uint32_t counter = 0;
     uint8_t readMode = fifoInformation & 0b11000000;
    if( ADXL345B_FIFOMODE_BYPASS == readMode){
             PRINT_DEBUG("Start reading in BYPASS_MODE");
-            startTime = get_absolute_time();
-            while (startTime + seconds >= get_absolute_time() && sizeOfRawData > counter) {
+            startTime = get_current_time_in_ms();
+            while (startTime + milliseconds >= get_current_time_in_ms() && sizeOfRawData > counter) {
                 adxl345bGetSingleMeasurement(sensor, rawData[counter * 6]);
                 counter++;
             }
    }else{
             uint8_t samplesInFifo = fifoInformation & 0b00011111;
             PRINT_DEBUG("Start reading STREAM OR FIFO");
-            startTime = get_absolute_time();
+       startTimeInMS = get_current_time_in_ms();
             uint8_t offset;
             do{
                 errorCode = adxl345bInternalCheckInterruptSource(sensor, 0b00000010); //check watermark
@@ -165,7 +166,7 @@ adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t
             }
 
                 counter+=samplesInFifo;
-            } while (startTime + seconds >= get_absolute_time() && sizeOfRawData > counter+samplesInFifo);
+            } while (startTimeInMS + seconds >= get_current_time_in_ms() && sizeOfRawData > counter + samplesInFifo);
    }
     return errorCode;
 }
