@@ -37,19 +37,23 @@ bool modelDeploy(uint32_t acceleratorAddress, const uint8_t *acceleratorId) {
     return true;
 }
 
-void modelPredict(int8_t *inputs, size_t num_inputs, int8_t *result, size_t num_results) {
+void modelPredict(uint8_t *inputs, size_t num_inputs, uint8_t *result, size_t num_results) {
     middlewareInit();
     middlewareUserlogicEnable();
 
     // send input
-    middlewareWriteBlocking(ADDR_SKELETON_INPUTS, inputs, num_inputs);
+    middlewareWriteBlocking(ADDR_SKELETON_INPUTS + 0, (uint8_t *)(inputs), num_inputs);
 
     // run computation
     startCompute();
     while (middlewareUserlogicGetBusyStatus()) {}
     stopCompute();
 
-    middlewareReadBlocking(ADDR_SKELETON_INPUTS, result, num_results);
+    // read output
+    for (int i = 0; i < num_results; i++) {
+        middlewareReadBlocking(ADDR_SKELETON_INPUTS + i, result + i, 1);
+        middlewareReadBlocking(ADDR_SKELETON_INPUTS + i, result + i, 1);
+    }
     middlewareUserlogicDisable();
     middlewareDeinit();
 }

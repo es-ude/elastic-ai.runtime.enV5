@@ -215,17 +215,34 @@ static void receiveInput(uint8_t *buffer, size_t bufferLength) {
 void runInference(const uint8_t *data, __attribute((unused)) size_t length) {
     uint32_t inputLength = convertByteArrayToUint32(&data[0]);
     uint32_t outputLength = convertByteArrayToUint32(&data[4]);
-    uint32_t acceleratorAddress = convertByteArrayToUint32(&data[8]);
-    uint8_t acceleratorId[16];
-    memcpy(acceleratorId, &data[12], 16);
 
     uint8_t networkInput[inputLength];
     receiveInput(networkInput, inputLength);
-
-    modelDeploy(acceleratorAddress, acceleratorId);
 
     uint8_t networkOutput[outputLength];
     modelPredict(networkInput, inputLength, networkOutput, outputLength);
 
     sendOutput(networkOutput, outputLength);
+}
+
+void deployModel(const uint8_t *data, __attribute((unused)) size_t length) {
+    uint32_t acceleratorAddress = convertByteArrayToUint32(&data[0]);
+    uint8_t acceleratorId[16];
+    memcpy(acceleratorId, &data[4], 16);
+
+    uint8_t response = modelDeploy(acceleratorAddress, acceleratorId);
+
+    uint8_t nackCounter = 0;
+
+    while (true) {
+        usbProtocolMessage_t message;
+        message.command = 10;
+        message.payload = &response;
+        message.payloadLength = 1;
+        if (!usbProtocolSendMessage(&message)) {
+            nackCounter++;
+            continue;
+        }
+        break;
+    }
 }
