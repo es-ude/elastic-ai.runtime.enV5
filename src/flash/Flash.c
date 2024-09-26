@@ -165,7 +165,7 @@ static void flashWaitForDone(flashConfiguration_t *flashConfig) {
 }
 
 static size_t calculateBytesPerSector(const uint8_t *config) {
-    if (config[4] == 0x01) {
+    if (config[4] == 0x00) {
         return 262144;
     }
 
@@ -175,9 +175,13 @@ static size_t calculateBytesPerSector(const uint8_t *config) {
 }
 
 static size_t calculateBytesPerPage(const uint8_t *config) {
+    if (config[32] == 0x08) {
+        return 256;
+    }
     if (config[32] == 0x09) {
         return 512;
     }
+
 
     printf("FLASH IS NOT SUPPORTED. ABORTING BYTES PER PAGE...\n");
     // 256B pages only in hybrid flash used
