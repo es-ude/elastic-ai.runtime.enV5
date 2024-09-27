@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "Flash.h"
+
 /* region TYPEDEFS */
 
 typedef enum usbProtocolErrorCodes {
@@ -54,10 +56,12 @@ typedef void *usbProtocolReceiveBuffer;
  *
  * @param[in] readFunction function providing input for the protocol handler
  * @param[in] sendFunction function allowing the handler to send a response
+ * @param[in] flashConfiguration pointer to configuration for flash
  *
  * @throws USB_PROTOCOL_ERROR_NULL_POINTER a function provided is not defined
  */
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction);
+void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
+                     flashConfiguration_t *flashConfiguration);
 
 /*!
  * @brief function waiting for data (command + payload + checksum) (BLOCKING)

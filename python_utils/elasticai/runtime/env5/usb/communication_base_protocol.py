@@ -4,9 +4,7 @@ from typing import Literal, Callable
 import serial
 import logging
 
-logger = logging.getLogger(__name__)
-
-
+logging.basicConfig()
 class WrongCommand(Exception): ...
 
 
@@ -41,7 +39,7 @@ class EnV5BaseRemoteControlProtocol:
         device: serial.Serial,
         get_commands_lut: Callable[[], dict] = get_base_commands,
         calculate_checksum: [[bytearray], bytes] = xor_calculate_checksum,
-        _logger: logging.Logger = logger
+        logger: logging.Logger = logging.getLogger(__name__)
     ):
         self.serial: serial.Serial = device
         self.commands: dict[str, int] = get_commands_lut()
@@ -50,11 +48,12 @@ class EnV5BaseRemoteControlProtocol:
         self.checksum_length: int = 1
         self.endian: Literal["little", "big"] = "big"
         self.allowed_transmission_fails = 5
-        self.logger = _logger
+        self.logger: logging.Logger = logger
 
     def set_logger_level(self, level: str):
         allowed_levels = ["INFO", "DEBUG", "WARNING", "ERROR", "CRITICAL"]
         if level in allowed_levels:
+            self.logger.info(f"logger level set to {level}")
             self.logger.setLevel(level)
         else:
             raise Exception(f"Logging level must be INFO, DEBUG, WARNING, ERROR or CRITICAL. You chose {level}.")
@@ -134,8 +133,10 @@ class EnV5BaseRemoteControlProtocol:
         # Calculate checksum
         calculated_checksum = self.calculate_checksum(message)
 
+        self.logger.debug(f"{command_raw=}")
         # If checksum equal return true
-        if calculated_checksum == transmitted_checksum:
+        if (calculated_checksum == transmitted_checksum and
+                int.from_bytes(command_raw, signed=False, byteorder=self.endian) == self.commands["ack"]):
             return True
         else:
             return False

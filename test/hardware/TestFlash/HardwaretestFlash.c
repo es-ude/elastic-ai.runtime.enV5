@@ -21,11 +21,12 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .baudrate = FLASH_SPI_BAUDRATE,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
-flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
-};
+flashConfiguration_t flashConfig = {.spiConfiguration = &spiToFlashConfig};
+
+void initializeFlashConfig() {
+    flashInit(&flashConfig);
+    PRINT_DEBUG("Flash Config initialized.");
+}
 
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
@@ -40,9 +41,10 @@ void initializeConsoleOutput(void) {
 void initializeHardware(void) {
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
-
     spiInit(&spiToFlashConfig);
+    initializeFlashConfig();
 }
+
 void readDeviceID() {
     data_t idBuffer = {.data = calloc(3, sizeof(uint8_t)), .length = 3};
     int bytesRead = flashReadConfig(&flashConfig, FLASH_READ_ID, &idBuffer);
@@ -50,55 +52,58 @@ void readDeviceID() {
     PRINT("Device ID is: 0x%06X (Should be 0x010219)", *idBuffer.data);
     free(idBuffer.data);
 }
+
 void writeToFlash() {
     // create test double data
-    uint8_t data[FLASH_BYTES_PER_PAGE];
-    for (size_t index = 0; index < FLASH_BYTES_PER_PAGE; index++) {
+    uint8_t data[flashConfig.bytesPerPage];
+    for (size_t index = 0; index < flashConfig.bytesPerPage; index++) {
         data[index] = (uint8_t)index;
     }
     data[1] = 0xFF;
 
     // write test double data to flash
     uint8_t pageCounter = 0;
-    for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
-         pageOffset += FLASH_BYTES_PER_PAGE) {
+    for (size_t pageOffset = 0; pageOffset < pageLimit * flashConfig.bytesPerPage;
+         pageOffset += flashConfig.bytesPerPage) {
         data[0] = pageCounter;
         pageCounter++;
         int successfulWrittenBytes =
-            flashWritePage(&flashConfig, startAddress + pageOffset, data, FLASH_BYTES_PER_PAGE);
+            flashWritePage(&flashConfig, startAddress + pageOffset, data, flashConfig.bytesPerPage);
         PRINT("Address 0x%02lX: %i Bytes Written", startAddress + pageOffset,
               successfulWrittenBytes);
     }
 }
+
 void readFromFlash() {
-    for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
-         pageOffset += FLASH_BYTES_PER_PAGE) {
-        uint8_t data_read[FLASH_BYTES_PER_PAGE];
-        data_t readBuffer = {.data = data_read, .length = FLASH_BYTES_PER_PAGE};
+    for (size_t pageOffset = 0; pageOffset < pageLimit * flashConfig.bytesPerPage;
+         pageOffset += flashConfig.bytesPerPage) {
+        uint8_t data_read[flashConfig.bytesPerPage];
+        data_t readBuffer = {.data = data_read, .length = flashConfig.bytesPerPage};
 
         int bytesRead = flashReadData(&flashConfig, startAddress + pageOffset, &readBuffer);
         PRINT("Address 0x%06lX: %u Bytes read", startAddress + pageOffset, bytesRead);
         PRINT_BYTE_ARRAY("Data: ", readBuffer.data, readBuffer.length);
     }
 }
-void eraseSectorFromFlash() {
-    int sectorsToErase =
-        (int)ceilf((float)(pageLimit * FLASH_BYTES_PER_PAGE) / FLASH_BYTES_PER_SECTOR);
 
-    for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * FLASH_BYTES_PER_SECTOR;
-         sectorOffset += FLASH_BYTES_PER_SECTOR) {
+void eraseSectorFromFlash() {
+    int sectorsToErase = (int)ceilf((float)(pageLimit * flashConfig.bytesPerPage) /
+                                    (float)flashConfig.bytesPerSector);
+
+    for (size_t sectorOffset = 0; sectorOffset < sectorsToErase * flashConfig.bytesPerSector;
+         sectorOffset += flashConfig.bytesPerSector) {
         flashErrorCode_t eraseError =
-            flashEraseSector(&flashConfig, FLASH_BYTES_PER_SECTOR * sectorOffset);
+            flashEraseSector(&flashConfig, flashConfig.bytesPerSector * sectorOffset);
         PRINT("Sector starting from Address %lu erased. (0x%02X)", startAddress + sectorOffset,
               eraseError);
 
         // create read buffer
-        uint8_t dataRead[FLASH_BYTES_PER_PAGE];
-        data_t readBuffer = {.data = dataRead, .length = FLASH_BYTES_PER_PAGE};
-        for (size_t pageOffset = 0; pageOffset < pageLimit * FLASH_BYTES_PER_PAGE;
-             pageOffset += FLASH_BYTES_PER_PAGE) {
+        uint8_t dataRead[flashConfig.bytesPerPage];
+        data_t readBuffer = {.data = dataRead, .length = flashConfig.bytesPerPage};
+        for (size_t pageOffset = 0; pageOffset < pageLimit * flashConfig.bytesPerPage;
+             pageOffset += flashConfig.bytesPerPage) {
             flashReadData(NULL, startAddress + pageOffset, &readBuffer);
-            for (size_t byteIndex = 0; byteIndex < FLASH_BYTES_PER_PAGE; byteIndex++) {
+            for (size_t byteIndex = 0; byteIndex < flashConfig.bytesPerPage; byteIndex++) {
                 if (dataRead[byteIndex] != 0xFF) {
                     PRINT("Erase Failed");
                     return;

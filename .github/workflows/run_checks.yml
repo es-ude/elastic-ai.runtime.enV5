@@ -19,7 +19,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: false
-          fetch-depth: 0
+          fetch-depth: ${{ github.event.pull_request.commits }}
       - name: Lint Commits
         uses: wagoid/commitlint-github-action@v6
         with:

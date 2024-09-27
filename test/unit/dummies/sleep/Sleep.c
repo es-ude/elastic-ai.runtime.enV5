@@ -1,4 +1,4 @@
-#define SOURCE_FILE "DUMMY-TIME-LIB"
+#define SOURCE_FILE "DUMMY-SLEEP-LIB"
 
 #include "Sleep.h"
 #include "Common.h"

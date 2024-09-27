@@ -20,17 +20,20 @@ spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .spiInstance = FLASH_SPI_MODULE,
                                        .csPin = FLASH_SPI_CS};
 flashConfiguration_t flashConfig = {
-    .flashSpiConfiguration = &spiToFlashConfig,
-    .flashBytesPerPage = FLASH_BYTES_PER_PAGE,
-    .flashBytesPerSector = FLASH_BYTES_PER_SECTOR,
+    .spiConfiguration = &spiToFlashConfig,
 };
+
+void initializeFlashConfig() {
+    flashInit(&flashConfig);
+    PRINT_DEBUG("Flash Config initialized.");
+}
 
 static const uint32_t startAddress = 0x00000000;
 const uint32_t pageLimit = 5;
 
 void initializeConsoleOutput(void) {
     stdio_init_all();
-    while ((!stdio_usb_connected())) {
+    while (!stdio_usb_connected()) {
         // wait for serial console to connect
     }
 }
@@ -38,19 +41,22 @@ void initializeConsoleOutput(void) {
 void initializeHardware(void) {
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
-
     spiInit(&spiToFlashConfig);
+    initializeFlashConfig();
 }
+
 void enableQuadSPI(void) {
     uint8_t config[] = {0x00, 0x02};
     flashWriteConfig(&flashConfig, config, sizeof(config));
 }
+
 void readConfig(uint8_t registerToRead) {
     uint8_t configRegister;
     data_t buffer = {.data = &configRegister, .length = 1};
     flashReadConfig(&flashConfig, registerToRead, &buffer);
     PRINT("CONFIG: 0x%02X", configRegister);
 }
+
 _Noreturn void runTest(void) {
     while (1) {
         char input = getchar_timeout_us(UINT32_MAX);
@@ -64,6 +70,16 @@ _Noreturn void runTest(void) {
             break;
         case 'q':
             enableQuadSPI();
+            break;
+        case 'z':
+            printf("Bytes per sector: %i\n", flashGetBytesPerSector(&flashConfig));
+            printf("Bytes per page: %i\n", flashGetBytesPerPage(&flashConfig));
+            printf("Total number of bytes: %i\n", flashGetNumberOfBytes(&flashConfig));
+            printf("Number of sectors: %i\n", flashGetNumberOfSectors(&flashConfig));
+            break;
+        case 'x':
+            printf("Bytes per sector: %i\n", flashConfig.bytesPerSector);
+            printf("Bytes per page: %i\n", flashConfig.bytesPerPage);
             break;
         default:
             PRINT("Waiting ...");
