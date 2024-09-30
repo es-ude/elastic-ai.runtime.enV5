@@ -182,7 +182,6 @@ static size_t calculateBytesPerPage(const uint8_t *config) {
         return 512;
     }
 
-
     printf("FLASH IS NOT SUPPORTED. ABORTING BYTES PER PAGE...\n");
     // 256B pages only in hybrid flash used
     return 0;

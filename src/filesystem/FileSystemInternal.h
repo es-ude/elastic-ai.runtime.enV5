@@ -64,13 +64,15 @@ static int getIndexBySector(const filesystemConfiguration_t *filesystemConfig, u
  */
 static bool checkIfFileSystemExists(filesystemConfiguration_t *filesystemConfig);
 
-/*! @brief If an existing filesystem is found, this checks the number of entries and reconstructs the filesystem datastructure.
+/*! @brief If an existing filesystem is found, this checks the number of entries and reconstructs
+ * the filesystem datastructure.
  *
  * @param filesystemConfig Config of used filesystem
  */
 static void checkNumberOfEntries(filesystemConfiguration_t *filesystemConfig);
 
-/*! @brief Given the index of an entry, this drops that entry and writes the updated filesystem to the flash.
+/*! @brief Given the index of an entry, this drops that entry and writes the updated filesystem to
+ * the flash.
  *
  * @param filesystemConfig Config of used filesystem
  */
@@ -85,7 +87,7 @@ static int compareStartSectors(const void *a, const void *b);
 
 /*! @brief Compares IDs. Used to access the filesystem in different ordering structures.
  *
-* @param a First entry to be compared
+ * @param a First entry to be compared
  * @param b Second entry to be compared
  */
 static int compareIDs(const void *a, const void *b);
