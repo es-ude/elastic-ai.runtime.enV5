@@ -38,15 +38,11 @@ void filesystemInit(flashConfiguration_t *flashConfig,
             for (int j = 0; j < entry.entry.numberOfSectors; j++) {
                 if (entry.entry.isConfig == 2) {
                     filesystemConfig->sectorFree[entry.entry.startSector + j] = 2;
-                }
-                else {
+                } else {
                     filesystemConfig->sectorFree[entry.entry.startSector + j] = 0;
                 }
-
             }
         }
-
-
 
     } else {
         filesystemConfig->nextFileSystemSector = filesystemConfig->filesystemStartSector;
@@ -65,8 +61,8 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
                                          uint32_t numberOfRequiredBytes) {
     int32_t newFileSector;
     uint8_t counter = 0;
-    uint32_t numberOfRequiredSectors =
-        (uint32_t)ceilf((float)numberOfRequiredBytes / (float)flashGetBytesPerSector(filesystemConfig->flash));
+    uint32_t numberOfRequiredSectors = (uint32_t)ceilf(
+        (float)numberOfRequiredBytes / (float)flashGetBytesPerSector(filesystemConfig->flash));
 
     for (size_t i = 0; i < filesystemConfig->filesystemStartSector; i++) {
         if (filesystemConfig->sectorFree[i] == 1 && counter == 0) {
@@ -101,19 +97,19 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
     // set all used sectors to 0 (used)
     if (isConfig == 2) {
         for (int i = 0;
-         i < filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors;
-         i++) {
+             i <
+             filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors;
+             i++) {
             filesystemConfig->sectorFree[startSector + i] = 2;
-         }
-    }
-    else {
+        }
+    } else {
         for (int i = 0;
-         i < filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors;
-         i++) {
+             i <
+             filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors;
+             i++) {
             filesystemConfig->sectorFree[startSector + i] = 0;
-         }
+        }
     }
-
 
     // update number of entries
     ++filesystemConfig->numberOfEntries;
@@ -178,7 +174,8 @@ bool filesystemEraseFileByID(filesystemConfiguration_t *filesystemConfig, uint16
         return false;
     }
 
-    uint32_t startAddress = entry->entry.startSector * flashGetBytesPerSector(filesystemConfig->flash);
+    uint32_t startAddress =
+        entry->entry.startSector * flashGetBytesPerSector(filesystemConfig->flash);
 
     for (int i = 0; i < entry->entry.numberOfSectors; i++) {
         startAddress += i * flashGetBytesPerSector(filesystemConfig->flash);
@@ -201,7 +198,8 @@ uint32_t filesystemGetNumberOfFreeSectors(const filesystemConfiguration_t *files
     return count;
 }
 
-fileSystemEntry_t *filesystemGetEntryByID(filesystemConfiguration_t *filesystemConfig, uint16_t id) {
+fileSystemEntry_t *filesystemGetEntryByID(filesystemConfiguration_t *filesystemConfig,
+                                          uint16_t id) {
     for (int i = 0; i < filesystemConfig->numberOfEntries; i++) {
         if (filesystemConfig->fileSystem[i].entry.id == id) {
             return &filesystemConfig->fileSystem[i];
@@ -243,8 +241,10 @@ void filesystemSortFileSystemByID(filesystemConfiguration_t *filesystemConfig) {
           sizeof(fileSystemEntry_t), compareIDs);
 }
 
-bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector, uint32_t numberOfBytes) {
-    uint16_t numberOfRequiredSectors = ceil((double)numberOfBytes / flashGetBytesPerSector(filesystemConfig->flash));
+bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector,
+                                 uint32_t numberOfBytes) {
+    uint16_t numberOfRequiredSectors =
+        ceil((double)numberOfBytes / flashGetBytesPerSector(filesystemConfig->flash));
 
     // check if required sectors already contain data. If so, abort and return false.
     for (uint16_t i = startSector; i < startSector + numberOfRequiredSectors; i++) {
@@ -256,8 +256,7 @@ bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, ui
             }
             filesystemAddNewFileSystemEntry(filesystemConfig, startSector, numberOfBytes, 2);
             return true;
-        }
-        else {
+        } else {
             PRINT_DEBUG("ID: %i", entry->entry.id);
             PRINT_DEBUG("Size: %i", entry->entry.size);
             PRINT_DEBUG("isConfig: %i", entry->entry.isConfig);
@@ -267,8 +266,6 @@ bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, ui
             return false;
         }
     }
-
-
 }
 
 void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfig) {
@@ -276,9 +273,12 @@ void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfi
     for (int i = filesystemConfig->numberOfEntries; i >= 0; i--) {
         fileSystemEntry_t *entry = &filesystemConfig->fileSystem[i];
         if (entry->entry.isConfig == 2) {
-            uint32_t startAddress = entry->entry.startSector * flashGetBytesPerSector(filesystemConfig->flash);
+            uint32_t startAddress =
+                entry->entry.startSector * flashGetBytesPerSector(filesystemConfig->flash);
             for (int j = 0; j < entry->entry.numberOfSectors; j++) {
-                flashEraseSector(filesystemConfig->flash, startAddress + j * flashGetBytesPerSector(filesystemConfig->flash));
+                flashEraseSector(filesystemConfig->flash,
+                                 startAddress +
+                                     j * flashGetBytesPerSector(filesystemConfig->flash));
                 filesystemConfig->sectorFree[entry->entry.startSector + j] = 1;
             }
             deleteFileSystemEntry(filesystemConfig, i);
@@ -295,14 +295,15 @@ void filesystemEraseAllEntries(filesystemConfiguration_t *filesystemConfig) {
     }
 
     if (filesystemConfig->nextFileSystemSector == filesystemConfig->filesystemStartSector) {
-        uint32_t address = filesystemConfig->filesystemEndSector * flashGetBytesPerSector(filesystemConfig->flash);
+        uint32_t address =
+            filesystemConfig->filesystemEndSector * flashGetBytesPerSector(filesystemConfig->flash);
+        flashEraseSector(filesystemConfig->flash, address);
+    } else {
+        uint32_t address = (filesystemConfig->nextFileSystemSector - 1) *
+                           flashGetBytesPerSector(filesystemConfig->flash);
         flashEraseSector(filesystemConfig->flash, address);
     }
-    else {
-        uint32_t address = (filesystemConfig->nextFileSystemSector - 1) * flashGetBytesPerSector(filesystemConfig->flash);
-        flashEraseSector(filesystemConfig->flash, address);
-    }
-    //writeFileSystemToFlash(filesystemConfig);
+    // writeFileSystemToFlash(filesystemConfig);
 }
 
 // endregion PUBLIC HEADER FUNCTIONS
@@ -353,7 +354,8 @@ void writeFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t cur
 
     // clear new sectors before writing
     for (int i = 0; i < fse.entry.numberOfSectors; i++) {
-        flashEraseSector(filesystemConfig->flash, newAddress + (i * flashGetBytesPerSector(filesystemConfig->flash)));
+        flashEraseSector(filesystemConfig->flash,
+                         newAddress + (i * flashGetBytesPerSector(filesystemConfig->flash)));
     }
 
     // Write file to new sectors
@@ -470,7 +472,7 @@ void checkNumberOfEntries(filesystemConfiguration_t *filesystemConfig) {
 
 void deleteFileSystemEntry(filesystemConfiguration_t *filesystemConfig, uint8_t index) {
     for (int i = index; i < filesystemConfig->numberOfEntries; i++) {
-        filesystemConfig->fileSystem[i] = filesystemConfig->fileSystem[i+1];
+        filesystemConfig->fileSystem[i] = filesystemConfig->fileSystem[i + 1];
     }
     memset(&filesystemConfig->fileSystem[filesystemConfig->numberOfEntries - 1], 0xFF,
            sizeof(fileSystemEntry_t));
@@ -483,7 +485,8 @@ void writeFileSystemToFlash(filesystemConfiguration_t *filesystemConfig) {
     PRINT_DEBUG("Writing new File System to Sector %lu\n", filesystemConfig->nextFileSystemSector);
 
     // Erase new sector before writing
-    uint32_t newAddress = filesystemConfig->nextFileSystemSector * flashGetBytesPerSector(filesystemConfig->flash);
+    uint32_t newAddress =
+        filesystemConfig->nextFileSystemSector * flashGetBytesPerSector(filesystemConfig->flash);
     flashEraseSector(filesystemConfig->flash, newAddress);
 
     // Convert fileEntry Structs to 8-bit array to use flashWritePage()

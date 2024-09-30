@@ -241,9 +241,9 @@ _Noreturn void fileSystemDemo() {
 
             if (filesystemBlockBytesForFPGA(&filesystemConfiguration, startSector, numberOfBytes)) {
                 PRINT("Sectors blocked!\n");
-            }
-            else {
-                PRINT("Sector already contains data. Please check the filesystem and choose a different sector.");
+            } else {
+                PRINT("Sector already contains data. Please check the filesystem and choose a "
+                      "different sector.");
             }
 
             break;
@@ -269,7 +269,8 @@ _Noreturn void fileSystemDemo() {
             }
             break;
         case 'f':
-            PRINT("Number of free Sectors: %d\n", filesystemGetNumberOfFreeSectors(&filesystemConfiguration));
+            PRINT("Number of free Sectors: %d\n",
+                  filesystemGetNumberOfFreeSectors(&filesystemConfiguration));
             for (int i = 0; i < sizeof(filesystemConfiguration.sectorFree); i++) {
                 PRINT("Sector %i: %d", i, filesystemConfiguration.sectorFree[i]);
                 if (i == 1018) {
@@ -292,8 +293,7 @@ _Noreturn void fileSystemDemo() {
             uint32_t newSector = getInput();
             if (filesystemMoveFileToSector(&filesystemConfiguration, ID, newSector)) {
                 PRINT("Moving file successful!");
-            }
-            else {
+            } else {
                 PRINT("Moving of file failed. Check debug output for more information.");
             }
             break;

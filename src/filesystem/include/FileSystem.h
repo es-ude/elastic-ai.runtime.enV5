@@ -42,7 +42,8 @@ void filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t
  *
  * @param filesystemConfig Config of used filesystem
  * @param numberOfRequiredBytes Length of file in bytes
- * @return Either returns a positive start sector to be used, or returns -1. In this case, there are not enough consecutive free sectors.
+ * @return Either returns a positive start sector to be used, or returns -1. In this case, there are
+ * not enough consecutive free sectors.
  */
 int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesystemConfig,
                                          uint32_t numberOfRequiredBytes);
@@ -66,7 +67,8 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
 bool filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
                                 uint16_t newSector);
 
-/*! @brief If there is an entry matching the given ID, the corresponding file is deleted and the updated filesystem is written to the flash.
+/*! @brief If there is an entry matching the given ID, the corresponding file is deleted and the
+ * updated filesystem is written to the flash.
  *
  * @param filesystemConfig Config of used filesystem
  * @param id Handle of file to be deleted
@@ -123,7 +125,8 @@ void filesystemSortFileSystemByID();
  * @param numberOfBytes Number of bytes to be blocked
  * @return Returns false, if sectors already contain data. Otherwise, returns true.
  */
-bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector, uint32_t numberOfBytes);
+bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector,
+                                 uint32_t numberOfBytes);
 
 /*! @brief Frees sectors blocked for FPGA.
  *
@@ -138,4 +141,3 @@ void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfi
 void filesystemEraseAllEntries(filesystemConfiguration_t *filesystemConfig);
 
 #endif // FILESYSTEM_H
-
