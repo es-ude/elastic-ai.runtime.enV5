@@ -169,16 +169,16 @@ void readConfiguration(uint32_t sector) {
 }
 
 uint32_t getInput() {
-    char mystring[5] = {0};
+    char mystring[20] = {0};
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 20; i++) {
         char c = getchar_timeout_us(UINT32_MAX);
         if (c == 13) {
             break;
         }
         mystring[i] = c;
     }
-    mystring[4] = '\0';
+    mystring[19] = '\0';
     uint32_t sector = strtol(mystring, NULL, 10);
     return sector;
 }
@@ -197,6 +197,9 @@ void printHelp() {
     PRINT("U or u: Download fast or slow blinking config via USB\n");
     PRINT("P or p: Power FPGA on or off\n");
     PRINT("r: read data of sector\n");
+    PRINT("b: Block required bytes for FPGA access only\n");
+    PRINT("F: Free all blocked sectors\n");
+    PRINT("c: Clear all entries in the filesystem\n");
     PRINT("---------------------------------------------\n");
     PRINT("\n");
 }
@@ -229,8 +232,20 @@ _Noreturn void fileSystemDemo() {
 
         switch (input) {
         case 'b':
-            filesystemBlockBytesForFPGA(&filesystemConfiguration, 2, 1000000);
-            PRINT("Sectors blocked!\n");
+
+            PRINT("Enter start sector where the protected section should start: \n");
+            uint32_t startSector = getInput();
+
+            PRINT("Enter the number of required bytes: \n");
+            uint32_t numberOfBytes = getInput();
+
+            if (filesystemBlockBytesForFPGA(&filesystemConfiguration, startSector, numberOfBytes)) {
+                PRINT("Sectors blocked!\n");
+            }
+            else {
+                PRINT("Sector already contains data. Please check the filesystem and choose a different sector.");
+            }
+
             break;
         case 'c':
             filesystemEraseAllEntries(&filesystemConfiguration);
@@ -256,7 +271,7 @@ _Noreturn void fileSystemDemo() {
         case 'f':
             PRINT("Number of free Sectors: %d\n", filesystemGetNumberOfFreeSectors(&filesystemConfiguration));
             for (int i = 0; i < sizeof(filesystemConfiguration.sectorFree); i++) {
-                PRINT("%d", filesystemConfiguration.sectorFree[i]);
+                PRINT("Sector %i: %d", i, filesystemConfiguration.sectorFree[i]);
                 if (i == 1018) {
                     PRINT("--");
                 }
@@ -275,7 +290,12 @@ _Noreturn void fileSystemDemo() {
 
             PRINT("Enter new Sector: \n");
             uint32_t newSector = getInput();
-            filesystemMoveFileToSector(&filesystemConfiguration, ID, newSector);
+            if (filesystemMoveFileToSector(&filesystemConfiguration, ID, newSector)) {
+                PRINT("Moving file successful!");
+            }
+            else {
+                PRINT("Moving of file failed. Check debug output for more information.");
+            }
             break;
         case 'O':
             filesystemSortFileSystemByStartSector();
