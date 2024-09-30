@@ -120,18 +120,19 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
     writeFileSystemToFlash(filesystemConfig);
 }
 
-void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
+bool filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
                                 uint16_t newSector) {
 
     fileSystemEntry_t *entry = filesystemGetEntryByID(filesystemConfig, ID);
 
     if (entry == NULL) {
-        return;
+        PRINT_DEBUG("No entry found with matching ID. Aborting...");
+        return false;
     }
     uint16_t currentSector = entry->entry.startSector;
     int index = getIndexBySector(filesystemConfig, currentSector);
     if (index < 0) {
-        return;
+        return false;
     }
     fileSystemEntry_t fileSystemEntry = filesystemConfig->fileSystem[index];
 
@@ -142,7 +143,7 @@ void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uin
     for (int i = 0; i < requiredSectors; i++) {
         if (filesystemConfig->sectorFree[newSector + i] == 2) {
             PRINT_DEBUG("ABORTING... SECTOR IS PROTECTED FOR FPGA USAGE ONLY!");
-            return;
+            return false;
         }
 
         if (filesystemConfig->sectorFree[newSector + i] == 0) {
@@ -162,6 +163,8 @@ void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uin
         filesystemConfig->sectorFree[newSector + i] = 0;
     }
     writeFileSystemToFlash(filesystemConfig);
+
+    return true;
 }
 
 bool filesystemEraseFileByID(filesystemConfiguration_t *filesystemConfig, uint16_t id) {
@@ -209,7 +212,7 @@ fileSystemEntry_t *filesystemGetEntryByID(filesystemConfiguration_t *filesystemC
 
 fileSystemEntry_t *filesystemGetEntryByIndex(filesystemConfiguration_t *filesystemConfig,
                                              uint8_t index) {
-    for (int i = 0; i <= filesystemConfig->numberOfEntries; i++) {
+    for (int i = 0; i < filesystemConfig->numberOfEntries; i++) {
         PRINT_DEBUG("%d, %d\n", i, index);
         if (i == index) {
             return &filesystemConfig->fileSystem[i];
@@ -243,18 +246,35 @@ void filesystemSortFileSystemByID(filesystemConfiguration_t *filesystemConfig) {
 bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector, uint32_t numberOfBytes) {
     uint16_t numberOfRequiredSectors = ceil((double)numberOfBytes / flashGetBytesPerSector(filesystemConfig->flash));
 
-    // clear required sectors
+    // check if required sectors already contain data. If so, abort and return false.
     for (uint16_t i = startSector; i < startSector + numberOfRequiredSectors; i++) {
-        flashEraseSector(filesystemConfig->flash, i * flashGetBytesPerSector(filesystemConfig->flash));
-        filesystemConfig->sectorFree[i] = 2;
+        fileSystemEntry_t *entry = filesystemGetEntryBySector(filesystemConfig, i);
+
+        if (entry == NULL || entry->entry.size == 0) {
+            for (uint16_t i = startSector; i < startSector + numberOfRequiredSectors; i++) {
+                filesystemConfig->sectorFree[i] = 2;
+            }
+            filesystemAddNewFileSystemEntry(filesystemConfig, startSector, numberOfBytes, 2);
+            return true;
+        }
+        else {
+            PRINT_DEBUG("ID: %i", entry->entry.id);
+            PRINT_DEBUG("Size: %i", entry->entry.size);
+            PRINT_DEBUG("isConfig: %i", entry->entry.isConfig);
+            PRINT_DEBUG("Start Sector: %i", entry->entry.startSector);
+            PRINT_DEBUG("Number of Sectors: %i", entry->entry.numberOfSectors);
+            PRINT_DEBUG("Sector already contains data. Aborting...");
+            return false;
+        }
     }
-    filesystemAddNewFileSystemEntry(filesystemConfig, startSector, numberOfBytes, 2);
-    return true;
+
+
 }
 
 void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfig) {
-    for (int i = 0; i < filesystemConfig->numberOfEntries; i++) {
-        fileSystemEntry_t *entry = filesystemGetEntryByIndex(filesystemConfig, i);
+    PRINT_DEBUG("%i", filesystemConfig->numberOfEntries);
+    for (int i = filesystemConfig->numberOfEntries; i >= 0; i--) {
+        fileSystemEntry_t *entry = &filesystemConfig->fileSystem[i];
         if (entry->entry.isConfig == 2) {
             uint32_t startAddress = entry->entry.startSector * flashGetBytesPerSector(filesystemConfig->flash);
             for (int j = 0; j < entry->entry.numberOfSectors; j++) {
@@ -268,8 +288,10 @@ void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfi
 }
 
 void filesystemEraseAllEntries(filesystemConfiguration_t *filesystemConfig) {
-    for (int i = 0; i < filesystemConfig->numberOfEntries; i++) {
+    int i = 0;
+    while (filesystemConfig->numberOfEntries > 0) {
         deleteFileSystemEntry(filesystemConfig, i);
+        i++;
     }
 
     if (filesystemConfig->nextFileSystemSector == filesystemConfig->filesystemStartSector) {
@@ -280,7 +302,7 @@ void filesystemEraseAllEntries(filesystemConfiguration_t *filesystemConfig) {
         uint32_t address = (filesystemConfig->nextFileSystemSector - 1) * flashGetBytesPerSector(filesystemConfig->flash);
         flashEraseSector(filesystemConfig->flash, address);
     }
-
+    //writeFileSystemToFlash(filesystemConfig);
 }
 
 // endregion PUBLIC HEADER FUNCTIONS
@@ -447,12 +469,13 @@ void checkNumberOfEntries(filesystemConfiguration_t *filesystemConfig) {
 }
 
 void deleteFileSystemEntry(filesystemConfiguration_t *filesystemConfig, uint8_t index) {
-    for (int i = index + 1; i < filesystemConfig->numberOfEntries; i++) {
-        filesystemConfig->fileSystem[i - 1] = filesystemConfig->fileSystem[i];
+    for (int i = index; i < filesystemConfig->numberOfEntries; i++) {
+        filesystemConfig->fileSystem[i] = filesystemConfig->fileSystem[i+1];
     }
     memset(&filesystemConfig->fileSystem[filesystemConfig->numberOfEntries - 1], 0xFF,
            sizeof(fileSystemEntry_t));
     --filesystemConfig->numberOfEntries;
+    filesystemConfig->sectorFree[index] = 1;
 }
 
 void writeFileSystemToFlash(filesystemConfiguration_t *filesystemConfig) {

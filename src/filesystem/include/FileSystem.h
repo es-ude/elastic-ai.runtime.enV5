@@ -63,7 +63,7 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
  * @param ID Handle of file to be moved
  * @param newSector Sector the file should be moved to
  */
-void filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
+bool filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
                                 uint16_t newSector);
 
 /*! @brief If there is an entry matching the given ID, the corresponding file is deleted and the updated filesystem is written to the flash.
@@ -116,12 +116,12 @@ void filesystemSortFileSystemByStartSector();
  */
 void filesystemSortFileSystemByID();
 
-/*! @brief Blocks consecutive number of bytes, starting from given start sector. Containing data will be erased.
+/*! @brief Blocks consecutive number of bytes, starting from given start sector.
  *
  * @param filesystemConfig Config of used filesystem
  * @param startSector Startpoint where blocked flash area should start
  * @param numberOfBytes Number of bytes to be blocked
- * @return Returns true if there is enough free memory, otherwise returns false.
+ * @return Returns false, if sectors already contain data. Otherwise, returns true.
  */
 bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, uint16_t startSector, uint32_t numberOfBytes);
 
