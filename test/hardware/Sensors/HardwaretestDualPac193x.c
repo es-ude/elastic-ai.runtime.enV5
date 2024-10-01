@@ -6,6 +6,8 @@
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 
+#include "CException.h"
+
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "I2c.h"
@@ -15,12 +17,14 @@
 
 static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
+    CEXCEPTION_T e;
 
-    pac193xErrorCode_t errorCode =
+    Try {
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE, &measurement);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
-        return;
+    }
+
+    Catch(e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
     }
     PRINT("VSource=%4.6fV", measurement);
 }
@@ -89,10 +93,12 @@ static void getValuesFromSensor2() {
 
 static void getSerialNumber() {
     pac193xSensorId_t sensorID;
+    CEXCEPTION_T e;
 
     PRINT("Requesting serial number of sensor 1.");
-    pac193xErrorCode_t errorCode = pac193xGetSensorInfo(sensor1, &sensorID);
-    if (errorCode == PAC193X_NO_ERROR) {
+
+    Try {
+        pac193xGetSensorInfo(sensor1, &sensorID);
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
             0x58, 0x5B, 0x5D, 0x03);
@@ -105,13 +111,16 @@ static void getSerialNumber() {
         } else {
             PRINT("    \033[0;31mFAILED\033[0m; IDs do not match!");
         }
-    } else {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
+    }
+
+    Catch(e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
     }
 
     PRINT("Requesting serial number of sensor 2");
-    errorCode = pac193xGetSensorInfo(sensor2, &sensorID);
-    if (errorCode == PAC193X_NO_ERROR) {
+
+    Try {
+        pac193xGetSensorInfo(sensor2, &sensorID);
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
             0x58, 0x5B, 0x5D, 0x03);
@@ -124,8 +133,9 @@ static void getSerialNumber() {
         } else {
             PRINT("    \033[0;31mFAILED\033[0m; IDs do not match!");
         }
-    } else {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
+    }
+    Catch(e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
     }
 }
 
@@ -134,6 +144,8 @@ static void enterBootMode() {
 }
 
 int main(void) {
+
+    CEXCEPTION_T e;
     /* enable print to console */
     stdio_init_all();
     // wait for user console to connect
@@ -155,26 +167,30 @@ int main(void) {
 
     /* initialize PAC193X sensors */
     PRINT("===== START PAC_1 INIT =====");
-    pac193xErrorCode_t errorCode;
     while (1) {
-        errorCode = pac193xInit(sensor1);
-        if (errorCode == PAC193X_NO_ERROR) {
+        Try {
+            pac193xInit(sensor1);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
+        }
+
         sleep_ms(500);
     }
 
     PRINT("===== START PAC_2 INIT =====");
-    errorCode;
     while (1) {
-        errorCode = pac193xInit(sensor2);
-        if (errorCode == PAC193X_NO_ERROR) {
+        Try {
+            pac193xInit(sensor2);
             PRINT("Initialised PAC193X sensor 2.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
+        }
+
         sleep_ms(500);
     }
 
@@ -203,6 +219,4 @@ int main(void) {
             break;
         }
     }
-
-    return 0;
 }

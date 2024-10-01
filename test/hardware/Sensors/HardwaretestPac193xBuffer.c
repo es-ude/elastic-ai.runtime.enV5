@@ -6,6 +6,8 @@
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 
+#include "CException.h"
+
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "I2c.h"
@@ -50,9 +52,13 @@ static pac193xSensorConfiguration_t sensor2 = {
 /* endregion SENSOR DEFINITIONS */
 
 static void sensorTest(pac193xSensorConfiguration_t sensor) {
-    pac193xErrorCode_t errorCode = pac193xStartAccumulation(sensor);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
+    CEXCEPTION_T e;
+
+    Try {
+        pac193xStartAccumulation(sensor);
+    }
+    Catch(e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
         return;
     }
 
@@ -60,14 +66,12 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
     sleep_ms(2000);
 
     pac193xEnergyMeasurements_t measurements;
-    errorCode = pac193xReadEnergyForAllChannels(sensor, &measurements);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
-        return;
+    Try {
+        pac193xReadEnergyForAllChannels(sensor, &measurements);
+        pac193XStopAccumulation(sensor);
     }
-    errorCode = pac193XStopAccumulation(sensor);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
+    Catch(e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
         return;
     }
 
@@ -103,14 +107,17 @@ int main(void) {
     }
 
     PRINT("===== START INIT PAC_1 =====");
-    pac193xErrorCode_t errorCode;
+    CEXCEPTION_T e;
     while (1) {
-        errorCode = pac193xInit(sensor1);
-        if (errorCode == PAC193X_NO_ERROR) {
-            PRINT("Initialised PAC193X sensor 1.\n");
-            break;
+        Try {
+                pac193xInit(sensor1);
+                PRINT("Initialised PAC193X sensor 1.\n");
+                break;
+            }
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+
         sleep_ms(500);
     }
 

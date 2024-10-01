@@ -6,4 +6,6 @@ target_link_libraries(sensor_lib_pac193x INTERFACE
         common_lib
         sleep_interface
         gpio_interface
-        i2c_interface)
+        i2c_interface
+        CException
+)

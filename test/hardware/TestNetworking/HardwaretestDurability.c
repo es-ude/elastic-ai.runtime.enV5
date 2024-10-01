@@ -20,6 +20,8 @@
 #include <hardware/i2c.h>
 
 // external headers
+#include "../../../build/release_rev2/_deps/cexception-src/lib/CException.h"
+
 #include <malloc.h>
 #include <string.h>
 
@@ -220,11 +222,13 @@ void updateCounter(countUpdateMessage_t *msg, uint16_t *counter) {
 }
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
     float measurement;
+    CEXCEPTION_T e;
 
-    pac193xErrorCode_t errorCode =
+    Try {
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
-    if (errorCode != PAC193X_NO_ERROR) {
-        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", errorCode);
+    }
+    Catch (e) {
+        PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
         return -1;
     }
     return measurement;
@@ -272,25 +276,31 @@ _Noreturn void sensorTask(void) {
 
 void initSensors(void) {
     PRINT("===== INIT SENSOR 1 =====");
-    pac193xErrorCode_t errorCode;
+    CEXCEPTION_T e;
     while (1) {
-        errorCode = pac193xInit(sensor1);
-        if (errorCode == PAC193X_NO_ERROR) {
+        Try {
+            pac193xInit(sensor1);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
+        }
+
         sleep_ms(500);
     }
 
     PRINT("===== INIT SENSOR 2 =====");
     while (1) {
-        errorCode = pac193xInit(sensor2);
-        if (errorCode == PAC193X_NO_ERROR) {
+        Try {
+            pac193xInit(sensor2);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
+        }
+
         sleep_ms(500);
     }
 }
