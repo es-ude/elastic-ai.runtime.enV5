@@ -183,6 +183,7 @@ void adxl345bGetMultipleMeasurementsReadSuccessful(void) {
     for (int i = 0; i < numberOfSamples; i++) {
         free(samples[i]);
     }
+    free(samples);
 }
 
 
@@ -298,6 +299,7 @@ void adxl345bGetMeasurementsForNSecondsReadSuccessful(void) {
     for (int i = 0; i < numberOfSamples; i++) {
         free(samples[i]);
     }
+    free(samples);
 }
 
 void adxl345bGetMeasurementsForNSecondsReadCorrectValues(void) {
@@ -414,7 +416,7 @@ int main(void) {
     RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful);
-      RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue);
+    RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue);
 
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing);
