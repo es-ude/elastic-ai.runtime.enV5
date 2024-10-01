@@ -425,6 +425,13 @@ int main(void) {
     RUN_TEST(adxl345bGetMultipleMeasurementsReadSuccessful);
     RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValues);
 
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails);
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing);
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails);
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing);
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful);
+    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues);
+
     RUN_TEST(adxl345bConvertDataXYZCorrectValue);
 
     return UNITY_END();
