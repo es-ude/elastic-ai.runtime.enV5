@@ -1,7 +1,7 @@
+#include "../../build/debug_rev2/_deps/cexception-src/lib/CException.h"
 #include "Common.h"
 #include "I2cUnitTest.h"
 #include "Pac193x.h"
-#include "../../build/debug_rev2/_deps/cexception-src/lib/CException.h"
 
 #include <stdint.h>
 #include <string.h>

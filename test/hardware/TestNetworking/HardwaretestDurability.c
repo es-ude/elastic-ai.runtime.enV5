@@ -227,7 +227,7 @@ float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel
     Try {
         pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
     }
-    Catch (e) {
+    Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
         return -1;
     }

@@ -93,8 +93,7 @@ void pac193XStopAccumulation(pac193xSensorConfiguration_t sensor) {
     pac193xRefreshData(sensor);
 }
 
-void pac193xSetSampleRate(pac193xSensorConfiguration_t sensor,
-                          pac193xSampleRate_t sampleRate) {
+void pac193xSetSampleRate(pac193xSensorConfiguration_t sensor, pac193xSampleRate_t sampleRate) {
 
     uint8_t ctrlRegister;
     pac193xInternalGetDataFromSensor(sensor, &ctrlRegister, 1, PAC193X_CMD_CTRL);
@@ -122,8 +121,7 @@ void pac193xRefreshDataAndResetAccumulator(pac193xSensorConfiguration_t sensor) 
 }
 /* endregion GENERAL FUNCTIONS */
 
-void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
-                          pac193xSensorId_t *info) {
+void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info) {
 
     CEXCEPTION_T e;
     uint8_t sizeOfResponseBuffer = 1;
@@ -133,14 +131,14 @@ void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
 
     Try {
         pac193xInternalGetDataFromSensor(sensor, &info->product_id, sizeOfResponseBuffer,
-                                                 PAC193X_CMD_READ_PRODUCT_ID);
-        pac193xInternalGetDataFromSensor(
-        sensor, &info->manufacturer_id, sizeOfResponseBuffer, PAC193X_CMD_READ_MANUFACTURER_ID);
+                                         PAC193X_CMD_READ_PRODUCT_ID);
+        pac193xInternalGetDataFromSensor(sensor, &info->manufacturer_id, sizeOfResponseBuffer,
+                                         PAC193X_CMD_READ_MANUFACTURER_ID);
 
         pac193xInternalGetDataFromSensor(sensor, &info->revision_id, sizeOfResponseBuffer,
-                                                 PAC193X_CMD_READ_REVISION_ID);
+                                         PAC193X_CMD_READ_REVISION_ID);
     }
-    Catch(e){
+    Catch(e) {
         info->product_id = 0;
         info->manufacturer_id = 0;
         info->revision_id = 0;
@@ -150,10 +148,8 @@ void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
 
 /* region READ MEASUREMENTS */
 
-void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
-                                     pac193xChannel_t channel,
-                                     pac193xValueToMeasure_t valueToMeasure,
-                                     float *value) {
+void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+                                     pac193xValueToMeasure_t valueToMeasure, float *value) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
         Throw(PAC193X_INVALID_CHANNEL);
@@ -168,8 +164,7 @@ void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
     }
 }
 
-void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
-                                      pac193xChannel_t channel,
+void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                       pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
@@ -180,7 +175,7 @@ void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
         Throw(PAC193X_INVALID_CHANNEL);
     }
 
-    Try{
+    Try {
         pac193xInternalGetData(sensor, channel, PAC193X_VSOURCE, &measurements->voltageSource);
         pac193xInternalGetData(sensor, channel, PAC193X_VSENSE, &measurements->voltageSense);
         pac193xInternalGetData(sensor, channel, PAC193X_CURRENT, &measurements->currentSense);
@@ -195,8 +190,7 @@ void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
     }
 }
 
-void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor,
-                                  pac193xChannel_t channel,
+void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                   pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
 
@@ -270,8 +264,7 @@ static void pac193xInternalCheckSensorAvailable(pac193xSensorConfiguration_t sen
     }
 }
 
-static void
-pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
+static void pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
     pac193xSetChannelsInUse(sensor);
 
     /* enable single-shot mode, enable slow mode, disable alert/overflow pin */
@@ -285,10 +278,9 @@ pac193xInternalSetDefaultConfiguration(pac193xSensorConfiguration_t sensor) {
     pac193xInternalSendConfigurationToSensor(sensor, PAC193X_CMD_SLOW, 0b00010100);
 }
 
-static void
-pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
-                                         pac193xRegisterAddress_t registerToWrite,
-                                         pac193xSettings_t settingsToWrite) {
+static void pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
+                                                     pac193xRegisterAddress_t registerToWrite,
+                                                     pac193xSettings_t settingsToWrite) {
     uint8_t sizeOfCommandBuffer = 2;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToWrite;
@@ -304,9 +296,8 @@ pac193xInternalSendConfigurationToSensor(pac193xSensorConfiguration_t sensor,
     PRINT_DEBUG("configuration send successful");
 }
 
-static void
-pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
-                                   pac193xRegisterAddress_t registerToRead) {
+static void pac193xInternalSendRequestToSensor(pac193xSensorConfiguration_t sensor,
+                                               pac193xRegisterAddress_t registerToRead) {
     uint8_t sizeOfCommandBuffer = 1;
     uint8_t commandBuffer[sizeOfCommandBuffer];
     commandBuffer[0] = registerToRead;
@@ -333,10 +324,9 @@ static void pac193xInternalReceiveDataFromSensor(pac193xSensorConfiguration_t se
     PRINT_DEBUG("received data successful");
 }
 
-static void
-pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor, uint8_t *responseBuffer,
-                                 uint8_t sizeOfResponseBuffer,
-                                 pac193xRegisterAddress_t registerToRead) {
+static void pac193xInternalGetDataFromSensor(pac193xSensorConfiguration_t sensor,
+                                             uint8_t *responseBuffer, uint8_t sizeOfResponseBuffer,
+                                             pac193xRegisterAddress_t registerToRead) {
     pac193xInternalSendRequestToSensor(sensor, registerToRead);
 
     pac193xInternalReceiveDataFromSensor(sensor, responseBuffer, sizeOfResponseBuffer);
@@ -387,9 +377,8 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
     return channelIndex;
 }
 
-static void
-pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
-                                        pac193xValueToMeasure_t valueToMeasure) {
+static void pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
+                                                    pac193xValueToMeasure_t valueToMeasure) {
     PRINT_DEBUG("setting properties for requested measurement");
 
     switch (valueToMeasure) {
@@ -444,10 +433,8 @@ pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properti
     PRINT_DEBUG("settings applied successful");
 }
 
-static void pac193xInternalGetData(pac193xSensorConfiguration_t sensor,
-                                   pac193xChannel_t channel,
-                                   pac193xValueToMeasure_t valueToMeasure,
-                                   float *value) {
+static void pac193xInternalGetData(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+                                   pac193xValueToMeasure_t valueToMeasure, float *value) {
     /* store configurations for measurements */
     pac193xMeasurementProperties_t properties;
     /* set channel offset for property
@@ -459,8 +446,8 @@ static void pac193xInternalGetData(pac193xSensorConfiguration_t sensor,
 
     /* retrieve data from sensor */
     uint8_t responseBuffer[properties.sizeOfResponseBuffer];
-    pac193xInternalGetDataFromSensor(
-        sensor, responseBuffer, properties.sizeOfResponseBuffer, properties.startReadAddress);
+    pac193xInternalGetDataFromSensor(sensor, responseBuffer, properties.sizeOfResponseBuffer,
+                                     properties.startReadAddress);
 
     /* transform raw data */
     uint64_t rawValue = pac193xInternalTransformResponseBufferToUInt64(
