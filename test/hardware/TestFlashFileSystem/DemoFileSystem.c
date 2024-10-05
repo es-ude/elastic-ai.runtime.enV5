@@ -33,9 +33,8 @@ flashConfiguration_t flashConfig = {
 
 filesystemConfiguration_t filesystemConfiguration;
 
-const char *baseUrl = "http://192.168.2.21:5000";
-// const char *baseUrl = "http://192.168.203.223:5000";
-// const char *baseUrl = "http://134.91.202.139:5000";
+// This needs to be filled with the URL given by the HW-Test_Webserver.py script
+const char *baseUrl = "";
 
 size_t blinkFastLength = 86116;
 size_t blinkSlowLength = 85540;
@@ -170,16 +169,16 @@ void readConfiguration(uint32_t sector) {
 }
 
 uint32_t getInput() {
-    char mystring[5] = {0};
+    char mystring[20] = {0};
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 20; i++) {
         char c = getchar_timeout_us(UINT32_MAX);
         if (c == 13) {
             break;
         }
         mystring[i] = c;
     }
-    mystring[4] = '\0';
+    mystring[19] = '\0';
     uint32_t sector = strtol(mystring, NULL, 10);
     return sector;
 }
@@ -198,6 +197,9 @@ void printHelp() {
     PRINT("U or u: Download fast or slow blinking config via USB\n");
     PRINT("P or p: Power FPGA on or off\n");
     PRINT("r: read data of sector\n");
+    PRINT("b: Block required bytes for FPGA access only\n");
+    PRINT("F: Free all blocked sectors\n");
+    PRINT("c: Clear all entries in the filesystem\n");
     PRINT("---------------------------------------------\n");
     PRINT("\n");
 }
@@ -229,6 +231,32 @@ _Noreturn void fileSystemDemo() {
         char input = getchar_timeout_us(UINT32_MAX);
 
         switch (input) {
+        case 'b':
+
+            PRINT("Enter start sector where the protected section should start: \n");
+            uint32_t startSector = getInput();
+
+            PRINT("Enter the number of required bytes: \n");
+            uint32_t numberOfBytes = getInput();
+
+            if (filesystemBlockBytesForFPGA(&filesystemConfiguration, startSector, numberOfBytes)) {
+                PRINT("Sectors blocked!\n");
+            } else {
+                PRINT("Sector already contains data. Please check the filesystem and choose a "
+                      "different sector.");
+            }
+
+            break;
+        case 'c':
+            filesystemEraseAllEntries(&filesystemConfiguration);
+            PRINT("Filesystem erased!\n");
+            break;
+        case 'D':
+            downloadConfigurationHTTP(true);
+            break;
+        case 'd':
+            downloadConfigurationHTTP(false);
+            break;
         case 'E':
             flashEraseAll(&flashConfig);
             PRINT("ERASED!\n");
@@ -240,33 +268,22 @@ _Noreturn void fileSystemDemo() {
                 PRINT("Erased File with ID %d.\n", erase_id);
             }
             break;
-
-        case 'P':
-            env5HwControllerFpgaPowersOn();
-            PRINT("FPGA Power: ON\n");
+        case 'f':
+            PRINT("Number of free Sectors: %d\n",
+                  filesystemGetNumberOfFreeSectors(&filesystemConfiguration));
+            for (int i = 0; i < sizeof(filesystemConfiguration.sectorFree); i++) {
+                PRINT("Sector %i: %d", i, filesystemConfiguration.sectorFree[i]);
+                if (i == 1018) {
+                    PRINT("--");
+                }
+            }
             break;
-        case 'p':
-            env5HwControllerFpgaPowersOff();
-            PRINT("FPGA Power: OFF\n");
+        case 'F':
+            filesystemFreeBlockedFPGASectors(&filesystemConfiguration);
+            PRINT("Cleared all blocked sectors!");
             break;
-
-        case 'U':
-            downloadConfigurationUSB(true);
-            break;
-        case 'u':
-            downloadConfigurationUSB(false);
-            break;
-        case 'D':
-            downloadConfigurationHTTP(true);
-            break;
-        case 'd':
-            downloadConfigurationHTTP(false);
-            break;
-
-        case 'r':
-            PRINT("Which Sector do you want to read?\n");
-            uint32_t read_sector = getInput();
-            readConfiguration(read_sector);
+        case 'h':
+            printHelp();
             break;
         case 'm':
             PRINT("Which File do you want to move? Enter ID: \n");
@@ -274,15 +291,10 @@ _Noreturn void fileSystemDemo() {
 
             PRINT("Enter new Sector: \n");
             uint32_t newSector = getInput();
-            filesystemMoveFileToSector(&filesystemConfiguration, ID, newSector);
-            break;
-        case 'f':
-            PRINT("Number of free Sectors: %d\n", filesystemGetNumberOfFreeSectors());
-            for (int i = 0; i < sizeof(filesystemConfiguration.sectorFree); i++) {
-                PRINT("%d", filesystemConfiguration.sectorFree[i]);
-                if (i == 1018) {
-                    PRINT("--");
-                }
+            if (filesystemMoveFileToSector(&filesystemConfiguration, ID, newSector)) {
+                PRINT("Moving file successful!");
+            } else {
+                PRINT("Moving of file failed. Check debug output for more information.");
             }
             break;
         case 'O':
@@ -293,8 +305,24 @@ _Noreturn void fileSystemDemo() {
             filesystemSortFileSystemByID();
             filesystemPrintFileSystem(&filesystemConfiguration);
             break;
-        case 'h':
-            printHelp();
+        case 'P':
+            env5HwControllerFpgaPowersOn();
+            PRINT("FPGA Power: ON\n");
+            break;
+        case 'p':
+            env5HwControllerFpgaPowersOff();
+            PRINT("FPGA Power: OFF\n");
+            break;
+        case 'r':
+            PRINT("Which Sector do you want to read?\n");
+            uint32_t read_sector = getInput();
+            readConfiguration(read_sector);
+            break;
+        case 'U':
+            downloadConfigurationUSB(true);
+            break;
+        case 'u':
+            downloadConfigurationUSB(false);
             break;
         case 'z':
             printf("%i\n", filesystemConfiguration.filesystemStartSector);
