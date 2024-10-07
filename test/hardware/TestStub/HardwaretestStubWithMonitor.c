@@ -11,7 +11,6 @@
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
-#include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "FreeRtosMutexWrapper.h"
 #include "FreeRtosQueueWrapper.h"
@@ -22,7 +21,6 @@
 #include "middleware.h"
 
 #include <hardware/spi.h>
-#include <pico/bootrom.h>
 #include <pico/stdlib.h>
 
 #include <stdbool.h>
