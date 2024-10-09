@@ -110,10 +110,10 @@ int main(void) {
     CEXCEPTION_T e;
     while (1) {
         Try {
-                pac193xInit(sensor1);
-                PRINT("Initialised PAC193X sensor 1.\n");
-                break;
-            }
+            pac193xInit(sensor1);
+            PRINT("Initialised PAC193X sensor 1.\n");
+            break;
+        }
         Catch(e) {
             PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
         }

@@ -71,8 +71,7 @@ void pac193XStopAccumulation(pac193xSensorConfiguration_t sensor);
  * @param sensor[in]     configuration of the sensor to use
  * @param sampleRate[in] sample rate to be used
  */
-void pac193xSetSampleRate(pac193xSensorConfiguration_t sensor,
-                          pac193xSampleRate_t sampleRate);
+void pac193xSetSampleRate(pac193xSensorConfiguration_t sensor, pac193xSampleRate_t sampleRate);
 
 /*!
  * @brief this function transfers the latest accumulated values to the data register
@@ -108,8 +107,7 @@ void pac193xRefreshData(pac193xSensorConfiguration_t sensor);
  * @param sensor[in] configuration of the sensor to use
  * @param info[out]  struct that holds the information read from the sensor
  */
-void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
-                          pac193xSensorId_t* info);
+void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info);
 
 /* region READ MEASUREMENTS */
 
@@ -124,10 +122,8 @@ void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
  * @param valueToMeasure[in] value to be measured
  * @param value[out]         memory where the retrieved value will be stored
  */
-void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
-                                     pac193xChannel_t channel,
-                                     pac193xValueToMeasure_t valueToMeasure,
-                                     float* value);
+void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+                                     pac193xValueToMeasure_t valueToMeasure, float *value);
 
 /*!
  * @brief read \b all available single shot values from the sensor for a specific channel
@@ -136,9 +132,8 @@ void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
  * @param channel[in]       channel where the measurement should be taken from
  * @param measurements[out] memory where the struct with the measured values will be stored
  */
-void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
-                                      pac193xChannel_t channel,
-                                      pac193xMeasurements_t* measurements);
+void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+                                      pac193xMeasurements_t *measurements);
 
 /*!
  * @brief read all rolling averages from sensor
@@ -150,9 +145,8 @@ void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
  * @param channel[in]       channel where the measurement should be taken from
  * @param measurements[out] memory where the struct with the measured values will be stored
  */
-void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor,
-                                  pac193xChannel_t channel,
-                                  pac193xMeasurements_t* measurements);
+void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+                                  pac193xMeasurements_t *measurements);
 
 /*!
  * @brief get the counter of accumulated values and the accumulated power values
@@ -165,7 +159,7 @@ void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor,
  * @param measurements[out] memory where the struct with the measured values will be stored
  */
 void pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
-                                     pac193xEnergyMeasurements_t* measurements);
+                                     pac193xEnergyMeasurements_t *measurements);
 
 /* endregion ACCUMULATED MEASUREMENTS */
 // end::prototypes[]
