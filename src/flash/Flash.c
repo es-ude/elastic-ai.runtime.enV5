@@ -165,7 +165,7 @@ static void flashWaitForDone(flashConfiguration_t *flashConfig) {
 }
 
 static size_t calculateBytesPerSector(const uint8_t *config) {
-    if (config[4] == 0x01) {
+    if (config[4] == 0x00) {
         return 262144;
     }
 
