@@ -7,6 +7,7 @@
  */
 
 // src headers
+#include "CException.h"
 #include "Common.h"
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
@@ -20,7 +21,6 @@
 #include <hardware/i2c.h>
 
 // external headers
-#include "../../../build/release_rev2/_deps/cexception-src/lib/CException.h"
 
 #include <malloc.h>
 #include <string.h>
