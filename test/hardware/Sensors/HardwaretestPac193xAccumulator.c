@@ -5,6 +5,8 @@
 #include <hardware/i2c.h>
 #include <pico/stdio_usb.h>
 
+#include "CException.h"
+
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
@@ -60,14 +62,17 @@ static void initializeCommunication(void) {
 
     /* initialize PAC193X sensor */
     PRINT("===== START PAC193X INIT =====");
-    pac193xErrorCode_t errorCode;
+    CEXCEPTION_T e;
     while (1) {
-        errorCode = pac193xInit(sensor);
-        if (errorCode == PAC193X_NO_ERROR) {
+        Try {
+            pac193xInit(sensor);
             PRINT("Initialised PAC193X.\n");
             break;
         }
-        PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", errorCode);
+        Catch(e) {
+            PRINT("Initialise PAC193X failed; pac193x_ERROR: %02X\n", e);
+        }
+
         sleep_ms(500);
     }
 }
@@ -84,14 +89,16 @@ _Noreturn static void runTest(void) {
         pac193xRefreshData(sensor);
         sleep_for_ms(10);
         pac193xEnergyMeasurements_t measurements;
-        pac193xErrorCode_t error = pac193xReadEnergyForAllChannels(sensor, &measurements);
-        if (PAC193X_NO_ERROR != error) {
-            PRINT("Error occurred: 0x%02X", error);
-        } else {
+        CEXCEPTION_T e;
+        Try {
+            pac193xReadEnergyForAllChannels(sensor, &measurements);
             PRINT("Overflow: %b", measurements.overflow);
             PRINT("Got %lu values:\n\t%f\n\t%f\n\t%f\n\t%f", measurements.numberOfAccumulatedValues,
                   measurements.energyChannel1, measurements.energyChannel2,
                   measurements.energyChannel3, measurements.energyChannel4);
+        }
+        Catch(e) {
+            PRINT("Error occurred: 0x%02X", e);
         }
 
         PRINT("Sleeping for 2 seconds");

@@ -23,19 +23,29 @@ pac193xSensorConfiguration_t sensor = {
 
 
 int main(void) {
+    CEXCEPTION_t exception;
+
     // Initialize Sensor (ALWAYS REQUIRED)
-    pac193xErrorCode_t errorCode = pac193xInit(sensor);
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode;
+    Try {
+      pac193xInit(sensor);
+    }
+    Catch(exception){
+        if (exception != PAC193X_NO_ERROR) {
+          Throw(exception);
+        }
     }
 
     // DO STUFF
 
     // Example: Read Values from Channel
     pac193xMeasurements_t measurements;
-    errorCode = pac193xGetMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode;
+
+    Try {
+      errorCode = pac193xGetMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements);
+    }
+    Catch(exception) {
+      if (exception != PAC193X_NO_ERROR) {
+        Throw(exception);
     }
     // ...
 

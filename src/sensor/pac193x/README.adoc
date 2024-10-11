@@ -35,15 +35,23 @@ pac193xSensorConfiguration_t sensor = {
 }; // <1>
 
 int main(void) {
-    pac193xErrorCode_t errorCode = pac193xInit(sensor); // <2>
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode; // <3>
+    CEXCEPTION_t exception;
+    Try {
+        pac193xInit(sensor); // <2>
+    }
+    Catch(exception) {
+        if (exception != PAC193X_NO_ERROR) {
+            Throw(exception); // <3>
+        }
     }
 
     pac193xMeasurements_t measurements;
-    errorCode = pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements); // <4>
-    if (errordCode != PAC193X_NO_ERROR) {
-        return errorCode; // <3>
+    Try{
+        pac193xGetAllMeasurementsForChannel(sensor, PAC193X_CHANNEL01, &measurements); // <4>
+    }
+    Catch(exception) {
+        if (exception != PAC193X_NO_ERROR) {
+        Throw(exception); // <3>
     }
 
     return 0;
