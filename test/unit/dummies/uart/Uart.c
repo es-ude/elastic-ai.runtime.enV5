@@ -3,7 +3,7 @@
 #include "Uart.h"
 #include "Common.h"
 
-void uartInit(uartConfiguration_t *device) {
+void uartInit(uartConfiguration_t *uartConfig) {
     // Just here to satisfy the compiler
 }
 
@@ -15,7 +15,8 @@ void uartSetHTTPReceiverFunction(void (*receive)(char *)) {
     // Just here to satisfy the compiler
 }
 
-uartErrorCode_t uartSendCommand(char *command, char *expectedResponse) {
+uartErrorCode_t uartSendCommand(const uartConfiguration_t *uartConfig, char *command,
+                                char *expectedResponse) {
     PRINT("UART send Message: >%s<", command);
     return UART_NO_ERROR;
 }
