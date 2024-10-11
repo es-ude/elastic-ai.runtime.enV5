@@ -40,14 +40,14 @@ _Noreturn void receiverTask(void) {
         if (freeRtosQueueWrapperPop(postings, &post)) {
             PRINT("Received Message: '%s' via '%s'", post.data, post.topic);
         }
-        freeRtosTaskWrapperTaskSleep(100);
+        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
 _Noreturn void senderTask(void) {
     uint16_t messageCounter = 0;
     while (1) {
-        freeRtosTaskWrapperTaskSleep(700);
+        freeRtosTaskWrapperTaskSleep(800);
         char data[17];
         snprintf(data, 17, "testData - %i", messageCounter);
         PRINT("Send Message: '%s' via '%s'", data, dataTopic);
