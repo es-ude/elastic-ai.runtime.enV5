@@ -57,11 +57,13 @@ void uartSetHTTPReceiverFunction(void (*receive)(char *));
  *
  * @IMPORTANT call `uartFreeCommandBuffer(void) to unblock UART after transmission
  *
+ * @param uartConfig               Pointer to configuration of used UART
  * @param command[char *]          Pointer to char array which holds the ESP command to send
  * @param expectedResponse[char *] Pointer to char array which holds the successful response
  * @return                         0x00 if no error
  */
-uartErrorCode_t uartSendCommand(char *command, char *expectedResponse);
+uartErrorCode_t uartSendCommand(const uartConfiguration_t *uartConfig, char *command,
+                                char *expectedResponse);
 
 /*!
  * @brief function to check if the correct response was received from the ESP module
