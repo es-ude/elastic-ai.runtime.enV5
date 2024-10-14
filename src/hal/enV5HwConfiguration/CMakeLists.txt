@@ -5,7 +5,7 @@ add_library(enV5_hw_configuration INTERFACE
 set(REVISION_FILEPATH ${REVISION} CACHE FILEPATH "Helper variable needed for casting" FORCE)
 
 if(NOT DEFINED REVISION)
-    message(FATAL_ERROR "You need to specify a hw configuration by setting REVISION to '1' or '2'")
+    message(FATAL_ERROR "You need to specify a hw configuration with -D REVISION=1 or 2")
 elseif(${REVISION} STREQUAL "1")
     target_include_directories(enV5_hw_configuration INTERFACE ${CMAKE_CURRENT_LIST_DIR}/revision01)
 elseif (${REVISION} STREQUAL "2")
