@@ -2,10 +2,10 @@ add_library(enV5_hw_configuration INTERFACE
         revision01/EnV5HwConfiguration.h
         revision02/EnV5HwConfiguration.h)
 
-set(REVISION_FILEPATH ${REVISION} CACHE FILEPATH "Helpervariable needed for casting" FORCE)
+set(REVISION_FILEPATH ${REVISION} CACHE FILEPATH "Helper variable needed for casting" FORCE)
 
 if(NOT DEFINED REVISION)
-    message(FATAL_ERROR "Missing hardware configuration")
+    message(FATAL_ERROR "You need to specify a hw configuration by setting REVISION to '1' or '2'")
 elseif(${REVISION} STREQUAL "1")
     target_include_directories(enV5_hw_configuration INTERFACE ${CMAKE_CURRENT_LIST_DIR}/revision01)
 elseif (${REVISION} STREQUAL "2")
