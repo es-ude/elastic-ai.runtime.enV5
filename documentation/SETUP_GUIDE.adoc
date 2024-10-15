@@ -53,6 +53,16 @@ Can be installed via your local package manager like dnf, apt or brew.
 https://developer.arm.com/downloads/-/gnu-rm[ARM-None-EABI GCC]::
 -> C Cross Compiler for ARM +
 Can be installed via your local package manager like dnf, apt or brew.
++
+.Note For MacOS
+Install the cross compiler via
++
+[source, bash]
+----
+$ brew install --cask gcc-arm-embedded
+----
++
+The packages `arm-none-eabi-gcc` and `arm-none-eabi-binutils` are known to cause issues, e.g., missing header files.
 
 https://cmake.org[CMake]::
 -> Build System +
