@@ -42,8 +42,8 @@ if (UNIT_TEST)
     # include unit-tests
     add_subdirectory(test/unit)
 else ()
-    mese(pico_sdk_import.cmake)
-    sage(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
+    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
+    include(pico_sdk_import.cmake)
 
     # include pico-sdk
     set(PICO_SDK_FETCH_FROM_GIT on)
