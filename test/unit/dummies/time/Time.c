@@ -12,3 +12,4 @@ uint32_t timeMS32(void) {
     PRINT("Call timeMS32");
     return 100;
 }
+

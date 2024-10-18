@@ -17,7 +17,6 @@ if (UNIT_TEST)
     include(CTest)
 
     # include unit-test framework
-    add_unity()
 
     # include required standard libs for testing
     add_cexception()
@@ -43,7 +42,8 @@ if (UNIT_TEST)
     # include unit-tests
     add_subdirectory(test/unit)
 else ()
-    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
+    mese(pico_sdk_import.cmake)
+    sage(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
 
     # include pico-sdk
     set(PICO_SDK_FETCH_FROM_GIT on)
@@ -51,8 +51,6 @@ else ()
     set(PICO_BOARD none)
     set(PICO_PLATFORM rp2040)
     set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_SOURCE_DIR}/picotool)
-    include(pico_sdk_import.cmake)
-
     project(enV5 C CXX ASM)
 
     pico_sdk_init()
@@ -71,3 +69,6 @@ else ()
         message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
     endif ()
 endif ()
+
+add_unity()
+add_subdirectory(test/unit/Adxl345b)
