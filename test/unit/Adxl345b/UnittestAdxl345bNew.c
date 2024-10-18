@@ -1,13 +1,42 @@
 #include "Adxl345b.h"
 #include "unity.h"
+#include "I2c.h"
+#include "Time.h"
+#include "Sleep.h"
+
 
 
 adxl345bSensorConfiguration_t sensor;
 
+uint64_t timeUs64(void) {return 1;}
+
+uint32_t timeUs32(void) {return 1;}
+
+void sleep_for_ms(uint32_t msToSleep) {}
+
+void sleep_for_us(uint64_t usToSleep) {}
+
+
+i2cErrorCode_t i2cWriteError;
+
+i2cErrorCode_t readError;
+
+i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
+                               const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
+    return i2cWriteError;
+
+}
+
+i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,
+                            uint8_t sizeOfReadBuffer) {
+    return readError;
+}
+
+
 void setUp(void) {
     /* Default: Point to Pass */
-
-
+    i2cWriteError = I2C_NO_ERROR;
+    readError = I2C_NO_ERROR;
     adxl345bChangeMeasurementRange(sensor, ADXL345B_2G_RANGE);
 }
 
@@ -17,19 +46,20 @@ void tearDown(void) {}
 
 void adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails(void) {
     uint8_t serialNumber;
-    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
+    i2cWriteError = I2C_ACK_ERROR;
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+
+void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
+    uint8_t serialNumber;
+    readError = I2C_ACK_ERROR;
 
     adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
-//
-//void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
-//    uint8_t serialNumber;
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
+
 //
 //void adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails(void) {
 //    uint8_t serialNumber;
@@ -398,7 +428,7 @@ int main(void) {
     UNITY_BEGIN();
 
     RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails);
-//    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing);
+    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails);
 //    RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bReadSerialNumberReadSuccessful);
