@@ -119,55 +119,114 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
 
 adxl345bErrorCode_t
 adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t **rawData, uint32_t seconds,
-                                   uint32_t sizeOfRawData) {
+                                   uint32_t *sizeOfRawData) {
     adxl345bErrorCode_t errorCode = ADXL345B_NO_ERROR;
+
+    uint64_t startTime;
+    uint64_t endTime;
+    uint32_t alreadyReadData = 0;
+    uint32_t dataToRead = *sizeOfRawData;
+    dataToRead -= dataToRead % 6;
 
     /* read and set configuration*/
     uint8_t fifoInformation;
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &fifoInformation, 1);
-    if(errorCode != ADXL345B_NO_ERROR){
+    if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("reading FIFO_CONTROL failed");
         return errorCode;
     }
+    uint8_t samplesInFifo = (fifoInformation & 0b00011111) + 1;
 
-    uint32_t startTime;
-    uint64_t milliseconds = (uint64_t) seconds * 1000;
-    uint32_t counter = 0;
     uint8_t readMode = fifoInformation & 0b11000000;
-   if( ADXL345B_FIFOMODE_BYPASS == readMode){
-            PRINT_DEBUG("Start reading in BYPASS_MODE");
-            startTime = get_current_time_in_ms();
-            while (startTime + milliseconds >= get_current_time_in_ms() && sizeOfRawData > counter) {
-                adxl345bGetSingleMeasurement(sensor, rawData[counter * 6]);
-                counter++;
+    if (readMode == ADXL345B_FIFOMODE_BYPASS) {
+        PRINT_DEBUG("Start reading in BYPASS_MODE");
+        startTime = timeUs32() / 1000;
+        endTime = (uint64_t) (seconds * 1000) + startTime;
+        while (true) {
+            if (endTime <= (timeUs32() / 1000)) {
+                *sizeOfRawData = alreadyReadData;
+                return errorCode;
+            } else if (dataToRead < 6) {
+                PRINT("sizeOfRawData is too small to store all data measured in given seconds");
+                *sizeOfRawData = alreadyReadData;
+                return errorCode;
             }
-   }else{
-            uint8_t samplesInFifo = fifoInformation & 0b00011111;
-            PRINT_DEBUG("Start reading STREAM OR FIFO");
-       startTimeInMS = get_current_time_in_ms();
-            uint8_t offset;
-            do{
-                errorCode = adxl345bInternalCheckInterruptSource(sensor, 0b00000010); //check watermark
-                if(errorCode != ADXL345B_NO_ERROR){
-                    PRINT_DEBUG("checking watermark failed");
-                    return errorCode;
-                }
+            adxl345bGetSingleMeasurement(sensor, rawData[alreadyReadData]);
+            alreadyReadData += 6;
+            dataToRead -= 6;
+            //sleep 5 μs to ensure data is ready
+            sleep_for_us(5);
+        }}
+    uint8_t maxFifoRead = samplesInFifo * 6;
+    uint8_t remainder = 0;
+    if (dataToRead >= maxFifoRead) {
+        remainder = dataToRead % maxFifoRead;
+    } else {
+        maxFifoRead = dataToRead;
+    }
+    PRINT_DEBUG("Start reading STREAM-, TRIGGER- OR FIFO-MODE");
+    startTime = timeUs32() / 1000;
+    endTime = (uint64_t) (seconds * 1000) + startTime;
 
-            /* read Data */
-            for(uint8_t i=0; i < samplesInFifo; i++){
-                errorCode = adxl345bReadDataXYZ(sensor, rawData[counter + i]);
+    while (true) {
+        if (endTime <= (timeUs32() / 1000)) {
+            *sizeOfRawData = alreadyReadData;
+            return errorCode;
+        } else if (dataToRead < 6) {
+            PRINT("sizeOfRawData is too small to store all data measured in given seconds");
+            *sizeOfRawData = alreadyReadData;
+            return errorCode;
+        }
+
+        if (dataToRead == remainder) {
+            PRINT_DEBUG("prepare reading remaining samples");
+            maxFifoRead = (uint8_t) remainder; //last iteration needs other value
+            uint8_t fifoStatus;
+
+            do {
+                errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_STATUS,
+                                                               &fifoStatus, 1);
                 //sleep 5 μs to ensure data is ready
-                sleep_for_ms(5);
-
-                if(errorCode != ADXL345B_NO_ERROR){
-                    PRINT_DEBUG("ReadDataXYZ failed");
+                sleep_for_us(5);
+                if (errorCode != ADXL345B_NO_ERROR) {
                     return errorCode;
                 }
-            }
+            } while ((fifoStatus & 0b00111111) < (remainder / 6)); //check entries until enough data
+            PRINT_DEBUG("start reading remaining samples");
+        } else {
+            errorCode = adxl345bInternalCheckInterruptSource(sensor, 0b00000010); //check watermark
 
-                counter+=samplesInFifo;
-            } while (startTimeInMS + seconds >= get_current_time_in_ms() && sizeOfRawData > counter + samplesInFifo);
-   }
+            if (errorCode != ADXL345B_NO_ERROR) {
+                PRINT_DEBUG("checking watermark failed");
+                return errorCode;
+            }
+        }
+        /* read Data */
+        for (uint8_t i = 0; i < maxFifoRead; i += 6) {
+            errorCode = adxl345bReadDataXYZ(sensor, rawData[alreadyReadData]);
+            /* update variables */
+            dataToRead -= 6;
+            alreadyReadData += 6;
+            //sleep 5 μs to ensure data is ready
+            sleep_for_us(5);
+
+            if (errorCode != ADXL345B_NO_ERROR) {
+                PRINT_DEBUG("ReadDataXYZ failed");
+                return errorCode;
+            }
+        }
+
+        /*reset trigger if needed*/
+        if (readMode == ADXL345B_FIFOMODE_TRIGGER) {
+            errorCode = adxl345bResetTrigger(sensor, fifoInformation);
+            if (errorCode != ADXL345B_NO_ERROR) {
+                PRINT_DEBUG("reset trigger failed");
+                return errorCode;
+            }
+        }
+
+    }
+    PRINT_DEBUG("Something went horribly wrong");
     return errorCode;
 }
 
@@ -196,7 +255,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
                 errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_STATUS,
                                                                &interruptSource, 1);
                 //sleep 5 μs to ensure data is ready
-                sleep_for_ms(5);
+                sleep_for_us(5);
                 if (errorCode != ADXL345B_NO_ERROR) {
                     return errorCode;
                 }
@@ -213,7 +272,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
         for(uint8_t i=0; i < samplesInFifo; i++){
             errorCode = adxl345bReadDataXYZ(sensor, rawData[alreadyReadData + i]);
             //sleep 5 μs to ensure data is ready
-            sleep_for_ms(5);
+            sleep_for_us(5);
 
             if(errorCode != ADXL345B_NO_ERROR){
                 PRINT_DEBUG("ReadDataXYZ failed");
@@ -496,6 +555,7 @@ adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sen
 
 /* region HELPER FUNCTION IMPLEMENTATIONS */
 
+//TODO: static function has no "Internal" in naming
 static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor, uint8_t *dataResponseBuffer){
     adxl345bErrorCode_t errorCode;
     uint8_t sizeOfResponseBuffer = 6;

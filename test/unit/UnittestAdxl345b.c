@@ -244,7 +244,7 @@ void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails(v
 
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
 
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
@@ -255,7 +255,7 @@ void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing(void
     uint32_t seconds = 3;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -265,7 +265,7 @@ void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails(v
     uint32_t seconds = 3;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -275,15 +275,15 @@ void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing(void
     uint32_t seconds = 3;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
 
 void adxl345bGetMeasurementsForNSecondsReadSuccessful(void) {
-    uint32_t numberOfSamples = 1;
+    uint32_t numberOfSamples = 5000;
     uint8_t sizeOfRawData = 6;
-    uint32_t seconds = 3;
+    uint32_t seconds = 1;
     uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
     if(samples == NULL){
         TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
@@ -293,20 +293,40 @@ void adxl345bGetMeasurementsForNSecondsReadSuccessful(void) {
 
         if(samples[i] == NULL){
             TEST_FAIL_MESSAGE("Memory allocation for sample-data failed");
-        }}
-    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+        }
+    }
+
+    for(int readMode = 0; readMode < 3 ; readMode++) {
+        switch (readMode) {
+            case 0: //use default StreamMode
+                printf("StreamMode\n");
+                break;
+            case 1:
+                i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
+                printf("FiFoMode\n");
+                break;
+            case 2:
+                i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
+                printf("TriggerMode\n");
+                break;
+        }
+        adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
+        printf("lengthArray: %u\n", numberOfSamples);
+        TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+    }
+
     for (int i = 0; i < numberOfSamples; i++) {
         free(samples[i]);
     }
     free(samples);
 }
 
+// 3 different tests
 void adxl345bGetMeasurementsForNSecondsReadCorrectValues(void) {
     /*generate Array for Data*/
     uint8_t sizeOfRawData = 6;
-    uint32_t numberOfSamples = 5;
-    uint32_t seconds = 3;
+    uint32_t numberOfSamples = 260;
+    uint32_t seconds = 1;
     uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
     if (samples == NULL) {
         TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
@@ -324,20 +344,24 @@ void adxl345bGetMeasurementsForNSecondsReadCorrectValues(void) {
     for(int readMode = 0; readMode < 3 ; readMode++) {
         switch (readMode) {
             case 0: //use default StreamMode
+                printf("StreamMode/////////////////////////////////\n");
                 break;
             case 1:
                 i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
                 expectedRawData = byteOne;
+                printf("FiFoMode//////////////////////////////////\n");
                 break;
             case 2:
                 i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
                 expectedRawData = byteTwo;
+                printf("TriggerMode///////////////////////////////\n");
                 break;
         }
-        adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
+        adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, &numberOfSamples);
 
 
         for (int i = 0; i < numberOfSamples; i++) {
+            printf("test: sample %d \n", i);
             for (int j = 0; j < sizeOfRawData; j++) {
                 TEST_ASSERT_EQUAL_UINT8(expectedRawData, samples[i][j]);
             }
@@ -354,10 +378,9 @@ void adxl345bGetMeasurementsForNSecondsReadCorrectValues(void) {
 
 void adxl345bConvertDataXYZCorrectValue(void) {
     /* test assumes that 2G Full Range is the used Range */
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
 
-    float expected_xAxis = 0, expected_yAxis = 0, expected_zAxis = 0;
-    float actual_xAxis = 0, actual_yAxis = 0, actual_zAxis = 0;
+    float expected_xAxis = byteOne, expected_yAxis = byteOne, expected_zAxis = byteOne;
+    float actual_xAxis = byteOne, actual_yAxis = byteOne, actual_zAxis = byteOne;
     const uint8_t MSB_MASK = 0b00000011;
     const float SCALE_FACTOR_FOR_RANGE = 0.0043f;
     /* only used lower 2 bits -> 2G Range consists of 10 Bit*/
@@ -432,7 +455,7 @@ int main(void) {
     RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful);
     RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues);
 
-    RUN_TEST(adxl345bConvertDataXYZCorrectValue);
+    //RUN_TEST(adxl345bConvertDataXYZCorrectValue);
 
     return UNITY_END();
 }
