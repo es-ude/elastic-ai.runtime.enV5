@@ -10,17 +10,22 @@ endif ()
 
 if (UNIT_TEST)
     message(NOTICE "INFO: Building for local machine")
+else ()
+    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
+    setupPicoSdk("2.0.0")
+endif ()
 
-    project(enV5 C CXX ASM)
+project(enV5 C CXX ASM)
 
-    # enable test execution via CMake
-    include(CTest)
+# enable test execution via CMake
+include(CTest)
 
-    # include unit-test framework
-    add_unity()
+# include unit-test framework
+add_unity()
 
-    # include required standard libs for testing
-    add_cexception()
+# include required standard libs for testing
+
+if(UNIT_TEST)
     add_runtime_c()
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
@@ -43,23 +48,13 @@ if (UNIT_TEST)
     # include unit-tests
     add_subdirectory(test/unit)
 else ()
-    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
-
-    # include pico-sdk
-    set(PICO_SDK_FETCH_FROM_GIT on)
-    set(PICO_SDK_FETCH_FROM_GIT_TAG "2.0.0")
-    set(PICO_BOARD none)
-    set(PICO_PLATFORM rp2040)
-    set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_SOURCE_DIR}/picotool)
-    include(pico_sdk_import.cmake)
-
-    project(enV5 C CXX ASM)
-
     pico_sdk_init()
 
     if (TARGET tinyusb_device)
         # include required libraries
         add_basic_functionality()
+        add_freertos_kernel()
+
         add_rp2040_hal()
         add_sensor_libraries()
 
