@@ -27,6 +27,7 @@ add_unity()
 
 if(UNIT_TEST)
     add_runtime_c()
+    add_cexception()
     add_subdirectory(src/common)
     add_subdirectory(src/network/atCommands)
     add_subdirectory(src/network/config)
