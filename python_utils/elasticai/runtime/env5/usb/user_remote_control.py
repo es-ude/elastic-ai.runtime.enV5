@@ -1,5 +1,6 @@
 from pathlib import Path
 from time import sleep
+from typing import Union
 
 import serial
 
@@ -22,7 +23,7 @@ class UserRemoteControl:
     def mcu_leds(self, led1: bool, led2: bool, led3: bool) -> None:
         self._enV5RCP.mcu_leds(led1, led2, led3)
 
-    def send_data_to_flash(self, flash_start_address: int, data: bytearray) -> bool:
+    def send_data_to_flash(self, flash_start_address: int, data: Union[bytearray,  bytes]) -> bool:
         self._enV5RCP.fpga_power(False)
         return self._enV5RCP.send_data_to_flash(flash_start_address, data, self.chunk_size)
 
@@ -49,7 +50,7 @@ class UserRemoteControl:
         return self._enV5RCP.deploy_model(flash_start_address, skeleton_id)
 
     def inference_with_data(self,
-                            data: bytearray,
+                            data: Union[bytearray, bytes],
                             num_bytes_outputs: int) -> bytearray:
         self._enV5RCP.fpga_power(on=True)
         sleep(0.1)
