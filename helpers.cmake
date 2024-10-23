@@ -1,5 +1,16 @@
 include(FetchContent)
 
+macro(setupPicoSdk TAG)
+    # include pico-sdk
+    set(PICO_SDK_FETCH_FROM_GIT on)
+    set(PICO_SDK_FETCH_FROM_GIT_TAG ${TAG})
+    set(PICO_BOARD none)
+    set(PICO_PLATFORM rp2040)
+    set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_SOURCE_DIR}/picotool)
+    include(pico_sdk_import.cmake)
+endmacro()
+
+
 function(add_cexception)
     FetchContent_Declare(
             cexception
@@ -54,7 +65,6 @@ function(add_basic_functionality)
     add_cexception()
     add_runtime_c()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/common)
-    add_freertos_kernel()
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/rtos)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/network)
     add_subdirectory(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/flash)
