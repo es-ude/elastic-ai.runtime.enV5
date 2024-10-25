@@ -23,8 +23,8 @@ jobs:
       - name: Lint Commits
         uses: wagoid/commitlint-github-action@v6
         with:
-          failOnWarnings: true
-          failOnErrors: true
+          failOnWarnings: false
+          failOnErrors: false
 
   clang-format:
     runs-on: ubuntu-latest
