@@ -1,16 +1,3 @@
-################## hardwareTestHelper ##################
-add_library(hardware-testHelper HardwaretestHelper.c)
-target_link_libraries(hardware-testHelper
-        pico_stdlib
-        common_lib
-        enV5_hw_controller
-        espBroker_lib
-        network_lib
-        freeRtosUtils)
-target_compile_definitions(hardware-testHelper PRIVATE DEBUG)
-pico_enable_stdio_usb(hardware-testHelper 1)
-pico_enable_stdio_uart(hardware-testHelper 0)
-
 ################## test_network ##################
 add_executable(hardware-test_network HardwaretestNetwork.c)
 target_link_libraries(hardware-test_network

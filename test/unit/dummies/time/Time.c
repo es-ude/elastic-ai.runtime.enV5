@@ -3,12 +3,12 @@
 #include "Time.h"
 #include "Common.h"
 
-uint64_t timeUS64(void) {
+uint64_t timeUs64(void) {
     PRINT("Call timeUS64");
     return 10;
 }
 
-uint32_t timeMS32(void) {
-    PRINT("Call timeMS32");
+uint32_t timeUs32(void) {
+    PRINT("Call timeUS32");
     return 100;
 }

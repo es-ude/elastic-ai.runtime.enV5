@@ -8,7 +8,6 @@ target_link_libraries(esp_lib INTERFACE
         uart_interface
         at_commands
         enV5_hw_controller
-        enV5_hw_configuration
         network_config
         hardware_uart
 )
