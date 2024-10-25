@@ -17,8 +17,7 @@
 volatile espStatus_t espStatus = {
     .ChipStatus = ESP_CHIP_NOT_OK, .WIFIStatus = NOT_CONNECTED, .MQTTStatus = NOT_CONNECTED};
 
-// TODO: use uartConfiguration as parameter in functions instead
-uartConfiguration_t uartConfiguration;
+static uartConfiguration_t uartConfiguration;
 /* endregion */
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
@@ -83,7 +82,7 @@ void espInit(void) {
 }
 
 espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) {
-    uartErrorCode_t uartToEspErrorCode = uartSendCommand(cmd, expectedResponse);
+    uartErrorCode_t uartToEspErrorCode = uartSendCommand(&uartConfiguration, cmd, expectedResponse);
     if (uartToEspErrorCode == UART_IS_BUSY) {
         PRINT("Only one ESP command at a time can be send, did not send %s.", cmd);
         return ESP_UART_IS_BUSY;
@@ -114,6 +113,7 @@ void espSetMqttReceiverFunction(void (*receive)(char *)) {
 void espSetHTTPReceiverFunction(void (*receive)(char *)) {
     uartSetHTTPReceiverFunction(receive);
 }
+
 /* endregion */
 
 /* region STATIC FUNCTION IMPLEMENTATIONS */
