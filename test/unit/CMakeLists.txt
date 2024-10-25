@@ -12,6 +12,7 @@ add_test(unit-test_sht3x unit-test_sht3x)
 add_executable(unit-test_adxl345b ${CMAKE_CURRENT_LIST_DIR}/UnittestAdxl345b.c)
 target_link_libraries(unit-test_adxl345b
         sensor_lib_adxl345b
+        time_interface
         unity)
 add_test(unit-test_adxl345b unit-test_adxl345b)
 ## endregion
@@ -75,3 +76,4 @@ target_link_libraries(unit-test_fpgaConfigurationHandler
         unity)
 add_test(unit-test_fpgaConfigurationHandler unit-test_fpgaConfigurationHandler)
 ## endregion
+##############################################
