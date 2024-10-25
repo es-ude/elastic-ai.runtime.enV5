@@ -61,21 +61,21 @@ static void getGValue() {
     adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
     if (errorCode == ADXL345B_NO_ERROR) {
         errorCode = adxl345bConvertDataXYZ(&xAxis, &yAxis, &zAxis, rawData);
-        if(errorCode == ADXL345B_NO_ERROR){
-        /* 0.2G equals a deviation of about 1% from the ideal value
-         * this deviation is given by the datasheet as the accepted tolerance
-         * for each axis therefore should epsilon be 0.6G
-         */
-        float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
+        if (errorCode == ADXL345B_NO_ERROR) {
+            /* 0.2G equals a deviation of about 1% from the ideal value
+             * this deviation is given by the datasheet as the accepted tolerance
+             * for each axis therefore should epsilon be 0.6G
+             */
+            float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
 
-        PRINT("  Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
-              "|%2.4fG| = X + Y + Z",
-              sumOfAxis, xAxis, yAxis, zAxis);
-        PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m"
-                                                              : "  \033[0;31mFAILED\033[0m");
-    } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
-    }
+            PRINT("  Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
+                  "|%2.4fG| = X + Y + Z",
+                  sumOfAxis, xAxis, yAxis, zAxis);
+            PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m"
+                                                                  : "  \033[0;31mFAILED\033[0m");
+        } else {
+            PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
+        }
     }
 }
 

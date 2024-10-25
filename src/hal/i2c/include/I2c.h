@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
-
 /*!
  * @brief initializes the ports for the I2C interfaces
  *

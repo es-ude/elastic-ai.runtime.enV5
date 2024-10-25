@@ -11,7 +11,9 @@
  * @param i2cConfiguration
  */
 
-i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) { return 0; }
+i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
+    return 0;
+}
 
 /* endregion */
 
@@ -59,7 +61,8 @@ i2cErrorCode_t i2cUnittestWriteCommandPassForPac193x(const uint8_t *commandBuffe
 /* endregion */
 
 /* region I2C_Read_Helper */
-void i2cUnittestWriteByteMultipleTimes(uint8_t *readBuffer, uint8_t sizeOfReadBuffer, uint8_t byteToWrite){
+void i2cUnittestWriteByteMultipleTimes(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                       uint8_t byteToWrite) {
     /* generate sample data without any real world connection to test
      * implementation */
     for (uint8_t index = 0; index < sizeOfReadBuffer; index++) {
@@ -67,7 +70,6 @@ void i2cUnittestWriteByteMultipleTimes(uint8_t *readBuffer, uint8_t sizeOfReadBu
     }
 }
 /* endregion I2C_Read_Helper */
-
 
 /* region I2C_Read DUMMIES */
 
@@ -137,38 +139,47 @@ i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFailForSht3x(uint8_t *readBu
     return 0x00;
 }
 
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer,
+                                                                 uint8_t sizeOfReadBuffer,
+                                                                 uint8_t slaveAddress,
+                                                                 i2c_inst_t *i2cHost) {
 
     /* generate sample data without any real world connection to test
      * implementation */
-    if(sizeOfReadBuffer == 1) {
-        readBuffer[0] = 0b10000000 | 0b00000010 | 0b00011111; //set Stream Mode, Watermark and samples for Trigger
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b10000000 | 0b00000010 |
+                        0b00011111; // set Stream Mode, Watermark and samples for Trigger
         return 0x00;
     }
     i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
     return 0x00;
 }
 
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInFifoMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                                  uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInFifoMode(uint8_t *readBuffer,
+                                                               uint8_t sizeOfReadBuffer,
+                                                               uint8_t slaveAddress,
+                                                               i2c_inst_t *i2cHost) {
 
     /* generate sample data without any real world connection to test
      * implementation */
-   if (sizeOfReadBuffer == 1) {
-        readBuffer[0] = 0b01000000 | 0b00000010 | 0b00011111; //set FiFo Mode, Watermark and samples for Trigger
-       return 0x00;
-   }
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b01000000 | 0b00000010 |
+                        0b00011111; // set FiFo Mode, Watermark and samples for Trigger
+        return 0x00;
+    }
     i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteOne);
     return 0x00;
 }
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                                  uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readBuffer,
+                                                                  uint8_t sizeOfReadBuffer,
+                                                                  uint8_t slaveAddress,
+                                                                  i2c_inst_t *i2cHost) {
 
     /* generate sample data without any real world connection to test
      * implementation */
-    if(sizeOfReadBuffer == 1) {
-        readBuffer[0] = 0b11000000 | 0b00000010 | 0b00011111; //set Trigger Mode, Watermark and samples for Trigger
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b11000000 | 0b00000010 |
+                        0b00011111; // set Trigger Mode, Watermark and samples for Trigger
         return 0x00;
     }
     i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteTwo);

@@ -7,9 +7,10 @@
 
 #include "Adxl345bTypedefs.h"
 
-/*! To read the x-, y-, and z-Axis, there are four different modes available which can be set with setFifoMode.
- * Each axis has a resolution of 16 bits. Since I2C can only read one byte at a time, we use uint8_t arrays with a size of 6 to store the raw data.
- * Besides setting a FifoMode this library offers varied options to change and use sensor configurations */
+/*! To read the x-, y-, and z-Axis, there are four different modes available which can be set with
+ * setFifoMode. Each axis has a resolution of 16 bits. Since I2C can only read one byte at a time,
+ * we use uint8_t arrays with a size of 6 to store the raw data. Besides setting a FifoMode this
+ * library offers varied options to change and use sensor configurations */
 
 /*!
  * @brief initializes the sensor
@@ -55,7 +56,8 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
  * Placing the device into bypass mode clears FIFO
  * max samplesForFIFOTrigger 32 -> you can read 33 Samples: fifo+(x/y/z)-register
  */
-adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, uint8_t fifoMode, uint16_t samplesForTrigger);
+adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, uint8_t fifoMode,
+                                        uint16_t samplesForTrigger);
 
 /*!
  *@brief convert raw data into g-values of xAxis,yAxis and zAxis
@@ -66,8 +68,8 @@ adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, ui
  * @return return the error code (0 if everything passed)
  *
  */
-adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis, uint8_t *responseBuffer);
-
+adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
+                                           uint8_t *responseBuffer);
 
 /*!
  * @brief change the measurement range of the sensor
@@ -98,11 +100,13 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
- * @param rawData[out] raw data received from the xAxis,yAxis,zAxis. Needs to be at least 6 bytes. (2 bytes each Axis)
+ * @param rawData[out] raw data received from the xAxis,yAxis,zAxis. Needs to be at least 6 bytes.
+ * (2 bytes each Axis)
  *
  * @return                       return the error code (0 if everything passed)
  */
-adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t sensor, uint8_t* rawData);
+adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t sensor,
+                                                 uint8_t *rawData);
 
 /*!
  * @brief reads requested number of raw data from the sensor in stream, trigger or fifo mode
@@ -110,27 +114,33 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
- * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be at least 6 bytes. (2 bytes each Axis)
+ * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be
+ * at least 6 bytes. (2 bytes each Axis)
  * @param numberOfMeasurements[in] number of required Data
  * @return
  */
-adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor, uint8_t **rawData, uint32_t numberOfMeasurements);
+adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor,
+                                                    uint8_t **rawData,
+                                                    uint32_t numberOfMeasurements);
 
 /*!
- * @brief reads raw data from the sensor in stream, trigger or fifo mode. limited by seconds or given buffer for rawData
+ * @brief reads raw data from the sensor in stream, trigger or fifo mode. limited by seconds or
+ * given buffer for rawData
  *
  * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *              - Can be interrupted.caller needs to ensure free rtos
  *
  * @param sensor[in] configuration for sensor to use
- * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be at least 6 bytes. (2 bytes each Axis)
+ * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be
+ * at least 6 bytes. (2 bytes each Axis)
  * @param seconds[in] measuring-time in seconds
- * @param sizeOfRawData[in/out] maximum size of rawData which is manipulated to return actual size of read rawData
+ * @param sizeOfRawData[in/out] maximum size of rawData which is manipulated to return actual size
+ * of read rawData
  * @return
  */
-adxl345bErrorCode_t
-adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor, uint8_t *rawData, uint32_t seconds,
-                                        uint32_t *sizeOfRawData);
+adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor,
+                                                            uint8_t *rawData, uint32_t seconds,
+                                                            uint32_t *sizeOfRawData);
 
 /*!
  * @brief trigger the execution of the self-test procedure
@@ -146,7 +156,8 @@ adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor, ui
 adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
                                             int *deltaY, int *deltaZ);
 
-adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor, uint8_t fifoInformation);
+adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor,
+                                         uint8_t fifoInformation);
 /*!
  * @brief trigger a self calibration run
  *

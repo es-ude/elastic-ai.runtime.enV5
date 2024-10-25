@@ -55,14 +55,20 @@ i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFailForSht3x(uint8_t *readBu
                                                                  uint8_t slaveAddress,
                                                                  i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                                 uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer,
+                                                                 uint8_t sizeOfReadBuffer,
+                                                                 uint8_t slaveAddress,
+                                                                 i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                                 uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readBuffer,
+                                                                  uint8_t sizeOfReadBuffer,
+                                                                  uint8_t slaveAddress,
+                                                                  i2c_inst_t *i2cHost);
 
-i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInFifoMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
-                                                                 uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInFifoMode(uint8_t *readBuffer,
+                                                               uint8_t sizeOfReadBuffer,
+                                                               uint8_t slaveAddress,
+                                                               i2c_inst_t *i2cHost);
 
 i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost);

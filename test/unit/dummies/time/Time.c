@@ -12,4 +12,3 @@ uint32_t timeUs32(void) {
     PRINT("Call timeUS32");
     return 100;
 }
-
