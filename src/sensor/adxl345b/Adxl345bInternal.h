@@ -14,7 +14,11 @@
 #include "Adxl345bTypedefs.h"
 #include <stdint.h>
 
-/* region FUNCTION PROTOTYPES */
+typedef struct adxl345bRangeSetting {
+    uint8_t settingForRange;
+    uint8_t msbMask;   //!< used for converting raw data to LSB value
+    float scaleFactor; //!< used for converting LSB value to G value
+} adxl345bRangeSetting_t;
 
 /*! function to read the data from the sensor
  *
@@ -78,6 +82,44 @@ adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t 
 static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
                                                          int minValue);
 
-/* endregion*/
+/*!
+ * @brief polls InterruptSource until specified interrupt occurs
+ *
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param mask[in] mask to specify which interrupt should be checked
+ *
+ * @return return the error code (0 if everything passed)
+ * @note clears ADXL345B_REGISTER_INTERRUPT_SOURCE except DATA_READY, watermark, and overrun
+ * information
+ */
+static adxl345bErrorCode_t
+adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8_t mask);
+
+/*!
+ * @brief reads raw data of xAxis,yAxis and zAxis
+ *
+ * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ *              - there must be at least 5 μs between the end of reading the data registers and the
+ * start of a new read
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to be
+ * at least 6 bytes
+ * @return return the error code (0 if everything passed)
+ *
+ * @note read only, raw data needs to be converted into g-values
+ */
+static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor,
+                                               uint8_t *dataResponseBuffer);
+
+// TODO: adde kommentare
+/*!
+ * @brief stores selected Range Information in static parameter
+ * @param range range to be selected
+ * @return return the error code (0 if everything passed)
+ */
+static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range);
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */

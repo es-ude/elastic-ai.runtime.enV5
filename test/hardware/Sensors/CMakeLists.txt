@@ -95,3 +95,17 @@ target_link_libraries(hardware-test_bmi323
         sensor_lib_bmi323
 )
 create_enV5_executable(hardware-test_bmi323)
+## hardware-stresstest_adxl345b
+add_executable(hardware-test_stressTest_adxl345b StressTestAdxl345b.c)
+target_link_libraries(hardware-test_stressTest_adxl345b
+        common_lib
+        pico_stdlib
+        pico_stdio_usb
+        pico_time
+        freeRtosUtils
+        espBroker_lib
+        middleware_lib
+        sensor_lib_adxl345b
+        hardware-testHelper)
+create_enV5_executable(hardware-test_stressTest_adxl345b)
+##############################################
