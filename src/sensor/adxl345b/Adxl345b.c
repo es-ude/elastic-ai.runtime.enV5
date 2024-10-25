@@ -118,8 +118,8 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
 }
 
 adxl345bErrorCode_t
-adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t **rawData, uint32_t seconds,
-                                   uint32_t *sizeOfRawData) {
+adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor, uint8_t *rawData, uint32_t seconds,
+                                        uint32_t *sizeOfRawData) {
     adxl345bErrorCode_t errorCode = ADXL345B_NO_ERROR;
 
     uint64_t startTime;
@@ -147,11 +147,11 @@ adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t
                 *sizeOfRawData = alreadyReadData;
                 return errorCode;
             } else if (dataToRead < 6) {
-                PRINT("sizeOfRawData is too small to store all data measured in given seconds");
+                PRINT_DEBUG("sizeOfRawData is too small to store all data measured in given seconds");
                 *sizeOfRawData = alreadyReadData;
                 return errorCode;
             }
-            adxl345bGetSingleMeasurement(sensor, rawData[alreadyReadData]);
+            adxl345bGetSingleMeasurement(sensor, rawData + alreadyReadData);
             alreadyReadData += 6;
             dataToRead -= 6;
             //sleep 5 μs to ensure data is ready
@@ -166,14 +166,14 @@ adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t
     }
     PRINT_DEBUG("Start reading STREAM-, TRIGGER- OR FIFO-MODE");
     startTime = timeUs32() / 1000;
-    endTime = (uint64_t) (seconds * 1000) + startTime;
+    endTime = (uint64_t) (seconds) * 1000 + startTime;
 
     while (true) {
         if (endTime <= (timeUs32() / 1000)) {
             *sizeOfRawData = alreadyReadData;
             return errorCode;
         } else if (dataToRead < 6) {
-            PRINT("sizeOfRawData is too small to store all data measured in given seconds");
+            PRINT_DEBUG("sizeOfRawData is too small to store all data measured in given seconds");
             *sizeOfRawData = alreadyReadData;
             return errorCode;
         }
@@ -203,7 +203,7 @@ adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t
         }
         /* read Data */
         for (uint8_t i = 0; i < maxFifoRead; i += 6) {
-            errorCode = adxl345bReadDataXYZ(sensor, rawData[alreadyReadData]);
+            errorCode = adxl345bReadDataXYZ(sensor, rawData + alreadyReadData);
             /* update variables */
             dataToRead -= 6;
             alreadyReadData += 6;

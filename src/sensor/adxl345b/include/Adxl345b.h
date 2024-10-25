@@ -129,8 +129,8 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
  * @return
  */
 adxl345bErrorCode_t
-adxl345bGetMeasurementsForNSeconds(adxl345bSensorConfiguration_t sensor, uint8_t **rawData, uint32_t seconds,
-                                   uint32_t *sizeOfRawData);
+adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor, uint8_t *rawData, uint32_t seconds,
+                                        uint32_t *sizeOfRawData);
 
 /*!
  * @brief trigger the execution of the self-test procedure
