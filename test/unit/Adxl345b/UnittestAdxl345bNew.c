@@ -19,7 +19,7 @@ void sleep_for_us(uint64_t usToSleep) {}
 
 i2cErrorCode_t i2cWriteError;
 
-i2cErrorCode_t readError;
+i2cErrorCode_t i2cReadError;
 
 i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
                                const uint8_t *commandBuffer, uint16_t sizeOfCommandBuffer) {
@@ -29,14 +29,14 @@ i2cErrorCode_t i2cWriteCommand(i2c_inst_t *hostAddress, uint8_t slaveAddress,
 
 i2cErrorCode_t i2cReadData(i2c_inst_t *hostAddress, uint8_t slaveAddress, uint8_t *readBuffer,
                             uint8_t sizeOfReadBuffer) {
-    return readError;
+    return i2cReadError;
 }
 
 
 void setUp(void) {
     /* Default: Point to Pass */
     i2cWriteError = I2C_NO_ERROR;
-    readError = I2C_NO_ERROR;
+    i2cReadError = I2C_NO_ERROR;
     adxl345bChangeMeasurementRange(sensor, ADXL345B_2G_RANGE);
 }
 
@@ -44,9 +44,9 @@ void tearDown(void) {}
 
 /* region adxl345bReadSerialNumber */
 
-void adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails(void) {
+void adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwareFails(void) {
     uint8_t serialNumber;
-    i2cWriteError = I2C_ACK_ERROR;
+    i2cWriteError = I2C_INIT_ERROR;
     adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
@@ -54,88 +54,89 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails(void) {
 
 void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
     uint8_t serialNumber;
-    readError = I2C_ACK_ERROR;
+    i2cWriteError = I2C_ACK_ERROR;
 
     adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
-//
-//void adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails(void) {
-//    uint8_t serialNumber;
-//    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing(void) {
-//    uint8_t serialNumber;
-//    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bReadSerialNumberReadSuccessful(void) {
-//    uint8_t serialNumber;
-//
-//    uint8_t err = adxl345bReadSerialNumber(sensor, &serialNumber);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, err);
-//}
-//
-//void adxl345bReadSerialNumberReadCorrectValue(void) {
-//    uint8_t expected_serialNumber, actual_serialNumber;
-//
-//    /* fill expected with random generated */
-//    expected_serialNumber = 0b10011111;
-//
-//    adxl345bReadSerialNumber(sensor, &actual_serialNumber);
-//    TEST_ASSERT_EQUAL_UINT8(expected_serialNumber, actual_serialNumber);
-//}
-//
-///* endregion adxl345bReadSerialNumber */
-//
-///* region adxl345bGetSingleMeasurement */
-//
-//void adxl345bGetSingleMeasurementGetSendCommandFail_errorIfHardwareFails(void) {
-//    uint8_t rawData[6];
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetSingleMeasurementGetSendCommandFail_errorIfAckMissing(void) {
-//    uint8_t rawData[6];
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails(void) {
-//    uint8_t rawData[6];
-//    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfAckMissing(void) {
-//    uint8_t rawData[6];
-//    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bGetSingleMeasurementReadSuccessful(void) {
-//    uint8_t rawData[6];
-//    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
-//}
-//
+
+void adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwareFails(void) {
+    uint8_t serialNumber;
+    i2cReadError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing(void) {
+    uint8_t serialNumber;
+    i2cReadError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bReadSerialNumberReadSuccessful(void) {
+    uint8_t serialNumber;
+
+    uint8_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+}
+
+//START HERE: does this test make sense?
+void adxl345bReadSerialNumberReadCorrectValue(void) {
+    uint8_t expected_serialNumber, actual_serialNumber;
+
+    /* fill expected with random generated */
+    expected_serialNumber = 0b10011111;
+
+    adxl345bReadSerialNumber(sensor, &actual_serialNumber);
+    TEST_ASSERT_EQUAL_UINT8(expected_serialNumber, actual_serialNumber);
+}
+
+/* endregion adxl345bReadSerialNumber */
+
+/* region adxl345bGetSingleMeasurement */
+
+void adxl345bGetSingleMeasurementGetSendCommandFail_errorIfHardwareFails(void) {
+    uint8_t rawData[6];
+    i2cWriteError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetSingleMeasurementGetSendCommandFail_errorIfAckMissing(void) {
+    uint8_t rawData[6];
+    i2cWriteError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails(void) {
+    uint8_t rawData[6];
+    i2cReadError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfAckMissing(void) {
+    uint8_t rawData[6];
+    i2cReadError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bGetSingleMeasurementReadSuccessful(void) {
+    uint8_t rawData[6];
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+}
+
 //void adxl345bGetSingleMeasurementReadCorrectValue(void) {
 //    uint8_t sizeOfRawData = 6;
 //    uint8_t rawData[sizeOfRawData];
@@ -146,85 +147,64 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
 //    }
 //
 //}
-///* endregion adxl345bGetSingleMeasurement */
-//
-///* region adxl345bGetMultipleMeasurements */
-//
-//void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails(void) {
-//    uint32_t numberOfSamples = 1;
-//    uint8_t *samples[numberOfSamples];
-//
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
-//    uint32_t numberOfSamples = 16;
-//    uint8_t *samples[numberOfSamples];
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails(void) {
-//    uint32_t numberOfSamples = 32;
-//    uint8_t *samples[numberOfSamples];
-//    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
-//    uint32_t numberOfSamples = 33;
-//    uint8_t *samples[numberOfSamples];
-//    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//
-//void adxl345bGetMultipleMeasurementsReadSuccessful(void) {
-//    uint32_t numberOfSamples = 50;
-//    uint8_t sizeOfRawData = 6;
-//    uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
-//    if(samples == NULL){
-//        TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
-//    }
-//    for (int i = 0; i < numberOfSamples ; i++){
-//        samples[i] = malloc(sizeOfRawData * sizeof(*samples[i]));
-//
-//        if(samples[i] == NULL){
-//            TEST_FAIL_MESSAGE("Memory allocation for sample-data failed");
-//        }}
-//    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
-//    for (int i = 0; i < numberOfSamples; i++) {
-//        free(samples[i]);
-//    }
-//    free(samples);
-//}
-//
-//
+
+/* endregion adxl345bGetSingleMeasurement */
+
+/* region adxl345bGetMultipleMeasurements */
+
+void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails(void) {
+    uint32_t numberOfSamples = 1;
+    uint8_t *samples[numberOfSamples];
+
+    i2cWriteError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
+    uint32_t numberOfSamples = 16;
+    uint8_t *samples[numberOfSamples];
+    i2cWriteError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails(void) {
+    uint32_t numberOfSamples = 32;
+    uint8_t *samples[numberOfSamples];
+    i2cReadError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
+    uint32_t numberOfSamples = 33;
+    uint8_t *samples[numberOfSamples];
+    i2cReadError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+
+void adxl345bGetMultipleMeasurementsReadSuccessful(void) {
+    uint32_t numberOfSamples = 50;
+    uint8_t sizeOfRawData = 6;
+    uint8_t *samples[numberOfSamples];
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+}
+
+
 //void adxl345bGetMultipleMeasurementsReadCorrectValues(void) {
 //    /*generate Array for Data*/
 //        uint8_t sizeOfRawData = 6;
 //        uint32_t numberOfSamples = 5;
-//        uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
-//        if (samples == NULL) {
-//            TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
-//        }
-//        for (int i = 0; i < numberOfSamples; i++) {
-//            samples[i] = malloc(sizeOfRawData * sizeof(*samples[i]));
-//
-//            if (samples[i] == NULL) {
-//                TEST_FAIL_MESSAGE("Memory allocation for sample-data failed");
-//            }
-//        }
+//        uint8_t *samples[numberOfSamples];
 //
 //        /* change ReadCommands to generate expected raw data received from I2C*/
 //        uint8_t expectedRawData = byteZero;
@@ -250,98 +230,75 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
 //                }
 //            }
 //        }
-//    for (int i = 0; i < numberOfSamples; i++) {
-//        free(samples[i]);
-//    }
-//    free(samples);
 //}
-//
-///* endregion adxl345bGetMultipleMeasurements */
-//
-///* region adxl345bGetMeasurementsForNSeconds */
-//
-//void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails(void) {
-//    uint32_t numberOfSamples = 50;
-//    uint8_t *samples[numberOfSamples];
-//    uint32_t seconds = 3;
-//
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-//
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing(void) {
-//    uint32_t numberOfSamples = 16;
-//    uint8_t *samples[numberOfSamples];
-//    uint32_t seconds = 3;
-//    i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails(void) {
-//    uint32_t numberOfSamples = 32;
-//    uint8_t *samples[numberOfSamples];
-//    uint32_t seconds = 3;
-//    i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing(void) {
-//    uint32_t numberOfSamples = 33;
-//    uint8_t *samples[numberOfSamples];
-//    uint32_t seconds = 3;
-//    i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
-//
-//    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
-//}
-//
-//
-//void adxl345bGetMeasurementsForNSecondsReadSuccessful(void) {
-//    uint32_t numberOfSamples = 1;
-//    uint8_t sizeOfRawData = 6;
-//    uint32_t seconds = 3;
-//    uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
-//    if(samples == NULL){
-//        TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
-//    }
-//    for (int i = 0; i < numberOfSamples ; i++){
-//        samples[i] = malloc(sizeOfRawData * sizeof(*samples[i]));
-//
-//        if(samples[i] == NULL){
-//            TEST_FAIL_MESSAGE("Memory allocation for sample-data failed");
-//        }}
-//    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNSeconds(sensor, samples, seconds, numberOfSamples);
-//    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
-//    for (int i = 0; i < numberOfSamples; i++) {
-//        free(samples[i]);
-//    }
-//    free(samples);
-//}
-//
+
+/* endregion adxl345bGetMultipleMeasurements */
+
+/* region adxl345bGetMeasurementsForNSeconds */
+
+void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails(void) {
+    uint32_t numberOfSamples = 50;
+    uint8_t sizeOfRawData = 6;
+    uint8_t samples[numberOfSamples * sizeOfRawData];
+    uint32_t seconds = 3;
+
+    i2cWriteError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, seconds, &numberOfSamples);
+
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing(void) {
+    uint32_t numberOfSamples = 16;
+    uint8_t sizeOfRawData = 6;
+    uint8_t samples[numberOfSamples * sizeOfRawData];
+    uint32_t seconds = 3;
+    i2cWriteError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, seconds, &numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
+}
+
+void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails(void) {
+    uint32_t numberOfSamples = 32;
+    uint8_t sizeOfRawData = 6;
+    uint8_t samples[numberOfSamples * sizeOfRawData];
+    uint32_t seconds = 3;
+    i2cReadError = I2C_INIT_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, seconds, &numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+void adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing(void) {
+    uint32_t numberOfSamples = 33;
+    uint8_t sizeOfRawData = 6;
+    uint8_t samples[numberOfSamples * sizeOfRawData];
+    uint32_t seconds = 3;
+    i2cReadError = I2C_ACK_ERROR;
+
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, seconds, &numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
+}
+
+
+void adxl345bGetMeasurementsForNSecondsReadSuccessful(void) {
+    uint32_t numberOfSamples = 1;
+    uint8_t sizeOfRawData = 6;
+    uint32_t seconds = 3;
+    uint8_t samples[numberOfSamples * sizeOfRawData];
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, seconds, &numberOfSamples);
+    TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
+}
+
 //void adxl345bGetMeasurementsForNSecondsReadCorrectValues(void) {
 //    /*generate Array for Data*/
 //    uint8_t sizeOfRawData = 6;
 //    uint32_t numberOfSamples = 5;
 //    uint32_t seconds = 3;
-//    uint8_t **samples = malloc(numberOfSamples * sizeof(*samples));
-//    if (samples == NULL) {
-//        TEST_FAIL_MESSAGE("Memory allocation for sample-array failed");
-//    }
-//    for (int i = 0; i < numberOfSamples; i++) {
-//        samples[i] = malloc(sizeOfRawData * sizeof(*samples[i]));
-//
-//        if (samples[i] == NULL) {
-//            TEST_FAIL_MESSAGE("Memory allocation for sample-data failed");
-//        }
-//    }
-//
+//    uint8_t *samples[numberOfSamples];
+
 //    /* change ReadCommands to generate expected raw data received from I2C*/
 //    uint8_t expectedRawData = byteZero;
 //    for(int readMode = 0; readMode < 3 ; readMode++) {
@@ -366,12 +323,8 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
 //            }
 //        }
 //    }
-//    for (int i = 0; i < numberOfSamples; i++) {
-//        free(samples[i]);
-//    }
-//    free(samples);
 //}
-///* endregion adxl345bGetMeasurementsForNSeconds */
+///* endregion adxl345bGetMeasurementsForNMilliseconds */
 //
 //
 //
@@ -427,35 +380,35 @@ void adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails);
-    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing);
-//    RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails);
+//    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwareFails);
+//    RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing);
+//    RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bReadSerialNumberReadSuccessful);
-//    RUN_TEST(adxl345bReadSerialNumberReadCorrectValue);
+////    RUN_TEST(adxl345bReadSerialNumberReadCorrectValue); //currently fails
 //
 //    RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfAckMissing);
-//    RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful);
-//    RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue);
+//    RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful); //currently fails
+////    RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue); //needs to be rewritten
 //
 //    RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfAckMissing);
-//    RUN_TEST(adxl345bGetMultipleMeasurementsReadSuccessful);
-//    RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValues);
+////    RUN_TEST(adxl345bGetMultipleMeasurementsReadSuccessful); //numerical error
+////    RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValues); //needs to be rewritten
 //
 //    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing);
 //    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails);
 //    RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing);
-//    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful);
-//    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues);
+////    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful); //does not terminate
+////    RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues); //needs to be rewritten
 //
-//    RUN_TEST(adxl345bConvertDataXYZCorrectValue);
+////    RUN_TEST(adxl345bConvertDataXYZCorrectValue); //needs to be rewritten
 
     return UNITY_END();
 }
