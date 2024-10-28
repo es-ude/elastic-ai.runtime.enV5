@@ -1,0 +1,51 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "host",
+      "displayName": "Host Config",
+      "description": "Build for your host system (MacOs, Linux, Windows)",
+      "generator": "Ninja",
+      "binaryDir": "build/host/",
+      "cacheVariables": {
+        "ELASTIC_AI_TARGET": "HOST",
+        "REVISION": "1"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host",
+      "configurePreset": "host",
+      "jobs": 4
+    },
+    {
+      "name": "unit_test",
+      "configurePreset": "host",
+      "jobs": 4,
+      "targets": "all_unit_tests"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "unit_test",
+      "displayName": "Unit Tests",
+      "configurePreset": "host",
+      "output": {
+        "outputJUnitFile": "unit-test.junit",
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "unit"
+        }
+      }
+
+    }
+  ]
+}
