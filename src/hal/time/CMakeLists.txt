@@ -1,11 +1,6 @@
-add_library(time_interface STATIC
-        ${CMAKE_CURRENT_LIST_DIR}/Time.c
-)
-target_include_directories(time_interface PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/include
-)
-target_link_libraries(time_interface PRIVATE
-        common_lib
-        hardware_timer
-        pico_runtime
+add_elastic_ai_lib(
+        HW_ONLY
+        NAME Time
+        SRCS Time.c
+        DEPS Common Pico::hardware_timer Pico::pico_runtime
 )

@@ -1,15 +1,13 @@
-add_library(fpga_configuration_handler INTERFACE)
-target_include_directories(fpga_configuration_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(fpga_configuration_handler INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandler.c
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandlerHTTP.c
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandlerUSB.c)
-target_link_libraries(fpga_configuration_handler INTERFACE
-        common_lib
-        pico_stdio
-        flash_lib
-        middleware_lib
-        network_lib
-        http_lib
-        enV5_hw_configuration
+add_elastic_ai_lib(
+        NAME FpgaConfigurationHandler
+        SRCS FpgaConfigurationHandler.c FpgaConfigurationHandlerHTTP.c
+        DEPS Common Http CException EnV5HwConfiguration Flash
 )
+
+add_elastic_ai_lib(
+        HW_ONLY
+        NAME FpgaConfigurationHandlerUSB
+        SRCS FpgaConfigurationHandlerUSB.c
+        DEPS Common Http CException Env5HWConfiguration Flash
+)
+

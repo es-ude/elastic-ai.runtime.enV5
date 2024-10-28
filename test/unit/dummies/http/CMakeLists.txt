@@ -1,8 +1,4 @@
-add_library(http_lib_dummy INTERFACE)
-target_include_directories(http_lib_dummy INTERFACE
-        ${CMAKE_SOURCE_DIR}/src/network/http/include
-        ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(http_lib_dummy INTERFACE ${CMAKE_CURRENT_LIST_DIR}/HTTP.c)
-target_link_libraries(http_lib_dummy INTERFACE
-        common_lib
-        CException)
+add_library(HttpDummy)
+target_sources(HttpDummy PRIVATE HTTP.c)
+target_link_libraries(HttpDummy PRIVATE Common__hdrs CException__hdrs Http__hdrs)
+target_include_directories(HttpDummy PUBLIC include)

@@ -3,3 +3,7 @@ target_include_directories(gpio_interface INTERFACE ${CMAKE_SOURCE_DIR}/src/hal/
 target_sources(gpio_interface INTERFACE ${CMAKE_CURRENT_LIST_DIR}/Gpio.c)
 target_link_libraries(gpio_interface INTERFACE
         common_lib)
+
+add_library(GpioDummy)
+target_sources(GpioDummy PRIVATE Gpio.c)
+target_link_libraries(GpioDummy Gpio__hdrs)

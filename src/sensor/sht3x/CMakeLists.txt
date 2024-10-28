@@ -1,14 +1,8 @@
-add_library(sensor_lib_sht3x STATIC
-        ${CMAKE_CURRENT_LIST_DIR}/Sht3x.c
-)
-target_include_directories(sensor_lib_sht3x PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/include
-)
-target_link_libraries(sensor_lib_sht3x PUBLIC
-        pico_stdlib
-        CException
-)
-target_link_libraries(sensor_lib_sht3x PRIVATE
-        common_lib
-        i2c_interface
+add_elastic_ai_lib(
+        NAME Sht3x
+        SRCS Sht3x.c
+        DEPS
+            CException
+            Common
+            I2c
 )
