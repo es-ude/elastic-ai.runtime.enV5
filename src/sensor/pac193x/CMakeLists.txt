@@ -7,3 +7,13 @@ target_link_libraries(sensor_lib_pac193x INTERFACE
         sleep_interface
         gpio_interface
         i2c_interface)
+
+add_elastic_ai_lib(
+        NAME Pac193
+        SRCS Pac193x.c
+        DEPS
+            Common
+            Sleep
+            Gpio
+            I2c
+)

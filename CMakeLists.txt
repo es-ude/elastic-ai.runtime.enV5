@@ -1,18 +1,40 @@
 cmake_minimum_required(VERSION 3.20...3.24)
-include(helpers.cmake)
+
+include(cmake/set_build_target.cmake)
+include(cmake/third_party_deps.cmake)
+
+add_pico_sdk("2.0.0")
+add_unity()
+add_cexception()
+add_freertos()
+add_runtime_c()
+
+
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+if(MVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(
+            -Wall
+            -Wextra
+            -Wdouble-promotion # warn when float gets promoted to double as this can be quite expensive
+            -Wnull-dereference
+            -Wimplicit-fallthrough # warn about fall through in switch case
+    )
+
+endif ()
 
 # enable debug prints
 if (DEBUG_OUTPUT)
     add_definitions(-DDEBUG_MODE)
 endif ()
 
-if (UNIT_TEST)
-    message(NOTICE "INFO: Building for local machine")
-else ()
-    message(NOTICE "INFO: Building for enV5 hardware (Type: ${CMAKE_BUILD_TYPE})")
-    setupPicoSdk("2.0.0")
+
+
+if(NOT BUILDING_FOR_ELASTIC_NODE)
+    add_compile_options(-ftrapv) # abort execution on integer overflow
 endif ()
 
 project(enV5 C CXX ASM)
@@ -21,49 +43,28 @@ project(enV5 C CXX ASM)
 include(CTest)
 
 # include unit-test framework
-add_unity()
+include(cmake/custom_targets.cmake)
 
-# include required standard libs for testing
 
-if(UNIT_TEST)
-    add_runtime_c()
-    add_cexception()
-    add_subdirectory(src/common)
-    add_subdirectory(src/network/atCommands)
-    add_subdirectory(src/network/config)
+pico_sdk_init()
 
-    # include dummies for local machine
-    add_subdirectory(test/unit/dummies)
+include(cmake/pico_targets.cmake)
+add_subdirectory(src)
+add_subdirectory(test/unit)
 
-    # include our own libraries to test
-    add_subdirectory(src/hal/enV5HwConfiguration)
-    add_subdirectory(src/sensor/sht3x)
-    add_subdirectory(src/sensor/adxl345b)
-    add_subdirectory(src/sensor/pac193x)
-    add_subdirectory(src/network/wifi)
-    add_subdirectory(src/network/http)
-    add_subdirectory(src/network/broker)
-    add_subdirectory(src/fpga/fpgaConfigurationHandler)
-    add_subdirectory(src/filesystem)
-
-    # include unit-tests
-    add_subdirectory(test/unit)
-else ()
-    pico_sdk_init()
-
-    if (TARGET tinyusb_device)
-        # include required libraries
-        add_basic_functionality()
-        add_freertos_kernel()
-
-        add_rp2040_hal()
-        add_sensor_libraries()
-
-        # include hardware tests
-        add_subdirectory(test/hardware)
-
-        add_dependency_graph()
-    elseif (PICO_ON_DEVICE)
-        message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
-    endif ()
-endif ()
+#    if (TARGET tinyusb_device)
+#        # include required libraries
+#        add_basic_functionality()
+#        add_freertos_kernel()
+#
+#        add_rp2040_hal()
+#        add_sensor_libraries()
+#
+#        # include hardware tests
+#        add_subdirectory(test/hardware)
+#
+#        add_dependency_graph()
+#    elseif (PICO_ON_DEVICE)
+#        message(WARNING "Not building Project, because TinyUSB submodule is not initialized in the SDK!")
+#    endif ()
+#endif ()

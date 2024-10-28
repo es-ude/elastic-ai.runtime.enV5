@@ -1,7 +1,7 @@
-add_library(flash_lib INTERFACE)
-target_include_directories(flash_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(flash_lib INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/Flash.c)
-target_link_libraries(flash_lib INTERFACE
-        common_lib
-        spi_interface)
+add_elastic_ai_lib(
+        NAME Flash
+        SRCS Flash.c
+        DEPS Common Sleep Spi
+)
+
+target_link_libraries(Flash__hdrs INTERFACE Spi__hdrs)

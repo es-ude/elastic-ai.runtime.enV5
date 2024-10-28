@@ -6,10 +6,10 @@
 #include "Common.h"
 #include "Gpio.h"
 #include "I2c.h"
-#include "Pac193x.h"
 #include "Pac193xInternal.h"
-#include "Pac193xTypedefs.h"
 #include "Sleep.h"
+#include "include/Pac193x.h"
+#include "include/Pac193xTypedefs.h"
 
 /* Datasheet:
  * https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf
@@ -641,10 +641,9 @@ static float pac193xInternalConvertToFloat(uint64_t input) {
     return (float)input;
 }
 
-static float pac193xInternalCalculateAccumulatorCount(uint64_t input,
-                                                      __attribute((__unused__)) float resistor,
-                                                      __attribute((__unused__))
-                                                      uint8_t sampleRate) {
+static float
+pac193xInternalCalculateAccumulatorCount(uint64_t input, __attribute((__unused__)) float resistor,
+                                         __attribute((__unused__)) uint8_t sampleRate) {
     return pac193xInternalConvertToFloat(input);
 }
 

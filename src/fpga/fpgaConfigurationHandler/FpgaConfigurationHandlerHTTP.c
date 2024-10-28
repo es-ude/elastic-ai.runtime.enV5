@@ -8,11 +8,10 @@
 #include "CException.h"
 
 #include "Common.h"
-#include "EnV5HwConfiguration.h"
 #include "Flash.h"
-#include "FpgaConfigurationHandler.h"
 #include "FpgaConfigurationHandlerInternal.h"
 #include "HTTP.h"
+#include "include/FpgaConfigurationHandler.h"
 
 /* region PUBLIC FUNCTION IMPLEMENTATIONS */
 
