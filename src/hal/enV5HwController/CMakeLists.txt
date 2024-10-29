@@ -2,6 +2,6 @@ add_elastic_ai_lib(
         HW_ONLY
         NAME EnV5HwController
         SRCS EnV5HwController.c
-        DEPS Common EnV5HwConfiguration Gpio I2c Spi Uart Sleep Flash Adxl345b Pac193x Sht3x
-
+        DEPS Common EnV5HwConfiguration Gpio Sleep
 )
+

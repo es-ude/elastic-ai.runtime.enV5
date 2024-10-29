@@ -1,7 +1,8 @@
-add_elastic_ai_lib(
-        NAME
-        EnV5HwConfiguration
-)
+
+add_library(EnV5HwConfiguration INTERFACE)
+add_library(EnV5HwConfiguration__hdrs INTERFACE)
+target_link_libraries(EnV5HwConfiguration INTERFACE EnV5HwConfiguration__hdrs)
+
 set(REVISION_FILEPATH ${REVISION} CACHE FILEPATH "Helper variable needed for casting" FORCE)
 
 if(NOT DEFINED REVISION)

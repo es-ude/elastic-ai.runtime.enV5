@@ -47,7 +47,6 @@ void tearDown(void) {}
 void pac193xGetSensorInfoReturnSendCommandErrorIfHardwareFails(void) {
     pac193xSensorId_t info;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
-
     pac193xErrorCode_t errorCode = pac193xGetSensorInfo(SENSOR, &info);
     TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, errorCode);
 }

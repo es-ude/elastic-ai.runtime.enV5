@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Unit-Tests" type="CTestRunConfiguration" factoryName="CTestRun" PROGRAM_PARAMS="--preset=unit_test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$ContentRoot$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="enV5" TARGET_NAME="all_unit_tests" CONFIG_NAME="host" RUN_PATH="$CTestCurrentExecutableName$" TEST_MODE="PATTERN">
+  <configuration default="false" name="Unit-Tests" type="CTestRunConfiguration" factoryName="CTestRun" PROGRAM_PARAMS="--preset=unit_test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$ContentRoot$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="enV5" TARGET_NAME="all_unit_tests" CONFIG_NAME="env5_rev2" RUN_PATH="$CTestCurrentExecutableName$" TEST_MODE="PATTERN">
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       <option name="BeforeTestRunTask" enabled="true" />
