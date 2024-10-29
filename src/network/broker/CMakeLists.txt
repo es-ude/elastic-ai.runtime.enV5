@@ -12,7 +12,7 @@ add_elastic_ai_lib(
 
 target_include_directories(
         MqttBroker__impl
-        INTERFACE
+        PRIVATE
             $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>
             $<TARGET_PROPERTY:protocol,INTERFACE_INCLUDE_DIRECTORIES>
 )

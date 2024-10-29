@@ -13,7 +13,8 @@
       "generator": "Ninja",
       "binaryDir": "build/host/",
       "cacheVariables": {
-        "ELASTIC_AI_TARGET": "HOST"
+        "ELASTIC_AI_TARGET": "HOST",
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -22,7 +23,8 @@
       "generator": "Ninja",
       "binaryDir": "build/env5_rev2",
       "cacheVariables": {
-        "ELASTIC_AI_TARGET": "ENV5_REV2"
+        "ELASTIC_AI_TARGET": "ENV5_REV2",
+        "CMAKE_BUILD_TYPE": "Release"
       }
     }
   ],
@@ -34,8 +36,7 @@
     },
     {
       "name": "unit_test",
-      "configurePreset": "host",
-      "jobs": 4,
+      "inherits": "host",
       "targets": "all_unit_tests"
     }
   ],

@@ -17,10 +17,11 @@ function(add_cexception)
             GIT_TAG v1.3.3
     )
     FetchContent_Populate(cexception)
-    add_library(CException ${cexception_SOURCE_DIR}/lib/CException.c)
+    add_library(CException__impl ${cexception_SOURCE_DIR}/lib/CException.c)
     add_library(CException__hdrs INTERFACE)
     target_include_directories(CException__hdrs INTERFACE ${cexception_SOURCE_DIR}/lib/)
-    target_link_libraries(CException PUBLIC CException__hdrs)
+    add_library(CException INTERFACE)
+    target_link_libraries(CException INTERFACE CException__hdrs CException__impl)
 endfunction()
 
 function(add_unity)

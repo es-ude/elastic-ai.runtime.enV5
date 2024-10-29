@@ -3,6 +3,6 @@ set(MIDDLEWARE_STUB_VERSION CACHE STRING "2" "use stub version 2, compatible wit
 
 add_elastic_ai_lib(
         NAME Stub
-        SOURCES stub.c
+        SRCS stub.c
         DEPS Common Sleep Middleware
 )

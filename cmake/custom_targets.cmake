@@ -5,26 +5,29 @@
 ################
 
 
-function(__target_use_interfaces target)
-    foreach (arg ${ARGN})
-        target_link_libraries(${target} PRIVATE ${arg}__hdrs)
+
+function(elastic_ai_target_link_hdrs target)
+    foreach (d ${ARGN})
+        target_link_libraries(${target} PRIVATE ${d}__hdrs)
     endforeach ()
 endfunction()
 
-function(__target_add_default_includes target)
-    target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-    target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+function(elastic_ai_target_link_impl target)
+    foreach(d ${ARGN})
+        if (TARGET ${d}__impl)
+            target_link_libraries(${target} INTERFACE ${d}__impl)
+        endif ()
+    endforeach ()
 endfunction()
 
-function(__add_elastic_ai_implementation)
-    set(oneValueArgs NAME)
-    set(multiValueArgs SOURCES DEPS)
-    cmake_parse_arguments(PARSE_ARGV 0 arg
-            "${options}" "${oneValueArgs}" "${multiValueArgs}"
-    )
-    add_library(${arg_NAME})
-    target_sources(${arg_NAME} PRIVATE ${arg_SOURCES})
-    target_include_directories(${arg_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+function(elastic_ai_connect_libs target)
+    target_include_directories(${target}__hdrs INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+    if(TARGET ${target}__impl)
+        target_link_libraries(${target}__impl PRIVATE ${target}__hdrs)
+        target_include_directories(${target}__impl PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+        target_link_libraries(${target} INTERFACE ${target}__impl)
+    endif ()
+    target_link_libraries(${target} INTERFACE ${target}__hdrs)
 endfunction()
 
 function(add_elastic_ai_lib)
@@ -71,27 +74,18 @@ function(add_elastic_ai_lib)
     cmake_parse_arguments(PARSE_ARGV 0 arg
             "${options}" "${oneValueArgs}" "${multiValueArgs}"
     )
-    set(BUILD_IMPLEMENTATION (arg_SRCS AND ((NOT ${arg_HW_ONLY}) OR BUILDING_FOR_ELASTIC_NODE)))
-
-    foreach (file ${arg_SRCS})
-        if(NOT ((NOT IS_ABSOLUTE ${file} AND EXISTS ${CMAKE_CURRENT_LIST_DIR}/${file}) OR EXISTS ${file}))
-            message(FATAL_ERROR "${file} does not exist")
-        endif ()
-    endforeach ()
-    if(${BUILD_IMPLEMENTATION})
-        __add_elastic_ai_implementation(NAME ${arg_NAME}__impl SOURCES ${arg_SRCS})
-        __target_use_interfaces(${arg_NAME}__impl ${arg_DEPS})
-    endif ()
+    set(BUILD_IMPLEMENTATION ((NOT ${arg_HW_ONLY}) OR BUILDING_FOR_ELASTIC_NODE))
 
     add_library(${arg_NAME}__hdrs INTERFACE)
-    target_include_directories(${arg_NAME}__hdrs INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-
+    if(${BUILD_IMPLEMENTATION})
+        add_library(${arg_NAME}__impl ${arg_SRCS})
+        elastic_ai_target_link_hdrs(${arg_NAME}__impl ${arg_DEPS})
+        elastic_ai_target_link_impl(${arg_NAME}__impl ${arg_DEPS})
+    endif ()
     add_library(${arg_NAME} INTERFACE)
 
-    if(${BUILD_IMPLEMENTATION})
-        target_link_libraries(${arg_NAME} INTERFACE ${arg_NAME}__impl)
-    endif ()
-    target_link_libraries(${arg_NAME} INTERFACE ${arg_NAME}__hdrs)
+    elastic_ai_connect_libs(${arg_NAME})
+
 endfunction()
 
 
