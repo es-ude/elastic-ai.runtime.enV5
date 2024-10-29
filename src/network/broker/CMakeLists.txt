@@ -2,7 +2,6 @@ add_elastic_ai_lib(
         NAME MqttBroker
         SRCS MqttBroker.c
         DEPS
-            Protocol
             Common
             Uart
             AtCommands
@@ -13,5 +12,14 @@ add_elastic_ai_lib(
 
 target_include_directories(
         MqttBroker__impl
-        PRIVATE
-            $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>)
+        INTERFACE
+            $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:protocol,INTERFACE_INCLUDE_DIRECTORIES>
+)
+
+target_include_directories(
+        MqttBroker__hdrs
+        INTERFACE
+            $<TARGET_PROPERTY:protocol,INTERFACE_INCLUDE_DIRECTORIES>
+
+)

@@ -4,5 +4,5 @@ add_elastic_ai_lib(
         HW_ONLY
         NAME Gpio
         SRCS Gpio.c
-        DEPS Common Pico::gpio_hardware
+        DEPS Common Pico::hardware_gpio
 )

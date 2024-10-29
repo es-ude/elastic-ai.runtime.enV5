@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.20...3.24)
-
 include(cmake/set_build_target.cmake)
+
+
 include(cmake/third_party_deps.cmake)
 
 add_pico_sdk("2.0.0")
 add_unity()
 add_cexception()
-add_freertos()
 add_runtime_c()
 
 
@@ -48,10 +48,17 @@ include(cmake/custom_targets.cmake)
 
 pico_sdk_init()
 
+add_freertos()
+
 include(cmake/pico_targets.cmake)
 add_subdirectory(src)
 add_subdirectory(test/unit)
+add_subdirectory(test/hardware/Helper)
+add_subdirectory(test/hardware/Sensors)
 
+if(BUILDING_FOR_ELASTIC_NODE AND NOT TARGET tinyusb_device)
+    message(WARNING "not building project, because tinyusb not initialized")
+endif ()
 #    if (TARGET tinyusb_device)
 #        # include required libraries
 #        add_basic_functionality()

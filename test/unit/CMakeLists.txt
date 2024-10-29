@@ -5,6 +5,9 @@ add_subdirectory(dummies/flash)
 add_subdirectory(dummies/i2c)
 add_subdirectory(dummies/gpio)
 add_subdirectory(dummies/sleep)
+add_subdirectory(dummies/esp)
+add_subdirectory(dummies/rtos)
+
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
@@ -36,6 +39,55 @@ add_elastic_ai_unit_test(
             I2cDummy
             GpioDummy
             SleepDummy
+)
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+            Network
+        MORE_LIBS
+            Common
+            HttpDummy
+            RtosDummy
+            EspDummy
+            Esp__hdrs
+            CException
+            NetworkConfig
+)
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+            Http
+        MORE_LIBS
+            CException
+            Common
+            EspDummy
+            Esp__hdrs
+)
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+            MqttBroker
+        MORE_LIBS
+            CException
+            Common
+            HttpDummy
+            EspDummy
+            Esp__hdrs
+            topicMatcher
+            protocol
+            NetworkConfig
+
+)
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+            Adxl345b
+        MORE_LIBS
+            CException
+            Common
+            Sleep__hdrs
+            Time__hdrs
+            I2c__hdrs
 )
 #add_executable(unit-test_sht3x ${CMAKE_CURRENT_LIST_DIR}/UnittestSht3x.c)
 #target_link_libraries(unit-test_sht3x
@@ -117,8 +169,13 @@ add_elastic_ai_unit_test(
 
 
 add_custom_target(all_unit_tests)
+
 add_dependencies(all_unit_tests
         UnitTestSht3x
         UnitTestFpgaConfigurationHandler
         UnitTestPac193
+        UnitTestNetwork
+        UnitTestHttp
+        UnitTestMqttBroker
+        UnitTestAdxl345b
 )
