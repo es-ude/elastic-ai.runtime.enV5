@@ -9,6 +9,6 @@ endif ()
 
 add_elastic_ai_lib(
         NAME NetworkConfig
-        SOURCES NetworkConfig.c
+        SRCS ${CMAKE_SOURCE_DIR}/NetworkConfig.c
         DEPS MqttBroker Network
 )

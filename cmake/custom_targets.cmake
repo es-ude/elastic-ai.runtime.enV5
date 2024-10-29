@@ -22,7 +22,8 @@ function(__add_elastic_ai_implementation)
     cmake_parse_arguments(PARSE_ARGV 0 arg
             "${options}" "${oneValueArgs}" "${multiValueArgs}"
     )
-    add_library(${arg_NAME} ${arg_SOURCES})
+    add_library(${arg_NAME})
+    target_sources(${arg_NAME} PRIVATE ${arg_SOURCES})
     target_include_directories(${arg_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 endfunction()
 
@@ -71,6 +72,12 @@ function(add_elastic_ai_lib)
             "${options}" "${oneValueArgs}" "${multiValueArgs}"
     )
     set(BUILD_IMPLEMENTATION (arg_SRCS AND ((NOT ${arg_HW_ONLY}) OR BUILDING_FOR_ELASTIC_NODE)))
+
+    foreach (file ${arg_SRCS})
+        if(NOT ((NOT IS_ABSOLUTE ${file} AND EXISTS ${CMAKE_CURRENT_LIST_DIR}/${file}) OR EXISTS ${file}))
+            message(FATAL_ERROR "${file} does not exist")
+        endif ()
+    endforeach ()
     if(${BUILD_IMPLEMENTATION})
         __add_elastic_ai_implementation(NAME ${arg_NAME}__impl SOURCES ${arg_SRCS})
         __target_use_interfaces(${arg_NAME}__impl ${arg_DEPS})
@@ -119,4 +126,20 @@ function(add_elastic_ai_unit_test)
     add_test(${NAME} ${NAME})
     set_property(TEST ${NAME} PROPERTY LABELS unit)
     target_link_libraries(${NAME} ${arg_MORE_LIBS})
+endfunction()
+
+
+function(create_enV5_executable target)
+    # enable usb output
+    pico_enable_stdio_usb(${target} 1)
+    # disable uart output
+    pico_enable_stdio_uart(${target} 0)
+    # create map/bin/hex/uf2 file etc.
+    pico_add_uf2_output(${target})
+    #    # copy u2f files after build to out directory
+    #    file(RELATIVE_PATH relative_path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_LIST_DIR})
+    #    add_custom_command(TARGET ${target} POST_BUILD
+    #            COMMAND ${CMAKE_COMMAND} -E copy
+    #            ${CMAKE_BINARY_DIR}/${relative_path}/${target}.uf2
+    #            ${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}-Rev${REVISION}/${relative_path}/${target}.uf2)
 endfunction()

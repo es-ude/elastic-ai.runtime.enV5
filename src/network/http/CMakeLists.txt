@@ -1,6 +1,6 @@
 add_elastic_ai_lib(
         NAME Http
-        SOURCES HTTP.c
+        SRCS HTTP.c
         DEPS
             Common
             CException

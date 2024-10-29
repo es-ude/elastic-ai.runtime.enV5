@@ -13,8 +13,16 @@
       "generator": "Ninja",
       "binaryDir": "build/host/",
       "cacheVariables": {
-        "ELASTIC_AI_TARGET": "HOST",
-        "REVISION": "1"
+        "ELASTIC_AI_TARGET": "HOST"
+      }
+    },
+    {
+      "name": "env5_rev2",
+      "displayName": "EnV5 Rev2",
+      "generator": "Ninja",
+      "binaryDir": "build/env5_rev2",
+      "cacheVariables": {
+        "ELASTIC_AI_TARGET": "ENV5_REV2"
       }
     }
   ],

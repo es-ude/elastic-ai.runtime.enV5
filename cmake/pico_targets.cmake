@@ -15,9 +15,9 @@ endfunction()
 
 
 foreach (arg
-        pico_runtime hardware_gpio
-        hardware_sleep
-        pico_time hardware_timer
+        pico_runtime hardware_gpio pico_stdlib pico_stdio_usb pico_bootrom
+        hardware_i2c hardware_spi pico_util pico_platform pico_clib_interface
+        pico_time hardware_timer hardware_rtc
         hardware_uart hardware_irq
 )
     __add_pico_lib(${arg})
