@@ -1,0 +1,59 @@
+== Cmake Scripts
+
+=== Encapsulated Libraries
+
+We want to have the following goals
+
+- fine-grained control over dependencies for flexibility and to facilitate link-time substitution
+- prevent access to header files of transitive dependencies, i.e., if you call a function defined in `libB` you have to explicitly depend on it. There should not be a way to include a header provided by `B` without declaring that explicit dependency. This way, we avoid hidden source code dependencies. And each module only sees the header files it actually needs.
+- for convenience, we want to have a target that points to transitive dependencies without exposing their headers
+
+We achieve these by (typically) defining four build targets for each of our modules. Assuming we want to define a new library `A` that performs a direct call to library `B`. Then we define
+
+`A__hdrs`:: providing access to all public header files of our module `A`, e.g.,
++
+[source, cmake]
+----
+add_library(A__hdrs INTERFACE)
+target_include_directories(A__hdrs INTERFACE include)
+----
+`A__impl`:: containing the implementation of `A`. This target needs access to the headers of its dependent modules, e.g.,
++
+[source, cmake]
+----
+add_library(A__impl A.c)
+target_link_libraries(A__impl PRIVATE B__hdrs)
+----
++
+`A__impl_with_deps`:: containing the implementation of `A`. This transitively links to dependencies.
++
+[source, cmake]
+----
+add_library(A__impl_with_deps INTERFACE)
+target_link_libraries(A__impl_with_deps INTERFACE A_impl B__impl_with_deps)
+----
++
+`A`:: providing access to public headers for consuming targets (e.g., executables) and transitively providing dependent library implementations
+[source, cmake]
+----
+add_library(A INTERFACE)
+target_link_libraries(A INTERFACE A__impl_with_deps A__hdrs)
+----
+
+Currently, the `elastic_ai_add_library` function provides most of this functionality. However, using it will prevent the IDE from automatically discovering your targets for the sake of jump-to-definition and auto-completion.
+
+=== Building HW Dependent Libs
+The build scripts will set a global variable `BUILDING_FOR_ELASTIC_NODE` to `true` iff we're building for an elastic node hardware.
+If you need to define a HW dependent lib, e.g., because it calls into the pico_sdk, you should ask for that flag and define the `__impl` as an empty interface target. E.g.,
+
+[source, cmake]
+----
+if(BUILDING_FOR_ELASTIC_NODE)
+  add_library(A__impl A.c)
+  target_link_libraries(A__impl PRIVATE Pico::pico_runtime__hdrs)
+  add_library(A__impl_with_deps INTERFACE A__impl Pico::pico_runtime)
+else()
+  add_library(A__impl INTERFACE)
+  add_library(A__impl_with_deps INTERFACE)
+endif ()
+----
