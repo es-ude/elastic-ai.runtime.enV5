@@ -35,6 +35,11 @@
       "jobs": 4
     },
     {
+      "name": "env5_rev2",
+      "configurePreset": "env5_rev2",
+      "jobs": 6
+    },
+    {
       "name": "unit_test",
       "inherits": "host",
       "targets": "all_unit_tests"
