@@ -11,6 +11,13 @@ function(elastic_ai_target_link_hdrs target)
 endfunction()
 
 
+function(elastic_ai_target_link_impl target)
+    foreach (d ${ARGN})
+        target_link_libraries(${target} PRIVATE ${d}__impl)
+    endforeach ()
+endfunction()
+
+
 function(elastic_ai_initialize_implementation target)
     target_link_libraries(${target}__impl PRIVATE ${target}__hdrs)
     target_include_directories(${target}__impl PRIVATE ${CMAKE_CURRENT_LIST_DIR})
@@ -79,7 +86,7 @@ function(add_elastic_ai_lib)
 
     add_library(${arg_NAME} INTERFACE)
     add_library(${arg_NAME}__hdrs INTERFACE)
-
+    target_include_directories(${arg_NAME}__hdrs INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
     if(${BUILD_IMPLEMENTATION})
         add_library(${arg_NAME}__impl ${arg_SRCS})
         elastic_ai_initialize_implementation(${arg_NAME} ${arg_DEPS})
@@ -117,7 +124,7 @@ function(add_elastic_ai_unit_test)
 
     add_executable(${NAME} EXCLUDE_FROM_ALL UnitTest${arg_LIB_UNDER_TEST}.c)
     target_sources(${NAME} PRIVATE ${arg_MORE_SOURCES})
-    target_link_libraries(${NAME} ${arg_LIB_UNDER_TEST}__impl unity::framework)
+    target_link_libraries(${NAME} ${arg_LIB_UNDER_TEST} unity::framework)
     add_test(${NAME} ${NAME})
     set_property(TEST ${NAME} PROPERTY LABELS unit)
     target_link_libraries(${NAME} ${arg_MORE_LIBS})

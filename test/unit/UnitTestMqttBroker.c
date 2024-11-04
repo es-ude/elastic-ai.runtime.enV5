@@ -2,7 +2,6 @@
 #include "Esp.h"
 #include "EspUnitTest.h"
 #include "MqttBroker.h"
-
 #include "unity.h"
 
 extern mqttBrokerHost_t mqttHost;
