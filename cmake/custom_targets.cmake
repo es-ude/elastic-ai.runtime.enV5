@@ -4,30 +4,31 @@
 # Use the functions add_elastic_ai_lib and add_elastic_ai_unit_test
 ################
 
-
-
 function(elastic_ai_target_link_hdrs target)
     foreach (d ${ARGN})
         target_link_libraries(${target} PRIVATE ${d}__hdrs)
     endforeach ()
 endfunction()
 
-function(elastic_ai_target_link_impl target)
-    foreach(d ${ARGN})
-        if (TARGET ${d}__impl)
-            target_link_libraries(${target} INTERFACE ${d}__impl)
+
+function(elastic_ai_initialize_implementation target)
+    target_link_libraries(${target}__impl PRIVATE ${target}__hdrs)
+    target_include_directories(${target}__impl PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+    foreach (dep ${ARGN})
+        if( (NOT TARGET ${target}__impl) AND (NOT TARGET ${target}__hdrs) )
+            message(WARNING "${target} features neither implementation nor headers and will not be used")
+        else()
+            target_link_libraries(${target}__impl PRIVATE ${dep}__hdrs)
         endif ()
-    endforeach ()
+    endforeach()
 endfunction()
 
 function(elastic_ai_connect_libs target)
-    target_include_directories(${target}__hdrs INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
     if(TARGET ${target}__impl)
-        target_link_libraries(${target}__impl PRIVATE ${target}__hdrs)
-        target_include_directories(${target}__impl PRIVATE ${CMAKE_CURRENT_LIST_DIR})
         target_link_libraries(${target} INTERFACE ${target}__impl)
     endif ()
     target_link_libraries(${target} INTERFACE ${target}__hdrs)
+
 endfunction()
 
 function(add_elastic_ai_lib)
@@ -76,13 +77,13 @@ function(add_elastic_ai_lib)
     )
     set(BUILD_IMPLEMENTATION ((NOT ${arg_HW_ONLY}) OR BUILDING_FOR_ELASTIC_NODE))
 
+    add_library(${arg_NAME} INTERFACE)
     add_library(${arg_NAME}__hdrs INTERFACE)
+
     if(${BUILD_IMPLEMENTATION})
         add_library(${arg_NAME}__impl ${arg_SRCS})
-        elastic_ai_target_link_hdrs(${arg_NAME}__impl ${arg_DEPS})
-        elastic_ai_target_link_impl(${arg_NAME}__impl ${arg_DEPS})
+        elastic_ai_initialize_implementation(${arg_NAME} ${arg_DEPS})
     endif ()
-    add_library(${arg_NAME} INTERFACE)
 
     elastic_ai_connect_libs(${arg_NAME})
 
@@ -114,9 +115,9 @@ function(add_elastic_ai_unit_test)
         set(arg_DEPS "")
     endif ()
 
-    add_executable(${NAME} UnitTest${arg_LIB_UNDER_TEST}.c)
+    add_executable(${NAME} EXCLUDE_FROM_ALL UnitTest${arg_LIB_UNDER_TEST}.c)
     target_sources(${NAME} PRIVATE ${arg_MORE_SOURCES})
-    target_link_libraries(${NAME} ${arg_LIB_UNDER_TEST} unity::framework)
+    target_link_libraries(${NAME} ${arg_LIB_UNDER_TEST}__impl unity::framework)
     add_test(${NAME} ${NAME})
     set_property(TEST ${NAME} PROPERTY LABELS unit)
     target_link_libraries(${NAME} ${arg_MORE_LIBS})
