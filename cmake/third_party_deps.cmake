@@ -42,6 +42,36 @@ function(add_runtime_c)
             GIT_TAG v2.7.2
     )
     FetchContent_MakeAvailable(elastic_ai_runtime_c)
+    if (NOT topicMatcher__hdrs)
+        add_library( topicMatcher__hdrs INTERFACE)
+        target_include_directories(topicMatcher__hdrs INTERFACE
+                $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>
+        )
+    endif ()
+
+    if (NOT protocol__hdrs)
+        add_library( protocol__hdrs INTERFACE)
+        target_include_directories(protocol__hdrs INTERFACE
+                $<TARGET_PROPERTY:protocol,INTERFACE_INCLUDE_DIRECTORIES>
+        )
+    endif ()
+
+    function(make_impl target)
+        if (NOT TARGET ${target}__impl)
+            add_library(${target}__impl INTERFACE)
+            target_link_libraries(${target}__impl INTERFACE
+                    ${target}
+            )
+        endif ()
+    endfunction()
+    make_impl(protocol)
+    make_impl(topicMatcher)
+    add_library(RuntimeC::Protocol ALIAS protocol__impl)
+    add_library(RuntimeC::Protocol__impl ALIAS protocol__impl)
+    add_library(RuntimeC::Protocol__hdrs ALIAS protocol__hdrs)
+    add_library(RuntimeC::TopicMatcher ALIAS topicMatcher__impl)
+    add_library(RuntimeC::TopicMatcher__hdrs ALIAS topicMatcher__hdrs)
+    add_library(RuntimeC::TopicMatcher__impl ALIAS topicMatcher__impl)
 endfunction()
 
 function(add_freertos)
