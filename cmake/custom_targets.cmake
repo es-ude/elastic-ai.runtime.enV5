@@ -36,6 +36,7 @@ function(elastic_ai_connect_libs target)
     endif ()
     target_link_libraries(${target} INTERFACE ${target}__hdrs)
 
+
 endfunction()
 
 function(add_elastic_ai_lib)
@@ -96,6 +97,15 @@ function(add_elastic_ai_lib)
 
 endfunction()
 
+function(initialize_unit_test lib_under_test)
+    add_executable(${NAME} EXCLUDE_FROM_ALL UnitTest${arg_LIB_UNDER_TEST}.c)
+    target_sources(${NAME} PRIVATE ${arg_MORE_SOURCES})
+    target_link_libraries(${NAME} PRIVATE ${arg_LIB_UNDER_TEST} unity::framework)
+
+    add_test(${NAME} ${NAME})
+    set_property(TEST ${NAME} PROPERTY LABELS unit)
+endfunction()
+
 
 function(add_elastic_ai_unit_test)
     # Similar to elastic_ai_lib but defines a new unit test.
@@ -122,12 +132,11 @@ function(add_elastic_ai_unit_test)
         set(arg_DEPS "")
     endif ()
 
-    add_executable(${NAME} EXCLUDE_FROM_ALL UnitTest${arg_LIB_UNDER_TEST}.c)
-    target_sources(${NAME} PRIVATE ${arg_MORE_SOURCES})
-    target_link_libraries(${NAME} ${arg_LIB_UNDER_TEST} unity::framework)
-    add_test(${NAME} ${NAME})
-    set_property(TEST ${NAME} PROPERTY LABELS unit)
-    target_link_libraries(${NAME} ${arg_MORE_LIBS})
+
+    initialize_unit_test(${arg_LIB_UNDER_TEST})
+    add_library(${NAME}__testdeps INTERFACE)
+    target_link_libraries(${NAME}__testdeps INTERFACE ${arg_MORE_LIBS})
+    target_link_libraries(${NAME} PRIVATE ${NAME}__testdeps)
 endfunction()
 
 

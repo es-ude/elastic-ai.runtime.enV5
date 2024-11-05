@@ -1,7 +1,7 @@
 #include "HTTP.h"
 #include "CException.h"
 
-#include <httpDummy.h>
+#include "httpDummy.h"
 #include <stdlib.h>
 #include <string.h>
 

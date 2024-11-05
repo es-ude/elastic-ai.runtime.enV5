@@ -74,7 +74,10 @@ add_elastic_ai_unit_test(
             EspDummy
             Esp__hdrs
             topicMatcher
+            protocol
             NetworkConfig
+            m
+
 )
 
 add_elastic_ai_unit_test(
