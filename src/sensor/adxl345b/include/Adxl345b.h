@@ -116,16 +116,15 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
  * @param sensor[in] configuration for sensor to use
  * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be
  * at least 6 bytes. (2 bytes each Axis)
- * @param numberOfMeasurements[in] number of required Data
+ * @param sizeOfRawData[in] number of required Data
  * @return
  */
 adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor,
-                                                    uint8_t **rawData,
-                                                    uint32_t numberOfMeasurements);
+                                                    uint8_t *rawData,
+                                                    uint32_t sizeOfRawData);
 
 /*!
- * @brief reads raw data from the sensor in stream, trigger or fifo mode. limited by seconds or
- * given buffer for rawData
+ * @brief reads raw data from the sensor. limited by seconds or given buffer for rawData
  *
  * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *              - Can be interrupted.caller needs to ensure free rtos

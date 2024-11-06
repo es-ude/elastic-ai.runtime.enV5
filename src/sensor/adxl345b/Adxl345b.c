@@ -237,14 +237,14 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
 }
 
 adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor,
-                                                    uint8_t **rawData,
-                                                    uint32_t numberOfMeasurements) {
+                                                    uint8_t *rawData,
+                                                    uint32_t sizeOfRawData) {
     adxl345bErrorCode_t errorCode;
 
     /* read and set configuration*/
     uint8_t fifoInformation;
     errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &fifoInformation, 1);
+            adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &fifoInformation, 1);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("read FIFO_CONTROL failed");
         return errorCode;
@@ -252,12 +252,12 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
 
     uint8_t samplesInFifo = fifoInformation & 0b00011111;
 
-    uint8_t rest = numberOfMeasurements % samplesInFifo;
+    uint8_t rest = sizeOfRawData % samplesInFifo;
     uint32_t alreadyReadData = 0;
 
     PRINT_DEBUG("Start reading");
-    while (numberOfMeasurements > 0) {
-        if (numberOfMeasurements <= rest && rest > 0) {
+    while (sizeOfRawData > 0) {
+        if (sizeOfRawData <= rest && rest > 0) {
             samplesInFifo = rest; // last iteration needs other value
             uint8_t interruptSource;
             do {
@@ -279,7 +279,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
         }
         /* read Data */
         for (uint8_t i = 0; i < samplesInFifo; i++) {
-            errorCode = adxl345bReadDataXYZ(sensor, rawData[alreadyReadData + i]);
+            errorCode = adxl345bReadDataXYZ(sensor, rawData + alreadyReadData + i);
             // sleep 5 μs to ensure data is ready
             sleep_for_us(5);
 
@@ -299,7 +299,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
         }
 
         /* update variables */
-        numberOfMeasurements -= samplesInFifo;
+        sizeOfRawData -= samplesInFifo;
         alreadyReadData += samplesInFifo;
     }
     PRINT_DEBUG("done reading");
