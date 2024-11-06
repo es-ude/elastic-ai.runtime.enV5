@@ -140,6 +140,7 @@ function(add_elastic_ai_unit_test)
 endfunction()
 
 
+
 function(create_enV5_executable target)
     # enable usb output
     pico_enable_stdio_usb(${target} 1)
@@ -153,4 +154,20 @@ function(create_enV5_executable target)
     #            COMMAND ${CMAKE_COMMAND} -E copy
     #            ${CMAKE_BINARY_DIR}/${relative_path}/${target}.uf2
     #            ${CMAKE_SOURCE_DIR}/out/${CMAKE_BUILD_TYPE}-Rev${REVISION}/${relative_path}/${target}.uf2)
+endfunction()
+
+
+function(add_elastic_ai_hardware_test)
+
+    set(options HW_ONLY HOST_ONLY)
+    set(oneValueArgs NAME)
+    set(multiValueArgs SRCS DEPS)
+    cmake_parse_arguments(PARSE_ARGV 0 arg
+            "${options}" "${oneValueArgs}" "${multiValueArgs}"
+    )
+    create_enV5_executable(${arg_NAME} ${CMAKE_CURRENT_LIST_DIR}/${arg_NAME}.c)
+
+    foreach (dep ${arg_DEPS})
+        target_link_libraries(${arg_NAME} PRIVATE ${dep})
+    endforeach()
 endfunction()

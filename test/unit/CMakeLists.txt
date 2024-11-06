@@ -77,7 +77,6 @@ add_elastic_ai_unit_test(
             protocol
             NetworkConfig
             m
-
 )
 
 add_elastic_ai_unit_test(

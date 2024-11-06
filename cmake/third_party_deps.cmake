@@ -64,6 +64,7 @@ function(add_runtime_c)
             )
         endif ()
     endfunction()
+
     make_impl(protocol)
     make_impl(topicMatcher)
     add_library(RuntimeC::Protocol ALIAS protocol__impl)
