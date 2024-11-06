@@ -4,12 +4,12 @@
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 
+#include "CException.h"
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "I2c.h"
 #include "Sht3x.h"
-#include "CException.h"
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
