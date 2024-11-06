@@ -1,22 +1,42 @@
 ##############################################
 ## region hardware-test_sht3
-add_executable(hardware-test_sht3 HardwaretestSht3x.c)
 
-create_enV5_executable(hardware-test_sht3)
-target_link_libraries(hardware-test_sht3
-        Pico::pico_stdlib
-        Pico::pico_bootrom
-        Pico::hardware_i2c
-        EnV5HwController
-        Common
-        EnV5HwConfiguration
-        I2c
-        Sht3x
-        CException
-
+add_elastic_ai_hardware_test(
+        NAME HardwaretestSht3x
+        SRCS HardwaretestSht3x.c
+        DEPS
+            Pico::pico_stdlib
+            Pico::pico_bootrom
+            Pico::pico_stdio_usb
+            Pico::hardware_i2c
+            EnV5HwController
+            Common
+            EnV5HwConfiguration
+            I2c
+            Sht3x
+            CException
 )
+
 #############################################
 # region hardware-test_adxl345b
+
+add_elastic_ai_hardware_test(
+        NAME HardwaretestAdxl345b
+        SRCS HardwaretestAdxl345b.c
+        DEPS
+            Common
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            Pico::pico_bootrom
+            Pico::hardware_i2c
+            I2c
+            Adxl345b
+            Time
+            Pico::pico_time
+)
+
+
+
 #add_executable(hardware-test_adxl345b HardwaretestAdxl345b.c)
 #target_link_libraries(hardware-test_adxl345b
 #        Common
