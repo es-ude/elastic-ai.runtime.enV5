@@ -1,7 +1,7 @@
-#include "Common.h"
 #include "FreeRtosMutexWrapper.h"
-#include "FreeRtosTaskWrapper.h"
+#include "Common.h"
 #include "FreeRTOS.h"
+#include "FreeRtosTaskWrapper.h"
 
 #include <stdbool.h>
 
