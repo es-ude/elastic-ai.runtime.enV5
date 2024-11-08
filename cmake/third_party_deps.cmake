@@ -83,5 +83,20 @@ FetchContent_Declare(
 )
 FetchContent_Populate(freertos_kernel)
 add_subdirectory(${freertos_kernel_SOURCE_DIR}/portable/ThirdParty/GCC/RP2040 FREERTOS_KERNEL)
+
+add_library(__freertos_kernel__hdrs INTERFACE)
+target_include_directories(__freertos_kernel__hdrs INTERFACE $<TARGET_PROPERTY:FreeRTOS-Kernel,INTERFACE_INCLUDE_DIRECTORIES>)
+add_library(freeRtos::FreeRTOS-Kernel__hdrs ALIAS __freertos_kernel__hdrs)
+
+add_library(freeRtos::FreeRTOS-Kernel ALIAS FreeRTOS-Kernel)
+add_library(freeRtos::FreeRTOS-Kernel__impl ALIAS FreeRTOS-Kernel)
+
+
+add_library(__freertos_kernel_heap__hdrs INTERFACE)
+target_include_directories(__freertos_kernel_heap__hdrs INTERFACE $<TARGET_PROPERTY:FreeRTOS-Kernel-Heap3,INTERFACE_INCLUDE_DIRECTORIES>)
+add_library(freeRtos::FreeRTOS-Kernel-Heap3__hdrs ALIAS __freertos_kernel_heap__hdrs)
+
+add_library(freeRtos::FreeRTOS-Kernel-Heap3 ALIAS FreeRTOS-Kernel-Heap3)
+add_library(freeRtos::FreeRTOS-Kernel-Heap3__impl ALIAS FreeRTOS-Kernel-Heap3)
 endfunction()
 

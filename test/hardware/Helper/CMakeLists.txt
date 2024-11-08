@@ -4,8 +4,11 @@ add_elastic_ai_lib(
         DEPS
             Common
             Pico::pico_stdlib
+            Pico::pico_bootrom
+
             MqttBroker
             Network
-            Network
             freeRtosUtils
+            EnV5HwController
+            Esp
 )

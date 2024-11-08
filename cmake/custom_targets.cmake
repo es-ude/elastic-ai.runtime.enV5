@@ -165,6 +165,7 @@ function(add_elastic_ai_hardware_test)
     cmake_parse_arguments(PARSE_ARGV 0 arg
             "${options}" "${oneValueArgs}" "${multiValueArgs}"
     )
+    add_executable(${arg_NAME} ${CMAKE_CURRENT_LIST_DIR}/${arg_NAME}.c)
     create_enV5_executable(${arg_NAME} ${CMAKE_CURRENT_LIST_DIR}/${arg_NAME}.c)
 
     foreach (dep ${arg_DEPS})
