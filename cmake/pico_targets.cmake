@@ -36,6 +36,7 @@ foreach (arg
         hardware_rtc
         hardware_uart
         hardware_irq
+        hardware_base
 )
     __add_pico_lib(${arg})
 endforeach ()

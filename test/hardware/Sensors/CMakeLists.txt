@@ -1,13 +1,12 @@
-##############################################
-## region hardware-test_sht3
-
+# region Sht3
 add_elastic_ai_hardware_test(
+        HW_ONLY
         NAME HardwaretestSht3x
         SRCS HardwaretestSht3x.c
         DEPS
             Pico::pico_stdlib
+            Pico::pico_stdio
             Pico::pico_bootrom
-            Pico::pico_stdio_usb
             Pico::hardware_i2c
             EnV5HwController
             Common
@@ -15,11 +14,12 @@ add_elastic_ai_hardware_test(
             I2c
             Sht3x
             CException
+            Gpio
+            Sleep
 )
+# endregion hardware-test_sht3
 
-#############################################
-# region hardware-test_adxl345b
-
+# region Adxl345b
 add_elastic_ai_hardware_test(
         NAME HardwaretestAdxl345b
         SRCS HardwaretestAdxl345b.c
@@ -29,91 +29,151 @@ add_elastic_ai_hardware_test(
             Pico::pico_stdio_usb
             Pico::pico_bootrom
             Pico::hardware_i2c
+            Pico::pico_time
             I2c
             Adxl345b
             Time
-            Pico::pico_time
+            Sleep
+            Gpio
 )
+# endregion hardware-test_adxl345b
 
+# region Pac193x
+add_elastic_ai_hardware_test(
+        NAME HardwaretestPac193x
+        SRCS HardwaretestPac193x.c
+        DEPS
+            Common
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            Pico::pico_bootrom
+            Pico::pico_time
+            Pico::hardware_i2c
+            I2c
+            EnV5HwConfiguration
+            Pac193x
+            Gpio
+            Sleep
+)
+# endregion hardware-test_pac193x
 
-
-#add_executable(hardware-test_adxl345b HardwaretestAdxl345b.c)
-#target_link_libraries(hardware-test_adxl345b
-#        Common
-#        Pico::pico_stdlib
-#        Pico::pico_stdio_usb
-#
-#        Pico::pico_bootrom
-#        I2c
-#        Adxl345b
-#        Time
-#        Pico::pico_time
-#
-#)
-#create_enV5_executable(hardware-test_adxl345b)
-## endregion hardware-test_adxl345b
-###############################################
-### hardware-test_pac193x
-add_executable(hardware-test_pac193x HardwaretestPac193x.c)
-
-
-add_library(_HWTestLibForPac139x INTERFACE)
-target_link_libraries( _HWTestLibForPac139x INTERFACE
+# region Pac193xAccumulator
+add_elastic_ai_hardware_test(
+        NAME HardwaretestPac193xAccumulator
+        SRCS HardwaretestPac193xAccumulator.c
+        DEPS
         Common
         Pico::pico_stdlib
         Pico::pico_stdio_usb
         Pico::pico_bootrom
         Pico::pico_time
+        Pico::hardware_i2c
+        I2c
+        EnV5HwConfiguration
+        EnV5HwController
+        Pac193x
+        Gpio
+        Sleep
+)
+# endregion hardware-test_pac193x_stream
+
+# region Dualpac193x
+add_elastic_ai_hardware_test(
+        NAME HardwaretestDualPac193x
+        SRCS HardwaretestDualPac193x.c
+        DEPS
+        Common
+        Pico::pico_stdlib
+        Pico::pico_stdio_usb
+        Pico::pico_bootrom
+        Pico::pico_time
+        Pico::hardware_i2c
         I2c
         EnV5HwConfiguration
         Pac193x
-)
-
-target_link_libraries(hardware-test_pac193x _HWTestLibForPac139x)
-create_enV5_executable(hardware-test_pac193x)
-###############################################
-## hardware-test_pac193x_stream
-add_executable(hardware-test_pac193x_stream HardwaretestPac193xAccumulator.c)
-target_link_libraries(hardware-test_pac193x_stream _HWTestLibForPac139x)
-create_enV5_executable(hardware-test_pac193x_stream)
-##############################################
-## hardware-test_dualpac193x
-add_executable(hardware-test_dualpac193x HardwaretestDualPac193x.c)
-target_link_libraries(hardware-test_dualpac193x _HWTestLibForPac139x)
-
-create_enV5_executable(hardware-test_dualpac193x)
-##############################################
-### hardware-test_pac193xbuffer
-add_executable(hardware-test_pac193xbuffer HardwaretestPac193xBuffer.c)
-target_link_libraries(hardware-test_pac193xbuffer _HWTestLibForPac139x)
-create_enV5_executable(hardware-test_pac193xbuffer)
-##############################################
-add_executable(hardware-test_bmi323 HardwaretestBmi323.c)
-target_link_libraries(hardware-test_bmi323
-        Pico::pico_stdlib
-        Pico::hardware_spi
-
-        CException
-        Common
-        EnV5HwConfiguration
-        EnV5HwController
-        Spi
+        Gpio
         Sleep
-        Bmi323
-
 )
-create_enV5_executable(hardware-test_bmi323)
-### hardware-stresstest_adxl345b
-#add_executable(hardware-test_stressTest_adxl345b StressTestAdxl345b.c)
-#target_link_libraries(hardware-test_stressTest_adxl345b
-#        Pico::common_lib
-#        Pico::pico_stdlib
-#        Pico::pico_stdio_usb
-#        Pico::pico_time
-#        freeRtosUtils
-#        espBroker_lib
-#        middleware_lib
-#        sensor_lib_adxl345b
-#        hardware-testHelper)
-#create_enV5_executable(hardware-test_stressTest_adxl345b)
-##############################################
+# endregion hardware-test_dualpac193x
+
+# region Pac193xBuffer
+add_elastic_ai_hardware_test(
+        NAME HardwaretestPac193xBuffer
+        SRCS HardwaretestPac193xBuffer.c
+        DEPS
+        Common
+        Pico::pico_stdlib
+        Pico::pico_stdio_usb
+        Pico::pico_bootrom
+        Pico::pico_time
+        Pico::hardware_i2c
+        I2c
+        EnV5HwConfiguration
+        Pac193x
+        Gpio
+        Sleep
+)
+# endregion hardware-test_pac193xbuffer
+
+# region Bmi323
+add_elastic_ai_hardware_test(
+        HW_ONLY
+        NAME HardwaretestBmi323
+        SRCS HardwaretestBmi323.c
+        DEPS
+            Pico::pico_stdlib
+            Pico::hardware_spi
+            CException
+            Common
+            EnV5HwConfiguration
+            EnV5HwController
+            Spi
+            Sleep
+            Bmi323
+            Gpio
+            external_bmi323_bosch_lib
+)
+# endregion Harwaretest_Bmi323
+
+# FIX
+# region StressTest_Adxl345b
+
+add_library(A__impl_with_deps INTERFACE)
+target_link_libraries(A__impl_with_deps INTERFACE A_impl B__impl_with_deps)
+
+
+add_elastic_ai_hardware_test(
+        NAME StressTestAdxl345b
+        SRCS StressTestAdxl345b.c
+        DEPS
+            Pico::pico_stdlib
+            Pico::pico_stdio
+            Pico::pico_bootrom
+            Pico::hardware_i2c
+
+            Adxl345b
+            Common
+            EnV5HwConfiguration
+            EnV5HwController
+            Esp
+            freeRtosUtils
+            HardwaretestHelper
+            I2c
+            Sleep
+            Gpio
+            Time
+            Uart
+            MqttBroker
+            CException
+            Network
+            NetworkConfig
+            Http
+
+            freeRtos::FreeRTOS-Kernel
+            freeRtos::FreeRTOS-Kernel-Heap3
+
+            RuntimeC::TopicMatcher
+            RuntimeC::Protocol
+)
+# endregion hardware-stresstest_adxl345b
+

@@ -1,8 +1,9 @@
-#include <stdbool.h>
-
 #include "Common.h"
 #include "FreeRtosMutexWrapper.h"
 #include "FreeRtosTaskWrapper.h"
+#include "FreeRTOS.h"
+
+#include <stdbool.h>
 
 mutex_t freeRtosMutexWrapperCreate(void) {
     mutex_t mutex = xSemaphoreCreateMutex();
