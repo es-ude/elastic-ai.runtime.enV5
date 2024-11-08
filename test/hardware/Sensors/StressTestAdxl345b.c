@@ -10,10 +10,10 @@
 #include "Protocol.h"
 
 // pico-sdk headers
-#include <pico/stdio_usb.h>
-#include <pico/bootrom.h>
 #include <hardware/i2c.h>
 #include <hardware/watchdog.h>
+#include <pico/bootrom.h>
+#include <pico/stdio_usb.h>
 
 /* endregion HELPER*/
 
