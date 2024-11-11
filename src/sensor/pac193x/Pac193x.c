@@ -121,7 +121,8 @@ void pac193xRefreshDataAndResetAccumulator(pac193xSensorConfiguration_t sensor) 
 }
 /* endregion GENERAL FUNCTIONS */
 
-pac193xSensorId_t* pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info) {
+pac193xSensorId_t *pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor,
+                                        pac193xSensorId_t *info) {
 
     CEXCEPTION_T e;
     uint8_t sizeOfResponseBuffer = 1;
@@ -149,8 +150,9 @@ pac193xSensorId_t* pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac
 
 /* region READ MEASUREMENTS */
 
-float* pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
-                                     pac193xValueToMeasure_t valueToMeasure, float *value) {
+float *pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor,
+                                       pac193xChannel_t channel,
+                                       pac193xValueToMeasure_t valueToMeasure, float *value) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
         Throw(PAC193X_INVALID_CHANNEL);
@@ -167,8 +169,9 @@ float* pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac1
     return value;
 }
 
-pac193xMeasurements_t* pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
-                                      pac193xMeasurements_t *measurements) {
+pac193xMeasurements_t *pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor,
+                                                        pac193xChannel_t channel,
+                                                        pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
         measurements->voltageSource = 0;
@@ -195,8 +198,9 @@ pac193xMeasurements_t* pac193xGetMeasurementsForChannel(pac193xSensorConfigurati
     return measurements;
 }
 
-pac193xMeasurements_t* pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
-                                  pac193xMeasurements_t *measurements) {
+pac193xMeasurements_t *pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor,
+                                                    pac193xChannel_t channel,
+                                                    pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
 
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
@@ -222,8 +226,9 @@ pac193xMeasurements_t* pac193xGetAveragesForChannel(pac193xSensorConfiguration_t
     return measurements;
 }
 
-pac193xEnergyMeasurements_t* pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
-                                     pac193xEnergyMeasurements_t *measurements) {
+pac193xEnergyMeasurements_t *
+pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
+                                pac193xEnergyMeasurements_t *measurements) {
 
     /* read values counter */
     uint8_t responseBuffer[28];
