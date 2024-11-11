@@ -7,21 +7,18 @@ FetchContent_Declare(
 )
 FetchContent_Populate(bmi323)
 
-add_library(external_bmi323_bosch_lib__impl
+add_library(external_bmi323_bosch_lib
         "${bmi323_SOURCE_DIR}/bmi3.c"
         "${bmi323_SOURCE_DIR}/bmi323.c")
 
-add_library(external_bmi323_bosch_lib__hdrs INTERFACE)
-target_include_directories(external_bmi323_bosch_lib__hdrs INTERFACE "${bmi323_SOURCE_DIR}")
-target_link_libraries(external_bmi323_bosch_lib__impl PRIVATE external_bmi323_bosch_lib__hdrs)
-add_library(external_bmi323_bosch_lib INTERFACE)
-target_link_libraries(external_bmi323_bosch_lib INTERFACE external_bmi323_bosch_lib__hdrs external_bmi323_bosch_lib__impl)
+target_include_directories(external_bmi323_bosch_lib PUBLIC "${bmi323_SOURCE_DIR}")
 
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME Bmi323
-        SRCS Bmi323.c
-        DEPS
+
+
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Bmi323 Bmi323.c)
+    target_include_directories(Bmi323 PUBLIC include)
+    target_link_libraries(Bmi323 PRIVATE
             external_bmi323_bosch_lib
             Common
             Pico::pico_stdlib
@@ -29,7 +26,11 @@ add_elastic_ai_lib(
             Sleep
             Gpio
             Spi
-)
+    )
+else()
+    add_library(Bmi323 INTERFACE)
+    target_include_directories(Bmi323 INTERFACE include)
+endif ()
 
-target_link_libraries(Bmi323__hdrs INTERFACE external_bmi323_bosch_lib__hdrs)
+target_link_libraries(Bmi323 INTERFACE external_bmi323_bosch_lib)
 

@@ -1,13 +1,26 @@
-add_elastic_ai_lib(
-        NAME FpgaConfigurationHandler
-        SRCS FpgaConfigurationHandler.c FpgaConfigurationHandlerHTTP.c
-        DEPS Common Http CException EnV5HwConfiguration Flash
+add_library(
+        FpgaConfigurationHandler
+        FpgaConfigurationHandler.c
+        FpgaConfigurationHandlerHTTP.c
 )
 
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME FpgaConfigurationHandlerUSB
-        SRCS FpgaConfigurationHandlerUSB.c
-        DEPS Common Http CException Env5HWConfiguration Flash
+target_include_directories(
+        FpgaConfigurationHandler
+        PUBLIC
+        include
 )
 
+
+target_link_libraries(FpgaConfigurationHandler PRIVATE Common Http CException EnV5HwConfiguration Flash)
+
+
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(FpgaConfigurationHandlerUSB FpgaConfigurationHandlerUSB.c)
+    target_link_libraries(FpgaConfigurationHandlerUSB PRIVATE
+            Common
+            Http
+            CException
+            EnV5HwConfiguration
+            Flash
+    )
+endif ()

@@ -1,7 +1,4 @@
-add_elastic_ai_lib(
-        NAME Flash
-        SRCS Flash.c
-        DEPS Common Sleep Spi
-)
-
-target_link_libraries(Flash__hdrs INTERFACE Spi__hdrs)
+add_library(Flash Flash.c)
+target_include_directories(Flash PUBLIC include)
+target_link_libraries(Flash PRIVATE Common Sleep)
+target_link_libraries(Flash PUBLIC Spi)

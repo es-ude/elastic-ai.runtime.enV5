@@ -1,23 +1,13 @@
 ##############################################
 ## region UNIT-TEST: unit-test_sht3
-add_subdirectory(dummies/http)
-add_subdirectory(dummies/flash)
-add_subdirectory(dummies/i2c)
-add_subdirectory(dummies/gpio)
-add_subdirectory(dummies/sleep)
-add_subdirectory(dummies/esp)
-add_subdirectory(dummies/rtos)
-
+add_subdirectory(dummies)
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
             Sht3x
-        MORE_SOURCES
-            ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/I2c.c
         MORE_LIBS
-            CException I2c__hdrs
+            CException I2cDummy
 )
-target_include_directories(UnitTestSht3x PRIVATE ${CMAKE_CURRENT_LIST_DIR}/dummies/i2c/include)
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
@@ -25,10 +15,8 @@ add_elastic_ai_unit_test(
         MORE_LIBS
             CException
             Common
-            Flash__hdrs
             FlashDummy
             HttpDummy
-            Http__hdrs
 )
 
 add_elastic_ai_unit_test(
@@ -49,7 +37,6 @@ add_elastic_ai_unit_test(
             HttpDummy
             RtosDummy
             EspDummy
-            Esp__hdrs
             CException
             NetworkConfig
 )
@@ -61,7 +48,6 @@ add_elastic_ai_unit_test(
             CException
             Common
             EspDummy
-            Esp__hdrs
 )
 
 add_elastic_ai_unit_test(
@@ -72,7 +58,6 @@ add_elastic_ai_unit_test(
             Common
             HttpDummy
             EspDummy
-            Esp__hdrs
             topicMatcher
             protocol
             NetworkConfig
@@ -85,9 +70,9 @@ add_elastic_ai_unit_test(
         MORE_LIBS
             CException
             Common
-            Sleep__hdrs
-            Time__hdrs
-            I2c__hdrs
+            SleepDummy
+            I2cDummy
+            TimeDummy
 )
 
 add_custom_target(all_unit_tests)
