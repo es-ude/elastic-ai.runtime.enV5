@@ -2,7 +2,7 @@
 #define ENV5_STUB_DEVS_H
 
 #ifndef MIDDLEWARE_STUB_VERSION
-#error "You have to specify the stub version with -DSTUB_VERSION=<version_number>"
+#error "You have to specify the stub version with -DMIDDLEWARE_STUB_VERSION=<version_number>"
 #else
 #ifdef MIDDLEWARE_STUB_VERSION
 #if MIDDLEWARE_STUB_VERSION == 1
