@@ -151,8 +151,9 @@ pac193xSensorId_t pac193xGetSensorInfo(const pac193xSensorConfiguration_t *senso
 
 /* region READ MEASUREMENTS */
 
-float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel,
-                                     pac193xValueToMeasure_t valueToMeasure) {
+float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor,
+                                      pac193xChannel_t channel,
+                                      pac193xValueToMeasure_t valueToMeasure) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor->usedChannels, channel)) {
         Throw(PAC193X_INVALID_CHANNEL);
@@ -170,7 +171,8 @@ float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor
     return value;
 }
 
-pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel) {
+pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfiguration_t *sensor,
+                                                       pac193xChannel_t channel) {
 
     pac193xMeasurements_t measurements;
 
@@ -200,7 +202,8 @@ pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfig
     return measurements;
 }
 
-pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel) {
+pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfiguration_t *sensor,
+                                                   pac193xChannel_t channel) {
     CEXCEPTION_T e;
 
     pac193xMeasurements_t measurements;
@@ -228,7 +231,8 @@ pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfigurat
     return measurements;
 }
 
-pac193xEnergyMeasurements_t pac193xReadEnergyForAllChannels(const pac193xSensorConfiguration_t *sensor) {
+pac193xEnergyMeasurements_t
+pac193xReadEnergyForAllChannels(const pac193xSensorConfiguration_t *sensor) {
 
     pac193xEnergyMeasurements_t measurements;
     /* read values counter */
@@ -448,8 +452,9 @@ static void pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties
     PRINT_DEBUG("settings applied successful");
 }
 
-static void pac193xInternalGetData(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel,
-                                   pac193xValueToMeasure_t valueToMeasure, float *value) {
+static void pac193xInternalGetData(const pac193xSensorConfiguration_t *sensor,
+                                   pac193xChannel_t channel, pac193xValueToMeasure_t valueToMeasure,
+                                   float *value) {
     /* store configurations for measurements */
     pac193xMeasurementProperties_t properties;
     /* set channel offset for property
