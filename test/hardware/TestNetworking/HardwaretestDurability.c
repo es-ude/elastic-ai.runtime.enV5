@@ -221,11 +221,11 @@ void updateCounter(countUpdateMessage_t *msg, uint16_t *counter) {
     }
 }
 float measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel) {
-    float measurement;
     CEXCEPTION_T e;
+    float measurement;
 
     Try {
-        pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE_AVG, &measurement);
+        measurement = pac193xGetMeasurementForChannel(&sensor, channel, PAC193X_VSOURCE_AVG);
     }
     Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
@@ -279,7 +279,7 @@ void initSensors(void) {
     CEXCEPTION_T e;
     while (1) {
         Try {
-            pac193xInit(sensor1);
+            pac193xInit(&sensor1);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
@@ -293,7 +293,7 @@ void initSensors(void) {
     PRINT("===== INIT SENSOR 2 =====");
     while (1) {
         Try {
-            pac193xInit(sensor2);
+            pac193xInit(&sensor2);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }

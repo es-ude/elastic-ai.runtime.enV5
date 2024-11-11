@@ -65,7 +65,7 @@ static void initializeCommunication(void) {
     CEXCEPTION_T e;
     while (1) {
         Try {
-            pac193xInit(sensor);
+            pac193xInit(&sensor);
             PRINT("Initialised PAC193X.\n");
             break;
         }
@@ -79,19 +79,19 @@ static void initializeCommunication(void) {
 
 _Noreturn static void runTest(void) {
     PRINT("===== START TEST =====");
-    pac193xStartAccumulation(sensor);
-    pac193xSetSampleRate(sensor, PAC193X_256_SAMPLES_PER_SEC);
-    pac193xRefreshDataAndResetAccumulator(sensor);
+    pac193xStartAccumulation(&sensor);
+    pac193xSetSampleRate(&sensor, PAC193X_256_SAMPLES_PER_SEC);
+    pac193xRefreshDataAndResetAccumulator(&sensor);
 
     sleep_for_ms(1000);
 
     while (true) {
-        pac193xRefreshData(sensor);
+        pac193xRefreshData(&sensor);
         sleep_for_ms(10);
         pac193xEnergyMeasurements_t measurements;
         CEXCEPTION_T e;
         Try {
-            pac193xReadEnergyForAllChannels(sensor, &measurements);
+            measurements = pac193xReadEnergyForAllChannels(&sensor);
             PRINT("Overflow: %b", measurements.overflow);
             PRINT("Got %lu values:\n\t%f\n\t%f\n\t%f\n\t%f", measurements.numberOfAccumulatedValues,
                   measurements.energyChannel1, measurements.energyChannel2,

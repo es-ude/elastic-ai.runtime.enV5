@@ -57,7 +57,7 @@ static void getValuesOfChannelWifi() {
 
     PRINT("Requesting measurements for wifi board.");
     Try {
-        pac193xGetMeasurementsForChannel(sensor1, PAC193X_CHANNEL_WIFI, &measurements);
+        measurements = pac193xGetMeasurementsForChannel(&sensor1, PAC193X_CHANNEL_WIFI);
     }
     Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
@@ -94,7 +94,7 @@ static void getValuesOfChannelSensors() {
 
     PRINT("Requesting measurements for sensors.");
     Try {
-        pac193xGetMeasurementsForChannel(sensor1, PAC193X_CHANNEL_SENSORS, &measurements);
+        measurements = pac193xGetMeasurementsForChannel(&sensor1, PAC193X_CHANNEL_SENSORS);
     }
     Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
@@ -131,7 +131,7 @@ static void getSerialNumber() {
 
     PRINT("Requesting serial number.");
     Try {
-        pac193xGetSensorInfo(sensor1, &sensorID);
+        sensorID = pac193xGetSensorInfo(&sensor1);
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
             0x58, 0x5B, 0x5D, 0x03);
@@ -179,7 +179,7 @@ int main(void) {
     CEXCEPTION_T e;
     while (1) {
         Try {
-            pac193xInit(sensor1);
+            pac193xInit(&sensor1);
             PRINT("Initialised PAC193X.\n");
             break;
         }

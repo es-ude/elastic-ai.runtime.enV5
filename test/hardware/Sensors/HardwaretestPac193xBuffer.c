@@ -55,7 +55,7 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
     CEXCEPTION_T e;
 
     Try {
-        pac193xStartAccumulation(sensor);
+        pac193xStartAccumulation(&sensor);
     }
     Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
@@ -67,8 +67,8 @@ static void sensorTest(pac193xSensorConfiguration_t sensor) {
 
     pac193xEnergyMeasurements_t measurements;
     Try {
-        pac193xReadEnergyForAllChannels(sensor, &measurements);
-        pac193XStopAccumulation(sensor);
+        measurements = pac193xReadEnergyForAllChannels(&sensor);
+        pac193XStopAccumulation(&sensor);
     }
     Catch(e) {
         PRINT("  \033[0;31mFAILED\033[0m; pac193x_ERROR: %02X", e);
@@ -110,7 +110,7 @@ int main(void) {
     CEXCEPTION_T e;
     while (1) {
         Try {
-            pac193xInit(sensor1);
+            pac193xInit(&sensor1);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }

@@ -20,7 +20,7 @@ static void measureValue(pac193xSensorConfiguration_t sensor, pac193xChannel_t c
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(sensor, channel, PAC193X_VSOURCE, &measurement);
+        measurement = pac193xGetMeasurementForChannel(&sensor, channel, PAC193X_VSOURCE);
     }
 
     Catch(e) {
@@ -98,7 +98,7 @@ static void getSerialNumber() {
     PRINT("Requesting serial number of sensor 1.");
 
     Try {
-        pac193xGetSensorInfo(sensor1, &sensorID);
+        sensorID = pac193xGetSensorInfo(&sensor1);
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
             0x58, 0x5B, 0x5D, 0x03);
@@ -120,7 +120,7 @@ static void getSerialNumber() {
     PRINT("Requesting serial number of sensor 2");
 
     Try {
-        pac193xGetSensorInfo(sensor2, &sensorID);
+        sensorID = pac193xGetSensorInfo(&sensor2);
         PRINT(
             "  Expected: Product ID: 0x%02X to 0x%02X; Manufacture ID: 0x%02X; Revision ID: 0x%02X",
             0x58, 0x5B, 0x5D, 0x03);
@@ -169,7 +169,7 @@ int main(void) {
     PRINT("===== START PAC_1 INIT =====");
     while (1) {
         Try {
-            pac193xInit(sensor1);
+            pac193xInit(&sensor1);
             PRINT("Initialised PAC193X sensor 1.\n");
             break;
         }
@@ -183,7 +183,7 @@ int main(void) {
     PRINT("===== START PAC_2 INIT =====");
     while (1) {
         Try {
-            pac193xInit(sensor2);
+            pac193xInit(&sensor2);
             PRINT("Initialised PAC193X sensor 2.\n");
             break;
         }
