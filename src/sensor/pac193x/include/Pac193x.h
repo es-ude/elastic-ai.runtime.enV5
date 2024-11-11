@@ -107,7 +107,7 @@ void pac193xRefreshData(pac193xSensorConfiguration_t sensor);
  * @param sensor[in] configuration of the sensor to use
  * @param info[out]  struct that holds the information read from the sensor
  */
-void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info);
+pac193xSensorId_t* pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info);
 
 /* region READ MEASUREMENTS */
 
@@ -120,9 +120,9 @@ void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t
  * @param sensor[in]         configuration of the sensor to use
  * @param channel[in]        channel where the measurement should be taken from
  * @param valueToMeasure[in] value to be measured
- * @param value[out]         memory where the retrieved value will be stored
+ * @param value[out]         struct where the retrieved value will be stored
  */
-void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+float* pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                      pac193xValueToMeasure_t valueToMeasure, float *value);
 
 /*!
@@ -130,9 +130,9 @@ void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193
  *
  * @param sensor[in]        configuration of the sensor to use
  * @param channel[in]       channel where the measurement should be taken from
- * @param measurements[out] memory where the struct with the measured values will be stored
+ * @param measurements[out] struct where the struct with the measured values will be stored
  */
-void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+pac193xMeasurements_t* pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                       pac193xMeasurements_t *measurements);
 
 /*!
@@ -143,9 +143,9 @@ void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac19
  *
  * @param sensor[in]        configuration of the sensor to use
  * @param channel[in]       channel where the measurement should be taken from
- * @param measurements[out] memory where the struct with the measured values will be stored
+ * @param measurements[out] struct where the struct with the measured values will be stored
  */
-void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+pac193xMeasurements_t* pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                   pac193xMeasurements_t *measurements);
 
 /*!
@@ -158,7 +158,7 @@ void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xCh
  * @param sensor[in]        configuration of the sensor to use
  * @param measurements[out] memory where the struct with the measured values will be stored
  */
-void pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
+pac193xEnergyMeasurements_t* pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
                                      pac193xEnergyMeasurements_t *measurements);
 
 /* endregion ACCUMULATED MEASUREMENTS */

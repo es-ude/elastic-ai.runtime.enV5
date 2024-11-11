@@ -121,7 +121,7 @@ void pac193xRefreshDataAndResetAccumulator(pac193xSensorConfiguration_t sensor) 
 }
 /* endregion GENERAL FUNCTIONS */
 
-void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info) {
+pac193xSensorId_t* pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t *info) {
 
     CEXCEPTION_T e;
     uint8_t sizeOfResponseBuffer = 1;
@@ -144,11 +144,12 @@ void pac193xGetSensorInfo(pac193xSensorConfiguration_t sensor, pac193xSensorId_t
         info->revision_id = 0;
         Throw(e);
     }
+    return info;
 }
 
 /* region READ MEASUREMENTS */
 
-void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+float* pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                      pac193xValueToMeasure_t valueToMeasure, float *value) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
@@ -162,9 +163,11 @@ void pac193xGetMeasurementForChannel(pac193xSensorConfiguration_t sensor, pac193
         *value = 0;
         Throw(e);
     }
+
+    return value;
 }
 
-void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+pac193xMeasurements_t* pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                       pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
     if (!pac193xInternalCheckChannelIsActive(sensor.usedChannels, channel)) {
@@ -188,9 +191,11 @@ void pac193xGetMeasurementsForChannel(pac193xSensorConfiguration_t sensor, pac19
         measurements->power = 0;
         Throw(e);
     }
+
+    return measurements;
 }
 
-void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
+pac193xMeasurements_t* pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xChannel_t channel,
                                   pac193xMeasurements_t *measurements) {
     CEXCEPTION_T e;
 
@@ -213,9 +218,11 @@ void pac193xGetAveragesForChannel(pac193xSensorConfiguration_t sensor, pac193xCh
 
     /* no average for power => set to zero */
     measurements->power = 0;
+
+    return measurements;
 }
 
-void pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
+pac193xEnergyMeasurements_t* pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
                                      pac193xEnergyMeasurements_t *measurements) {
 
     /* read values counter */
@@ -243,6 +250,8 @@ void pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t sensor,
         pac193xInternalTransformResponseBufferToUInt64(&responseBuffer[22], 6),
         sensor.rSense[pac193xInternalTranslateChannelToRSenseArrayIndex(PAC193X_CHANNEL04)],
         sensor.sampleRate);
+
+    return measurements;
 }
 
 /* endregion READ MEASUREMENTS*/
