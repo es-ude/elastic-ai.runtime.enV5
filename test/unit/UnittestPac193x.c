@@ -39,7 +39,7 @@ void setUp(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForPac193x;
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForPac193x;
 
-    pac193xSetChannelsInUse(SENSOR);
+    pac193xSetChannelsInUse(&SENSOR);
 }
 
 void tearDown(void) {}
@@ -47,12 +47,11 @@ void tearDown(void) {}
 /* region pac193x_GetSensorInfo */
 
 void pac193xGetSensorInfoReturnSendCommandErrorIfHardwareFails(void) {
-    pac193xSensorId_t info;
     CEXCEPTION_T e;
 
     Try {
         i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -60,12 +59,11 @@ void pac193xGetSensorInfoReturnSendCommandErrorIfHardwareFails(void) {
 }
 
 void pac193xGetSensorInfoReturnSendCommandErrorIfAckMissing(void) {
-    pac193xSensorId_t info;
     CEXCEPTION_T e;
 
     Try {
         i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -78,7 +76,7 @@ void pac193xGetSensorInfoReturnReceiveDataErrorIfHardwareFails(void) {
 
     Try {
         i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -92,7 +90,7 @@ void pac193xGetSensorInfoReturnReceiveDataErrorIfAckMissing(void) {
     Try {
         i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -104,7 +102,7 @@ void pac193xGetSensorInfoReadSuccessful(void) {
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -120,7 +118,7 @@ void pac193xGetSensorInfoReadCorrectValue(void) {
     expectedInfo.revision_id = byteZero;
 
     Try {
-        pac193xGetSensorInfo(SENSOR, &actualInfo);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(expectedInfo.product_id, actualInfo.product_id);
@@ -136,7 +134,7 @@ void pac193xMemoryNotPassedToGetSensorInfoRemainsUntouched(void) {
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetSensorInfo(SENSOR, &info);
+        pac193xSensorId_t info = pac193xGetSensorInfo(&SENSOR);
     }
     Catch(e) {
         TEST_ASSERT_EACH_EQUAL_UINT8(0, memory, 512);
@@ -156,12 +154,11 @@ void testAssertUint64tEquals(void) {
 }
 
 void pac193xGetMeasurementForChannelReturnSendCommandErrorIfHardwareFails(void) {
-    float result;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -169,12 +166,11 @@ void pac193xGetMeasurementForChannelReturnSendCommandErrorIfHardwareFails(void) 
 }
 
 void pac193xGetMeasurementForChannelReturnSendCommandErrorIfAckMissing(void) {
-    float result;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -182,12 +178,11 @@ void pac193xGetMeasurementForChannelReturnSendCommandErrorIfAckMissing(void) {
 }
 
 void pac193xGetMeasurementForChannelReturnReceiveDataErrorIfHardwareFails(void) {
-    float result;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -195,12 +190,11 @@ void pac193xGetMeasurementForChannelReturnReceiveDataErrorIfHardwareFails(void) 
 }
 
 void pac193xGetMeasurementForChannelReturnReceiveDataErrorIfAckMissing(void) {
-    float result;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -208,12 +202,11 @@ void pac193xGetMeasurementForChannelReturnReceiveDataErrorIfAckMissing(void) {
 }
 
 void pac193xGetMeasurementForChannelReturnInvalidChannelErrorIfChannelWrong(void) {
-    float result;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, 0x10, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, 0x10, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_INVALID_CHANNEL, e);
@@ -222,11 +215,10 @@ void pac193xGetMeasurementForChannelReturnInvalidChannelErrorIfChannelWrong(void
 
 /* region V_SOURCE */
 void pac193xGetMeasurementForChannelReadSuccessfulValueVsource(void) {
-    float result;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -242,7 +234,7 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsource(void) {
         (32.0f * (((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator));
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE, &actualValue);
+        actualValue = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSOURCE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
@@ -252,11 +244,10 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsource(void) {
 
 /* region V_SENSE */
 void pac193xGetMeasurementForChannelReadSuccessfulValueVsense(void) {
-    float result;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -271,7 +262,7 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsense(void) {
     expectedValue = 0.1f * ((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE, &actualValue);
+        actualValue = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_VSENSE);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
@@ -281,11 +272,10 @@ void pac193xGetMeasurementForChannelReadCorrectValueVsense(void) {
 
 /* region CURRENT */
 void pac193xGetMeasurementForChannelReadSuccessfulValueCurrent(void) {
-    float result;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_CURRENT, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_CURRENT);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -301,7 +291,7 @@ void pac193xGetMeasurementForChannelReadCorrectValueCurrent(void) {
     expectedValue = FSC * (((float)expected_rawValue) / pac193xInternalUnipolarVoltageDenominator);
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_CURRENT, &actualValue);
+        actualValue = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_CURRENT);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
@@ -311,11 +301,10 @@ void pac193xGetMeasurementForChannelReadCorrectValueCurrent(void) {
 
 /* region POWER */
 void pac193xGetMeasurementForChannelReadSuccessfulValuePower(void) {
-    float result;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -334,7 +323,7 @@ void pac193xGetMeasurementForChannelReadCorrectValuePower(void) {
     expectedValue = powerFSR * pProp;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_POWER, &actualValue);
+        actualValue = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_POWER);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
@@ -345,11 +334,10 @@ void pac193xGetMeasurementForChannelReadCorrectValuePower(void) {
 /* region ENERGY */
 
 void pac193xGetMeasurementForChannelReadSuccessfulValueEnergy(void) {
-    float result;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY, &result);
+        float result = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
@@ -368,7 +356,7 @@ void pac193xGetMeasurementForChannelReadCorrectValueEnergy(void) {
     expectedValue = (float)expected_rawValue * powerFSR / (pac193xInternalEnergyDenominator * 8.0f);
 
     Try {
-        pac193xGetMeasurementForChannel(SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY, &actualValue);
+        actualValue = pac193xGetMeasurementForChannel(&SENSOR, PAC193X_CHANNEL02, PAC193X_ENERGY);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_FLOAT(expectedValue, actualValue);
@@ -380,12 +368,11 @@ void pac193xGetMeasurementForChannelReadCorrectValueEnergy(void) {
 /* region pac193x_GetAllMeasurementsForChannel */
 
 void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfHardwareFails(void) {
-    pac193xMeasurements_t measurements;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementsForChannel(SENSOR, PAC193X_CHANNEL02, &measurements);
+        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -393,12 +380,11 @@ void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfHardwareFails(vo
 }
 
 void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfAckMissing(void) {
-    pac193xMeasurements_t measurements;
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementsForChannel(SENSOR, PAC193X_CHANNEL02, &measurements);
+        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -406,12 +392,11 @@ void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfAckMissing(void)
 }
 
 void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfHardwareFails(void) {
-    pac193xMeasurements_t measurements;
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementsForChannel(SENSOR, PAC193X_CHANNEL02, &measurements);
+        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -419,12 +404,11 @@ void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfHardwareFails(vo
 }
 
 void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfAckMissing(void) {
-    pac193xMeasurements_t measurements;
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementsForChannel(SENSOR, PAC193X_CHANNEL02, &measurements);
+        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -432,11 +416,10 @@ void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfAckMissing(void)
 }
 
 void pac193xGetAllMeasurementsForChannelReadSuccessful(void) {
-    pac193xMeasurements_t measurements;
     CEXCEPTION_T e;
 
     Try {
-        pac193xGetMeasurementsForChannel(SENSOR, PAC193X_CHANNEL02, &measurements);
+        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);
