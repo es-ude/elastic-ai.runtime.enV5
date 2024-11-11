@@ -122,8 +122,9 @@ pac193xSensorId_t pac193xGetSensorInfo(const pac193xSensorConfiguration_t *senso
  * @param valueToMeasure[in] value to be measured
  * @returns                  retrieved value (float)
  */
-float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel,
-                                     pac193xValueToMeasure_t valueToMeasure);
+float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor,
+                                      pac193xChannel_t channel,
+                                      pac193xValueToMeasure_t valueToMeasure);
 
 /*!
  * @brief read \b all available single shot values from the sensor for a specific channel
@@ -132,7 +133,8 @@ float pac193xGetMeasurementForChannel(const pac193xSensorConfiguration_t *sensor
  * @param channel[in]  channel where the measurement should be taken from
  * @returns            struct containing measured values
  */
-pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel);
+pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfiguration_t *sensor,
+                                                       pac193xChannel_t channel);
 
 /*!
  * @brief read all rolling averages from sensor
@@ -144,7 +146,8 @@ pac193xMeasurements_t pac193xGetMeasurementsForChannel(const pac193xSensorConfig
  * @param channel[in]       channel where the measurement should be taken from
  * @returns                 struct containing measured values
  */
-pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel);
+pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfiguration_t *sensor,
+                                                   pac193xChannel_t channel);
 
 /*!
  * @brief get the counter of accumulated values and the accumulated power values
@@ -156,7 +159,8 @@ pac193xMeasurements_t pac193xGetAveragesForChannel(const pac193xSensorConfigurat
  * @param sensor[in]   configuration of the sensor to use
  * @returns            struct containing measured values
  */
-pac193xEnergyMeasurements_t pac193xReadEnergyForAllChannels(const pac193xSensorConfiguration_t *sensor);
+pac193xEnergyMeasurements_t
+pac193xReadEnergyForAllChannels(const pac193xSensorConfiguration_t *sensor);
 
 /* endregion ACCUMULATED MEASUREMENTS */
 // end::prototypes[]

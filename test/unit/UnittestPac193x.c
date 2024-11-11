@@ -372,7 +372,8 @@ void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfHardwareFails(vo
     CEXCEPTION_T e;
 
     Try {
-        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
+        pac193xMeasurements_t measurements =
+            pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -384,7 +385,8 @@ void pac193xGetAllMeasurementsForChannelReturnSendCommandErrorIfAckMissing(void)
     CEXCEPTION_T e;
 
     Try {
-        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
+        pac193xMeasurements_t measurements =
+            pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_SEND_COMMAND_ERROR, e);
@@ -396,7 +398,8 @@ void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfHardwareFails(vo
     CEXCEPTION_T e;
 
     Try {
-        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
+        pac193xMeasurements_t measurements =
+            pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -408,7 +411,8 @@ void pac193xGetAllMeasurementsForChannelReturnReceiveDataErrorIfAckMissing(void)
     CEXCEPTION_T e;
 
     Try {
-        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
+        pac193xMeasurements_t measurements =
+            pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_RECEIVE_DATA_ERROR, e);
@@ -419,7 +423,8 @@ void pac193xGetAllMeasurementsForChannelReadSuccessful(void) {
     CEXCEPTION_T e;
 
     Try {
-        pac193xMeasurements_t measurements = pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
+        pac193xMeasurements_t measurements =
+            pac193xGetMeasurementsForChannel(&SENSOR, PAC193X_CHANNEL02);
     }
     Catch(e) {
         TEST_ASSERT_EQUAL_UINT8(PAC193X_NO_ERROR, e);

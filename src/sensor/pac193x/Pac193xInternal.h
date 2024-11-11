@@ -82,8 +82,9 @@ static uint8_t pac193xInternalTranslateChannelToRSenseArrayIndex(pac193xChannel_
 static void pac193xInternalSetMeasurementProperties(pac193xMeasurementProperties_t *properties,
                                                     pac193xValueToMeasure_t valueToMeasure);
 
-static void pac193xInternalGetData(const pac193xSensorConfiguration_t *sensor, pac193xChannel_t channel,
-                                   pac193xValueToMeasure_t valueToMeasure, float *value);
+static void pac193xInternalGetData(const pac193xSensorConfiguration_t *sensor,
+                                   pac193xChannel_t channel, pac193xValueToMeasure_t valueToMeasure,
+                                   float *value);
 
 /* endregion SETUP MEASUREMENTS */
 
