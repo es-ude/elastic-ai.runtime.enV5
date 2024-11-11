@@ -1,5 +1,3 @@
-add_elastic_ai_lib(
-        NAME RtosDummy
-        SRCS FreeRtosTaskWrapper.c
-        DEPS freeRtosUtils Sleep Common
-)
+add_library(RtosDummy FreeRtosTaskWrapper.c)
+target_link_libraries(RtosDummy PUBLIC freeRtosUtils)
+target_link_libraries(RtosDummy PRIVATE Sleep Common)

@@ -1,4 +1,2 @@
 add_library(AtCommands INTERFACE)
-add_library(AtCommands__hdrs INTERFACE)
-target_include_directories(AtCommands__hdrs INTERFACE include)
-target_link_libraries(AtCommands INTERFACE AtCommands__hdrs)
+target_include_directories(AtCommands INTERFACE include)

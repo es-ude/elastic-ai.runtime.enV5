@@ -1,8 +1,10 @@
 # Provides a Facade for the pico-sdk Time Library
 
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME Sleep
-        SRCS Sleep.c
-        DEPS Common Pico::pico_time
-)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Sleep Sleep.c)
+    target_include_directories(Sleep PUBLIC include)
+    target_link_libraries(Sleep PRIVATE Common Pico::pico_time)
+else()
+    add_library(Sleep INTERFACE)
+    target_include_directories(Sleep INTERFACE include)
+endif ()

@@ -1,9 +1,3 @@
-add_elastic_ai_lib(
-        NAME Adxl345b
-        SRCS Adxl345b.c
-        DEPS
-            Common
-            Sleep
-            Time
-            I2c
-)
+add_library(Adxl345b Adxl345b.c)
+target_include_directories(Adxl345b PUBLIC include)
+target_link_libraries(Adxl345b PRIVATE Common Sleep Time I2c)

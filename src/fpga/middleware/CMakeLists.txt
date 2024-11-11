@@ -1,5 +1,6 @@
-add_elastic_ai_lib(
-        NAME Middleware
-        SRCS middleware.c
-        DEPS Common Qxi Gpio Env5HwController
+add_library(
+        Middleware middleware.c
 )
+target_include_directories(Middleware PUBLIC include)
+
+target_link_libraries(Middleware PRIVATE Common Qxi Gpio Env5HwController)

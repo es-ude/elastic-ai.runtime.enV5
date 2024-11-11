@@ -1,6 +1,8 @@
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME Esp
-        SRCS Esp.c
-        DEPS AtCommands Common EnV5HwConfiguration freeRtosUtils Pico::hardware_uart Uart
-)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Esp Esp.c)
+    target_include_directories(Esp PUBLIC include)
+    target_link_libraries(Esp PRIVATE AtCommands Common EnV5HwConfiguration freeRtosUtils Uart)
+else()
+    add_library(Esp INTERFACE)
+    target_include_directories(Esp INTERFACE include)
+endif ()

@@ -1,9 +1,11 @@
 # Provides a Facade for the SPI library
 # Placeholder -> Should later be replaced by real Quad SPI implementation
 
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME Qxi
-        SRCS ${CMAKE_CURRENT_LIST_DIR}/Qxi.c
-        DEPS Common Gpio Spi Pico::hardware_spi
-)
+if (BUILDING_FOR_ELASTIC_NODE)
+    add_library(Qxi Qxi.c)
+    target_include_directories(Qxi PUBLIC include)
+    target_link_libraries(Qxi PRIVATE Gpio Spi Pico::hardware_spi )
+else ()
+    add_library(Qxi INTERFACE)
+    target_link_libraries(Qxi INTERFACE include)
+endif ()

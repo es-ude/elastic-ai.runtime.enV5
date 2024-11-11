@@ -1,8 +1,10 @@
 # Provides a Facade for the pico-sdk SPI library
 
-add_elastic_ai_lib(
-        HW_ONLY
-        NAME Spi
-        SRCS Spi.c
-        DEPS Common Gpio Pico::hardware_spi
-)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Spi Spi.c)
+    target_include_directories(Spi PUBLIC include)
+    target_link_libraries(Spi PRIVATE Common Gpio Pico::hardware_spi)
+else()
+    add_library(Spi INTERFACE)
+    target_include_directories(Spi INTERFACE include)
+endif ()

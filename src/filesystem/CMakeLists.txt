@@ -1,5 +1,7 @@
-add_elastic_ai_lib(
-        NAME FileSystem
-        SRCS FileSystem.c
-        DEPS Flash Middleware Common
+add_library(
+        FileSystem FileSystem.c
+)
+target_include_directories(FileSystem PUBLIC include)
+target_link_libraries(
+        FileSystem Flash Middleware Common
 )
