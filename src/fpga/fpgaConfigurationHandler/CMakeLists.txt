@@ -22,5 +22,9 @@ if(BUILDING_FOR_ELASTIC_NODE)
             CException
             EnV5HwConfiguration
             Flash
+            Pico::pico_stdio
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            FpgaConfigurationHandler
     )
 endif ()

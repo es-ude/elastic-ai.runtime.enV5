@@ -10,6 +10,7 @@ typedef struct uart_inst uart_inst_t;
 typedef unsigned int uint;
 
 enum uartParity { NoneParity = 0, OddParity = 1, EvenParity = 2 };
+
 typedef enum uartParity uartParity_t;
 
 //! We highly recommend using the "enV5_hw_configuration_rev_[x]" -library

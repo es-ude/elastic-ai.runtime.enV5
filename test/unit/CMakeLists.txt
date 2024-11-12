@@ -1,23 +1,31 @@
 ##############################################
 ## region UNIT-TEST: unit-test_sht3
 add_subdirectory(dummies)
+include(unit_test.cmake)
+
+add_library(UnitTestCommon INTERFACE)
+target_link_libraries(UnitTestCommon INTERFACE
+        CException
+        Common
+)
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
             Sht3x
         MORE_LIBS
-            CException I2cDummy
+            UnitTestCommon
+            I2cDummy
 )
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
             FpgaConfigurationHandler
         MORE_LIBS
-            CException
-            Common
+            UnitTestCommon
             FlashDummy
             HttpDummy
 )
+
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
@@ -75,14 +83,3 @@ add_elastic_ai_unit_test(
             TimeDummy
 )
 
-add_custom_target(all_unit_tests)
-
-add_dependencies(all_unit_tests
-        UnitTestSht3x
-        UnitTestFpgaConfigurationHandler
-        UnitTestPac193x
-        UnitTestNetwork
-        UnitTestHttp
-        UnitTestMqttBroker
-        UnitTestAdxl345b
-)

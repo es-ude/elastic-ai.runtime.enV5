@@ -3,10 +3,9 @@
 #include "Adxl345b.h"
 #include "Common.h"
 #include "I2c.h"
-#include <hardware/i2c.h>
-#include <pico/bootrom.h>
-#include <pico/stdio_usb.h>
-#include <pico/time.h>
+#include "hardware/i2c.h"
+#include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
 
 /* region HELPER */
 
