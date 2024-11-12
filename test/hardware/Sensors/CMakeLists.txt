@@ -7,6 +7,9 @@ if(BUILDING_FOR_ELASTIC_NODE)
             Sleep
             Pico::pico_stdlib
             Pico::pico_stdio
+            Pico::pico_stdio_usb
+            Pico::pico_time
+            Pico::pico_runtime
             Pico::pico_bootrom
             Pico::hardware_i2c
             EnV5HwController
@@ -15,14 +18,19 @@ if(BUILDING_FOR_ELASTIC_NODE)
             CException
     )
 
-    if(BUILDING_FOR_ELASTIC_NODE)
-        add_executable(HardwareTestSht3x HardwaretestSht3x.c)
-        target_link_libraries(HardwareTestSht3x PRIVATE
-                Sht3x
-                HardwareTestCommon
-        )
-        create_env5_executable(HardwareTestSht3x)
-    endif ()
+    add_executable(HardwareTestSht3x HardwaretestSht3x.c)
+    target_link_libraries(HardwareTestSht3x PRIVATE
+            Sht3x
+            HardwareTestCommon
+    )
+    create_env5_executable(HardwareTestSht3x)
+
+    add_executable(HardwareTestAdxl345b HardwaretestAdxl345b.c)
+    target_link_libraries(HardwareTestAdxl345b PRIVATE
+            Adxl345b
+            HardwareTestCommon
+    )
+    create_enV5_executable(HardwareTestAdxl345b)
 
 #    add_elastic_ai_hardware_test(
 #            NAME HardwaretestAdxl345b
