@@ -1,7 +1,7 @@
 if(BUILDING_FOR_ELASTIC_NODE)
-    add_library(HardwaretestHelper HardwaretestHelper.c)
-    target_include_directories(HardwaretestHelper PUBLIC include)
-    target_link_libraries(HardwaretestHelper PRIVATE
+    add_library(HardwareTestHelper HardwareTestHelper.c)
+    target_include_directories(HardwareTestHelper PUBLIC include)
+    target_link_libraries(HardwareTestHelper PRIVATE
             Common
             Pico::pico_stdlib
             Pico::pico_bootrom
@@ -12,6 +12,6 @@ if(BUILDING_FOR_ELASTIC_NODE)
             Esp
     )
 else()
-    add_library(HardwaretestHelper INTERFACE)
-    target_include_directories(HardwaretestHelper INTERFACE include)
+    add_library(HardwareTestHelper INTERFACE)
+    target_include_directories(HardwareTestHelper INTERFACE include)
 endif ()

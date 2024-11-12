@@ -5,7 +5,7 @@
 #include "EnV5HwController.h"
 #include "Esp.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "I2c.h"
 #include "Protocol.h"
 
