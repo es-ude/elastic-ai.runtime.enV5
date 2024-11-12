@@ -5,6 +5,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
             Common
             Sleep
             Pico::pico_bootrom
+            Pico::pico_stdlib
             Pico::hardware_base
             freeRtos::FreeRTOS-Kernel
             freeRtos::FreeRTOS-Kernel-Heap3)

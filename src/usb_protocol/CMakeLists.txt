@@ -6,6 +6,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
             EnV5HwConfiguration
             CException
             Pico::hardware_spi
+            Pico::pico_runtime
             Gpio
             Flash
             Middleware

@@ -5,7 +5,7 @@
 #include "Common.h"
 #include "I2c.h"
 #include "Sleep.h"
-#include "Time.h"
+#include "hal/Time.h"
 #include "include/Adxl345bTypedefs.h"
 
 /* region CONSTANTS */
