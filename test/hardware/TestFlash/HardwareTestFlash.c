@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include "hardware/spi.h"
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,

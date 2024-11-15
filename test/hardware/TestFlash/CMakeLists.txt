@@ -9,6 +9,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
             Flash
 
             Pico::pico_stdlib
+            Pico::hardware_spi
     )
     create_enV5_executable(HardwareTestFlash)
 
