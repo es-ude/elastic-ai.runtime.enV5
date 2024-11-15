@@ -8,12 +8,10 @@
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-//just here to make FreeRTOS happy
+// just here to make FreeRTOS happy
 #include "FreeRTOS.h"
 
 #include "task.h"
-
-
 
 void initializeCommunication() {
     // check if we crash last time -> reboot into boot rom mode
