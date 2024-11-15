@@ -8,3 +8,4 @@ add_subdirectory(TestStub)
 add_subdirectory(TestMiddleware)
 add_subdirectory(TestFlashFileSystem)
 add_subdirectory(TestUsbProtocol)
+

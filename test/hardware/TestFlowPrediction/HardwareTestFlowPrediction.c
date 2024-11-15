@@ -18,7 +18,8 @@
 #include "Common.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
-#include "enV5HwController.h"
+#include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 #include "flow_prediction.h"
 #include "middleware.h"
 
@@ -28,9 +29,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-spiConfig_t spiConfiguration = {
-    .spiInstance = spi0, .baudrate = 5000000, .misoPin = 0, .mosiPin = 3, .sckPin = 2};
-uint8_t csPin = 1;
+spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
+                                       .misoPin = FLASH_SPI_MISO,
+                                       .mosiPin = FLASH_SPI_MOSI,
+                                       .baudrate = FLASH_SPI_BAUDRATE,
+                                       .spiInstance = FLASH_SPI_MODULE,
+                                       .csPin = FLASH_SPI_CS};
+
+flashConfiguration_t flashConfig = {
+    .spiConfiguration = &spiToFlashConfig,
+};
 
 char baseUrl[] = "http://192.168.203.99:5000/getfast";
 size_t configSize = 86116;
@@ -47,13 +55,13 @@ static void initHardware() {
     middlewareInit();
 
     // initialize the Flash and FPGA
-    flashInit(&spiConfiguration, csPin);
-    env5HwInit();
+    flashInit(&flashConfig);
+    env5HwControllerInit();
+    env5HwControllerFpgaPowersOff();
     fpgaConfigurationHandlerInitialize();
-    env5HwFpgaPowersOff();
 }
 static void loadConfigToFlash() {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig,
         baseUrl, configSize, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
@@ -64,7 +72,7 @@ static void loadConfigToFlash() {
 }
 
 static void runTest() {
-    env5HwFpgaPowersOn();
+    env5HwControllerFpgaPowersOn();
 
     uint8_t data[] = {53, 49, 22, 53, 61, 35};
     uint8_t ref_res[] = {38, 63};

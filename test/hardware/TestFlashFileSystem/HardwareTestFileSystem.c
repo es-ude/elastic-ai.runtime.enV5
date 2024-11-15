@@ -1,24 +1,20 @@
 #define SOURCE_FILE "DEMO_FILESYSTEM"
 
-#include <Sleep.h>
-#include <malloc.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "FileSystem.h"
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
-#include "FileSystem.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
-#include "hardware/spi.h"
-#include "pico/stdio.h"
+#include "Sleep.h"
+
 #include "pico/stdlib.h"
+#include "hardware/spi.h"
+#include "pico/bootrom.h"
+
+#include <stdlib.h>
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
@@ -46,8 +42,8 @@ void initDemo() {
     stdio_init_all();
     while (!stdio_usb_connected()) {}
 
-    /*espInit();
-    networkTryToConnectToNetworkUntilSuccessful();*/
+    espInit();
+    networkTryToConnectToNetworkUntilSuccessful();
 
     flashInit(&flashConfig);
     filesystemInit(&flashConfig, &filesystemConfiguration);
@@ -63,16 +59,11 @@ void downloadConfigurationHTTP(bool useFast) {
     strcpy(url, baseUrl);
 
     if (useFast) {
-
-        /* region FUNCTIONS NEEDED FOR FILE SYSTEM */
         int32_t nextFileSector =
             filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
         if (nextFileSector < 0) {
             return;
         }
-        // filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkFastLength,
-        // 1);
-        /* end region */
 
         strcat(url, "/getfast");
         PRINT_DEBUG("URL: %s", url);
@@ -82,17 +73,17 @@ void downloadConfigurationHTTP(bool useFast) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
         }
+        filesystemAddNewFileSystemEntry(&filesystemConfiguration, nextFileSector, blinkFastLength,
+        1);
+    }
 
-    } else {
-
-        // region STUFF FOR FILE SYSTEM
+    else {
         int32_t nextFileSector =
-            filesystemFindFittingStartSector(&filesystemConfiguration, blinkFastLength);
+            filesystemFindFittingStartSector(&filesystemConfiguration, blinkSlowLength);
         if (nextFileSector < 0) {
             PRINT("Not enough space...\n Aborting...\n");
             return;
         }
-        // endregion
 
         strcat(url, "/getslow");
         PRINT_DEBUG("URL: %s", url);
@@ -102,9 +93,9 @@ void downloadConfigurationHTTP(bool useFast) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
         }
+        filesystemAddNewFileSystemEntry(&filesystemConfiguration, nextFileSector, blinkSlowLength, 1);
     }
     PRINT("Download Successful!");
-    // filesystemAddNewFileSystemEntry(&flashConfig, &filesystemConfiguration, blinkSlowLength, 1);
 }
 
 void downloadConfigurationUSB(bool useFast) {

@@ -23,9 +23,11 @@ if(BUILDING_FOR_ELASTIC_NODE)
     target_link_libraries(HardwareTestNetwork INTERFACE
             Esp
             NetworkConfig
+            MqttBroker
             HardwareTestHelper
-            RuntimeC::Protocol
-            RuntimeC::TopicMatcher
+            #RuntimeC::Protocol
+            Network
+            freeRtosUtils
     )
 
     add_executable(HardwareTestSht3x HardwareTestSht3x.c)
@@ -88,12 +90,12 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(StressTestAdxl345b StressTestAdxl345b.c)
     target_link_libraries(StressTestAdxl345b PRIVATE
             Adxl345b
-
             HardwareTestCommon
             HardwareTestNetwork
-            freeRtosUtils
-
     )
+    pico_enable_stdio_usb(Network 1)
+    # disable uart output
+    pico_enable_stdio_uart(Network 0)
     create_enV5_executable(StressTestAdxl345b)
 endif ()
 

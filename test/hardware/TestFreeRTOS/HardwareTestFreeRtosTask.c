@@ -19,7 +19,7 @@ _Noreturn void blinkLed1Task() {
         PRINT_DEBUG("BLINK 1");
         gpioSetPin(LED0_GPIO, GPIO_PIN_HIGH); // turn LED on
         freeRtosTaskWrapperTaskSleep(1000);
-        gpioSetPin(LED1_GPIO, GPIO_PIN_LOW); // turn LED off
+        gpioSetPin(LED0_GPIO, GPIO_PIN_LOW); // turn LED off
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }

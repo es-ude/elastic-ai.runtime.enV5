@@ -26,6 +26,17 @@
         "ELASTIC_AI_TARGET": "ENV5_REV2",
         "CMAKE_BUILD_TYPE": "Release"
       }
+    },
+    {
+      "name": "env5_rev2_debug",
+      "displayName": "EnV5 Rev2 Debug",
+      "generator": "Ninja",
+      "binaryDir": "build/env5_rev2_debug",
+      "cacheVariables": {
+        "ELASTIC_AI_TARGET": "ENV5_REV2",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEBUG_MODE": "ON"
+      }
     }
   ],
   "buildPresets": [

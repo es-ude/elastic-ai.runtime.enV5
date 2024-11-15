@@ -1,10 +1,16 @@
 ## Test USB-Protocol
-add_executable(hardware-test_usb-protocol HardwaretestUsbProtocol.c)
-target_link_libraries(hardware-test_usb-protocol
-        pico_stdlib
+add_executable(HardwareTestUsbProtocol HardwareTestUsbProtocol.c)
+target_link_libraries(HardwareTestUsbProtocol
+        UsbProtocol
+        EnV5HwConfiguration
+        EnV5HwController
+        Flash
+        Gpio
+        Sleep
+
         CException
-        enV5_hw_controller
-        usb-protocol
-        common_lib
+
+        Pico::pico_stdlib
+
 )
-create_enV5_executable(hardware-test_usb-protocol)
+create_enV5_executable(HardwareTestUsbProtocol)

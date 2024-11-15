@@ -1,19 +1,17 @@
 #define SOURCE_FILE "FLASH-HWTEST"
 
-#include <malloc.h>
-#include <math.h>
-#include <stdio.h>
-
-#include "hardware/spi.h"
-#include "pico/bootrom.h"
-#include "pico/stdio.h"
-#include "pico/stdlib.h"
-
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
-#include "Flash.h"
+
 #include "Spi.h"
+#include "Flash.h"
+
+#include "pico/stdlib.h"
+
+#include <math.h>
+#include <stdlib.h>
+
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,

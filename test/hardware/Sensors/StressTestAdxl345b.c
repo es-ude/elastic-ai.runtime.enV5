@@ -276,7 +276,7 @@ _Noreturn void t_stressTest_enterBootModeTask(void) {
         }
 
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        watchdog_update();
+        //watchdog_update();
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }
@@ -295,11 +295,10 @@ int main(void) {
     stdio_init_all();
 
     // das hier passiert vorher noch im Ballchallenge-Repo. Erkenne keinen Zusammenhang.
-    // espInit();
+    espInit();
     //  initialize WiFi and MQTT broker
-    // networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    // mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
-
+    connectToNetwork();
+    connectToMqttBroker();
     // vor der init schlafen lassen um sicher zu stellen, dass pico nicht zu schnell ist und adxl zu
     // langsam nach reboot
     sleep_ms(1000);

@@ -1,32 +1,41 @@
 ################## test_freeRTOSTask ##################
-add_executable(hardware-test_freeRTOSTask HardwaretestFreeRtosTask.c)
-target_link_libraries(hardware-test_freeRTOSTask
-        pico_stdlib
-        hardware_watchdog
-        common_lib
-        enV5_hw_controller
-        enV5_hw_configuration
-        gpio_interface
-        freeRtosUtils)
-create_enV5_executable(hardware-test_freeRTOSTask)
+add_executable(HardwareTestFreeRtosTask HardwareTestFreeRtosTask.c)
+target_link_libraries(HardwareTestFreeRtosTask
+        Common
+        EnV5HwConfiguration
+        EnV5HwController
+        Gpio
+        freeRtosUtils
+        Pico::hardware_watchdog
+        Pico::pico_bootrom
+        Pico::pico_stdlib
+)
+create_enV5_executable(HardwareTestFreeRtosTask)
 
 ################## test_freeRTOSQueues ##################
-add_executable(hardware-test_freeRTOSQueues HardwaretestFreeRtosQueues.c)
-target_link_libraries(hardware-test_freeRTOSQueues
-        pico_stdlib
-        hardware_watchdog
-        common_lib
-        enV5_hw_controller
-        freeRtosUtils)
-create_enV5_executable(hardware-test_freeRTOSQueues)
+add_executable(HardwareTestFreeRtosQueues HardwareTestFreeRtosQueues.c)
+target_link_libraries(HardwareTestFreeRtosQueues
+        Common
+        EnV5HwController
+        freeRtosUtils
+
+        freeRtos::FreeRTOS-Kernel
+        Pico::pico_stdlib
+        Pico::hardware_spi
+)
+create_enV5_executable(HardwareTestFreeRtosQueues)
 
 ################## test_SMP ##################
-add_executable(hardware-test_SMP HardwaretestSMP.c)
-target_link_libraries(hardware-test_SMP
-        pico_stdlib
-        hardware_watchdog
-        common_lib
-        enV5_hw_controller
-        freeRtosUtils)
-target_compile_definitions(hardware-test_SMP PRIVATE DEBUG)
-create_enV5_executable(hardware-test_SMP)
+add_executable(HardwareTestSMP HardwareTestSMP.c)
+target_link_libraries(HardwareTestSMP
+        Common
+        EnV5HwController
+        freeRtosUtils
+
+        freeRtos::FreeRTOS-Kernel
+        Pico::pico_stdlib
+        Pico::pico_bootrom
+
+)
+target_compile_definitions(HardwareTestSMP PRIVATE DEBUG)
+create_enV5_executable(HardwareTestSMP)

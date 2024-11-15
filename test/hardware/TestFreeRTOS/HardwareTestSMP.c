@@ -2,13 +2,18 @@
 
 #include "Common.h"
 #include "EnV5HwController.h"
-#include "FreeRTOS.h"
 #include "FreeRtosTaskWrapper.h"
-#include "task.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+//just here to make FreeRTOS happy
+#include "FreeRTOS.h"
+
+#include "task.h"
+
+
 
 void initializeCommunication() {
     // check if we crash last time -> reboot into boot rom mode

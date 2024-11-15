@@ -4,6 +4,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     target_link_libraries(HardwareTestHelper PRIVATE
             Common
             Pico::pico_stdlib
+            Pico::pico_stdio_usb
             Pico::pico_bootrom
             MqttBroker
             Network
