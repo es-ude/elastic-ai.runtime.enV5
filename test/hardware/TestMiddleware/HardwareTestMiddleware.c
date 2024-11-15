@@ -12,24 +12,21 @@
  */
 
 #define SOURCE_FILE "MIDDLEWARE-HWTEST"
-
-#include <stdint.h>
-#include <stdlib.h>
-
-#include "hardware/spi.h"
-#include "pico/stdio.h"
-#include "pico/stdio_usb.h"
-
 #include "Common.h"
-#include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
+#include "EnV5HwConfiguration.h"
+
 #include "Esp.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "HTTP.h"
 #include "Network.h"
-#include "Spi.h"
 #include "middleware.h"
+
+#include "pico/stdio.h"
+#include "pico/stdio_usb.h"
+
+#include <stdlib.h>
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";

@@ -1,22 +1,50 @@
-add_executable(hardware-test_configUSB HardwaretestConfigureViaUSB.c)
-target_link_libraries(hardware-test_configUSB
-        common_lib
-        pico_stdlib
-        spi_interface
-        flash_lib
-        sleep_interface
-        enV5_hw_controller
-        enV5_hw_configuration
-        fpga_configuration_handler)
-create_enV5_executable(hardware-test_configUSB)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(ConfigTestCommon INTERFACE)
+    target_link_libraries(ConfigTestCommon INTERFACE
+            I2c
+            Gpio
+            Sleep
+            Spi
+            Pico::pico_stdlib
+            Pico::pico_stdio
+            Pico::pico_stdio_usb
+            Pico::pico_time
+            Pico::pico_runtime
+            Pico::pico_bootrom
+            Pico::hardware_i2c
+            Pico::hardware_spi
+            EnV5HwController
+            Common
+            EnV5HwConfiguration
+            CException
+    )
 
-add_executable(hardware-test_configHTTP HardwaretestConfigureViaHTTP.c)
-target_link_libraries(hardware-test_configHTTP
-        common_lib
-        pico_stdlib
-        spi_interface
-        flash_lib
-        enV5_hw_controller
-        enV5_hw_configuration
-        fpga_configuration_handler)
-create_enV5_executable(hardware-test_configHTTP)
+    add_library(ConfigTestNetwork INTERFACE)
+    target_link_libraries(ConfigTestNetwork INTERFACE
+            Esp
+            Network
+            NetworkConfig
+            freeRtosUtils
+            RuntimeC::Protocol
+            RuntimeC::TopicMatcher
+
+    )
+
+    add_executable(HardwareTestConfigureViaUSB HardwareTestConfigureViaUSB.c)
+    target_link_libraries(HardwareTestConfigureViaUSB PRIVATE
+
+            FpgaConfigurationHandler
+            FpgaConfigurationHandlerUSB
+            ConfigTestCommon
+            Flash
+    )
+    create_enV5_executable(HardwareTestConfigureViaUSB)
+
+    add_executable(HardwareTestConfigureViaHTTP HardwareTestConfigureViaHTTP.c)
+    target_link_libraries(HardwareTestConfigureViaHTTP PRIVATE
+            ConfigTestCommon
+            ConfigTestNetwork
+            Flash
+            FpgaConfigurationHandler)
+    create_enV5_executable(HardwareTestConfigureViaHTTP)
+endif()

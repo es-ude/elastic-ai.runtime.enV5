@@ -1,5 +1,4 @@
-add_library(
-        FpgaConfigurationHandler
+add_library(FpgaConfigurationHandler
         FpgaConfigurationHandler.c
         FpgaConfigurationHandlerHTTP.c
 )
@@ -11,7 +10,12 @@ target_include_directories(
 )
 
 
-target_link_libraries(FpgaConfigurationHandler PRIVATE Common Http CException EnV5HwConfiguration Flash)
+target_link_libraries(FpgaConfigurationHandler PRIVATE
+        Common
+        Http
+        CException
+        EnV5HwConfiguration
+        Flash)
 
 
 if(BUILDING_FOR_ELASTIC_NODE)

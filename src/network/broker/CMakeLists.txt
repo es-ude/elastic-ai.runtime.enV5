@@ -1,6 +1,15 @@
 add_library(MqttBroker MqttBroker.c)
 target_include_directories(MqttBroker PUBLIC include)
-target_link_libraries(MqttBroker PRIVATE Common Uart AtCommands Esp Network CException)
+target_link_libraries(MqttBroker PRIVATE
+        Common
+        Uart
+        AtCommands
+        Esp
+        Network
+        CException
+        RuntimeC::TopicMatcher
+        RuntimeC::Protocol
+)
 
 target_include_directories(MqttBroker PRIVATE
     $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>)
