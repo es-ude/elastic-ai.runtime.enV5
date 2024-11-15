@@ -12,6 +12,7 @@
 #include "CException.h"
 
 #include "pico/stdlib.h"
+#include "hardware/spi.h"
 
 spiConfiguration_t spiToFlash = {.spiInstance = FLASH_SPI_MODULE,
                                  .baudrate = FLASH_SPI_BAUDRATE,
