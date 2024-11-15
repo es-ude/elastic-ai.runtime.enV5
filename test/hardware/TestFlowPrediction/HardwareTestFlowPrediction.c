@@ -16,10 +16,10 @@
 #define SOURCE_FILE "HWTEST-MIDDLEWARE"
 
 #include "Common.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
+#include "Flash.h"
+#include "FpgaConfigurationHandler.h"
 #include "flow_prediction.h"
 #include "middleware.h"
 
@@ -61,8 +61,8 @@ static void initHardware() {
     fpgaConfigurationHandlerInitialize();
 }
 static void loadConfigToFlash() {
-    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(&flashConfig,
-        baseUrl, configSize, sectorIdForConfig);
+    fpgaConfigurationHandlerError_t error = fpgaConfigurationHandlerDownloadConfigurationViaHttp(
+        &flashConfig, baseUrl, configSize, sectorIdForConfig);
     if (error != FPGA_RECONFIG_NO_ERROR) {
         while (true) {
             PRINT("Download failed!");

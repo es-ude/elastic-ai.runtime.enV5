@@ -19,8 +19,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
-
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"

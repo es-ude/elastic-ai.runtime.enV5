@@ -1,18 +1,18 @@
 #define SOURCE_FILE "DEMO_FILESYSTEM"
 
-#include "FileSystem.h"
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
+#include "FileSystem.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
 #include "Network.h"
 #include "Sleep.h"
 
-#include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "pico/bootrom.h"
+#include "pico/stdlib.h"
 
 #include <stdlib.h>
 
@@ -74,7 +74,7 @@ void downloadConfigurationHTTP(bool useFast) {
             return;
         }
         filesystemAddNewFileSystemEntry(&filesystemConfiguration, nextFileSector, blinkFastLength,
-        1);
+                                        1);
     }
 
     else {
@@ -93,7 +93,8 @@ void downloadConfigurationHTTP(bool useFast) {
             PRINT("Error 0x%02X occurred during download.", error);
             return;
         }
-        filesystemAddNewFileSystemEntry(&filesystemConfiguration, nextFileSector, blinkSlowLength, 1);
+        filesystemAddNewFileSystemEntry(&filesystemConfiguration, nextFileSector, blinkSlowLength,
+                                        1);
     }
     PRINT("Download Successful!");
 }

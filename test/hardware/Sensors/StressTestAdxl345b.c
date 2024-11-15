@@ -276,7 +276,7 @@ _Noreturn void t_stressTest_enterBootModeTask(void) {
         }
 
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        //watchdog_update();
+        // watchdog_update();
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }

@@ -13,8 +13,8 @@
 
 #define SOURCE_FILE "MIDDLEWARE-HWTEST"
 #include "Common.h"
-#include "EnV5HwController.h"
 #include "EnV5HwConfiguration.h"
+#include "EnV5HwController.h"
 
 #include "Esp.h"
 #include "Flash.h"
