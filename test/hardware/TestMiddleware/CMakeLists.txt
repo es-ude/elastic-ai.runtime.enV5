@@ -11,6 +11,7 @@ target_link_libraries(HardwareTestMiddleware
         Middleware
         Pico::pico_stdio
         Pico::pico_stdlib
+        Pico::hardware_spi
 )
 target_compile_definitions(HardwareTestMiddleware PRIVATE DEBUG)
 create_enV5_executable(HardwareTestMiddleware)

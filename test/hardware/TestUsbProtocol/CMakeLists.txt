@@ -11,6 +11,7 @@ target_link_libraries(HardwareTestUsbProtocol
         CException
 
         Pico::pico_stdlib
+        Pico::hardware_spi
 
 )
 create_enV5_executable(HardwareTestUsbProtocol)

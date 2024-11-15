@@ -25,6 +25,7 @@
 
 #include "pico/stdio.h"
 #include "pico/stdio_usb.h"
+#include "hardware/spi.h"
 
 #include <stdlib.h>
 
