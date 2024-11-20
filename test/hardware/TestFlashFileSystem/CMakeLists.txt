@@ -3,14 +3,20 @@ if(BUILDING_FOR_ELASTIC_NODE)
     target_link_libraries(HardwareTestFileSystem PRIVATE
             FileSystem
             FpgaConfigurationHandler
+            FpgaConfigurationHandlerUSB
+            EnV5HwConfiguration
             Common
             Spi
+            EnV5HwController
             Flash
-            Sleep
+
+
             Esp
             Network
-            EnV5HwConfiguration
-            EnV5HwController
+
+            Sleep
+
+
 
             Pico::pico_stdlib
             Pico::hardware_spi

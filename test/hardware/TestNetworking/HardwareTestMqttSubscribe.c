@@ -3,7 +3,7 @@
 #include "Common.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "MqttBroker.h"
 #include "Protocol.h"
 #include <stdio.h>

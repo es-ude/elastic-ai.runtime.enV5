@@ -11,7 +11,7 @@
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "MqttBroker.h"
 #include "Pac193x.h"
 #include "Protocol.h"

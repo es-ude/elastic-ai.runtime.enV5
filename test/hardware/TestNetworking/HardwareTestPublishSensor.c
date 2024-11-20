@@ -1,13 +1,12 @@
 #define SOURCE_FILE "MAIN"
 
 // internal headers
-#include "../../../src/hal/enV5HwController/include/HwConfig.h"
 #include "Adxl345b.h"
 #include "Common.h"
 #include "Esp.h"
 #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "MqttBroker.h"
 #include "Pac193x.h"
 #include "Protocol.h"
@@ -23,6 +22,13 @@
 // external headers
 #include <malloc.h>
 #include <string.h>
+
+/* region SENSOR DEFINITION */
+adxl345bSensorConfiguration_t sensor = {
+    .i2c_slave_address = ADXL345B_I2C_ALTERNATE_ADDRESS,
+    .i2c_host = i2c1,
+};
+/* endregion SENSOR DEFINITION */
 
 /* region POWER-SENSOR 1 */
 
@@ -95,7 +101,7 @@ void init(void) {
 
     // initialize WiFi and MQTT broker
     connectToNetwork();
-    connectToMQTT();
+    connectToMqttBroker();
 
     // initialize power sensors
     pac193xErrorCode_t errorCode;
@@ -119,7 +125,7 @@ void init(void) {
     }
 
     i2c_set_baudrate(i2c1, 2000000);
-    errorCode = adxl345bInit(i2cConfig.i2cInstance, ADXL345B_I2C_ALTERNATE_ADDRESS);
+    errorCode = adxl345bInit(sensor);
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("Initialised ADXL345B.");
     } else {

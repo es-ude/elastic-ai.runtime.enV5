@@ -1,91 +1,114 @@
-################## test_network ##################
-add_executable(hardware-test_network HardwaretestNetwork.c)
-target_link_libraries(hardware-test_network
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_network PRIVATE DEBUG)
-create_enV5_executable(hardware-test_network)
-################## test_networkStrength ##################
-add_executable(hardware-test_checknetwork HardwaretestCheckNetwork.c)
-target_link_libraries(hardware-test_checknetwork
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_checknetwork PRIVATE DEBUG)
-create_enV5_executable(hardware-test_checknetwork)
+if(BUILDING_FOR_ELASTIC_NODE)
 
-################## test_MqttKeepAlive ##################
-add_executable(hardware-test_MQTTKeepalive HardwaretestMqttKeepAlive.c)
-target_link_libraries(hardware-test_MQTTKeepalive
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_MQTTKeepalive PRIVATE DEBUG)
-create_enV5_executable(hardware-test_MQTTKeepalive)
-################## test_MQTTPublish ##################
-add_executable(hardware-test_MQTTPublish HardwaretestMqttPublish.c)
-target_link_libraries(hardware-test_MQTTPublish
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_MQTTPublish PRIVATE DEBUG)
-create_enV5_executable(hardware-test_MQTTPublish)
-################## test_MQTTSubscribe ##################
-# creates executable
-add_executable(hardware-test_MQTTSubscribe HardwaretestMqttSubscribe.c)
-target_link_libraries(hardware-test_MQTTSubscribe
-        common_lib
-        pico_stdlib
-        espBroker_lib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_MQTTSubscribe PRIVATE DEBUG)
-create_enV5_executable(hardware-test_MQTTSubscribe)
-################## test_SubscribeUnsubscribe ##################
-add_executable(hardware-test_MQTTSubscribeUnsubscribe HardwaretestMqttSubscribeUnsubscribe.c)
-target_link_libraries(hardware-test_MQTTSubscribeUnsubscribe
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_MQTTSubscribeUnsubscribe PRIVATE DEBUG)
-create_enV5_executable(hardware-test_MQTTSubscribeUnsubscribe)
-################## test_MQTTPublishSubscribe ##################
-add_executable(hardware-test_MQTTPublishSubscribe HardwaretestMqttPublishSubscribe.c)
-target_link_libraries(hardware-test_MQTTPublishSubscribe
-        common_lib
-        pico_stdlib
-        espBroker_lib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_MQTTPublishSubscribe PRIVATE DEBUG)
-create_enV5_executable(hardware-test_MQTTPublishSubscribe)
+    add_library(NetworkTestCommon INTERFACE)
+    target_link_libraries(NetworkTestCommon INTERFACE
+            Common
+            freeRtosUtils
+            HardwareTestHelper
+            MqttBroker
+            Network
+            Pico::pico_stdlib
+            RuntimeC::Protocol
+    )
 
-################## test_Durability ##################
-add_executable(hardware-test_Durability HardwaretestDurability.c)
-target_link_libraries(hardware-test_Durability
-        common_lib
-        sensor_lib_pac193x
-        hardware_i2c
-        pico_stdlib
-        freeRtosUtils
-        hardware-testHelper)
-target_compile_definitions(hardware-test_Durability PRIVATE DEBUG)
-create_enV5_executable(hardware-test_Durability)
 
-################## test_HTTP ##################
-add_executable(hardware-test_HTTP HardwaretestHTTP.c)
-target_link_libraries(hardware-test_HTTP
-        common_lib
-        pico_stdlib
-        freeRtosUtils
-        network_lib
-        http_lib
-        hardware-testHelper)
-target_compile_definitions(hardware-test_HTTP PRIVATE DEBUG)
-create_enV5_executable(hardware-test_HTTP)
+    add_executable(HardwareTestNetwork HardwareTestNetwork.c)
+    target_link_libraries(HardwareTestNetwork PRIVATE
+            NetworkTestCommon
+    )
+    target_compile_definitions(HardwareTestNetwork PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestNetwork)
+
+
+    add_executable(HardwareTestCheckNetwork HardwareTestCheckNetwork.c)
+    target_link_libraries(HardwareTestCheckNetwork PRIVATE
+            NetworkTestCommon
+    )
+    target_compile_definitions(HardwareTestCheckNetwork PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestCheckNetwork)
+
+
+    add_executable(HardwareTestMqttKeepAlive HardwareTestMqttKeepAlive.c)
+    target_link_libraries(HardwareTestMqttKeepAlive PRIVATE
+            NetworkTestCommon
+            Sleep
+    )
+    target_compile_definitions(HardwareTestMqttKeepAlive PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestMqttKeepAlive)
+
+
+    add_executable(HardwareTestMqttPublish HardwareTestMqttPublish.c)
+    target_link_libraries(HardwareTestMqttPublish PRIVATE
+            NetworkTestCommon
+    )
+    target_compile_definitions(HardwareTestMqttPublish PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestMqttPublish)
+
+
+    add_executable(HardwareTestMqttSubscribe HardwareTestMqttSubscribe.c)
+    target_link_libraries(HardwareTestMqttSubscribe PRIVATE
+            NetworkTestCommon
+            Esp
+    )
+    target_compile_definitions(HardwareTestMqttSubscribe PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestMqttSubscribe)
+
+
+    add_executable(HardwareTestMqttSubscribeUnsubscribe HardwareTestMqttSubscribeUnsubscribe.c)
+    target_link_libraries(HardwareTestMqttSubscribeUnsubscribe PRIVATE
+            NetworkTestCommon
+    )
+    target_compile_definitions(HardwareTestMqttSubscribeUnsubscribe PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestMqttSubscribeUnsubscribe)
+
+
+    add_executable(HardwareTestMqttPublishSubscribe HardwareTestMqttPublishSubscribe.c)
+    target_link_libraries(HardwareTestMqttPublishSubscribe PRIVATE
+            NetworkTestCommon
+            Esp
+    )
+    target_compile_definitions(HardwareTestMqttPublishSubscribe PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestMqttPublishSubscribe)
+
+
+    add_executable(HardwareTestDurability HardwareTestDurability.c)
+    target_link_libraries(HardwareTestDurability PRIVATE
+            NetworkTestCommon
+            Pac193x
+            Esp
+            freeRtos::FreeRTOS-Kernel
+            Pico::hardware_i2c
+    )
+    target_compile_definitions(HardwareTestDurability PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestDurability)
+
+
+    add_executable(HardwareTestHTTP HardwareTestHTTP.c)
+    target_link_libraries(HardwareTestHTTP PRIVATE
+            NetworkTestCommon
+            Network
+            Http
+            CException
+    )
+    target_compile_definitions(HardwareTestHTTP PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestHTTP)
+
+
+    add_executable(HardwareTestPublishSensor HardwareTestPublishSensor.c)
+    target_link_libraries(HardwareTestPublishSensor PRIVATE
+            NetworkTestCommon
+            Adxl345b
+            Esp
+            Pac193x
+            Spi
+            Network
+            Http
+            EnV5HwController
+
+            Pico::hardware_i2c
+            Pico::hardware_spi
+    )
+    target_compile_definitions(HardwareTestPublishSensor PRIVATE DEBUG)
+    create_enV5_executable(HardwareTestPublishSensor)
+
+endif()

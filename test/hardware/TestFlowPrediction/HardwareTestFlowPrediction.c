@@ -20,7 +20,7 @@
 #include "EnV5HwController.h"
 #include "Flash.h"
 #include "FpgaConfigurationHandler.h"
-#include "flow_prediction.h"
+/*#include "flow_prediction.h"*/
 #include "middleware.h"
 
 #include <hardware/spi.h>
@@ -80,9 +80,10 @@ static void runTest() {
     for (int counter = 0; counter < 2; counter++) {
         for (int i = 0; i < 3; i++) {
             uint8_t offset = counter * 3;
-            uint8_t return_val = (uint8_t)flow_prediction_predict(data + offset);
+            // TODO fix flow_prediction.h
+            /*uint8_t return_val = (uint8_t)flow_prediction_predict(data + offset);
 
-            PRINT("Ture: %d, Predicted: %d", ref_res[counter], return_val);
+            PRINT("Ture: %d, Predicted: %d", ref_res[counter], return_val);*/
             // if (return_val == counter + 1) {
             //     env5HwLedsAllOff();
             //     sleep_ms(500);

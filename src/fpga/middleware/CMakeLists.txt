@@ -3,4 +3,4 @@ add_library(
 )
 target_include_directories(Middleware PUBLIC include)
 
-target_link_libraries(Middleware PRIVATE Common Qxi Gpio Env5HwController)
+target_link_libraries(Middleware PRIVATE Common Qxi Gpio EnV5HwController)

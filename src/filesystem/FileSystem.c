@@ -5,7 +5,7 @@
 #include "FileSystemInternal.h"
 #include "Flash.h"
 #include "math.h"
-#include "middleware.h"
+/*#include "middleware.h"*/
 
 #include <stdlib.h>
 #include <string.h>

@@ -7,7 +7,7 @@
 #include "CException.h"
 #include "Common.h"
 #include "HTTP.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 
 void _Noreturn runTest(void) {
     PRINT("=== STARTING TEST ===");

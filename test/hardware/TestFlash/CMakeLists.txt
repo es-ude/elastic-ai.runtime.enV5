@@ -1,11 +1,10 @@
 if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestFlash HardwareTestFlash.c)
-    target_link_libraries(HardwareTestFlash
+    target_link_libraries(HardwareTestFlash PRIVATE
             EnV5HwConfiguration
             Common
             Spi
             EnV5HwController
-
             Flash
 
             Pico::pico_stdlib
