@@ -389,30 +389,30 @@ int main(void) {
     RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwareFails);
     RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfAckMissing);
     RUN_TEST(adxl345bReadSerialNumberReadSuccessful);
-    RUN_TEST(adxl345bReadSerialNumberReadCorrectValue); //currently fails
+    RUN_TEST(adxl345bReadSerialNumberReadCorrectValue); // currently fails
 
     RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfAckMissing);
-    //RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful); //does not terminate
-    //RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue); //needs to be rewritten
+    // RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful); //does not terminate
+    // RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue); //needs to be rewritten
 
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfAckMissing);
-    //RUN_TEST(adxl345bGetMultipleMeasurementsReadSuccessful); //numerical error
-    //RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValues); //needs to be rewritten
+    // RUN_TEST(adxl345bGetMultipleMeasurementsReadSuccessful); //numerical error
+    // RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValues); //needs to be rewritten
 
     RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMeasurementsForNSecondsGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMeasurementsForNSecondsGetReceiveDataFail_errorIfAckMissing);
-    //RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful); //does not terminate
-    //RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues); //needs to be rewritten
+    // RUN_TEST(adxl345bGetMeasurementsForNSecondsReadSuccessful); //does not terminate
+    // RUN_TEST(adxl345bGetMeasurementsForNSecondsReadCorrectValues); //needs to be rewritten
 
-    //RUN_TEST(adxl345bConvertDataXYZCorrectValue); //needs to be rewritten
+    // RUN_TEST(adxl345bConvertDataXYZCorrectValue); //needs to be rewritten
 
     return UNITY_END();
 }
