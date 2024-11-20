@@ -1,18 +1,17 @@
 #define SOURCE_FILE "ADXL345-StressTest"
-#include "Common.h"
 #include "Adxl345b.h"
-#include "I2c.h"
+#include "Common.h"
 #include "FreeRtosTaskWrapper.h"
+#include "I2c.h"
 
-#include "HardwareTestHelper.h"
 #include "EnV5HwController.h"
 #include "Esp.h"
+#include "HardwareTestHelper.h"
 
 #include "Protocol.h"
-#include "pico/stdio_usb.h"
-#include "pico/bootrom.h"
 #include "hardware/i2c.h"
-
+#include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
 
 /* endregion HELPER*/
 
@@ -181,8 +180,8 @@ void publishTestData() {
 void _Noreturn mqttTask(void) {
     PRINT("=== STARTING TEST ===");
 
-    //connectToNetwork();
-    // connectToMQTT();
+    // connectToNetwork();
+    //  connectToMQTT();
 
     uint64_t messageCounter = 0;
     while (1) {
@@ -293,13 +292,11 @@ int main(void) {
 
     env5HwControllerInit();
 
-
-
     // das hier passiert vorher noch im Ballchallenge-Repo. Erkenne keinen Zusammenhang.
-    //espInit();
+    // espInit();
     //  initialize WiFi and MQTT broker
-    //connectToNetwork();
-    //connectToMqttBroker();
+    // connectToNetwork();
+    // connectToMqttBroker();
 
     // vor der init schlafen lassen um sicher zu stellen, dass pico nicht zu schnell ist und adxl zu
     // langsam nach reboot

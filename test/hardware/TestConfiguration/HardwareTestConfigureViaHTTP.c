@@ -65,15 +65,7 @@ void initHardwareTest(void) {
         // wait for serial connection
     }
 
-
-
-
     espInit();
-
-
-
-
-
 
     networkTryToConnectToNetworkUntilSuccessful();
 
