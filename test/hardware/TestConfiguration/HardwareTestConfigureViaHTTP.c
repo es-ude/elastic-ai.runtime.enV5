@@ -56,23 +56,25 @@ size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
     stdio_init_all();
-
     sleep_ms(1000);
-
-    printf("0\n");
-
     env5HwControllerInit();
-    printf("1\n");
     env5HwControllerFpgaPowersOff();
-    printf("2\n");
     initializeFlashConfig();
-    printf("3\n");
 
     while (!stdio_usb_connected()) {
         // wait for serial connection
     }
 
+
+
+
     espInit();
+
+
+
+
+
+
     networkTryToConnectToNetworkUntilSuccessful();
 
     fpgaConfigurationHandlerInitialize();

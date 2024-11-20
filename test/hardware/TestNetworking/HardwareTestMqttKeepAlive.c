@@ -7,7 +7,7 @@
  */
 
 #include "Common.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "MqttBroker.h"
 #include "Sleep.h"
 

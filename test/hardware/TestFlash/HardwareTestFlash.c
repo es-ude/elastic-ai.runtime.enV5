@@ -132,6 +132,16 @@ _Noreturn void runTest(void) {
         case 'b':
             flashEraseAll(NULL);
             break;
+
+        case 'p':
+            PRINT("Bytes per page: %i\n", flashGetBytesPerPage(&flashConfig));
+            break;
+        case 's':
+            PRINT("Bytes per Sector: %i\n", flashGetBytesPerSector(&flashConfig));
+            break;
+        case 't':
+            PRINT("Total number of bytes: %i\n", flashGetNumberOfBytes(&flashConfig));
+            break;
         default:
             PRINT("Waiting ...");
         }

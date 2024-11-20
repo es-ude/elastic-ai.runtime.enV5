@@ -2,7 +2,7 @@
 
 #include "Common.h"
 #include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
+#include "HardwareTestHelper.h"
 #include "MqttBroker.h"
 #include "Protocol.h"
 

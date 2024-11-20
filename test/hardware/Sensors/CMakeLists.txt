@@ -1,6 +1,6 @@
 if(BUILDING_FOR_ELASTIC_NODE)
-    add_library(HardwareTestCommon INTERFACE)
-    target_link_libraries(HardwareTestCommon INTERFACE
+    add_library(HWTestCommon INTERFACE)
+    target_link_libraries(HWTestCommon INTERFACE
             I2c
             Gpio
             Sleep
@@ -19,21 +19,10 @@ if(BUILDING_FOR_ELASTIC_NODE)
             CException
     )
 
-    add_library(HardwareTestNetwork INTERFACE)
-    target_link_libraries(HardwareTestNetwork INTERFACE
-            Esp
-            NetworkConfig
-            MqttBroker
-            HardwareTestHelper
-            #RuntimeC::Protocol
-            Network
-            freeRtosUtils
-    )
-
     add_executable(HardwareTestSht3x HardwareTestSht3x.c)
     target_link_libraries(HardwareTestSht3x PRIVATE
             Sht3x
-            HardwareTestCommon
+            HWTestCommon
     )
     create_env5_executable(HardwareTestSht3x)
 
@@ -41,7 +30,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestAdxl345b HardwareTestAdxl345b.c)
     target_link_libraries(HardwareTestAdxl345b PRIVATE
             Adxl345b
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestAdxl345b)
 
@@ -49,7 +38,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestPac193x HardwareTestPac193x.c)
     target_link_libraries(HardwareTestPac193x PRIVATE
             Pac193x
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestPac193x)
 
@@ -57,7 +46,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestPac193xAccumulator HardwareTestPac193xAccumulator.c)
     target_link_libraries(HardwareTestPac193xAccumulator PRIVATE
             Pac193x
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestPac193xAccumulator)
 
@@ -65,7 +54,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestDualPac193x HardwareTestDualPac193x.c)
     target_link_libraries(HardwareTestDualPac193x PRIVATE
             Pac193x
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestDualPac193x)
 
@@ -73,7 +62,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestPac193xBuffer HardwareTestPac193xBuffer.c)
     target_link_libraries(HardwareTestPac193xBuffer PRIVATE
             Pac193x
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestPac193xBuffer)
 
@@ -82,7 +71,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestBmi323 HardwareTestBmi323.c)
     target_link_libraries(HardwareTestBmi323 PRIVATE
             Bmi323
-            HardwareTestCommon
+            HWTestCommon
     )
     create_enV5_executable(HardwareTestBmi323)
 
@@ -90,12 +79,13 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(StressTestAdxl345b StressTestAdxl345b.c)
     target_link_libraries(StressTestAdxl345b PRIVATE
             Adxl345b
-            HardwareTestCommon
-            HardwareTestNetwork
+            HWTestCommon
+            freeRtosUtils
+            HardwareTestHelper
+            Esp
+            MqttBroker
+            RuntimeC::Protocol
     )
-    pico_enable_stdio_usb(Network 1)
-    # disable uart output
-    pico_enable_stdio_uart(Network 0)
     create_enV5_executable(StressTestAdxl345b)
 endif ()
 

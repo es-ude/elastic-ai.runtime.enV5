@@ -24,10 +24,12 @@ if(BUILDING_FOR_ELASTIC_NODE)
             Esp
             Network
             NetworkConfig
+
             freeRtosUtils
             RuntimeC::Protocol
             RuntimeC::TopicMatcher
-
+            freeRtos::FreeRTOS-Kernel
+            freeRtos::FreeRTOS-Kernel-Heap3
     )
 
     add_executable(HardwareTestConfigureViaUSB HardwareTestConfigureViaUSB.c)
