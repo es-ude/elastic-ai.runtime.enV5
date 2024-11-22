@@ -558,7 +558,6 @@ void adxl345bGetMeasurementsForNSecondsReadSuccessfulInStreamMode(void) {
 
 }
 
-//TODO: Errors while running C-Test 5000 samples
 void adxl345bGetMeasurementsForNSecondsReadSuccessfulInTriggerMode(void) {
     uint32_t numberOfSamples = 5;
     uint8_t sizeOfSingleRawData = 6;
@@ -722,9 +721,7 @@ int main(void) {
     RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValuesInFiFoModeWithWrongSizedArray);
     RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValuesInStreamModeWithWrongSizedArray);
     RUN_TEST(adxl345bGetMultipleMeasurementsReadCorrectValuesInTriggerModeWithWrongSizedArray);
-
-    //TODO: Ueberhaupt noetig?
-    //TODO: BypassMode ergaenzen
+    
     RUN_TEST(adxl345bGetMultipleMeasurementsCheckOverwritingDataInStreamMode);
     RUN_TEST(adxl345bGetMultipleMeasurementsCheckOverwritingDataInFifoMode);
     RUN_TEST(adxl345bGetMultipleMeasurementsCheckOverwritingDataInTriggerMode);
