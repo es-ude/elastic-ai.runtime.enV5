@@ -120,8 +120,7 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
  * @return
  */
 adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor,
-                                                    uint8_t *rawData,
-                                                    uint32_t sizeOfRawData);
+                                                    uint8_t *rawData, uint32_t sizeOfRawData);
 
 /*!
  * @brief reads raw data from the sensor. limited by milliseconds or given buffer for rawData

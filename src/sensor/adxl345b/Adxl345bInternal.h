@@ -135,9 +135,10 @@ static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t senso
  * @param fifoInformation Infomation which is stored in ADXL345B_FIFO_CONTROL
  * @return return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t
-manageFifoDataRead(adxl345bSensorConfiguration_t sensor, int64_t sizeOfBuffer, uint8_t remainder, uint8_t maxFifoRead,
-                   uint8_t *buffer, uint8_t fifoInformation);
+static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sensor,
+                                              int64_t sizeOfBuffer, uint8_t remainder,
+                                              uint8_t maxFifoRead, uint8_t *buffer,
+                                              uint8_t fifoInformation);
 
 /*!
  * @brief stores selected Range Information in static parameter
