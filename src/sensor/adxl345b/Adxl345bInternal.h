@@ -114,9 +114,34 @@ adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8
 static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor,
                                                uint8_t *dataResponseBuffer);
 
-// TODO: adde kommentare
+/*! @brief
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to be
+ * at least 6 bytes
+ * @param maxFifoRead maximal Data you want to fetch from Fifo
+ * @return return the error code (0 if everything passed)
+ */
+static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t sensor,
+                                             uint8_t *dataResponseBuffer, uint8_t maxFifoRead);
+
+/*! @brief
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param sizeOfBuffer modulo 6 needs to be 0
+ * @param remainder modulo 6 needs to be 0
+ * @param maxFifoRead maximal Data you want to fetch from Fifo
+ * @param buffer[out] memory where data received from the sensor is stored
+ * @param fifoInformation Infomation which is stored in ADXL345B_FIFO_CONTROL
+ * @return return the error code (0 if everything passed)
+ */
+static adxl345bErrorCode_t
+manageFifoDataRead(adxl345bSensorConfiguration_t sensor, int64_t sizeOfBuffer, uint8_t remainder, uint8_t maxFifoRead,
+                   uint8_t *buffer, uint8_t fifoInformation);
+
 /*!
  * @brief stores selected Range Information in static parameter
+ *
  * @param range range to be selected
  * @return return the error code (0 if everything passed)
  */
