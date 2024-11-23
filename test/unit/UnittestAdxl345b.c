@@ -1,9 +1,8 @@
 #include "Adxl345b.h"
 #include "I2cUnitTest.h"
-#include "TimeUnitTest.h"
-#include <memory.h>
 #include <stdlib.h>
 #include <unity.h>
+#include <memory.h>
 
 /*! JUST HERE TO SATISFY THE COMPILER
  *
@@ -20,8 +19,6 @@ void setUp(void) {
     /* Default: Point to Pass */
     i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForAdxl345b;
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInBypassMode;
-
-    timeUnittestTimeUs32 = timeUnittestTimeUs32ForMilliseconds;
 
     adxl345bChangeMeasurementRange(sensor, ADXL345B_2G_RANGE);
 
