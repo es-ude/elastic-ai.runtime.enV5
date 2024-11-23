@@ -125,7 +125,7 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
                                                             uint32_t *sizeOfRawData) {
     adxl345bErrorCode_t errorCode = ADXL345B_NO_ERROR;
 
-    uint64_t startTime;
+    uint32_t startTime;
     uint64_t endTime;
     uint32_t counter = 0;
     uint32_t size = *sizeOfRawData;

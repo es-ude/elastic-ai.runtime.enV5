@@ -95,7 +95,7 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
                                              uint8_t *serialNumber);
 
 /*!
- * @brief read the raw data from the sensor
+ * @brief read the raw data from the sensor in bypass-mode
  *
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
@@ -109,7 +109,7 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
                                                  uint8_t *rawData);
 
 /*!
- * @brief reads requested number of raw data from the sensor in stream, trigger or fifo mode
+ * @brief reads requested number of raw data from the sensor in stream-, trigger- or fifo-mode
  *
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
