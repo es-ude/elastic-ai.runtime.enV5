@@ -1,9 +1,9 @@
 #include "Adxl345b.h"
 #include "I2cUnitTest.h"
 #include "TimeUnitTest.h"
+#include <memory.h>
 #include <stdlib.h>
 #include <unity.h>
-#include <memory.h>
 
 /*! JUST HERE TO SATISFY THE COMPILER
  *
@@ -28,11 +28,9 @@ void setUp(void) {
     numberOfSamples = 2;
     sizeOfSingleRawData = 6;
     milliseconds = 1;
-
 }
 
 void tearDown(void) {}
-
 
 /* region adxl345bReadSerialNumber */
 
@@ -140,7 +138,7 @@ void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails(void
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -150,7 +148,7 @@ void adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing(void) {
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -160,7 +158,7 @@ void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails(void
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -170,7 +168,7 @@ void adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfAckMissing(void) {
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -180,7 +178,7 @@ void adxl345bGetMultipleMeasurementsReadSuccessful(void) {
     memset(samples, 0, sizeOfRequestedRawData);
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
 }
 
@@ -190,7 +188,7 @@ void adxl345bGetMultipleMeasurementsCheckOverwritingDataInStreamMode(void) {
     memset(samples, 0, sizeOfRequestedRawData);
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("If this ever occurs and no other test fails, please write test for it.");
     }
@@ -218,7 +216,7 @@ void adxl345bGetMultipleMeasurementsCheckOverwritingDataInFifoMode(void) {
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("If this ever occurs and no other test fails, please write test for it.");
     }
@@ -246,7 +244,7 @@ void adxl345bGetMultipleMeasurementsCheckOverwritingDataInTriggerMode(void) {
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
 
     adxl345bErrorCode_t errorCode =
-            adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
+        adxl345bGetMultipleMeasurements(sensor, samples, sizeOfRequestedRawData);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("If this ever occurs and no other test fails, please write test for it.");
     }
@@ -395,11 +393,10 @@ void adxl345bGetMeasurementsForNMillisecondsGetSendCommandFail_errorIfHardwareFa
     uint32_t sizeOfRequestedRawData = numberOfSamples * sizeOfSingleRawData;
     uint8_t samples[sizeOfRequestedRawData];
 
-
     i2cUnittestWriteCommand = i2cUnittestWriteCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
 
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
@@ -410,8 +407,8 @@ void adxl345bGetMeasurementsForNMillisecondsGetSendCommandFail_errorIfAckMissing
 
     i2cUnittestWriteCommand = i2cUnittestWriteCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_SEND_COMMAND_ERROR, errorCode);
 }
 
@@ -421,8 +418,8 @@ void adxl345bGetMeasurementsForNMillisecondsGetReceiveDataFail_errorIfHardwareFa
 
     i2cUnittestReadCommand = i2cUnittestReadCommandHardwareDefect;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -432,8 +429,8 @@ void adxl345bGetMeasurementsForNMillisecondsGetReceiveDataFail_errorIfAckMissing
 
     i2cUnittestReadCommand = i2cUnittestReadCommandAckMissing;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_RECEIVE_DATA_ERROR, errorCode);
 }
 
@@ -443,8 +440,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInBypassMode(void) {
     memset(samples, 0, sizeOfRequestedRawData);
     milliseconds = 2;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
 
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
 }
@@ -456,8 +453,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInStreamMode(void) {
     milliseconds = 30;
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInStreamMode;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
 
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
 }
@@ -473,8 +470,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInFifoMode(void) {
 
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
 }
 
@@ -485,13 +482,14 @@ void adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInTriggerMode(void) {
     milliseconds = 50;
     i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
 
-    adxl345bErrorCode_t errorCode =
-            adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds, &sizeOfRequestedRawData);
+    adxl345bErrorCode_t errorCode = adxl345bGetMeasurementsForNMilliseconds(
+        sensor, samples, milliseconds, &sizeOfRequestedRawData);
     TEST_ASSERT_EQUAL_UINT8(ADXL345B_NO_ERROR, errorCode);
 }
 
 /* region GetMeasurementsForNMillisecondsReadCorrectValues */
-void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithCorrectSizedArray(void) {
+void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithCorrectSizedArray(
+    void) {
     milliseconds = 60;
 
     /*generate Array for Data*/
@@ -510,16 +508,17 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithCor
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         if (sizeOfRequestedRawData % 6 != 0) {
             TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                         (numberOfSamples * sizeOfSingleRawData) - sizeOfRequestedRawData);
-            TEST_FAIL_MESSAGE(
-                    "adxl345bGetMeasurementsForNMilliseconds probably has a problem with handling the size of rawdata");
+                                         (numberOfSamples * sizeOfSingleRawData) -
+                                             sizeOfRequestedRawData);
+            TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably has a problem with "
+                              "handling the size of rawdata");
         }
     } else if (sizeOfRequestedRawData == (numberOfSamples * sizeOfRequestedRawData)) {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
     } else {
-        TEST_FAIL_MESSAGE(
-                "adxl345bGetMeasurementsForNMilliseconds probably returns wrong sizeOfRequestedRawData (or else)");
+        TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably returns wrong "
+                          "sizeOfRequestedRawData (or else)");
     }
 }
 
@@ -543,7 +542,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithWro
         TEST_MESSAGE("case: (given milliseconds) < (reading-time until buffer is completely full)");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) - sizeOfRequestedRawData);
+                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) -
+                                         sizeOfRequestedRawData);
     } else {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData - wrongSize);
@@ -570,16 +570,17 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithCorre
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         if (sizeOfRequestedRawData % 6 != 0) {
             TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                         (numberOfSamples * sizeOfSingleRawData) - sizeOfRequestedRawData);
-            TEST_FAIL_MESSAGE(
-                    "adxl345bGetMeasurementsForNMilliseconds probably has a problem with handling the size of rawdata");
+                                         (numberOfSamples * sizeOfSingleRawData) -
+                                             sizeOfRequestedRawData);
+            TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably has a problem with "
+                              "handling the size of rawdata");
         }
     } else if (sizeOfRequestedRawData == (numberOfSamples * sizeOfRequestedRawData)) {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
     } else {
-        TEST_FAIL_MESSAGE(
-                "adxl345bGetMeasurementsForNMilliseconds probably returns wrong sizeOfRequestedRawData (or else)");
+        TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably returns wrong "
+                          "sizeOfRequestedRawData (or else)");
     }
 }
 
@@ -603,7 +604,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithWrong
         TEST_MESSAGE("case: (given milliseconds) < (reading-time until buffer is completely full)");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) - sizeOfRequestedRawData);
+                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) -
+                                         sizeOfRequestedRawData);
     } else {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData - wrongSize);
@@ -611,7 +613,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithWrong
     }
 }
 
-void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithCorrectSizedArray(void) {
+void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithCorrectSizedArray(
+    void) {
     milliseconds = 1000;
 
     /*generate Array for Data*/
@@ -631,20 +634,22 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithCo
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         if (sizeOfRequestedRawData % 6 != 0) {
             TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                         (numberOfSamples * sizeOfSingleRawData) - sizeOfRequestedRawData);
-            TEST_FAIL_MESSAGE(
-                    "adxl345bGetMeasurementsForNMilliseconds probably has a problem with handling the size of rawdata");
+                                         (numberOfSamples * sizeOfSingleRawData) -
+                                             sizeOfRequestedRawData);
+            TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably has a problem with "
+                              "handling the size of rawdata");
         }
     } else if (sizeOfRequestedRawData == (numberOfSamples * sizeOfRequestedRawData)) {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
     } else {
-        TEST_FAIL_MESSAGE(
-                "adxl345bGetMeasurementsForNMilliseconds probably returns wrong sizeOfRequestedRawData (or else)");
+        TEST_FAIL_MESSAGE("adxl345bGetMeasurementsForNMilliseconds probably returns wrong "
+                          "sizeOfRequestedRawData (or else)");
     }
 }
 
-void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithWrongSizedArray(void) {
+void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithWrongSizedArray(
+    void) {
     milliseconds = 11000;
 
     /*generate Array for Data*/
@@ -663,7 +668,8 @@ void adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithWr
         TEST_MESSAGE("case: (given milliseconds) < (reading-time until buffer is completely full)");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData);
         TEST_ASSERT_EACH_EQUAL_UINT8(0, &samples[sizeOfRequestedRawData],
-                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) - sizeOfRequestedRawData);
+                                     (numberOfSamples * sizeOfSingleRawData + wrongSize) -
+                                         sizeOfRequestedRawData);
     } else {
         TEST_MESSAGE("case: given buffer was too small for given milliseconds");
         TEST_ASSERT_EACH_EQUAL_UINT8(expectedRawData, samples, sizeOfRequestedRawData - wrongSize);
@@ -690,7 +696,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
     /* fill expected with random generated */
     if (topByte <= (MSB_MASK >> 1)) {
         /* CASE: positive value */
-        int rawValue = (int) (((uint16_t) (topByte & MSB_MASK) << 8) | (uint16_t) byteZero);
+        int rawValue = (int)(((uint16_t)(topByte & MSB_MASK) << 8) | (uint16_t)byteZero);
         float realValue = (float)rawValue * SCALE_FACTOR_FOR_RANGE;
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     } else {
@@ -702,7 +708,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
          * 3. multiply with (-1)
          * 4. multiply with scale factor
          */
-        uint16_t rawValue = ((uint16_t) (topByte & (MSB_MASK >> 1)) << 8) | (uint16_t) byteZero;
+        uint16_t rawValue = ((uint16_t)(topByte & (MSB_MASK >> 1)) << 8) | (uint16_t)byteZero;
         rawValue = (rawValue - 0x0001) ^ (((MSB_MASK >> 1) << 8) | 0x00FF);
         float realValue = (-1) * (float)rawValue * SCALE_FACTOR_FOR_RANGE;
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
@@ -720,7 +726,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
 int main(void) {
     UNITY_BEGIN();
 
-    //ReadSerialNumber
+    // ReadSerialNumber
     RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfHardwarFails);
     RUN_TEST(adxl345bReadSerialNumberGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bReadSerialNumberGetReceiveDataFail_errorIfHardwarFails);
@@ -728,7 +734,7 @@ int main(void) {
     RUN_TEST(adxl345bReadSerialNumberReadSuccessful);
     RUN_TEST(adxl345bReadSerialNumberReadCorrectValue);
 
-    //GetSingleMeasurement
+    // GetSingleMeasurement
     RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetSingleMeasurementGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetSingleMeasurementGetReceiveDataFail_errorIfHardwareFails);
@@ -736,7 +742,7 @@ int main(void) {
     RUN_TEST(adxl345bGetSingleMeasurementReadSuccessful);
     RUN_TEST(adxl345bGetSingleMeasurementReadCorrectValue);
 
-    //GetMultipleMeasurements
+    // GetMultipleMeasurements
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfHardwareFails);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetSendCommandFail_errorIfAckMissing);
     RUN_TEST(adxl345bGetMultipleMeasurementsGetReceiveDataFail_errorIfHardwareFails);
@@ -765,13 +771,17 @@ int main(void) {
     RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInFifoMode);
     RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadSuccessfulInTriggerMode);
 
-
-    RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithCorrectSizedArray);
-    RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithWrongSizedArray);
-    RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithCorrectSizedArray);
+    RUN_TEST(
+        adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithCorrectSizedArray);
+    RUN_TEST(
+        adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInStreamModeWithWrongSizedArray);
+    RUN_TEST(
+        adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithCorrectSizedArray);
     RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInFifoModeWithWrongSizedArray);
-    RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithCorrectSizedArray);
-    RUN_TEST(adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithWrongSizedArray);
+    RUN_TEST(
+        adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithCorrectSizedArray);
+    RUN_TEST(
+        adxl345bGetMeasurementsForNMillisecondsReadCorrectValuesInTriggerModeWithWrongSizedArray);
 
     RUN_TEST(adxl345bConvertDataXYZCorrectValue);
 
