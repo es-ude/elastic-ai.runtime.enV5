@@ -63,7 +63,6 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInBypassMode(uint8_t *readBu
                                                                  uint8_t slaveAddress,
                                                                  i2c_inst_t *i2cHost);
 
-
 i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer,
                                                                  uint8_t sizeOfReadBuffer,
                                                                  uint8_t slaveAddress,
