@@ -78,7 +78,7 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readB
                                                                   uint8_t slaveAddress,
                                                                   i2c_inst_t *i2cHost);
 
-/* endregion Adxl345b */
+/* endregion ReadCommandPassForAdxl345b */
 i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost);
 
