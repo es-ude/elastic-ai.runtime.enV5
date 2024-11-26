@@ -15,7 +15,7 @@ i2cErrorCode_t i2cInit(i2cConfiguration_t *i2cConfiguration) {
     return 0;
 }
 
-/* endregion */
+/* endregion I2cInit DUMMY*/
 
 /* region I2C_Write DUMMIES */
 
@@ -58,7 +58,7 @@ i2cErrorCode_t i2cUnittestWriteCommandPassForPac193x(const uint8_t *commandBuffe
     return I2C_NO_ERROR;
 }
 
-/* endregion */
+/* endregion I2C_Write DUMMIES */
 
 /* region I2C_Read_Helper */
 void i2cUnittestWriteByteMultipleTimes(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
@@ -139,6 +139,22 @@ i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFailForSht3x(uint8_t *readBu
     return 0x00;
 }
 
+/* region Adxl345b */
+
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInBypassMode(uint8_t *readBuffer,
+                                                                 uint8_t sizeOfReadBuffer,
+                                                                 uint8_t slaveAddress,
+                                                                 i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    for (uint8_t index = 0; index < sizeOfReadBuffer; index++) {
+        readBuffer[index] = byteZero;
+    }
+
+    return 0x00;
+}
+
 i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBuffer,
                                                                  uint8_t sizeOfReadBuffer,
                                                                  uint8_t slaveAddress,
@@ -151,7 +167,7 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInStreamMode(uint8_t *readBu
                         0b00011111; // set Stream Mode, Watermark and samples for Trigger
         return 0x00;
     }
-    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteOne);
     return 0x00;
 }
 
@@ -167,7 +183,7 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInFifoMode(uint8_t *readBuff
                         0b00011111; // set FiFo Mode, Watermark and samples for Trigger
         return 0x00;
     }
-    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteOne);
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteTwo);
     return 0x00;
 }
 i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readBuffer,
@@ -182,9 +198,11 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readB
                         0b00011111; // set Trigger Mode, Watermark and samples for Trigger
         return 0x00;
     }
-    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteTwo);
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteThree);
     return 0x00;
 }
+
+/* endregion Adxl345b */
 
 i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
                                                     uint8_t slaveAddress, i2c_inst_t *i2cHost) {
@@ -195,4 +213,4 @@ i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t
     return 0x00;
 }
 
-/* endregion */
+/* endregion I2C_Read DUMMIES */
