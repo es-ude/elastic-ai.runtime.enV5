@@ -1,5 +1,6 @@
 add_subdirectory(Helper)
 add_subdirectory(TestFreeRTOS)
+add_subdirectory(Esp)
 add_subdirectory(TestNetworking)
 add_subdirectory(TestFlash)
 add_subdirectory(TestConfiguration)

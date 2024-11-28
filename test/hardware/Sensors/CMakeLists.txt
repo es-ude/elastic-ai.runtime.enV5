@@ -79,11 +79,17 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(StressTestAdxl345b StressTestAdxl345b.c)
     target_link_libraries(StressTestAdxl345b PRIVATE
             Adxl345b
-            HWTestCommon
+            Common
+            I2c
             freeRtosUtils
             HardwareTestHelper
+            EnV5HwController
             Esp
-            MqttBroker
+
+            Pico::pico_stdlib
+            Pico::pico_stdio
+            Pico::pico_bootrom
+            Pico::hardware_i2c
             RuntimeC::Protocol
     )
     create_enV5_executable(StressTestAdxl345b)

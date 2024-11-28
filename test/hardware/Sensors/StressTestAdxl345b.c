@@ -9,6 +9,7 @@
 #include "HardwareTestHelper.h"
 
 #include "Protocol.h"
+#include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
@@ -293,10 +294,10 @@ int main(void) {
     env5HwControllerInit();
 
     // das hier passiert vorher noch im Ballchallenge-Repo. Erkenne keinen Zusammenhang.
-    // espInit();
+    espInit();
     //  initialize WiFi and MQTT broker
-    // connectToNetwork();
-    // connectToMqttBroker();
+    connectToNetwork();
+    connectToMqttBroker();
 
     // vor der init schlafen lassen um sicher zu stellen, dass pico nicht zu schnell ist und adxl zu
     // langsam nach reboot

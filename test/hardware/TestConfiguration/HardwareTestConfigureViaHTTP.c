@@ -56,7 +56,6 @@ size_t blinkSlowLength = 85540;
 
 void initHardwareTest(void) {
     stdio_init_all();
-    sleep_ms(1000);
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
     initializeFlashConfig();
