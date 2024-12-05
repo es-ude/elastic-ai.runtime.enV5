@@ -49,14 +49,13 @@ networkErrorCode_t networkConnectToNetwork() {
     // generate connect command with SSID and Password from configuration.h
     size_t lengthOfString = AT_CONNECT_TO_NETWORK_LENGTH + strlen(networkCredentials.ssid) +
                             strlen(networkCredentials.password);
-    char *connectToNetwork = malloc(lengthOfString);
+    char connectToNetwork[lengthOfString];
     snprintf(connectToNetwork, lengthOfString, AT_CONNECT_TO_NETWORK, networkCredentials.ssid,
              networkCredentials.password);
 
     // send connect request to ESP32
     espErrorCode_t espErrorCode =
         espSendCommand(connectToNetwork, AT_CONNECT_TO_NETWORK_RESPONSE, 120000);
-    free(connectToNetwork);
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT("Connected to Network: %s", networkCredentials.ssid);
@@ -79,11 +78,9 @@ void networkDisconnectFromNetwork(void) {
         PRINT_DEBUG("No connection to disconnect from!");
         return;
     }
-
-    char *disconnect = malloc(AT_DISCONNECT_LENGTH);
+    char disconnect[AT_DISCONNECT_LENGTH];
     strcpy(disconnect, AT_DISCONNECT);
     espErrorCode_t espErrorCode = espSendCommand(disconnect, AT_DISCONNECT_RESPONSE, 5000);
-    free(disconnect);
 
     if (espErrorCode == ESP_NO_ERROR) {
         PRINT_DEBUG("Disconnected from Network");
