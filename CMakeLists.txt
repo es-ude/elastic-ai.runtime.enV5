@@ -18,13 +18,9 @@ if (DEBUG_OUTPUT)
     add_definitions(-DDEBUG_MODE)
 endif ()
 
-
-
-if(NOT BUILDING_FOR_ELASTIC_NODE)
-    add_compile_options(-ftrapv) # abort execution on integer overflow
-endif ()
-
 project(enV5 C CXX ASM)
+
+
 pico_sdk_init()
 
 include(cmake/custom_targets.cmake)
@@ -33,16 +29,23 @@ include(cmake/pico_targets.cmake)
 include(CTest)
 
 add_subdirectory(src)
-add_subdirectory(test/unit)
-add_subdirectory(test/unit/Pac193x)
-add_subdirectory(test/unit/FpgaConfigurationHandler)
-add_subdirectory(test/unit/Http)
-add_subdirectory(test/unit/Network)
-add_subdirectory(test/unit/MqttBroker)
-add_subdirectory(test/unit/Sht3x)
-add_subdirectory(test/hardware)
 
 add_freertos()
+
+if(NOT BUILDING_FOR_ELASTIC_NODE)
+    add_compile_options(-ftrapv) # abort execution on integer overflow
+
+    add_subdirectory(test/unit)
+    add_subdirectory(test/unit/Pac193x)
+    add_subdirectory(test/unit/FpgaConfigurationHandler)
+    add_subdirectory(test/unit/Http)
+    add_subdirectory(test/unit/Network)
+    add_subdirectory(test/unit/MqttBroker)
+    add_subdirectory(test/unit/Sht3x)
+
+else()
+    add_subdirectory(test/hardware)
+endif ()
 
 if(BUILDING_FOR_ELASTIC_NODE AND NOT TARGET tinyusb_device)
     message(WARNING "not building project, because tinyusb not initialized")
