@@ -9,10 +9,10 @@
 #include "HardwareTestHelper.h"
 
 #include "Protocol.h"
-#include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
+#include "pico/stdlib.h"
 
 /* endregion HELPER*/
 

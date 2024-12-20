@@ -21,8 +21,8 @@
 #include "Protocol.h"
 #include "middleware.h"
 
-#include "pico/stdlib.h"
 #include "hardware/spi.h"
+#include "pico/stdlib.h"
 
 #include <stdbool.h>
 #include <stdio.h>

@@ -1,13 +1,11 @@
 #ifndef ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
 #define ENV5_FREERTOS_QUEUE_WRAPPER_HEADER
 
-
+#include "FreeRTOS.h"
+#include "queue.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "FreeRTOS.h"
-#include "queue.h"
-
 
 typedef QueueHandle_t queue_t;
 

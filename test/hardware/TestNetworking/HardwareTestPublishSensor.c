@@ -4,8 +4,8 @@
 #include "Adxl345b.h"
 #include "Common.h"
 #include "Esp.h"
-//unsure if we need this at all
-//#include "FreeRtosQueueWrapper.h"
+// unsure if we need this at all
+// #include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwareTestHelper.h"
 #include "MqttBroker.h"
@@ -134,7 +134,7 @@ void init(void) {
     }
 
     // create FreeRTOS task queue
-    //freeRtosQueueWrapperCreate();
+    // freeRtosQueueWrapperCreate();
 
     // enables watchdog timer (5s)
     watchdog_enable(5000, 1);

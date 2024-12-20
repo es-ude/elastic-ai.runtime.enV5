@@ -1,11 +1,11 @@
-#include "string.h"
-#include "pico/stdlib.h"
-#include "hardware/uart.h"
 #include "hardware/gpio.h"
+#include "hardware/uart.h"
+#include "pico/stdlib.h"
+#include "string.h"
 
 #include <stdio.h>
 
-uart_inst_t* uartInstance = uart1;
+uart_inst_t *uartInstance = uart1;
 int baudrate = 115200;
 uint8_t dataBits = 8;
 uint8_t stopBits = 1;
@@ -51,8 +51,7 @@ bool checkForOkFromEsp() {
 
 int main() {
     stdio_init_all();
-    while (!stdio_usb_connected()) {
-    }
+    while (!stdio_usb_connected()) {}
     uartInitInternal();
     while (!espAnswered) {
         uart_puts(uartInstance, "AT\r\n");
@@ -66,4 +65,3 @@ int main() {
     }
     printf("ESP responded with OK!\n");
 }
-

@@ -1,8 +1,8 @@
-#include "Uart.h"
-#include "string.h"
-#include "pico/stdlib.h"
-#include "hardware/uart.h"
 #include "EnV5HwConfiguration.h"
+#include "Uart.h"
+#include "hardware/uart.h"
+#include "pico/stdlib.h"
+#include "string.h"
 
 #include <stdio.h>
 
@@ -46,8 +46,7 @@ bool checkForOkFromEsp() {
 
 int main() {
     stdio_init_all();
-    while (!stdio_usb_connected()) {
-    }
+    while (!stdio_usb_connected()) {}
     sleep_ms(1000);
     // use EnV5 Config for UART params
     uartInitInternal();
