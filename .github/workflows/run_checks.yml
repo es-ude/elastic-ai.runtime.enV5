@@ -84,7 +84,7 @@ jobs:
           cmake -B build/host -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -D ELASTIC_AI_TARGET=HOST -G Ninja .
       - name: Build Targets
         run: |
-          cmake --build build/host/test/unit -j 4
+          cmake --build build/host -j 4
       - name: Run Unit-Tests
         run: ctest --test-dir build/host/test/unit --output-on-failure
 

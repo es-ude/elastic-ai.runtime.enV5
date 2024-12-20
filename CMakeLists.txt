@@ -28,12 +28,25 @@ include(cmake/pico_targets.cmake)
 
 include(CTest)
 
-add_subdirectory(src)
+
 
 add_freertos()
 
-if(NOT BUILDING_FOR_ELASTIC_NODE)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_subdirectory(test/hardware)
+    add_subdirectory(src)
+else()
     add_compile_options(-ftrapv) # abort execution on integer overflow
+
+    add_subdirectory(src/common)
+    add_subdirectory(src/filesystem)
+    add_subdirectory(src/flash)
+    add_subdirectory(src/fpga/fpgaConfigurationHandler)
+    add_subdirectory(src/hal)
+    add_subdirectory(src/network)
+    add_subdirectory(src/rtos)
+    add_subdirectory(src/sensor)
+    add_subdirectory(src/usb_protocol)
 
     add_subdirectory(test/unit)
     add_subdirectory(test/unit/Pac193x)
@@ -42,9 +55,6 @@ if(NOT BUILDING_FOR_ELASTIC_NODE)
     add_subdirectory(test/unit/Network)
     add_subdirectory(test/unit/MqttBroker)
     add_subdirectory(test/unit/Sht3x)
-
-else()
-    add_subdirectory(test/hardware)
 endif ()
 
 if(BUILDING_FOR_ELASTIC_NODE AND NOT TARGET tinyusb_device)
