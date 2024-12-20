@@ -66,9 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - clang-format
-    strategy:
-      matrix:
-        config: [1, 2]
+      
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -83,7 +81,7 @@ jobs:
           sudo apt install -y ninja-build
       - name: Setup CMake
         run: |
-          cmake -B build/unit-tests -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -D REVISION=${{ matrix.config }} -G Ninja .
+          cmake -B build/host -D UNIT_TEST:BOOL=ON -D CMAKE_BUILD_TYPE=DEBUG -D ELASTIC_AI_TARGET=HOST -G Ninja .
       - name: Build Targets
         run: |
           cmake --build build/unit-tests -j 4
@@ -94,9 +92,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - unit-tests
-    strategy:
-      matrix:
-        config: [1, 2]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -107,7 +102,7 @@ jobs:
           sudo apt update && sudo apt install -y ninja-build gcc-arm-none-eabi graphviz
       - name: Setup CMake
         run: |
-          cmake -B build -D CMAKE_BUILD_TYPE=RELEASE -D REVISION=${{ matrix.config }} -G Ninja .
+          cmake -B build -D CMAKE_BUILD_TYPE=RELEASE -D ELASTIC_AI_TARGET=ENV5_REV2 -G Ninja .
       - name: Build Targets
         run: |
           cmake --build build
