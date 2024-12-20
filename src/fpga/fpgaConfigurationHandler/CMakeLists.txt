@@ -15,7 +15,9 @@ target_link_libraries(FpgaConfigurationHandler PRIVATE
         Http
         CException
         EnV5HwConfiguration
-        Flash)
+        Flash
+        m
+)
 
 
 if(BUILDING_FOR_ELASTIC_NODE)
