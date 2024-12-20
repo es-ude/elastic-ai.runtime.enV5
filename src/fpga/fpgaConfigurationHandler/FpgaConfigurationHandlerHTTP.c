@@ -1,6 +1,5 @@
 #define SOURCE_FILE "FPGA-CONFIGRATION-HANDLER-HTTP"
 
-
 #include "CException.h"
 #include "Common.h"
 #include "Flash.h"
@@ -12,7 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 /* region PUBLIC FUNCTION IMPLEMENTATIONS */
 
