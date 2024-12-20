@@ -3,18 +3,21 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_library(NetworkTestCommon INTERFACE)
     target_link_libraries(NetworkTestCommon INTERFACE
             Common
-            freeRtosUtils
             HardwareTestHelper
             MqttBroker
-            Network
-            Pico::pico_stdlib
+            freeRtosUtils
             RuntimeC::Protocol
+            freeRtos::FreeRTOS-Kernel
+            freeRtos::FreeRTOS-Kernel-Heap3
+            Pico::pico_runtime
+            Pico::pico_bootrom
     )
 
 
     add_executable(HardwareTestNetwork HardwareTestNetwork.c)
     target_link_libraries(HardwareTestNetwork PRIVATE
             NetworkTestCommon
+            Network
     )
     target_compile_definitions(HardwareTestNetwork PRIVATE DEBUG)
     create_enV5_executable(HardwareTestNetwork)
@@ -23,6 +26,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestCheckNetwork HardwareTestCheckNetwork.c)
     target_link_libraries(HardwareTestCheckNetwork PRIVATE
             NetworkTestCommon
+            Network
     )
     target_compile_definitions(HardwareTestCheckNetwork PRIVATE DEBUG)
     create_enV5_executable(HardwareTestCheckNetwork)
@@ -47,8 +51,15 @@ if(BUILDING_FOR_ELASTIC_NODE)
 
     add_executable(HardwareTestMqttSubscribe HardwareTestMqttSubscribe.c)
     target_link_libraries(HardwareTestMqttSubscribe PRIVATE
-            NetworkTestCommon
-            Esp
+            Common
+            HardwareTestHelper
+            MqttBroker
+            freeRtosUtils
+            RuntimeC::Protocol
+            freeRtos::FreeRTOS-Kernel
+            freeRtos::FreeRTOS-Kernel-Heap3
+            Pico::pico_runtime
+            Pico::pico_bootrom
     )
     target_compile_definitions(HardwareTestMqttSubscribe PRIVATE DEBUG)
     create_enV5_executable(HardwareTestMqttSubscribe)
@@ -107,6 +118,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
 
             Pico::hardware_i2c
             Pico::hardware_spi
+            Pico::pico_stdlib
     )
     target_compile_definitions(HardwareTestPublishSensor PRIVATE DEBUG)
     create_enV5_executable(HardwareTestPublishSensor)

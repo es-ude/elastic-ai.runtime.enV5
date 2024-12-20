@@ -4,7 +4,8 @@
 #include "Adxl345b.h"
 #include "Common.h"
 #include "Esp.h"
-#include "FreeRtosQueueWrapper.h"
+//unsure if we need this at all
+//#include "FreeRtosQueueWrapper.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HardwareTestHelper.h"
 #include "MqttBroker.h"
@@ -133,7 +134,7 @@ void init(void) {
     }
 
     // create FreeRTOS task queue
-    freeRtosQueueWrapperCreate();
+    //freeRtosQueueWrapperCreate();
 
     // enables watchdog timer (5s)
     watchdog_enable(5000, 1);
@@ -297,19 +298,6 @@ _Noreturn void getWifiValue() {
         snprintf(wifiReceiver.value, sizeof(wifiReceiver.value), "%.02f", channelSensorValue);
         wifiReceiver.newValue = true;
         freeRtosTaskWrapperTaskSleep(3000);
-    }
-}
-
-_Noreturn void enterBootModeTask(void) {
-    while (true) {
-        if (getchar_timeout_us(10) == 'r' || !stdio_usb_connected()) {
-            // enter boot mode if 'r' was received
-            reset_usb_boot(0, 0);
-        }
-
-        // watchdog update needs to be performed frequent, otherwise the device will crash
-        watchdog_update();
-        freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 

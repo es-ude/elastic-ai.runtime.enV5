@@ -18,12 +18,6 @@
 #define FLASH_BYTES_PER_PAGE 512
 #define FLASH_BYTES_PER_SECTOR 262144
 
-#include <hardware/spi.h>
-#include <pico/stdlib.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
@@ -34,6 +28,13 @@
 #include "Network.h"
 #include "stub.h"
 #include "stub_defs.h"
+
+#include "hardware/spi.h"
+#include "pico/bootrom.h"
+#include "pico/stdlib.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";

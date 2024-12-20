@@ -34,6 +34,7 @@ target_link_libraries(HardwareTestStubWithMonitor
         freeRtos::FreeRTOS-Kernel
         Pico::pico_stdlib
         RuntimeC::Protocol
+        Pico::hardware_spi
 )
 target_compile_definitions(HardwareTestStubWithMonitor PRIVATE DEBUG)
 create_enV5_executable(HardwareTestStubWithMonitor)

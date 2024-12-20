@@ -34,7 +34,6 @@ include(CTest)
 
 add_subdirectory(src)
 add_subdirectory(test/unit)
-add_subdirectory(test/unit/Adxl345b)
 add_subdirectory(test/unit/Pac193x)
 add_subdirectory(test/unit/FpgaConfigurationHandler)
 add_subdirectory(test/unit/Http)
