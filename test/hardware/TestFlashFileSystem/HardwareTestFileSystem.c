@@ -137,9 +137,9 @@ void readConfiguration(uint32_t sector) {
     size_t numberOfPages, page = 0;
     uint32_t startAddress;
 
-    startAddress = sector * flashGetBytesPerSector(NULL);
+    startAddress = sector * flashGetBytesPerSector(&flashConfig);
 
-    numberOfPages = flashGetBytesPerSector(NULL) / flashGetBytesPerPage(NULL);
+    numberOfPages = flashGetBytesPerSector(&flashConfig) / flashGetBytesPerPage(&flashConfig);
 
     numberOfPages = 5;
 
