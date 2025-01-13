@@ -1,12 +1,15 @@
-add_library(freeRtosUtils INTERFACE)
-target_include_directories(freeRtosUtils INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(freeRtosUtils INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/FreeRtosSMP.c
-        ${CMAKE_CURRENT_LIST_DIR}/FreeRtosTaskWrapper.c
-        ${CMAKE_CURRENT_LIST_DIR}/FreeRtosQueueWrapper.c
-        ${CMAKE_CURRENT_LIST_DIR}/FreeRtosMutexWrapper.c)
-target_link_libraries(freeRtosUtils INTERFACE
-        FreeRTOS-Kernel
-        FreeRTOS-Kernel-Heap3
-        common_lib
-        sleep_interface)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(freeRtosUtils FreeRtosTaskWrapper.c FreeRtosSMP.c FreeRtosQueueWrapper.c FreeRtosMutexWrapper.c)
+    target_include_directories(freeRtosUtils PUBLIC include)
+    target_link_libraries(freeRtosUtils PRIVATE
+            Common
+            Sleep
+            Pico::pico_bootrom
+            Pico::pico_stdlib
+            Pico::hardware_base
+            freeRtos::FreeRTOS-Kernel
+            freeRtos::FreeRTOS-Kernel-Heap3)
+else()
+    add_library(freeRtosUtils INTERFACE)
+    target_include_directories(freeRtosUtils INTERFACE include)
+endif ()

@@ -7,9 +7,5 @@ mqttBrokerHost_t mqttHost = {.ip = \"0.0.0.0\", .port = \"1883\", .userID = \"\"
 ")
 endif ()
 
-add_library(network_config INTERFACE)
-target_sources(network_config INTERFACE
-        ${CMAKE_SOURCE_DIR}/NetworkConfig.c)
-target_link_libraries(network_config INTERFACE
-        espBroker_lib
-        network_lib)
+add_library(NetworkConfig ${CMAKE_SOURCE_DIR}/NetworkConfig.c)
+target_link_libraries(NetworkConfig PRIVATE MqttBroker Network)

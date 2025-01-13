@@ -1,13 +1,20 @@
-add_library(esp_lib INTERFACE)
-target_include_directories(esp_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(esp_lib INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/Esp.c)
-target_link_libraries(esp_lib INTERFACE
-        freeRtosUtils
-        common_lib
-        uart_interface
-        at_commands
-        enV5_hw_controller
-        network_config
-        hardware_uart
-)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Esp Esp.c)
+    target_include_directories(Esp PUBLIC include)
+    target_link_libraries(Esp PRIVATE
+            AtCommands
+            Common
+            EnV5HwConfiguration
+            freeRtosUtils
+            Uart
+            Sleep
+            Pico::pico_time
+            Pico::hardware_uart
+            Pico::pico_runtime
+
+
+    )
+else()
+    add_library(Esp INTERFACE)
+    target_include_directories(Esp INTERFACE include)
+endif ()

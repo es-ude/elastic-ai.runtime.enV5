@@ -1,16 +1,17 @@
 #define SOURCE_FILE "ESP"
 
-#include <stdbool.h>
-
-#include "hardware/uart.h"
-
+#include "Esp.h"
 #include "AtCommands.h"
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
-#include "Esp.h"
 #include "EspInternal.h"
 #include "FreeRtosTaskWrapper.h"
+#include "Sleep.h"
 #include "Uart.h"
+#include <stdbool.h>
+
+#include "hardware/uart.h"
+#include "pico/time.h"
 
 /* region VARIABLES */
 
@@ -90,7 +91,9 @@ espErrorCode_t espSendCommand(char *cmd, char *expectedResponse, int timeoutMs) 
 
     // check for response
     bool responseArrived = false;
+
     freeRtosTaskWrapperTaskSleep(REFRESH_RESPOND_IN_MS / 2);
+
     for (int delay = 0; delay < timeoutMs; delay += REFRESH_RESPOND_IN_MS) {
         responseArrived = uartCorrectResponseArrived();
         if (responseArrived) {

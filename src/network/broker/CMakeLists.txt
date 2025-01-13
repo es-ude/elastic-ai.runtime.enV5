@@ -1,16 +1,19 @@
-add_library(espBroker_lib INTERFACE)
-target_include_directories(espBroker_lib INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(espBroker_lib INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/MqttBroker.c)
-target_link_libraries(espBroker_lib INTERFACE
+add_library(MqttBroker MqttBroker.c)
+target_include_directories(MqttBroker PUBLIC include)
+target_link_libraries(MqttBroker PRIVATE
+        Common
+        Uart
+        AtCommands
+        Esp
+        Network
         CException
-        topicMatcher
-        protocol
-        common_lib
-        uart_interface
-        at_commands
-        esp_lib
-        network_lib
-        m
-        network_config)
+        RuntimeC::TopicMatcher
+        RuntimeC::Protocol
+)
+
+target_include_directories(MqttBroker PRIVATE
+    $<TARGET_PROPERTY:topicMatcher,INTERFACE_INCLUDE_DIRECTORIES>)
+
+target_include_directories(MqttBroker PUBLIC
+    $<TARGET_PROPERTY:protocol,INTERFACE_INCLUDE_DIRECTORIES>
+)
