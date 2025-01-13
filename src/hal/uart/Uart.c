@@ -28,31 +28,35 @@ void (*uartHTTPReceive)(char *) = NULL;
 
 void (*uartInternalCallbackUartRxInterrupt)(void);
 
+static uartConfiguration_t uartConfig;
+
 /* endregion  VARIABLES*/
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartInit(uartConfiguration_t *uartConfig) {
+void uartInit(uartConfiguration_t *externalUartConfig) {
+
+    uartConfig = *externalUartConfig;
 
     // Set the TX and RX pins to UART by using the function select on the GPIO
-    gpioSetPinFunction(uartConfig->txPin, GPIO_FUNCTION_UART);
-    gpioSetPinFunction(uartConfig->rxPin, GPIO_FUNCTION_UART);
+    gpioSetPinFunction(uartConfig.txPin, GPIO_FUNCTION_UART);
+    gpioSetPinFunction(uartConfig.rxPin, GPIO_FUNCTION_UART);
 
     // Set up our UART with requested baud rate.
     // The call will return the actual baud rate selected,
     // which will be as close as possible to that requested
-    uartConfig->uartInstance = UART_MODULE;
-    uart_init(uartConfig->uartInstance, uartConfig->baudrate);
+    uartConfig.uartInstance = UART_MODULE;
+    uart_init(uartConfig.uartInstance, uartConfig.baudrate);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off
-    uart_set_hw_flow(uartConfig->uartInstance, false, false);
+    uart_set_hw_flow(uartConfig.uartInstance, false, false);
 
     // Set our data format
-    uart_set_format(uartConfig->uartInstance, uartConfig->dataBits, uartConfig->stopBits,
-                    uartConfig->parity);
+    uart_set_format(uartConfig.uartInstance, uartConfig.dataBits, uartConfig.stopBits,
+                    uartConfig.parity);
 
     // Turn off FIFO's - we want to do this character by character
-    uart_set_fifo_enabled(uartConfig->uartInstance, false);
+    uart_set_fifo_enabled(uartConfig.uartInstance, false);
 
     uartInternalCallbackUartRxInterrupt = checkAndHandleNewChar;
     // And set up and enable the interrupt handlers
@@ -60,11 +64,11 @@ void uartInit(uartConfiguration_t *uartConfig) {
     irq_set_enabled(UART1_IRQ, true);
 
     // Now enable the UART to send interrupts - RX only
-    uart_set_irq_enables(uartConfig->uartInstance, true, false);
+    uart_set_irq_enables(uartConfig.uartInstance, true, false);
 
     // Clear internal buffer space
-    uartConfig->receivedCharacter_count = 0;
-    uartConfig->receiveBuffer[0] = '\0';
+    uartConfig.receivedCharacter_count = 0;
+    uartConfig.receiveBuffer[0] = '\0';
 }
 
 void uartSetMqttReceiverFunction(void (*receive)(char *)) {
@@ -117,46 +121,46 @@ void uartFreeCommandBuffer(void) {
 
 /* region INTERNAL HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartInternalHandleNewLine(uartConfiguration_t *uartConfig) {
+void uartInternalHandleNewLine() {
     /* IMPORTANT:
      *   Don't use print statements for debugging!!
      *   Print statements will cause timing/buffer issues
      */
 
-    if (0 == strlen(uartConfig->receiveBuffer)) {
+    if (0 == strlen(uartConfig.receiveBuffer)) {
         PRINT_DEBUG("Empty Buffer");
         return;
     }
-    if (strncmp("+MQTTSUBRECV", uartConfig->receiveBuffer, 12) == 0) {
+    if (strncmp("+MQTTSUBRECV", uartConfig.receiveBuffer, 12) == 0) {
         // handle Received MQTT message -> pass to correct subscriber
         if (uartMqttBrokerReceive != NULL) {
-            uartMqttBrokerReceive(uartConfig->receiveBuffer);
+            uartMqttBrokerReceive(uartConfig.receiveBuffer);
         }
-    } else if (strncmp("+HTTPCGET", uartConfig->receiveBuffer, 9) == 0) {
+    } else if (strncmp("+HTTPCGET", uartConfig.receiveBuffer, 9) == 0) {
         uartCurrentMessageIsHttpResponse = false;
         uartAwaitingHttpGet--;
         // handle HTTP message
         if (uartHTTPReceive != NULL) {
-            uartHTTPReceive(uartConfig->receiveBuffer);
+            uartHTTPReceive(uartConfig.receiveBuffer);
         }
-    } else if (strncmp("+CWJAP", uartConfig->receiveBuffer, 6) == 0) {
-        PRINT_DEBUG("Message: %s", uartConfig->receiveBuffer);
+    } else if (strncmp("+CWJAP", uartConfig.receiveBuffer, 6) == 0) {
+        PRINT_DEBUG("Message: %s", uartConfig.receiveBuffer);
         uartCorrectResponseReceived = true;
     }
-    if (strncmp(uartExpectedResponseFromEsp, uartConfig->receiveBuffer,
+    if (strncmp(uartExpectedResponseFromEsp, uartConfig.receiveBuffer,
                 strlen(uartExpectedResponseFromEsp)) == 0) {
         uartCorrectResponseReceived = true;
     }
 }
 
-void checkAndHandleNewChar(uartConfiguration_t *uartConfig) {
+void checkAndHandleNewChar() {
     /* IMPORTANT:
      *   Don't use print statements for debugging!!
      *   Print statements will cause timing/buffer issues
      */
 
-    while (uart_is_readable((uart_inst_t *)uartConfig->uartInstance)) {
-        char receivedCharacter = uart_getc((uart_inst_t *)uartConfig->uartInstance);
+    while (uart_is_readable((uart_inst_t *)uartConfig.uartInstance)) {
+        char receivedCharacter = uart_getc((uart_inst_t *)uartConfig.uartInstance);
 
         // handle HTTP-GET
         /* IMPORTANT:
@@ -165,21 +169,21 @@ void checkAndHandleNewChar(uartConfiguration_t *uartConfig) {
          */
         if (uartCurrentMessageIsHttpResponse && uartHttpResponseLength > 0) {
             // append new character to buffer
-            uartConfig->receiveBuffer[uartConfig->receivedCharacter_count] = receivedCharacter;
+            uartConfig.receiveBuffer[uartConfig.receivedCharacter_count] = receivedCharacter;
 
             // increase buffer last character pointer for next character
-            uartConfig->receivedCharacter_count++;
-            uartConfig->receiveBuffer[uartConfig->receivedCharacter_count] = '\0';
+            uartConfig.receivedCharacter_count++;
+            uartConfig.receiveBuffer[uartConfig.receivedCharacter_count] = '\0';
 
             uartHttpResponseLength--;
             return;
         }
         if (!uartCurrentMessageIsHttpResponse && uartAwaitingHttpGet > 0 &&
             receivedCharacter == ',') {
-            if (strncmp("+HTTPCGET", uartConfig->receiveBuffer, 9) == 0) {
+            if (strncmp("+HTTPCGET", uartConfig.receiveBuffer, 9) == 0) {
                 uartCurrentMessageIsHttpResponse = true;
-                char *startSize = strstr(uartConfig->receiveBuffer, ":") + 1;
-                char *endSize = strstr(uartConfig->receiveBuffer, ",");
+                char *startSize = strstr(uartConfig.receiveBuffer, ":") + 1;
+                char *endSize = strstr(uartConfig.receiveBuffer, ",");
                 uartHttpResponseLength = strtol(startSize, &endSize, 10);
             }
         }
@@ -189,12 +193,12 @@ void checkAndHandleNewChar(uartConfiguration_t *uartConfig) {
         // LF = \n = 0b00001010 = 0x0A -> New Line
         if (uartLastReceivedCharacterWasReturn && receivedCharacter == '\n') {
             // remove last \r from response buffer
-            uartConfig->receiveBuffer[uartConfig->receivedCharacter_count--] = '\0';
+            uartConfig.receiveBuffer[uartConfig.receivedCharacter_count--] = '\0';
             // call response handle
-            uartInternalHandleNewLine(uartConfig);
+            uartInternalHandleNewLine();
             // reset response buffer
-            uartConfig->receivedCharacter_count = 0;
-            uartConfig->receiveBuffer[uartConfig->receivedCharacter_count] = '\0';
+            uartConfig.receivedCharacter_count = 0;
+            uartConfig.receiveBuffer[uartConfig.receivedCharacter_count] = '\0';
             return;
         } else if (receivedCharacter == '\r') {
             uartLastReceivedCharacterWasReturn = true;
@@ -203,11 +207,11 @@ void checkAndHandleNewChar(uartConfiguration_t *uartConfig) {
         }
 
         // append new character to buffer
-        uartConfig->receiveBuffer[uartConfig->receivedCharacter_count] = receivedCharacter;
+        uartConfig.receiveBuffer[uartConfig.receivedCharacter_count] = receivedCharacter;
 
         // increase buffer last character pointer for next character
-        uartConfig->receivedCharacter_count++;
-        uartConfig->receiveBuffer[uartConfig->receivedCharacter_count] = '\0';
+        uartConfig.receivedCharacter_count++;
+        uartConfig.receiveBuffer[uartConfig.receivedCharacter_count] = '\0';
     }
 }
 
