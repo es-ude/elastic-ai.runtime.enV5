@@ -13,20 +13,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     )
     create_enV5_executable(HardwareTestConfigureViaUSB)
 
-    add_executable(AutomaticHwTestConfigureViaUSB AutomaticHwTestConfigureViaUSB.c)
-    target_link_libraries(AutomaticHwTestConfigureViaUSB PRIVATE
-            Common
-            EnV5HwConfiguration
-            EnV5HwController
-            FpgaConfigurationHandler
-            FpgaConfigurationHandlerUSB
-            Flash
-            Pico::pico_stdio
-            Pico::pico_stdlib
-            Pico::hardware_spi
-            unity
-    )
-    create_enV5_executable(AutomaticHwTestConfigureViaUSB)
+
 
     add_executable(HardwareTestConfigureViaHTTP HardwareTestConfigureViaHTTP.c)
     target_link_libraries(HardwareTestConfigureViaHTTP PRIVATE
