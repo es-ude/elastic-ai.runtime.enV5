@@ -11,14 +11,14 @@
 
 #include "hardware/spi.h"
 #include <math.h>
-#include <stdlib.h>
 #include <pico/bootrom.h>
+#include <stdlib.h>
 #include <sys/unistd.h>
 
 #define paramTest(fn, param)                                                                       \
     void fn##param(void) {                                                                         \
         fn(param);                                                                                 \
-}
+    }
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,
@@ -32,12 +32,11 @@ static uint16_t sector = 1;
 
 void init(void) {
     stdio_init_all();
-    while(!stdio_usb_connected()){}
+    while (!stdio_usb_connected()) {}
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
     spiInit(&spiToFlashConfig);
     flashInit(&flashConfig);
-
 }
 
 void readCorrectDeviceID() {
@@ -66,7 +65,8 @@ void writeToFlash() {
     uint32_t numberOfPages = flashConfig.bytesPerSector / flashConfig.bytesPerPage;
     for (size_t pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
         int successfulWrittenBytes =
-            flashWritePage(&flashConfig, sectorAddress + pageIndex * flashConfig.bytesPerPage, data, flashConfig.bytesPerPage);
+            flashWritePage(&flashConfig, sectorAddress + pageIndex * flashConfig.bytesPerPage, data,
+                           flashConfig.bytesPerPage);
         PRINT("Address 0x%02lX: %i Bytes Written", sectorAddress + pageIndex,
               successfulWrittenBytes);
         if (successfulWrittenBytes == flashConfig.bytesPerPage) {
@@ -89,7 +89,8 @@ void readFromFlash() {
         uint8_t data_read[flashConfig.bytesPerPage];
         data_t readBuffer = {.data = data_read, .length = flashConfig.bytesPerPage};
 
-        error = flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage), &readBuffer);
+        error = flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage),
+                              &readBuffer);
     }
     TEST_ASSERT_EQUAL(FLASH_NO_ERROR, error);
 }
@@ -109,7 +110,8 @@ void checkIfReadbackMatchesOriginalData() {
         uint8_t data_read[flashConfig.bytesPerPage];
         data_t readBuffer = {.data = data_read, .length = flashConfig.bytesPerPage};
 
-        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage), &readBuffer);
+        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage),
+                      &readBuffer);
         for (size_t index = 0; index < flashConfig.bytesPerPage; index++) {
             if (testData[index] != readBuffer.data[index]) {
                 readbackCorrect = false;
@@ -137,7 +139,8 @@ void checkIfReadbackFailsWithManipulatedData() {
         uint8_t data_read[flashConfig.bytesPerPage];
         data_t readBuffer = {.data = data_read, .length = flashConfig.bytesPerPage};
 
-        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage), &readBuffer);
+        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage),
+                      &readBuffer);
         for (size_t index = 0; index < flashConfig.bytesPerPage; index++) {
             if (testData[index] != readBuffer.data[index]) {
                 readbackCorrect = false;
@@ -154,7 +157,6 @@ void eraseSectorFromFlash() {
     bool sectorNotEmpty = false;
     uint32_t sectorAddress = sector * flashConfig.bytesPerSector;
 
-
     flashErrorCode_t eraseError =
         flashEraseSector(&flashConfig, sector * flashConfig.bytesPerSector);
     if (eraseError != FLASH_NO_ERROR) {
@@ -168,7 +170,8 @@ void eraseSectorFromFlash() {
     uint32_t numberOfPages = flashConfig.bytesPerSector / flashConfig.bytesPerPage;
 
     for (size_t pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
-        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage), &readBuffer);
+        flashReadData(&flashConfig, sectorAddress + (pageIndex * flashConfig.bytesPerPage),
+                      &readBuffer);
         for (size_t byteIndex = 0; byteIndex < flashConfig.bytesPerPage; byteIndex++) {
             if (dataRead[byteIndex] != 0xFF) {
                 sectorNotEmpty = true;
@@ -180,7 +183,7 @@ void eraseSectorFromFlash() {
     TEST_ASSERT_EQUAL(false, sectorNotEmpty);
 }
 
-void setUp(){}
+void setUp() {}
 void tearDown(){};
 
 void deInit() {
