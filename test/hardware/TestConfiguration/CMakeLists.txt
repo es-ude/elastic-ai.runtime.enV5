@@ -13,6 +13,8 @@ if(BUILDING_FOR_ELASTIC_NODE)
     )
     create_enV5_executable(HardwareTestConfigureViaUSB)
 
+
+
     add_executable(HardwareTestConfigureViaHTTP HardwareTestConfigureViaHTTP.c)
     target_link_libraries(HardwareTestConfigureViaHTTP PRIVATE
             Common
