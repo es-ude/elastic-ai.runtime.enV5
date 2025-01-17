@@ -7,21 +7,30 @@ FetchContent_Declare(
 )
 FetchContent_Populate(bmi323)
 
-add_library(sensor_lib_bmi323 STATIC
+add_library(external_bmi323_bosch_lib
         "${bmi323_SOURCE_DIR}/bmi3.c"
-        "${bmi323_SOURCE_DIR}/bmi323.c"
-        "${CMAKE_CURRENT_LIST_DIR}/Bmi323.c"
-)
-target_include_directories(sensor_lib_bmi323 PUBLIC
-        "${bmi323_SOURCE_DIR}"
-        "${CMAKE_CURRENT_LIST_DIR}/include"
-)
-target_link_libraries(sensor_lib_bmi323 PUBLIC
-        pico_stdlib
-        CException
-)
-target_link_libraries(sensor_lib_bmi323 PRIVATE
-        sleep_interface
-        gpio_interface
-        spi_interface
-)
+        "${bmi323_SOURCE_DIR}/bmi323.c")
+
+target_include_directories(external_bmi323_bosch_lib PUBLIC "${bmi323_SOURCE_DIR}")
+
+
+
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Bmi323 Bmi323.c)
+    target_include_directories(Bmi323 PUBLIC include)
+    target_link_libraries(Bmi323 PRIVATE
+            external_bmi323_bosch_lib
+            Common
+            Pico::pico_stdlib
+            CException
+            Sleep
+            Gpio
+            Spi
+    )
+else()
+    add_library(Bmi323 INTERFACE)
+    target_include_directories(Bmi323 INTERFACE include)
+endif ()
+
+target_link_libraries(Bmi323 INTERFACE external_bmi323_bosch_lib)
+

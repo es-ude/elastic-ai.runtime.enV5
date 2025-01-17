@@ -1,9 +1,13 @@
-add_library(uart_interface INTERFACE)
-target_include_directories(uart_interface INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(uart_interface INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/Uart.c)
-target_link_libraries(uart_interface INTERFACE
-        common_lib
-        gpio_interface
-        hardware_uart
-        hardware_irq)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(Uart Uart.c)
+    target_include_directories(Uart PUBLIC include)
+    target_link_libraries(Uart PRIVATE
+            Common Gpio Pico::hardware_uart
+            Pico::hardware_irq
+            Pico::pico_runtime
+            EnV5HwConfiguration
+    )
+else()
+    add_library(Uart INTERFACE)
+    target_include_directories(Uart INTERFACE include)
+endif ()

@@ -8,7 +8,7 @@
 #include "Esp.h"
 #include "FreeRtosTaskWrapper.h"
 #include "HTTP.h"
-#include "Network.h"
+#include "include/Network.h"
 
 extern networkCredentials_t networkCredentials;
 

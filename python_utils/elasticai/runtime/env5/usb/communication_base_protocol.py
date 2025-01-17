@@ -178,13 +178,13 @@ class EnV5BaseRemoteControlProtocol:
 
             # calculate checksum on message
             calculated_checksum = self.calculate_checksum(message)
-
+            self.logger.debug(f"received message {message}")
+            self.logger.debug(f"checksum {transmitted_checksum}")
             if transmitted_checksum != calculated_checksum:
                 self.logger.debug("checksum wrong")
                 # If checksum not correct empty buffer and sent nack
-                while self.serial.readable():
-                    self.serial.reset_input_buffer()  # This might be problematic for timing. Maybe move it to other space
-                    time.sleep(0.1)
+                time.sleep(0.1)
+
                 self._send_nack()
             else:
                 self.logger.debug("checksum correct")

@@ -1,12 +1,17 @@
-add_executable(hardware-test_middleware HardwaretestMiddleware.c)
-target_link_libraries(hardware-test_middleware
-        common_lib
-        pico_stdlib
-        hardware_spi
-        network_lib
-        esp_lib
-        fpga_configuration_handler
-        sleep_interface
-        middleware_lib)
-target_compile_definitions(hardware-test_middleware PRIVATE DEBUG)
-create_enV5_executable(hardware-test_middleware)
+add_executable(HardwareTestMiddleware HardwareTestMiddleware.c)
+target_link_libraries(HardwareTestMiddleware
+        Common
+        EnV5HwConfiguration
+        EnV5HwController
+        Esp
+        Flash
+        FpgaConfigurationHandler
+        Http
+        Network
+        Middleware
+        Pico::pico_stdio
+        Pico::pico_stdlib
+        Pico::hardware_spi
+)
+target_compile_definitions(HardwareTestMiddleware PRIVATE DEBUG)
+create_enV5_executable(HardwareTestMiddleware)

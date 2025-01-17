@@ -12,6 +12,8 @@ void env5HwControllerInit() {
     env5HwControllerLedsInit();
     env5HwControllerFpgaInit();
     env5HwControllerFpgaPowersOff();
+
+    PRINT_DEBUG("enV5 Controller initialized.\n");
 }
 
 /* region LED */

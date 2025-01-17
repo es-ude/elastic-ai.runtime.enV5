@@ -12,12 +12,12 @@
 #include <stdint.h>
 
 #include "Common.h"
-#include "Flash.h"
 #include "FlashInternal.h"
-#include "FlashTypedefs.h"
 #include "Sleep.h"
 #include "Spi.h"
 #include "SpiTypedefs.h"
+#include "include/Flash.h"
+#include "include/FlashTypedefs.h"
 
 /* region PUBLIC HEADER FUNCTIONS */
 void flashInit(flashConfiguration_t *flashConfig) {

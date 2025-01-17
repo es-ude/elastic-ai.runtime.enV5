@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "Sht3xTypedefs.h"
+#include "include/Sht3xTypedefs.h"
 
 /* region CONSTANTS */
 

@@ -1,6 +1,7 @@
 #ifndef ENV5_FREERTOS_MUTEX_WRAPPER_HEADER
 #define ENV5_FREERTOS_MUTEX_WRAPPER_HEADER
 
+// needed to satisfy the compiler
 #include "FreeRTOS.h"
 #include "semphr.h"
 

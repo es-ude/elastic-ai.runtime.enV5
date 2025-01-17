@@ -1,12 +1,18 @@
-################## hardwareTestHelper ##################
-add_library(hardware-testHelper INTERFACE)
-target_sources(hardware-testHelper INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/HardwaretestHelper.c)
-target_include_directories(hardware-testHelper INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(hardware-testHelper INTERFACE
-        common_lib
-        pico_stdlib
-        espBroker_lib
-        network_lib
-        freeRtosUtils)
-
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(HardwareTestHelper HardwareTestHelper.c)
+    target_include_directories(HardwareTestHelper PUBLIC include)
+    target_link_libraries(HardwareTestHelper PRIVATE
+            Common
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            Pico::pico_bootrom
+            MqttBroker
+            Network
+            freeRtosUtils
+            EnV5HwController
+            Esp
+    )
+else()
+    add_library(HardwareTestHelper INTERFACE)
+    target_include_directories(HardwareTestHelper INTERFACE include)
+endif ()

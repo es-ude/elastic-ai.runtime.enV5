@@ -1,18 +1,17 @@
 #define SOURCE_FILE "ADXL345-StressTest"
-
 #include "Adxl345b.h"
 #include "Common.h"
+#include "FreeRtosTaskWrapper.h"
+#include "I2c.h"
+
 #include "EnV5HwController.h"
 #include "Esp.h"
-#include "FreeRtosTaskWrapper.h"
-#include "HardwaretestHelper.h"
-#include "I2c.h"
-#include "Protocol.h"
+#include "HardwareTestHelper.h"
 
-// pico-sdk headers
+#include "Protocol.h"
 #include "hardware/i2c.h"
-#include "hardware/watchdog.h"
 #include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
 #include "pico/stdlib.h"
 
 /* endregion HELPER*/
@@ -182,8 +181,8 @@ void publishTestData() {
 void _Noreturn mqttTask(void) {
     PRINT("=== STARTING TEST ===");
 
-    connectToNetwork();
-    // connectToMQTT();
+    // connectToNetwork();
+    //  connectToMQTT();
 
     uint64_t messageCounter = 0;
     while (1) {
@@ -276,7 +275,7 @@ _Noreturn void t_stressTest_enterBootModeTask(void) {
         }
 
         // watchdog update needs to be performed frequent, otherwise the device will crash
-        watchdog_update();
+        // watchdog_update();
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }
@@ -284,21 +283,21 @@ _Noreturn void t_stressTest_enterBootModeTask(void) {
 // TODO: adxl_task mit MQTT_task testen
 
 int main(void) {
+    // init stdio and esp
+    stdio_init_all();
+    PRINT("TEST");
     // Did we crash last time -> reboot into boot rom mode
-    if (watchdog_enable_caused_reboot()) {
+    /*if (watchdog_enable_caused_reboot()) {
         reset_usb_boot(0, 0);
-    }
+    }*/
 
     env5HwControllerInit();
 
-    // init stdio and esp
-    stdio_init_all();
-
     // das hier passiert vorher noch im Ballchallenge-Repo. Erkenne keinen Zusammenhang.
-    // espInit();
+    espInit();
     //  initialize WiFi and MQTT broker
-    // networkTryToConnectToNetworkUntilSuccessful(networkCredentials);
-    // mqttBrokerConnectToBrokerUntilSuccessful(mqttHost, "eip://uni-due.de/es", "enV5");
+    connectToNetwork();
+    connectToMqttBroker();
 
     // vor der init schlafen lassen um sicher zu stellen, dass pico nicht zu schnell ist und adxl zu
     // langsam nach reboot

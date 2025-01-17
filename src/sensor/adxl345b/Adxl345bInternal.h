@@ -11,7 +11,7 @@
  * Activity \b detection -> Can not be used due to unconnected interrupt pins\n
  */
 
-#include "Adxl345bTypedefs.h"
+#include "include/Adxl345bTypedefs.h"
 #include <stdint.h>
 
 typedef struct adxl345bRangeSetting {

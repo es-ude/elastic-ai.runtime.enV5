@@ -5,6 +5,7 @@
 #include "Gpio.h"
 #include "UartInternal.h"
 
+#include "EnV5HwConfiguration.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 
@@ -40,6 +41,7 @@ void uartInit(uartConfiguration_t *uartConfig) {
     // Set up our UART with requested baud rate.
     // The call will return the actual baud rate selected,
     // which will be as close as possible to that requested
+    uartConfig->uartInstance = UART_MODULE;
     uart_init(uartConfig->uartInstance, uartConfig->baudrate);
 
     // Set UART flow control CTS/RTS, we don't want these, so turn them off

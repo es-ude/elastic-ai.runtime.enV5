@@ -8,8 +8,8 @@
 #include "CException.h"
 #include "Common.h"
 #include "Esp.h"
-#include "MqttBroker.h"
 #include "MqttBrokerInternal.h"
+#include "include/MqttBroker.h"
 
 // header from elastic-ai.runtime.c
 #include "CommunicationEndpoint.h"

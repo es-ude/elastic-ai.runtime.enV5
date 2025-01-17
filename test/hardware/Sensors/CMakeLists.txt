@@ -1,111 +1,97 @@
-##############################################
-## region hardware-test_sht3
-add_executable(hardware-test_sht3 HardwaretestSht3x.c)
-target_link_libraries(hardware-test_sht3
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        hardware_i2c
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(HWTestCommon INTERFACE)
+    target_link_libraries(HWTestCommon INTERFACE
+            I2c
+            Gpio
+            Sleep
+            Spi
+            Pico::pico_stdlib
+            Pico::pico_stdio
+            Pico::pico_stdio_usb
+            Pico::pico_time
+            Pico::pico_runtime
+            Pico::pico_bootrom
+            Pico::hardware_i2c
+            Pico::hardware_spi
+            EnV5HwController
+            Common
+            EnV5HwConfiguration
+            CException
+    )
 
-        common_lib
-        enV5_hw_configuration
-        enV5_hw_controller
-        i2c_interface
-        sensor_lib_sht3x)
-create_enV5_executable(hardware-test_sht3)
-##############################################
-## region hardware-test_adxl345b
-add_executable(hardware-test_adxl345b HardwaretestAdxl345b.c)
-target_link_libraries(hardware-test_adxl345b
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        pico_time
-        i2c_interface
-        sensor_lib_adxl345b)
-create_enV5_executable(hardware-test_adxl345b)
-## endregion hardware-test_adxl345b
-##############################################
-## hardware-test_pac193x
-add_executable(hardware-test_pac193x HardwaretestPac193x.c)
-target_link_libraries(hardware-test_pac193x
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        pico_time
-        i2c_interface
-        enV5_hw_configuration
-        sensor_lib_pac193x)
-create_enV5_executable(hardware-test_pac193x)
-##############################################
-## hardware-test_pac193x_stream
-add_executable(hardware-test_pac193x_stream HardwaretestPac193xAccumulator.c)
-target_link_libraries(hardware-test_pac193x_stream
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        pico_time
-        i2c_interface
-        enV5_hw_configuration
-        enV5_hw_controller
-        sensor_lib_pac193x)
-create_enV5_executable(hardware-test_pac193x_stream)
-##############################################
-## hardware-test_dualpac193x
-add_executable(hardware-test_dualpac193x HardwaretestDualPac193x.c)
-target_link_libraries(hardware-test_dualpac193x
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        pico_time
-        i2c_interface
-        enV5_hw_configuration
-        sensor_lib_pac193x)
-create_enV5_executable(hardware-test_dualpac193x)
-##############################################
-## hardware-test_pac193xbuffer
-add_executable(hardware-test_pac193xbuffer HardwaretestPac193xBuffer.c)
-target_link_libraries(hardware-test_pac193xbuffer
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_bootrom
-        pico_time
-        i2c_interface
-        enV5_hw_configuration
-        sensor_lib_pac193x)
-create_enV5_executable(hardware-test_pac193xbuffer)
-##############################################
-add_executable(hardware-test_bmi323 HardwaretestBmi323.c)
-target_link_libraries(hardware-test_bmi323
-        pico_stdlib
-        hardware_spi
+    add_executable(HardwareTestSht3x HardwareTestSht3x.c)
+    target_link_libraries(HardwareTestSht3x PRIVATE
+            Sht3x
+            HWTestCommon
+    )
+    create_env5_executable(HardwareTestSht3x)
 
-        CException
 
-        common_lib
-        enV5_hw_configuration
-        enV5_hw_controller
-        spi_interface
-        sleep_interface
-        sensor_lib_bmi323
-)
-create_enV5_executable(hardware-test_bmi323)
-## hardware-stresstest_adxl345b
-add_executable(hardware-test_stressTest_adxl345b StressTestAdxl345b.c)
-target_link_libraries(hardware-test_stressTest_adxl345b
-        common_lib
-        pico_stdlib
-        pico_stdio_usb
-        pico_time
-        freeRtosUtils
-        espBroker_lib
-        middleware_lib
-        sensor_lib_adxl345b
-        hardware-testHelper)
-create_enV5_executable(hardware-test_stressTest_adxl345b)
-##############################################
+    add_executable(HardwareTestAdxl345b HardwareTestAdxl345b.c)
+    target_link_libraries(HardwareTestAdxl345b PRIVATE
+            Adxl345b
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestAdxl345b)
+
+
+    add_executable(HardwareTestPac193x HardwareTestPac193x.c)
+    target_link_libraries(HardwareTestPac193x PRIVATE
+            Pac193x
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestPac193x)
+
+
+    add_executable(HardwareTestPac193xAccumulator HardwareTestPac193xAccumulator.c)
+    target_link_libraries(HardwareTestPac193xAccumulator PRIVATE
+            Pac193x
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestPac193xAccumulator)
+
+
+    add_executable(HardwareTestDualPac193x HardwareTestDualPac193x.c)
+    target_link_libraries(HardwareTestDualPac193x PRIVATE
+            Pac193x
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestDualPac193x)
+
+
+    add_executable(HardwareTestPac193xBuffer HardwareTestPac193xBuffer.c)
+    target_link_libraries(HardwareTestPac193xBuffer PRIVATE
+            Pac193x
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestPac193xBuffer)
+
+
+
+    add_executable(HardwareTestBmi323 HardwareTestBmi323.c)
+    target_link_libraries(HardwareTestBmi323 PRIVATE
+            Bmi323
+            HWTestCommon
+    )
+    create_enV5_executable(HardwareTestBmi323)
+
+
+    add_executable(StressTestAdxl345b StressTestAdxl345b.c)
+    target_link_libraries(StressTestAdxl345b PRIVATE
+            Adxl345b
+            Common
+            I2c
+            freeRtosUtils
+            HardwareTestHelper
+            EnV5HwController
+            Esp
+
+            Pico::pico_stdlib
+            Pico::pico_stdio
+            Pico::pico_bootrom
+            Pico::hardware_i2c
+            RuntimeC::Protocol
+    )
+    create_enV5_executable(StressTestAdxl345b)
+endif ()
+

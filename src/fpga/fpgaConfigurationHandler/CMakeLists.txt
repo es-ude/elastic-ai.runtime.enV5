@@ -1,15 +1,36 @@
-add_library(fpga_configuration_handler INTERFACE)
-target_include_directories(fpga_configuration_handler INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(fpga_configuration_handler INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandler.c
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandlerHTTP.c
-        ${CMAKE_CURRENT_LIST_DIR}/FpgaConfigurationHandlerUSB.c)
-target_link_libraries(fpga_configuration_handler INTERFACE
-        common_lib
-        pico_stdio
-        flash_lib
-        middleware_lib
-        network_lib
-        http_lib
-        enV5_hw_configuration
+add_library(FpgaConfigurationHandler
+        FpgaConfigurationHandler.c
+        FpgaConfigurationHandlerHTTP.c
 )
+
+target_include_directories(
+        FpgaConfigurationHandler
+        PUBLIC
+        include
+)
+
+
+target_link_libraries(FpgaConfigurationHandler PRIVATE
+        Common
+        Http
+        CException
+        EnV5HwConfiguration
+        Flash
+        m
+)
+
+
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_library(FpgaConfigurationHandlerUSB FpgaConfigurationHandlerUSB.c)
+    target_link_libraries(FpgaConfigurationHandlerUSB PRIVATE
+            Common
+            Http
+            CException
+            EnV5HwConfiguration
+            Flash
+            Pico::pico_stdio
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            FpgaConfigurationHandler
+    )
+endif ()

@@ -1,42 +1,40 @@
 ## Test with HTTP Dummy Server
-add_executable(hardware-test_stub-v1 HardwaretestStub.c)
-target_link_libraries(hardware-test_stub-v1
-        common_lib
-        pico_stdlib
-        hardware_spi
-        flash_lib
-        enV5_hw_controller
-        sleep_interface
-        fpga_configuration_handler
-        stub_v1_lib)
-target_compile_definitions(hardware-test_stub-v1 PRIVATE DEBUG)
-create_enV5_executable(hardware-test_stub-v1)
+add_executable(HardwareTestStub HardwareTestStub.c)
+target_link_libraries(HardwareTestStub
+        Common
+        EnV5HwController
+        EnV5HwConfiguration
+        Esp
+        Flash
+        FpgaConfigurationHandler
+        Http
+        Network
+        Stub
 
-## Test with HTTP Dummy Server
-add_executable(hardware-test_stub-v2 HardwaretestStub.c)
-target_link_libraries(hardware-test_stub-v2
-        common_lib
-        pico_stdlib
-        hardware_spi
-        flash_lib
-        enV5_hw_controller
-        sleep_interface
-        fpga_configuration_handler
-        stub_v2_lib)
-target_compile_definitions(hardware-test_stub-v2 PRIVATE DEBUG)
-create_enV5_executable(hardware-test_stub-v2)
+        Pico::pico_stdlib
+        Pico::hardware_spi
+)
+target_compile_definitions(HardwareTestStub PRIVATE DEBUG)
+create_enV5_executable(HardwareTestStub)
 
 ## Test in combination with Monitor
-add_executable(hardware-test_echoServerOTA HardwaretestStubWithMonitor.c)
-target_link_libraries(hardware-test_echoServerOTA
-        common_lib
-        pico_stdlib
-        hardware_spi
-        flash_lib
-        enV5_hw_controller
-        fpga_configuration_handler
-        middleware_lib
-        espBroker_lib
-        stub_v1_lib)
-target_compile_definitions(hardware-test_echoServerOTA PRIVATE DEBUG)
-create_enV5_executable(hardware-test_echoServerOTA)
+add_executable(HardwareTestStubWithMonitor HardwareTestStubWithMonitor.c)
+target_link_libraries(HardwareTestStubWithMonitor
+        Common
+        EnV5HwConfiguration
+        EnV5HwController
+        Esp
+        FpgaConfigurationHandler
+        freeRtosUtils
+        MqttBroker
+        Network
+        Middleware
+        Flash
+
+        freeRtos::FreeRTOS-Kernel
+        Pico::pico_stdlib
+        RuntimeC::Protocol
+        Pico::hardware_spi
+)
+target_compile_definitions(HardwareTestStubWithMonitor PRIVATE DEBUG)
+create_enV5_executable(HardwareTestStubWithMonitor)

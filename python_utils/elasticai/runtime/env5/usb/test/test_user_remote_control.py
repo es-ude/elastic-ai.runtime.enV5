@@ -1,4 +1,6 @@
+import logging
 from pathlib import Path
+from sys import stdout
 
 from serial import Serial
 from serial.tools import list_ports
@@ -10,14 +12,16 @@ echo_server: (str, bytes) = (
 )
 
 def get_pico_port():
-    for c in list_ports.comports():
+    port_infos = list_ports.comports()
+    for c in port_infos:
         if c.vid == 0x2e8a and c.pid == 0x000A:
             return c.device
+    raise Exception(f"no port found in {[(c.device, c.name, c.vid, c.pid) for c in port_infos]}")
 
 def test_user_remote_control():
 
-
-    serial_port = get_pico_port()
+    serial_port = "/dev/cu.usbmodem101"
+    print(f"using port {serial_port}")
     with Serial(serial_port) as serial_con:
 
         echoserver_path = Path(echo_server[0])
@@ -27,7 +31,7 @@ def test_user_remote_control():
         with open(echoserver_path, 'rb') as f:
             echoserver_file = f.read()
         binfile_address = 0
-
+        urcp.mcu_leds(False, True, False)
         urcp.send_data_to_flash(binfile_address, echoserver_file)
 
         data = b'\xDE\xAD\xBE\xEF'

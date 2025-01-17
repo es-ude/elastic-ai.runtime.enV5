@@ -1,7 +1,5 @@
-add_library(esp_lib INTERFACE)
-target_include_directories(esp_lib INTERFACE
-        ${CMAKE_SOURCE_DIR}/src/network/esp/include
-        ${CMAKE_CURRENT_LIST_DIR}/include)
-target_sources(esp_lib INTERFACE ${CMAKE_CURRENT_LIST_DIR}/Esp.c)
-target_link_libraries(esp_lib INTERFACE
-        common_lib)
+add_library(EspDummy Esp.c)
+target_include_directories(EspDummy PUBLIC include)
+target_link_libraries(EspDummy PRIVATE Common)
+target_link_libraries(EspDummy PUBLIC Esp)
+
