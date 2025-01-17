@@ -1,6 +1,6 @@
 add_subdirectory(config)
 add_subdirectory(atCommands)
 add_subdirectory(esp)
-add_subdirectory(wifi)
 add_subdirectory(http)
+add_subdirectory(wifi)
 add_subdirectory(broker)

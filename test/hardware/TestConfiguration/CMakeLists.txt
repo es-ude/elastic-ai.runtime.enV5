@@ -1,22 +1,32 @@
-add_executable(hardware-test_configUSB HardwaretestConfigureViaUSB.c)
-target_link_libraries(hardware-test_configUSB
-        common_lib
-        pico_stdlib
-        spi_interface
-        flash_lib
-        sleep_interface
-        enV5_hw_controller
-        enV5_hw_configuration
-        fpga_configuration_handler)
-create_enV5_executable(hardware-test_configUSB)
+if(BUILDING_FOR_ELASTIC_NODE)
+    add_executable(HardwareTestConfigureViaUSB HardwareTestConfigureViaUSB.c)
+    target_link_libraries(HardwareTestConfigureViaUSB PRIVATE
+            Common
+            EnV5HwConfiguration
+            EnV5HwController
+            FpgaConfigurationHandler
+            FpgaConfigurationHandlerUSB
+            Flash
+            Pico::pico_stdio
+            Pico::pico_stdlib
+            Pico::hardware_spi
+    )
+    create_enV5_executable(HardwareTestConfigureViaUSB)
 
-add_executable(hardware-test_configHTTP HardwaretestConfigureViaHTTP.c)
-target_link_libraries(hardware-test_configHTTP
-        common_lib
-        pico_stdlib
-        spi_interface
-        flash_lib
-        enV5_hw_controller
-        enV5_hw_configuration
-        fpga_configuration_handler)
-create_enV5_executable(hardware-test_configHTTP)
+
+
+    add_executable(HardwareTestConfigureViaHTTP HardwareTestConfigureViaHTTP.c)
+    target_link_libraries(HardwareTestConfigureViaHTTP PRIVATE
+            Common
+            EnV5HwController
+            EnV5HwConfiguration
+            Esp
+            Network
+            Flash
+            FpgaConfigurationHandler
+            Pico::pico_stdlib
+            Pico::pico_stdio_usb
+            Pico::hardware_spi
+    )
+    create_enV5_executable(HardwareTestConfigureViaHTTP)
+endif()

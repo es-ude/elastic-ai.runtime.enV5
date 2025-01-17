@@ -33,6 +33,7 @@ void freeRtosTaskWrapperRegisterTask(TaskCodeFunc taskCode, const char *taskName
 void freeRtosTaskWrapperTaskSleep(int timeInMs) {
     if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
         sleep_for_ms(timeInMs);
+
     } else {
         // vTaskDelay does not support delaying less than typically 10ms
         if (timeInMs < 10) {
