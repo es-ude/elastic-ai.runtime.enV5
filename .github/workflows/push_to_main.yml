@@ -1,23 +1,24 @@
-# Workflow requires Variables to be defined as follows:
-#   secrets.PUSH_TOKEN -> Password with rights to push to repository
-
 name: "Create Release"
 on:
   workflow_dispatch:
   push:
     branches:
       - 'main'
-
 jobs:
   semantic_release:
     name: Generate Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      release_tag: ${{ steps.release.outputs.VERSION }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false
       - name: Setup Graphviz
         uses: ts-graphviz/setup-graphviz@v1
       - name: Install Node.js
@@ -30,6 +31,7 @@ jobs:
       - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
         run: npm audit signatures
       - name: Create Release
+        id: release
         env:
-          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
