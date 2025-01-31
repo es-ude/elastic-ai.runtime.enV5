@@ -1,0 +1,22 @@
+{
+  "branches": [
+    "main"
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "successComment": false,
+        "failComment": false
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "publishCmd": "echo \"VERSION=${nextRelease.version}\" >> $GITHUB_OUTPUT"
+      }
+    ]
+  ]
+}
