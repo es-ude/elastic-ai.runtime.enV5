@@ -48,7 +48,7 @@ void initializeFlashConfig() {
     PRINT_DEBUG("Flash Config initialized.");
 }
 
-const char *baseUrl = "http://192.168.205.36:5000";
+const char *baseUrl = "http://127.0.0.1:5000";
 uint32_t blinkFast = 1;
 size_t blinkFastLength = 86116;
 uint32_t blinkSlow = 1;

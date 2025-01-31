@@ -41,7 +41,7 @@ void espInit(void) {
     uartConfiguration.parity = UART_PARITY;
 
     // initialize uart interface for AT commands
-    uartInit(&uartConfiguration);
+    uartInit(uartConfiguration);
 
     // check if ESP module is available
     while (!espInternalCheckIsResponding()) {

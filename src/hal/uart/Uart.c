@@ -34,9 +34,8 @@ static uartConfiguration_t uartConfig;
 
 /* region HEADER FUNCTION IMPLEMENTATIONS */
 
-void uartInit(uartConfiguration_t *externalUartConfig) {
-
-    uartConfig = *externalUartConfig;
+void uartInit(uartConfiguration_t configuration) {
+    uartConfig = configuration;
 
     // Set the TX and RX pins to UART by using the function select on the GPIO
     gpioSetPinFunction(uartConfig.txPin, GPIO_FUNCTION_UART);

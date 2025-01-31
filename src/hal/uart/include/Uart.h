@@ -38,7 +38,7 @@ typedef enum {
  *
  * @param uartConfig[in] struct that contains the UART configuration
  */
-void uartInit(uartConfiguration_t *uartConfig);
+void uartInit(uartConfiguration_t configuration);
 
 /*!
  * @brief method to set function which handles UART receive interrupt for MQTT
