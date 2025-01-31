@@ -53,6 +53,16 @@ Can be installed via your local package manager like dnf, apt or brew.
 https://developer.arm.com/downloads/-/gnu-rm[ARM-None-EABI GCC]::
 -> C Cross Compiler for ARM +
 Can be installed via your local package manager like dnf, apt or brew.
++
+- On Windows you can use https://learn.microsoft.com/en-us/windows/wsl/install[wsl] and follow the linux instructions or https://www.msys2.org/docs/installer/[msys2] with https://www.msys2.org/docs/cmake/[cmake for msys2]
+- On MacOS you need to run
++
+[source, bash]
+----
+$ brew install --cask gcc-arm-embedded
+----
++
+Note that the packages `arm-none-eabi-gcc` and `arm-none-eabi-binutils` are known to not work and should be removed before installing the cask.
 
 https://cmake.org[CMake]::
 -> Build System +
@@ -73,12 +83,16 @@ Can be installed via your local package manager like dnf, apt or brew. +
 Used for Commitlint hook of Pre-Commit!
 
 [#_pre_commit_optional]
-=== Pre-Commit [optional]
+=== Pre-Commit
 
 To ensure our guidelines, we recommend using https://commitlint.js.org/#/[Commitlint] in combination with https://pre-commit.com/[Pre-Commit].
 To assure you don't corrupt your system we recommend installing the dependencies inside a https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv[virtual environment].
 
-.Installation
+.Automated Installation (MacOS/Linux)
+1. make sure you have python3 installed
+2. call `python setup_dev_environment.py` from the project root directory
+
+.Manual Installation
 1. Install https://nodejs.org/en[Node.js]
 2. Install Node.js packages from link:../package.json[package.json] with `npm ci`
 1. Create and checkout a virtual Python environment
