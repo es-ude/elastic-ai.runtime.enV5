@@ -1,4 +1,6 @@
 ### Custom ###
+.justfile
+.vimrc
 .tool-versions
 .venv
 networks.txt
