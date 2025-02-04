@@ -29,6 +29,8 @@ typedef struct filesystemConfiguration {
 
     uint8_t numberOfEntries;
     uint8_t fileID;
+    uint16_t numberOfFreeSectors;
+    uint16_t numberOfBlockedSectors;
 } filesystemConfiguration_t;
 
 /*! @brief Checks if filesystem already exists. If not, a new one is initialized.
