@@ -82,4 +82,13 @@ if(BUILDING_FOR_ELASTIC_NODE)
             unity
     )
     create_enV5_executable(TestFilesystem)
+
+    add_executable(CheckEspForOkViaPico CheckEspForOkViaPico.c)
+    target_link_libraries(CheckEspForOkViaPico PRIVATE
+            Pico::pico_stdlib
+            Pico::hardware_uart
+            Pico::hardware_gpio
+            unity
+    )
+    create_enV5_executable(CheckEspForOkViaPico)
 endif()
