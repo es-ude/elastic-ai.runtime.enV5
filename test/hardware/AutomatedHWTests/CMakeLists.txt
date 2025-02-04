@@ -62,4 +62,24 @@ if(BUILDING_FOR_ELASTIC_NODE)
             unity
     )
     create_enV5_executable(TestFreeRTOSQueue)
+
+    add_executable(TestFilesystem TestFileSystem.c)
+    target_link_libraries(TestFilesystem PRIVATE
+            Common
+            EnV5HwConfiguration
+            EnV5HwController
+            Esp
+            FileSystem
+            Flash
+            FpgaConfigurationHandler
+            Network
+            Sleep
+
+            Pico::pico_stdlib
+            Pico::pico_bootrom
+            Pico::hardware_spi
+
+            unity
+    )
+    create_enV5_executable(TestFilesystem)
 endif()
