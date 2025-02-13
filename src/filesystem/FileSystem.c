@@ -87,11 +87,11 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
     filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.isConfig = isConfig;
 
     uint32_t numberOfUsedSectors = (size_t)ceilf(
-            (float)filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.size /
-            (float)flashGetBytesPerSector(filesystemConfig->flash));
+        (float)filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.size /
+        (float)flashGetBytesPerSector(filesystemConfig->flash));
 
-    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors = numberOfUsedSectors;
-
+    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors =
+        numberOfUsedSectors;
 
     // set all used sectors to 0 (used)
     if (isConfig == 2) {
@@ -113,7 +113,8 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
     // update number of entries
     ++filesystemConfig->numberOfEntries;
 
-    filesystemConfig->numberOfFreeSectors = filesystemConfig->numberOfFreeSectors - numberOfUsedSectors;
+    filesystemConfig->numberOfFreeSectors =
+        filesystemConfig->numberOfFreeSectors - numberOfUsedSectors;
     writeFileSystemToFlash(filesystemConfig);
 }
 
