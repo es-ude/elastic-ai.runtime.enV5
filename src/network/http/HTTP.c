@@ -53,7 +53,7 @@ void HTTPReceive(char *httpResponse) {
     uint32_t bytesOfData = strtol(startSize, &endSize, 10);
 
     char *data = strstr(startSize, ",") + 1;
-
+    // TODO: use ping pong buf here
     HTTPResponse = calloc(1, sizeof(HttpResponse_t));
     HTTPResponse->length = bytesOfData;
     HTTPResponse->response = calloc(bytesOfData, sizeof(uint8_t));
