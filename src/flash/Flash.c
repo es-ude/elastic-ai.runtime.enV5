@@ -28,6 +28,7 @@ void flashInit(flashConfiguration_t *flashConfig) {
     flashConfig->size = calculateBytesInFlash(config);
     flashConfig->bytesPerPage = calculateBytesPerPage(config);
     flashConfig->bytesPerSector = calculateBytesPerSector(config);
+    flashConfig->numberOfSectors = (int)flashConfig->size / (int)flashConfig->bytesPerSector;
 }
 
 size_t flashGetBytesPerPage(flashConfiguration_t *flashConfig) {
