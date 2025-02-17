@@ -33,13 +33,13 @@ typedef struct filesystemConfiguration {
 
     uint16_t filesystemStartSector;
     uint16_t filesystemEndSector;
-    uint16_t nextFileSystemSector;
+    uint32_t nextFileSystemSector;
 
     fileSystemEntry_t fileSystem[1020];
     uint8_t sectorFree[1024];
 
-    uint16_t numberOfEntries;
-    uint16_t fileID;
+    uint8_t numberOfEntries;
+    uint8_t fileID;
     uint16_t numberOfFreeSectors;
     uint16_t numberOfBlockedSectors;
 } filesystemConfiguration_t;
@@ -67,10 +67,9 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
  * @param startSector Sector where file starts
  * @param size Size of new file. Same value as in FindFittingStartSector.
  * @param isConfig Shows whether this is a config. 0 = no, 1 = yes, 2 = blocked for FPGA.
- * @return Returns pointer to newly added entry.
  */
-fileSystemEntry_t* filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                     uint16_t startSector, uint32_t size, isConfig_t isConfig);
+void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                     uint32_t startSector, uint32_t size, isConfig_t isConfig);
 
 /*! @brief Moves file to new sector and writes updated filesystem to flash.
  *
@@ -153,7 +152,5 @@ void filesystemFreeBlockedFPGASectors(filesystemConfiguration_t *filesystemConfi
  * @param filesystemConfig Config of used filesystem
  */
 void filesystemEraseAllEntries(filesystemConfiguration_t *filesystemConfig);
-
-bool filesystemCheckIfFilesystemExists(filesystemConfiguration_t *filesystemConfig);
 
 #endif // FILESYSTEM_H

@@ -1,6 +1,64 @@
 #ifndef ENV5_FILESYSTEM_INTERNAL_HEADER
 #define ENV5_FILESYSTEM_INTERNAL_HEADER
 
+/*! @brief Sets all sectors in sectorFree to 1 (free).
+ *
+ * @param filesystemConfig Config of used filesystem
+ */
+static void initSectorFree(filesystemConfiguration_t *filesystemConfig);
+
+/*! @brief Sets all used sectors that are occupied by entries in sectorFree to 0 (occupied).
+ *
+ * @param filesystemConfig Config of used filesystem
+ */
+static void sectorFreeSetSectorsUsedByEntries(filesystemConfiguration_t *filesystemConfig);
+
+/*! @brief Filesystem init that is used, if existing filesystem is found after reset.
+ *
+ * @param filesystemConfig Config of used filesystem
+ */
+static void existingFileSystemInit(filesystemConfiguration_t *filesystemConfig);
+
+/*! @brief Filesystem init that is used, if no filesystem is found after reset.
+ *
+ * @param filesystemConfig Config of used filesystem
+ */
+static void noExistingFileSystemInit(filesystemConfiguration_t *filesystemConfig);
+
+/*! @brief Moves file from current sector to new sector.
+ *
+ * @param filesystemConfig Config of used filesystem
+ * @param index Index of entry
+ * @param id ID for entry
+ */
+static void entrySetID(filesystemConfiguration_t *filesystemConfig, uint32_t index, uint32_t id);
+
+/*! @brief Moves file from current sector to new sector.
+ *
+ * @param filesystemConfig Config of used filesystem
+ * @param index Index of entry
+ * @param startSector Startsector of file
+ */
+static void entrySetStartSector(filesystemConfiguration_t *filesystemConfig, uint32_t index,
+                                uint32_t startSector);
+
+/*! @brief Moves file from current sector to new sector.
+ *
+ * @param filesystemConfig Config of used filesystem
+ * @param index Index of entry
+ * @param size Size of file
+ */
+static void entrySetSize(filesystemConfiguration_t *filesystemConfig, uint32_t index, size_t size);
+
+/*! @brief Moves file from current sector to new sector.
+ *
+ * @param filesystemConfig Config of used filesystem
+ * @param index Index of entry
+ * @param isConfig Set according to file. Check isConfig_t for correct values.
+ */
+static void entrySetIsConfig(filesystemConfiguration_t *filesystemConfig, uint32_t index,
+                             isConfig_t isConfig);
+
 /*! @brief Moves file from current sector to new sector.
  *
  * @param filesystemConfig Config of used filesystem
@@ -29,7 +87,7 @@ static void fileSystemEntryToByteArray(const fileSystemEntry_t *data, uint8_t *b
  * @param numberOfSectors Number of sectors required to store file
  */
 static void reconstructEntry(filesystemConfiguration_t *filesystemConfig, uint16_t id,
-                             uint16_t sector, uint32_t size, uint16_t isConfig,
+                             uint16_t sector, uint32_t size, isConfig_t isConfig,
                              uint16_t numberOfSectors);
 
 /*! @brief If file is moved to new sector, this updates the corresponding entry in the filesystem.

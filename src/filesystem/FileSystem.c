@@ -24,7 +24,7 @@ void filesystemInit(flashConfiguration_t *flashConfig,
         filesystemConfig->filesystemEndSector - (NUMBER_OF_SECTORS_FOR_FILESYSTEM - 1);
     filesystemConfig->numberOfFreeSectors = filesystemConfig->filesystemStartSector;
 
-    if (filesystemCheckIfFilesystemExists(filesystemConfig)) {
+    if (checkIfFileSystemExists(filesystemConfig)) {
         checkNumberOfEntries(filesystemConfig);
         existingFileSystemInit(filesystemConfig);
     }
@@ -32,29 +32,6 @@ void filesystemInit(flashConfiguration_t *flashConfig,
     else {
         noExistingFileSystemInit(filesystemConfig);
     }
-}
-
-bool filesystemCheckIfFilesystemExists(filesystemConfiguration_t *filesystemConfig) {
-
-    uint8_t data[ENTRY_SIZE];
-    data_t entryBuffer = {.data = data, .length = ENTRY_SIZE};
-
-    for (int i = filesystemConfig->filesystemStartSector;
-         i <= filesystemConfig->filesystemEndSector; i++) {
-        uint32_t sectorStartAddress = i * flashGetBytesPerSector(filesystemConfig->flash);
-        flashReadData(filesystemConfig->flash, sectorStartAddress, &entryBuffer);
-        if (entryBuffer.data[0] != 255) {
-            PRINT_DEBUG("\n");
-            PRINT_DEBUG("FileSystem found in sector %d.\n", i);
-            filesystemConfig->nextFileSystemSector = i;
-            inc(filesystemConfig);
-            return true;
-        }
-    }
-    PRINT_DEBUG("\n");
-    PRINT_DEBUG("No FileSystem found...\n");
-    PRINT_DEBUG("\n");
-    return false;
 }
 
 int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesystemConfig,
@@ -78,18 +55,16 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
     return FILESYSTEM_ERROR;
 }
 
-fileSystemEntry_t *filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                                   uint16_t startSector, uint32_t size,
-                                                   isConfig_t isConfig) {
+void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                     uint32_t startSector, uint32_t size, isConfig_t isConfig) {
     size_t numberOfEntries = filesystemConfig->numberOfEntries;
-    fileSystemEntry_t *entry = &filesystemConfig->fileSystem[numberOfEntries];
     uint16_t id = filesystemConfig->fileID;
     filesystemConfig->fileID++;
 
-    entry->entry.id = id;
-    entry->entry.startSector = startSector;
-    entry->entry.size = size;
-    entry->entry.isConfig = isConfig;
+    entrySetID(filesystemConfig, numberOfEntries, id);
+    entrySetStartSector(filesystemConfig, numberOfEntries, startSector);
+    entrySetSize(filesystemConfig, numberOfEntries, size);
+    entrySetIsConfig(filesystemConfig, numberOfEntries, isConfig);
 
     uint32_t numberOfUsedSectors = (size_t)ceilf(
         (float)filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.size /
@@ -123,7 +98,6 @@ fileSystemEntry_t *filesystemAddNewFileSystemEntry(filesystemConfiguration_t *fi
     filesystemConfig->numberOfFreeSectors =
         filesystemConfig->numberOfFreeSectors - numberOfUsedSectors;
     writeFileSystemToFlash(filesystemConfig);
-    return entry;
 }
 
 bool filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
@@ -268,10 +242,9 @@ bool filesystemBlockBytesForFPGA(filesystemConfiguration_t *filesystemConfig, ui
         if (entry == NULL || entry->entry.size == 0) {
             for (uint16_t i = startSector; i < startSector + numberOfRequiredSectors; i++) {
                 filesystemConfig->sectorFree[i] = BLOCKED_FOR_FPGA;
-                ++filesystemConfig->numberOfBlockedSectors;
             }
             filesystemAddNewFileSystemEntry(filesystemConfig, startSector, numberOfBytes, 2);
-
+            ++filesystemConfig->numberOfBlockedSectors;
             return true;
         } else {
             PRINT_DEBUG("ID: %i", entry->entry.id);
@@ -361,7 +334,23 @@ static void noExistingFileSystemInit(filesystemConfiguration_t *filesystemConfig
 
     initSectorFree(filesystemConfig);
     filesystemConfig->sectorFree[filesystemConfig->nextFileSystemSector] = 0;
-    filesystemConfig->numberOfBlockedSectors = 0;
+}
+
+static void entrySetID(filesystemConfiguration_t *filesystemConfig, uint32_t index, uint32_t id) {
+    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.id = id;
+}
+static void entrySetStartSector(filesystemConfiguration_t *filesystemConfig, uint32_t index,
+                                uint32_t startSector) {
+    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.startSector = startSector;
+}
+
+static void entrySetSize(filesystemConfiguration_t *filesystemConfig, uint32_t index, size_t size) {
+    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.size = size;
+}
+
+static void entrySetIsConfig(filesystemConfiguration_t *filesystemConfig, uint32_t index,
+                             isConfig_t isConfig) {
+    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.isConfig = isConfig;
 }
 
 void inc(filesystemConfiguration_t *filesystemConfig) {
@@ -467,6 +456,29 @@ void fileSystemEntryToByteArray(const fileSystemEntry_t *data, uint8_t *byteArra
     }
 }
 
+bool checkIfFileSystemExists(filesystemConfiguration_t *filesystemConfig) {
+
+    uint8_t data[ENTRY_SIZE];
+    data_t entryBuffer = {.data = data, .length = ENTRY_SIZE};
+
+    for (int i = filesystemConfig->filesystemStartSector;
+         i <= filesystemConfig->filesystemEndSector; i++) {
+        uint32_t sectorStartAddress = i * flashGetBytesPerSector(filesystemConfig->flash);
+        flashReadData(filesystemConfig->flash, sectorStartAddress, &entryBuffer);
+        if (entryBuffer.data[0] != 255) {
+            PRINT_DEBUG("\n");
+            PRINT_DEBUG("FileSystem found in sector %d.\n", i);
+            filesystemConfig->nextFileSystemSector = i;
+            inc(filesystemConfig);
+            return true;
+        }
+    }
+    PRINT_DEBUG("\n");
+    PRINT_DEBUG("No FileSystem found...\n");
+    PRINT_DEBUG("\n");
+    return false;
+}
+
 void checkNumberOfEntries(filesystemConfiguration_t *filesystemConfig) {
     uint32_t sector;
     if (filesystemConfig->nextFileSystemSector == filesystemConfig->filesystemStartSector) {
@@ -508,6 +520,7 @@ void deleteFileSystemEntry(filesystemConfiguration_t *filesystemConfig, uint8_t 
     memset(&filesystemConfig->fileSystem[filesystemConfig->numberOfEntries - 1], 0xFF,
            sizeof(fileSystemEntry_t));
     --filesystemConfig->numberOfEntries;
+    filesystemConfig->sectorFree[index] = 1;
 }
 
 void writeFileSystemToFlash(filesystemConfiguration_t *filesystemConfig) {
