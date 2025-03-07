@@ -9,6 +9,7 @@ typedef struct flashConfiguration {
     size_t size;
     size_t bytesPerSector;
     size_t bytesPerPage;
+    size_t numberOfSectors;
 } flashConfiguration_t;
 
 typedef enum flashErrorCode {
