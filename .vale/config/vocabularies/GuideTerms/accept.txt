@@ -1,0 +1,9 @@
+[Cc]ommitlint
+CI
+CMake
+Gradle
+Bazel
+refactorings
+API
+Thymeleaf
+espressif
