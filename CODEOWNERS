@@ -1,6 +1,12 @@
-
 ## default owners, will receive review requests for anything
 * @DavidFederl
 
-## request review for any c code changes
-*.c @glencoe
+## request review for documentation changes
+*.md @DavidFederl @LeoBuron @glencoe
+
+## request review for Python code changes
+*.py @LeoBuron
+
+## request review for any C code changes
+*.c @glencoe @DavidFederl
+*.h @glencoe @DavidFederl
