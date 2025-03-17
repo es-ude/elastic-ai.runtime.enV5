@@ -15,9 +15,6 @@
 
 #define SOURCE_FILE "HWTEST-STUB"
 
-#define FLASH_BYTES_PER_PAGE 512
-#define FLASH_BYTES_PER_SECTOR 262144
-
 #include "Common.h"
 #include "EnV5HwConfiguration.h"
 #include "EnV5HwController.h"
@@ -119,8 +116,10 @@ _Noreturn void runTest(void) {
             PRINT("FPGA powered OFF");
             break;
         case 'd':
-            PRINT("Deploy: %s",
-                  modelDeploy(3 * FLASH_BYTES_PER_SECTOR, acceloratorId) ? "successful" : "failed");
+            PRINT("Sector bytes: %i", flashGetBytesPerSector(&flashConfig));
+            PRINT("Deploy: %s", modelDeploy(3 * flashGetBytesPerSector(&flashConfig), acceloratorId)
+                                    ? "successful"
+                                    : "failed");
             break;
         default:
             PRINT("Waiting ...");
