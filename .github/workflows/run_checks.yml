@@ -11,8 +11,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
-          persist-credentials: false
           fetch-depth: 0
       - name: Lint Commits
         uses: wagoid/commitlint-github-action@v6
@@ -32,8 +30,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
       - name: Run clang-format style check for C/C++/Protobuf programs.
         uses: jidicula/clang-format-action@v4.14.0
         with:
@@ -48,7 +44,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
           submodules: 'true'
       - name: Install Environment
         run: |
@@ -69,8 +64,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
       - name: Setup Environment
         run: |
           sudo apt update && sudo apt install -y ninja-build gcc-arm-none-eabi graphviz
