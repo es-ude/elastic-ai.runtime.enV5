@@ -7,3 +7,4 @@ elseif (${ELASTIC_AI_TARGET} STREQUAL HOST)
 else ()
     include(${CMAKE_CURRENT_LIST_DIR}/env5.cmake)
 endif ()
+
