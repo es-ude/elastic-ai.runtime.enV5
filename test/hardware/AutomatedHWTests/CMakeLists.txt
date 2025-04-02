@@ -30,4 +30,21 @@ if(BUILDING_FOR_ELASTIC_NODE)
             unity
     )
     create_enV5_executable(TestFreeRTOSTask)
+
+    add_executable(TestFreeRTOSTaskDualCore TestFreeRTOSTaskDualCore.c)
+    target_link_libraries(TestFreeRTOSTaskDualCore PRIVATE
+            Common
+            EnV5HwConfiguration
+            EnV5HwController
+            Gpio
+            freeRtosUtils
+
+            freeRtos::FreeRTOS-Kernel
+            Pico::hardware_watchdog
+            Pico::pico_bootrom
+            Pico::pico_stdlib
+
+            unity
+    )
+    create_enV5_executable(TestFreeRTOSTaskDualCore)
 endif()
