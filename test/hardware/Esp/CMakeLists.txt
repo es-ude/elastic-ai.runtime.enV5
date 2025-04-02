@@ -1,11 +1,4 @@
-add_executable(CheckEspForOkViaPico CheckEspForOkViaPico.c)
-target_link_libraries(CheckEspForOkViaPico PRIVATE
-        Pico::pico_stdlib
-        Pico::hardware_uart
-        Pico::hardware_gpio
-        unity
-)
-create_enV5_executable(CheckEspForOkViaPico)
+
 
 add_executable(HardwareTestEsp HardwareTestEsp.c)
 target_link_libraries(HardwareTestEsp PRIVATE
