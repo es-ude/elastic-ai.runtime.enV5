@@ -52,7 +52,7 @@ int main() {
     uartInitInternal();
 
     // use our UART lib to initialize UART
-    uartInit(&uartConfig);
+    uartInit(uartConfig);
     printf("Uart initialized.\n");
 
     /*while (!espAnswered) {

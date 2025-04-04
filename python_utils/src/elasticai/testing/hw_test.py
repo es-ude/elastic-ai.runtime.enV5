@@ -15,7 +15,6 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--test", required=True, help="Path to hardware-test executables")
     parser.add_argument("-d", "--dir", required=True, help=" Path to directory where device is located")
     args = parser.parse_args()
-
     sh.copy(args.test, args.dir)
     time.sleep(2)
     with open(args.port, "r") as serial:

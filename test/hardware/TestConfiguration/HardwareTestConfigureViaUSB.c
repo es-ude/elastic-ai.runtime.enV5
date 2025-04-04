@@ -39,8 +39,8 @@ flashConfiguration_t flashConfig;
 void initializeFlashConfig() {
     flashConfig.spiConfiguration = &spiToFlashConfig;
     flashInit(&flashConfig);
-    flashConfig.bytesPerPage = flashGetBytesPerPage(NULL);
-    flashConfig.bytesPerSector = flashGetBytesPerSector(NULL);
+    flashConfig.bytesPerPage = flashGetBytesPerPage(&flashConfig);
+    flashConfig.bytesPerSector = flashGetBytesPerSector(&flashConfig);
     PRINT_DEBUG("Flash Config initialized.");
 }
 

@@ -1,0 +1,6 @@
+
+## default owners, will receive review requests for anything
+* @DavidFederl
+
+## request review for any c code changes
+*.c @glencoe

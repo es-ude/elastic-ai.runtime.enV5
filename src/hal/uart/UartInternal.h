@@ -6,9 +6,9 @@
  */
 //_Noreturn void uartInternalCallbackUartRxInterrupt();
 
-void uartInternalHandleNewLine(uartConfiguration_t *uartConfig);
+void uartInternalHandleNewLine();
 
-void checkAndHandleNewChar(uartConfiguration_t *uartConfig);
+void checkAndHandleNewChar();
 
 void setNewUARTInterrupt(void);
 
