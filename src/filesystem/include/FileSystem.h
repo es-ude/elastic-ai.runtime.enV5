@@ -6,13 +6,24 @@
 
 #include "FlashTypedefs.h"
 
+typedef enum isConfig {
+    NO_CONFIG = 0,
+    CONFIG = 1,
+    BLOCKED_FOR_FPGA = 2,
+} isConfig_t;
+
+typedef enum filesystemError {
+    NO_ERROR = 1,
+    FILESYSTEM_ERROR = -1,
+} filesystem_error_t;
+
 typedef union fileSystemEntry {
     uint8_t raw[12];
     struct {
         uint32_t size;
         uint16_t id;
         uint16_t startSector;
-        uint16_t isConfig;
+        isConfig_t isConfig;
         uint16_t numberOfSectors;
     } entry;
 } fileSystemEntry_t;
@@ -29,6 +40,8 @@ typedef struct filesystemConfiguration {
 
     uint8_t numberOfEntries;
     uint8_t fileID;
+    uint16_t numberOfFreeSectors;
+    uint16_t numberOfBlockedSectors;
 } filesystemConfiguration_t;
 
 /*! @brief Checks if filesystem already exists. If not, a new one is initialized.
@@ -56,7 +69,7 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
  * @param isConfig Shows whether this is a config. 0 = no, 1 = yes, 2 = blocked for FPGA.
  */
 void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                     uint32_t startSector, uint32_t size, uint16_t isConfig);
+                                     uint32_t startSector, uint32_t size, isConfig_t isConfig);
 
 /*! @brief Moves file to new sector and writes updated filesystem to flash.
  *
