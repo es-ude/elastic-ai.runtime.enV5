@@ -48,8 +48,9 @@ typedef struct filesystemConfiguration {
  *
  * @param flashConfig Config of used flash
  * @param filesystemConfig Config of used filesystem
+ * @return Returns boolean of whether an existing filesystem was found.
  */
-void filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t *filesystemConfig);
+bool filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t *filesystemConfig);
 
 /*! @brief Finds fitting start sector for given file length.
  *
@@ -67,9 +68,11 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
  * @param startSector Sector where file starts
  * @param size Size of new file. Same value as in FindFittingStartSector.
  * @param isConfig Shows whether this is a config. 0 = no, 1 = yes, 2 = blocked for FPGA.
+ * @return Returns pointer to newly added entry.
  */
-void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                     uint32_t startSector, uint32_t size, isConfig_t isConfig);
+fileSystemEntry_t *filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                                   uint32_t startSector, uint32_t size,
+                                                   isConfig_t isConfig);
 
 /*! @brief Moves file to new sector and writes updated filesystem to flash.
  *

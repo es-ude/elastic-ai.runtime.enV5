@@ -5,7 +5,6 @@
 #include "EnV5HwController.h"
 #include "FileSystem.h"
 #include "Flash.h"
-#include "FpgaConfigurationHandler.h"
 #include "unity.h"
 
 #include "hardware/spi.h"
@@ -29,7 +28,6 @@ flashConfiguration_t flashConfig = {
 
 filesystemConfiguration_t filesystemConfig;
 
-// Helper Functions
 void resetFilesystem() {
     filesystemEraseAllEntries(&filesystemConfig);
     filesystemInit(&flashConfig, &filesystemConfig);
@@ -37,20 +35,50 @@ void resetFilesystem() {
 
 bool checkIfFilesystemEntryMatchesGivenEntry(const fileSystemEntry_t *testEntry,
                                              const fileSystemEntry_t *entryToCompare) {
-    return testEntry->entry.id == entryToCompare->entry.id &&
-           testEntry->entry.size == entryToCompare->entry.size &&
-           testEntry->entry.startSector == entryToCompare->entry.startSector &&
-           testEntry->entry.isConfig == entryToCompare->entry.isConfig &&
-           testEntry->entry.numberOfSectors == entryToCompare->entry.numberOfSectors;
+    bool entriesMatch = true;
+    if (testEntry->entry.id != entryToCompare->entry.id) {
+        PRINT_DEBUG("ID DOESN'T MATCH!");
+        PRINT_DEBUG("Expected: %d, got: %d", testEntry->entry.id, entryToCompare->entry.id);
+        entriesMatch = false;
+    }
+
+    if (testEntry->entry.size != entryToCompare->entry.size) {
+        PRINT_DEBUG("SIZE DOESN'T MATCH!");
+        PRINT_DEBUG("Expected: %d, got: %d", testEntry->entry.size, entryToCompare->entry.size);
+        entriesMatch = false;
+    }
+
+    if (testEntry->entry.startSector != entryToCompare->entry.startSector) {
+        PRINT_DEBUG("START SECTOR DOESN'T MATCH!");
+        PRINT_DEBUG("Expected: %d, got: %d", testEntry->entry.startSector,
+                    entryToCompare->entry.startSector);
+        entriesMatch = false;
+    }
+
+    if (testEntry->entry.isConfig != entryToCompare->entry.isConfig) {
+        PRINT_DEBUG("ISCONFIG DOESN'T MATCH!");
+        PRINT_DEBUG("Expected: %d, got: %d", testEntry->entry.isConfig,
+                    entryToCompare->entry.isConfig);
+        entriesMatch = false;
+    }
+
+    if (testEntry->entry.numberOfSectors != entryToCompare->entry.numberOfSectors) {
+        PRINT_DEBUG("NUMBER OF SECTORS DOESN'T MATCH!");
+        PRINT_DEBUG("Expected: %d, got: %d", testEntry->entry.numberOfSectors,
+                    entryToCompare->entry.numberOfSectors);
+        entriesMatch = false;
+    }
+
+    return entriesMatch;
 }
 
 bool checkSectorFree(uint16_t numberOfSectors, uint16_t startSector, bool expectedIfFree) {
 
     for (int i = 0; i < numberOfSectors; i++) {
         if ((bool)filesystemConfig.sectorFree[startSector + i] != expectedIfFree) {
-            PRINT("WRONG SECTOR FREE VALUE!");
-            PRINT("Expected: %d, got: %d", expectedIfFree,
-                  filesystemConfig.sectorFree[startSector + i]);
+            PRINT_DEBUG("WRONG SECTOR FREE VALUE!");
+            PRINT_DEBUG("Expected: %d, got: %d", expectedIfFree,
+                        filesystemConfig.sectorFree[startSector + i]);
             return false;
         }
     }
@@ -61,58 +89,33 @@ bool checkIfFilesystemValuesMatchGivenValues(uint8_t numberOfEntries, uint8_t fi
                                              uint32_t nextFileSystemSector,
                                              uint16_t numberOfFreeSectors) {
 
+    bool valuesMatch = true;
     if (numberOfEntries != filesystemConfig.numberOfEntries) {
-        PRINT("WRONG NUMBER OF ENTRIES!");
-        PRINT("Expected: %d, got: %d", numberOfEntries, filesystemConfig.numberOfEntries);
-        return false;
+        PRINT_DEBUG("WRONG NUMBER OF ENTRIES!");
+        PRINT_DEBUG("Expected: %d, got: %d", numberOfEntries, filesystemConfig.numberOfEntries);
+        valuesMatch = false;
     }
     if (nextFileSystemSector != filesystemConfig.nextFileSystemSector) {
-        PRINT("WRONG NEXT FILE SYSTEM SECTOR!");
-        PRINT("Expected: %d, got: %d", nextFileSystemSector, filesystemConfig.nextFileSystemSector);
-        return false;
+        PRINT_DEBUG("WRONG NEXT FILE SYSTEM SECTOR!");
+        PRINT_DEBUG("Expected: %d, got: %d", nextFileSystemSector,
+                    filesystemConfig.nextFileSystemSector);
+        valuesMatch = false;
     }
     if (fileID != filesystemConfig.fileID) {
-        PRINT("WRONG FILE ID!");
-        PRINT("Expected: %d, got: %d", fileID, filesystemConfig.fileID);
-        return false;
+        PRINT_DEBUG("WRONG FILE ID!");
+        PRINT_DEBUG("Expected: %d, got: %d", fileID, filesystemConfig.fileID);
+        valuesMatch = false;
     }
     if (numberOfFreeSectors != filesystemConfig.numberOfFreeSectors) {
-        PRINT("WRONG NUMBER OF FREE SECTORS!");
-        PRINT("Expected %d, got %d", numberOfFreeSectors, filesystemConfig.numberOfFreeSectors);
-        return false;
+        PRINT_DEBUG("WRONG NUMBER OF FREE SECTORS!");
+        PRINT_DEBUG("Expected %d, got %d", numberOfFreeSectors,
+                    filesystemConfig.numberOfFreeSectors);
+        valuesMatch = false;
     }
 
-    return true;
+    return valuesMatch;
 }
 
-// Unit Tests
-void testFindFittingStartSectorReturnIfFileDoesntFit() {
-    uint32_t numberOfRequiredBytes =
-        filesystemConfig.filesystemStartSector * flashGetBytesPerSector(filesystemConfig.flash);
-    uint32_t startSector =
-        filesystemFindFittingStartSector(&filesystemConfig, numberOfRequiredBytes);
-    TEST_ASSERT_EQUAL(-1, startSector);
-}
-void testFindFittingStartSectorReturnIfFileFits() {
-    uint32_t numberOfRequiredBytes = 0;
-    uint32_t startSector = 0;
-    for (int i = 1; i < filesystemConfig.filesystemStartSector; i++) {
-        numberOfRequiredBytes = i * flashGetBytesPerSector(filesystemConfig.flash);
-        startSector = filesystemFindFittingStartSector(&filesystemConfig, numberOfRequiredBytes);
-        TEST_ASSERT_NOT_EQUAL(-1, startSector);
-    }
-}
-void testFindFittingStartSectorWithNonSubsequentSectors() {
-    // if sector 1 is occupied, startSector should not be zero (2 subsequent sectors needed)
-    uint32_t numberOfRequiredBytes = 2 * flashGetBytesPerSector(filesystemConfig.flash);
-    filesystemConfig.sectorFree[1] = 0;
-    uint32_t startSector =
-        filesystemFindFittingStartSector(&filesystemConfig, numberOfRequiredBytes);
-    TEST_ASSERT_NOT_EQUAL(0, startSector);
-    filesystemConfig.sectorFree[1] = 1;
-}
-
-// Integration Tests
 void testFileSystemExistsAfterAddingNewEntry() {
     resetFilesystem();
 
@@ -120,11 +123,15 @@ void testFileSystemExistsAfterAddingNewEntry() {
     uint32_t fileSize = numberOfRequiredSectors * flashGetBytesPerSector(filesystemConfig.flash);
     filesystemAddNewFileSystemEntry(&filesystemConfig, 0, fileSize, true);
 
-    TEST_ASSERT_EQUAL(true, filesystemCheckIfFilesystemExists(&filesystemConfig));
+    TEST_ASSERT_EQUAL(true, filesystemInit(&flashConfig, &filesystemConfig));
 }
 void testFileSystemDoesntExistAfterErasingAllEntries() {
+    uint8_t numberOfRequiredSectors = 1;
+    uint32_t fileSize = numberOfRequiredSectors * flashGetBytesPerSector(filesystemConfig.flash);
+    filesystemAddNewFileSystemEntry(&filesystemConfig, 0, fileSize, true);
+
     filesystemEraseAllEntries(&filesystemConfig);
-    TEST_ASSERT_EQUAL(false, filesystemCheckIfFilesystemExists(&filesystemConfig));
+    TEST_ASSERT_EQUAL(false, filesystemInit(&flashConfig, &filesystemConfig));
 }
 
 void testFilesystemValuesCorrectAfterNewEntry() {
@@ -242,7 +249,7 @@ void testFilesystemGetEntryByIndexReturnsNullWithInvalidIndex() {
 
     TEST_ASSERT_EQUAL(NULL, filesystemGetEntryByIndex(&filesystemConfig, 0 + 1));
 }
-void testFilesystemGetEntryBySectorReturnsNullWithInvalidIndex() {
+void testFilesystemGetEntryBySectorReturnsNullWithInvalidSector() {
     resetFilesystem();
 
     uint32_t sizeOfEntry = 1 * flashGetBytesPerSector(filesystemConfig.flash);
@@ -252,7 +259,7 @@ void testFilesystemGetEntryBySectorReturnsNullWithInvalidIndex() {
 
     TEST_ASSERT_EQUAL(NULL, filesystemGetEntryBySector(&filesystemConfig, startSector + 1));
 }
-void testFilesystemGetEntryByIdReturnsNullWithInvalidIndex() {
+void testFilesystemGetEntryByIdReturnsNullWithInvalidId() {
     resetFilesystem();
 
     uint32_t sizeOfEntry = 1 * flashGetBytesPerSector(filesystemConfig.flash);
@@ -341,7 +348,6 @@ void testMovingFileFailsIfSectorIsBlockedForFPGA() {
         false, filesystemMoveFileToSector(&filesystemConfig, entry->entry.id, blockedSector));
 };
 
-// Setup
 void init() {
     env5HwControllerInit();
     env5HwControllerFpgaPowersOff();
@@ -374,8 +380,8 @@ int main() {
     RUN_TEST(testFilesystemGetEntryByIdReturnsCorrectEntryWithValidID);
 
     RUN_TEST(testFilesystemGetEntryByIndexReturnsNullWithInvalidIndex);
-    RUN_TEST(testFilesystemGetEntryByIndexReturnsNullWithInvalidIndex);
-    RUN_TEST(testFilesystemGetEntryByIdReturnsNullWithInvalidIndex);
+    RUN_TEST(testFilesystemGetEntryBySectorReturnsNullWithInvalidSector);
+    RUN_TEST(testFilesystemGetEntryByIdReturnsNullWithInvalidId);
 
     RUN_TEST(testCorrectNumberOfBlockedSectors);
     RUN_TEST(testCorrectNumberOfBlockedSectorsAfterFree);
