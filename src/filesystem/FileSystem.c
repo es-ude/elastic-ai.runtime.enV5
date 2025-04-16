@@ -15,7 +15,7 @@
 
 // region PUBLIC HEADER FUNCTIONS
 
-void filesystemInit(flashConfiguration_t *flashConfig,
+bool filesystemInit(flashConfiguration_t *flashConfig,
                     filesystemConfiguration_t *filesystemConfig) {
     filesystemConfig->flash = flashConfig;
 
@@ -27,10 +27,12 @@ void filesystemInit(flashConfiguration_t *flashConfig,
     if (checkIfFileSystemExists(filesystemConfig)) {
         checkNumberOfEntries(filesystemConfig);
         existingFileSystemInit(filesystemConfig);
+        return true;
     }
 
     else {
         noExistingFileSystemInit(filesystemConfig);
+        return false;
     }
 }
 
@@ -55,25 +57,24 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
     return FILESYSTEM_ERROR;
 }
 
-void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                     uint32_t startSector, uint32_t size, isConfig_t isConfig) {
-    size_t numberOfEntries = filesystemConfig->numberOfEntries;
-    uint16_t id = filesystemConfig->fileID;
-    filesystemConfig->fileID++;
+fileSystemEntry_t *filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                                   uint32_t startSector, uint32_t size,
+                                                   isConfig_t isConfig) {
 
-    entrySetID(filesystemConfig, numberOfEntries, id);
-    entrySetStartSector(filesystemConfig, numberOfEntries, startSector);
-    entrySetSize(filesystemConfig, numberOfEntries, size);
-    entrySetIsConfig(filesystemConfig, numberOfEntries, isConfig);
+    fileSystemEntry_t *newFileSystemEntry =
+        &filesystemConfig->fileSystem[filesystemConfig->numberOfEntries];
 
-    uint32_t numberOfUsedSectors = (size_t)ceilf(
-        (float)filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.size /
-        (float)flashGetBytesPerSector(filesystemConfig->flash));
+    newFileSystemEntry->entry.id = filesystemConfig->fileID;
+    newFileSystemEntry->entry.startSector = startSector;
+    newFileSystemEntry->entry.size = size;
+    newFileSystemEntry->entry.isConfig = isConfig;
 
-    filesystemConfig->fileSystem[filesystemConfig->numberOfEntries].entry.numberOfSectors =
-        numberOfUsedSectors;
+    uint32_t numberOfUsedSectors =
+        (size_t)ceilf((float)newFileSystemEntry->entry.size /
+                      (float)flashGetBytesPerSector(filesystemConfig->flash));
 
-    // set all used sectors to 0 (used)
+    newFileSystemEntry->entry.numberOfSectors = numberOfUsedSectors;
+
     if (isConfig == BLOCKED_FOR_FPGA) {
         for (int i = 0;
              i <
@@ -92,12 +93,14 @@ void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig
         }
     }
 
-    // update number of entries
     ++filesystemConfig->numberOfEntries;
-
+    ++filesystemConfig->fileID;
     filesystemConfig->numberOfFreeSectors =
         filesystemConfig->numberOfFreeSectors - numberOfUsedSectors;
+
     writeFileSystemToFlash(filesystemConfig);
+
+    return newFileSystemEntry;
 }
 
 bool filesystemMoveFileToSector(filesystemConfiguration_t *filesystemConfig, uint16_t ID,
