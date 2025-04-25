@@ -107,6 +107,14 @@ static void checkSerialNumber() {
     TEST_ASSERT_EQUAL(0xE5, serialNumber);
 }
 
+static void makeSelfTest() {
+    int delta_x, delta_y, delta_z;
+    adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(sensor, &delta_x, &delta_y, &delta_z);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+}
+
 void setUp() {}
 void tearDown() {};
 
@@ -125,6 +133,7 @@ int main() {
     /* endregion checkInitValues */
 
     RUN_TEST(checkSerialNumber);
+    RUN_TEST(makeSelfTest);
     UNITY_END();
     deInit();
 
