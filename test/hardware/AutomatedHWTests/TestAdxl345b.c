@@ -97,6 +97,16 @@ paramTest(checkInitValues, ADXL345B_REGISTER_POWER_CONTROL);
 paramTest(checkInitValues, ADXL345B_REGISTER_INTERRUPT_ENABLE);
 paramTest(checkInitValues, ADXL345B_REGISTER_DATA_FORMAT);
 
+
+static void checkSerialNumber() {
+    uint8_t serialNumber = 0;
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    TEST_ASSERT_EQUAL(0xE5, serialNumber);
+}
+
 void setUp() {}
 void tearDown() {};
 
@@ -107,10 +117,14 @@ void deInit() {
 int main() {
     init();
     UNITY_BEGIN();
+    /* region checkInitValues */
     RUN_TEST(checkInitValuesADXL345B_REGISTER_BW_RATE);
     RUN_TEST(checkInitValuesADXL345B_REGISTER_POWER_CONTROL);
     RUN_TEST(checkInitValuesADXL345B_REGISTER_INTERRUPT_ENABLE);
     RUN_TEST(checkInitValuesADXL345B_REGISTER_DATA_FORMAT);
+    /* endregion checkInitValues */
+
+    RUN_TEST(checkSerialNumber);
     UNITY_END();
     deInit();
 
