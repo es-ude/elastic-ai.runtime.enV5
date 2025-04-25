@@ -70,6 +70,33 @@ void init() {
     }
 }
 
+void checkInitValues(adxl345bRegister_t registerToCheck) {
+    uint8_t buffer;
+    uint8_t expectedValue;
+    if (registerToCheck == ADXL345B_REGISTER_BW_RATE) {
+        expectedValue = ADXL345B_BW_RATE_LPM_12_point_5;
+    } else if (registerToCheck == ADXL345B_REGISTER_POWER_CONTROL) {
+        expectedValue = 0b00001000;
+    } else if (registerToCheck == ADXL345B_REGISTER_INTERRUPT_ENABLE) {
+        expectedValue = 0b00000000;
+    } else if (registerToCheck == ADXL345B_REGISTER_DATA_FORMAT) {
+        expectedValue = 0b00001000;
+    } else {
+        TEST_FAIL_MESSAGE("This register is not changed by init");
+    }
+    adxl345bErrorCode_t errorCode =
+        adxl345bInternalReadDataFromSensor(sensor, registerToCheck, buffer, 1);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        TEST_ASSERT_EQUAL(expectedValue, buffer);
+    } else {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+}
+paramTest(checkInitValues, ADXL345B_REGISTER_BW_RATE);
+paramTest(checkInitValues, ADXL345B_REGISTER_POWER_CONTROL);
+paramTest(checkInitValues, ADXL345B_REGISTER_INTERRUPT_ENABLE);
+paramTest(checkInitValues, ADXL345B_REGISTER_DATA_FORMAT);
+
 void setUp() {}
 void tearDown() {};
 
@@ -80,10 +107,12 @@ void deInit() {
 int main() {
     init();
     UNITY_BEGIN();
-    /* do some tests */
+    RUN_TEST(checkInitValuesADXL345B_REGISTER_BW_RATE);
+    RUN_TEST(checkInitValuesADXL345B_REGISTER_POWER_CONTROL);
+    RUN_TEST(checkInitValuesADXL345B_REGISTER_INTERRUPT_ENABLE);
+    RUN_TEST(checkInitValuesADXL345B_REGISTER_DATA_FORMAT);
     UNITY_END();
     deInit();
 
     return 0;
 }
-
