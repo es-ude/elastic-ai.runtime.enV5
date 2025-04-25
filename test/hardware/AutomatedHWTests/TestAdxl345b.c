@@ -172,6 +172,27 @@ paramTest(checkRangeValues, 8)
 paramTest(checkRangeValues, 16)
 
 
+/*! causes side effects: this function changes the FIFO-Mode persistently */
+    void setGivenFifoModeAndCheckValues(uint8_t testedfifoMode) {
+    adxl345bErrorCode_t adxl345bSetFIFOMode(sensor, testedFifoMode, samplesForTrigger);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    uint8_t buffer;
+    errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, buffer, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    uint8_t expectedFIFOConfiguration =
+        (testedFifoMode & 0b11000000) | (samplesForTrigger & 0b00011111);
+    TEST_ASSERT_EQUAL(expectedFIFOConfiguration, buffer);
+}
+paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_BYPASS);
+paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_FIFO);
+paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_STREAM);
+paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_TRIGGER);
+
+
 void setUp() {}
 void tearDown() {};
 
@@ -199,6 +220,11 @@ int main() {
     RUN_TEST(checkRangeValues8);
     RUN_TEST(checkRangeValues16);
     /* endregion checkRangeValues */
+
+    RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_BYPASS);
+    RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_FIFO);
+    RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_STREAM);
+    RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_TRIGGER);
 
     UNITY_END();
     deInit();
