@@ -83,12 +83,12 @@ adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t
     }
     uint8_t currentDataFormatSetting;
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
-                                                   uint8_t & currentDataFormatSetting,
-                                                   1);
+                                                   &currentDataFormatSetting, 1);
     /* reset/clear Range */
-    currentDataFormatSetting = currentDataFormatSetting && 11110000;
+    currentDataFormatSetting = currentDataFormatSetting & 0b11110000;
     /* set new Range */
-    uint8_t newDataFormatSetting = currentDataFormatSetting || adxl345bSelectedRange.settingForRange;
+    uint8_t newDataFormatSetting =
+        currentDataFormatSetting || adxl345bSelectedRange.settingForRange;
 
     /* right adjusted storage, selected range settings for full resolution */
     errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
