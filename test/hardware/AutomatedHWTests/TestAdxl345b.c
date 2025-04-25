@@ -250,6 +250,72 @@ paramTest(checkSingleGValue, ADXL345B_FIFOMODE_FIFO);
 paramTest(checkSingleGValue, ADXL345B_FIFOMODE_STREAM);
 paramTest(checkSingleGValue, ADXL345B_FIFOMODE_TRIGGER);
 
+void checkMultipleGValues(uint8_t testedFifoMode) {
+    /* check current Fifo-Mode */
+    uint8_t previousifoMode;
+    adxl345bErrorCode_t errorCode =
+        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, previousFifoMode, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+
+    /* set Fifo-Mode if necessary*/
+    if (previousFifoMode != testedFifoMode) {
+        adxl345bSetFIFOMode(sensor, prevousFifoMode, samplesForTrigger);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        }
+    }
+
+    /* initialize variables */
+    float xAxis = 0, yAxis = 0, zAxis = 0;
+    sizeOfRawData = 100;
+    uint8_t rawData[sizeOfRawData];
+    memset(rawData, 0, sizeOfRawData);
+    adxl345bErrorCode_t errorCode;
+
+    if (testedFifoMode == ADXL345B_FIFOMODE_BYPASS) {
+        errorCode = adxl345bGetMultipleMeasurements(sensor, rawData, sizeOfRawData);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            TEST_FAIL_MESSAGE(
+                "calling getMultipleMeasurements in BYPASS-Mode should fail but does not");
+        } else {
+            TEST_FAIL_MESSAGE("calling getMultipleMeasurements in BYPASS-Mode should fail");
+        }
+    } else {
+        errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    }
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    errorCode = adxl345bConvertDataXYZ(&xAxis, &yAxis, &zAxis, rawData);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    /* 0.2G equals a deviation of about 1% from the ideal value
+     * this deviation is given by the datasheet as the accepted tolerance
+     * for each axis therefore should epsilon be 0.6G
+     */
+    float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
+
+    // TODO: this could maybe fail. Better test range
+    TEST_ASSERT_EQUAL_FLOAT(1.0f, sumOfAxis);
+
+    TEST_ASSERT_FLOAT_WITHIN(1.0f, sumOfAxis, 0.6f);
+
+    /* reset Fifo-Mode if necessary */
+    if (previousFifoMode != testedFifoMode) {
+        adxl345bSetFIFOMode(sensor, prevousFifoMode, samplesForTrigger);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        }
+    }
+}
+
+paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_BYPASS);
+paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_FIFO);
+paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_STREAM);
+paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_TRIGGER);
 
 void setUp() {}
 void tearDown() {};
@@ -282,21 +348,25 @@ int main() {
     /* region TESTS IN BYPASS-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_BYPASS);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_BYPASS);
+    RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_BYPASS);
     /* endregion TESTS IN BYPASS-MODE */
 
     /* region TESTS IN FIFO-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_FIFO);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_FIFO);
+    RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_FIFO);
     /* endregion TESTS IN FIFO-MODE */
 
     /* region TESTS IN STREAM-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_STREAM);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_STREAM);
+    RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_STREAM);
     /* endregion TESTS IN STREAM-MODE */
 
     /* region TESTS IN TRIGGER-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_TRIGGER);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_TRIGGER);
+    RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_TRIGGER);
     /* endregion TESTS IN TRIGGER-MODE */
 
     UNITY_END();
