@@ -6,13 +6,24 @@
 
 #include "FlashTypedefs.h"
 
+typedef enum isConfig {
+    NO_CONFIG = 0,
+    CONFIG = 1,
+    BLOCKED_FOR_FPGA = 2,
+} isConfig_t;
+
+typedef enum filesystemError {
+    NO_ERROR = 1,
+    FILESYSTEM_ERROR = -1,
+} filesystem_error_t;
+
 typedef union fileSystemEntry {
     uint8_t raw[12];
     struct {
         uint32_t size;
         uint16_t id;
         uint16_t startSector;
-        uint16_t isConfig;
+        isConfig_t isConfig;
         uint16_t numberOfSectors;
     } entry;
 } fileSystemEntry_t;
@@ -29,14 +40,17 @@ typedef struct filesystemConfiguration {
 
     uint8_t numberOfEntries;
     uint8_t fileID;
+    uint16_t numberOfFreeSectors;
+    uint16_t numberOfBlockedSectors;
 } filesystemConfiguration_t;
 
 /*! @brief Checks if filesystem already exists. If not, a new one is initialized.
  *
  * @param flashConfig Config of used flash
  * @param filesystemConfig Config of used filesystem
+ * @return Returns boolean of whether an existing filesystem was found.
  */
-void filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t *filesystemConfig);
+bool filesystemInit(flashConfiguration_t *flashConfig, filesystemConfiguration_t *filesystemConfig);
 
 /*! @brief Finds fitting start sector for given file length.
  *
@@ -54,9 +68,11 @@ int32_t filesystemFindFittingStartSector(const filesystemConfiguration_t *filesy
  * @param startSector Sector where file starts
  * @param size Size of new file. Same value as in FindFittingStartSector.
  * @param isConfig Shows whether this is a config. 0 = no, 1 = yes, 2 = blocked for FPGA.
+ * @return Returns pointer to newly added entry.
  */
-void filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
-                                     uint32_t startSector, uint32_t size, uint16_t isConfig);
+fileSystemEntry_t *filesystemAddNewFileSystemEntry(filesystemConfiguration_t *filesystemConfig,
+                                                   uint32_t startSector, uint32_t size,
+                                                   isConfig_t isConfig);
 
 /*! @brief Moves file to new sector and writes updated filesystem to flash.
  *
