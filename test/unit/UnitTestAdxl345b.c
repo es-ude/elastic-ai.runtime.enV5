@@ -1,10 +1,8 @@
-#include <memory.h>
-// #include <stdlib.h>
-#include <unity.h>
-
 #include "I2cUnitTest.h"
 #include "eai/sensor/Adxl345b.h"
-#include "eai/sensor/Adxl345bTypedefs.h"
+#include <memory.h>
+#include <stdlib.h>
+#include <unity.h>
 
 /*! JUST HERE TO SATISFY THE COMPILER
  *
@@ -684,7 +682,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
     float expected_xAxis = 0, expected_yAxis = 0, expected_zAxis = 0;
     float actual_xAxis = 0, actual_yAxis = 0, actual_zAxis = 0;
     const uint8_t MSB_MASK = 0b00000011;
-    const float SCALE_FACTOR_FOR_RANGE = 0.0043f;
+    const float SCALE_FACTOR_FOR_RANGE = 0.00377f;
     /* only used lower 2 bits -> 2G Range consists of 10 Bit*/
     uint8_t topByte = byteZero & MSB_MASK;
 
@@ -713,7 +711,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     }
     adxl345bGetSingleMeasurement(sensor, rawData);
-    adxl345bConvertDataXYZ(&actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
+    adxl345bConvertDataXYZ(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
 
     TEST_ASSERT_EQUAL_FLOAT(expected_xAxis, actual_xAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_yAxis, actual_yAxis);
