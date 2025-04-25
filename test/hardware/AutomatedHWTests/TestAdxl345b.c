@@ -115,6 +115,16 @@ static void makeSelfTest() {
     }
 }
 
+static void runCalibration() {
+    PRINT("Start Calibration of ADXL345b");
+    adxl345bErrorCode_t errorCode = adxl345bRunSelfCalibration(sensor);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;32mSUCCESSFUL\033[0m");
+    } else {
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
+    }
+}
+
 void setUp() {}
 void tearDown() {};
 
@@ -134,6 +144,7 @@ int main() {
 
     RUN_TEST(checkSerialNumber);
     RUN_TEST(makeSelfTest);
+    RUN_TEST(runCalibration);
     UNITY_END();
     deInit();
 
