@@ -10,7 +10,7 @@
 
 /* region CONSTANTS */
 
-/*! For more Information about Mask see Figure 49 on Page 32 of 36 in Datasheet  */
+/*! For more Information about msbMask see Figure 49 on Page 32 of 36 in Datasheet  */
 const static adxl345bRangeSetting_t adxl345b_2g_range = {0b00001000, 0b00000011, 0.0043f};
 const static adxl345bRangeSetting_t adxl345b_4g_range = {0b00001001, 0b00000111, 0.0087f};
 const static adxl345bRangeSetting_t adxl345b_8g_range = {0b00001010, 0b00001111, 0.0175f};
@@ -360,20 +360,29 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
                                             int *deltaY, int *deltaZ) {
     adxl345bErrorCode_t errorCode;
 
+    /* disable sleep/wakeup functions and activate measurement mode by clearing register and set
+back to measurement mode with a subsequent write */
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00000000);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+
     /* standard mode, 100Hz */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE,
-                                                   ADXL345B_BW_RATE_LPM_12_point_5);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_100);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    /* disable sleep/wakeup functions, start measurements */
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL,
-                                                   ADXL345B_BW_RATE_25);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-    /* right adjusted, 16G range */
-    errorCode = adxl345bChangeMeasurementRange(sensor, ADXL345B_16G_RANGE);
+
+    /* disable selftest_bit, enable 16g full resolution  */
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, 0b00001011);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -381,9 +390,10 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     sleep_for_ms(2);
 
     /* collect 100 samples without force */
-    int samplesWithoutForce[100][3];
+    int numberOfSamples = 100;
+    int samplesWithoutForce[numberOfSamples][3];
     int counter = 0;
-    while (counter < 100) {
+    while (counter < numberOfSamples) {
         uint8_t interrupt_source;
         errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_INTERRUPT_SOURCE,
                                                        &interrupt_source, 1);
@@ -427,28 +437,28 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int sumSamplesWithoutForceX = 0;
     int sumSamplesWithoutForceY = 0;
     int sumSamplesWithoutForceZ = 0;
-    for (int index = 0; index < 100; index++) {
+    for (int index = 0; index < numberOfSamples; index++) {
         sumSamplesWithoutForceX += samplesWithoutForce[index][0];
         sumSamplesWithoutForceY += samplesWithoutForce[index][1];
         sumSamplesWithoutForceZ += samplesWithoutForce[index][2];
     }
-    int avgSampleWithoutForceX = sumSamplesWithoutForceX / 100;
-    int avgSampleWithoutForceY = sumSamplesWithoutForceY / 100;
-    int avgSampleWithoutForceZ = sumSamplesWithoutForceZ / 100;
+    int avgSampleWithoutForceX = sumSamplesWithoutForceX / numberOfSamples;
+    int avgSampleWithoutForceY = sumSamplesWithoutForceY / numberOfSamples;
+    int avgSampleWithoutForceZ = sumSamplesWithoutForceZ / numberOfSamples;
 
-    /* enable self test force */
+    /* enable selftest_bit, while keeping 16g full resolution  */
     errorCode =
-        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, 0b10001000);
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, 0b10001011);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
 
     sleep_for_ms(2);
 
-    /* collect 100 samples with force */
-    int samplesWithForce[100][3];
+    /* collect samples with force */
+    int samplesWithForce[numberOfSamples][3];
     counter = 0;
-    while (counter < 100) {
+    while (counter < numberOfSamples) {
         uint8_t interrupt_source;
         errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_INTERRUPT_SOURCE,
                                                        &interrupt_source, 1);
@@ -493,14 +503,14 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int sumSamplesWithForceX = 0;
     int sumSamplesWithForceY = 0;
     int sumSamplesWithForceZ = 0;
-    for (int index = 0; index < 100; index++) {
+    for (int index = 0; index < numberOfSamples; index++) {
         sumSamplesWithForceX += samplesWithForce[index][0];
         sumSamplesWithForceY += samplesWithForce[index][1];
         sumSamplesWithForceZ += samplesWithForce[index][2];
     }
-    int avgSampleWithForceX = sumSamplesWithForceX / 100;
-    int avgSampleWithForceY = sumSamplesWithForceY / 100;
-    int avgSampleWithForceZ = sumSamplesWithForceZ / 100;
+    int avgSampleWithForceX = sumSamplesWithForceX / numberOfSamples;
+    int avgSampleWithForceY = sumSamplesWithForceY / numberOfSamples;
+    int avgSampleWithForceZ = sumSamplesWithForceZ / numberOfSamples;
 
     // return to default operation mode
     adxl345bInternalWriteDefaultLowPowerConfiguration(sensor);
@@ -515,8 +525,19 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int deltaOfAverageZ = avgSampleWithForceZ - avgSampleWithoutForceZ;
     *deltaZ = deltaOfAverageZ;
 
-    int maxDeltaX = 489, maxDeltaY = -46, maxDeltaZ = 791;
-    int minDeltaX = 46, minDeltaY = -489, minDeltaZ = 69;
+    /* See Table 15. Self-Test Output in LSB for FULL RESOLUTION
+     [multiply X and Y by 1.77 and Z by 1.47 -because of 3.3V- (See Table 14)]
+     X min 50 LSB * 1.77 = 88.5 LSB
+     X max 540 LSB * 1.77 = 955.8 LSB
+     Y min -540 LSB * 1.77 = −955.8 LSB
+     Y max -50 LSB * 1.77 = −88.5 LSB
+     Z min 75 LSB * 1.47 = 110.25 LSB
+     Z max 875 LSB * 1.47 = 1286.25 LSB
+*/
+
+    float minDeltaX = 88.5, maxDeltaX = 955.8;
+    float minDeltaY = -955.8, maxDeltaY = -88.5;
+    float minDeltaZ = 110.25, maxDeltaZ = 1286.25;
     if (!(minDeltaX <= deltaOfAverageX && deltaOfAverageX <= maxDeltaX)) {
         return ADXL345B_SELF_TEST_FAILED_FOR_X;
     }
