@@ -317,6 +317,62 @@ paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_FIFO);
 paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_STREAM);
 paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_TRIGGER);
 
+void checkGValuesWithMeasuringForNMilliseconds(uint32_t milliseconds) {
+    uint8_t numberOfSamples = 103;
+
+    /*generate Array for Data (which is not modulo6 == 0)*/
+    uint8_t wrongSize = 2;
+    uint32_t sizeOfRequestedRawData = numberOfSamples * sizeOfRawData + wrongSize;
+    uint8_t samples[sizeOfRequestedRawData];
+    memset(samples, 0, sizeOfRequestedRawData);
+
+    /*generate Array for GValues of X-,Y- and Z-Axis*/
+    uint8_t numberOfGValuesPerSample = 3;
+    uint32_t sizeOfGValues = numberOfSamples * numberOfGValuesPerSample;
+    float gValues[sizeOfGValues];
+    memset(gValues, 0, sizeOfGValues);
+
+    /*generate Array for sums of Axis*/
+    float sumsOfAxis[numberOfSamples];
+    memset(sumsOfAxis, 0, numberOfSamples);
+
+    adxl345bErrorCode_t errorCode;
+
+    errorCode = adxl345bGetMeasurementsForNMilliseconds(sensor, samples, milliseconds,
+                                                        &sizeOfRequestedRawData);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    for (int i = 0; i < sizeOfRequestedRawData; i += sizeOfRawData) {
+        errorCode = adxl345bConvertDataXYZ(&(gValues + i), &(gValues + i + 2), &(gValues + i + 4),
+                                           samples + i);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        }
+    }
+
+    for (int i = 0; i < sizeOfGValues; i += numberOfGValuesPerSample) {
+        /* 0.2G equals a deviation of about 1% from the ideal value
+         * this deviation is given by the datasheet as the accepted tolerance
+         * for each axis therefore should epsilon be 0.6G
+         */
+        sumsOfAxis =
+            floatToAbs(gValues + i) + floatToAbs(gValues + i + 1) + floatToAbs(gValues + i + 2);
+    }
+    // this could maybe fail. Better test range
+    TEST_ASSERT_EACH_EQUAL_FLOAT(1.0f, sumsOfAxis);
+
+    TEST_ASSERT_EACH_FLOAT_WITHIN(1.0f, sumsOfAxis, 0.6f);
+}
+/*should be tested with all FIFO-Modes*/
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 1);
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 2);
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 3);
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 10);
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 1000);
+/*! collects one minute rawData for GValues: */
+paramTest(checkGValuesWithMeasuringForNMilliseconds, 60000);
+
 void setUp() {}
 void tearDown() {};
 
@@ -349,24 +405,48 @@ int main() {
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_BYPASS);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_BYPASS);
     RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_BYPASS);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds2);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds3);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds10);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1000);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds60000);
     /* endregion TESTS IN BYPASS-MODE */
 
     /* region TESTS IN FIFO-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_FIFO);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_FIFO);
     RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_FIFO);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds2);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds3);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds10);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1000);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds60000);
     /* endregion TESTS IN FIFO-MODE */
 
     /* region TESTS IN STREAM-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_STREAM);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_STREAM);
     RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_STREAM);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds2);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds3);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds10);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1000);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds60000);
     /* endregion TESTS IN STREAM-MODE */
 
     /* region TESTS IN TRIGGER-MODE */
     RUN_TEST(setGivenFifoModeAndCheckValuesADXL345B_FIFOMODE_TRIGGER);
     RUN_TEST(checkSingleGValueADXL345B_FIFOMODE_TRIGGER);
     RUN_TEST(checkMultipleGValuesADXL345B_FIFOMODE_TRIGGER);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds2);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds3);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds10);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds1000);
+    RUN_TEST(checkGValuesWithMeasuringForNMilliseconds60000);
     /* endregion TESTS IN TRIGGER-MODE */
 
     UNITY_END();
