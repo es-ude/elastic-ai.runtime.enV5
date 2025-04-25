@@ -125,6 +125,53 @@ static void runCalibration() {
     }
 }
 
+
+void checkRangeValues(uint8_t testedRange) {
+    if (testedRange == 2) {
+        testedRange = (adxl345bRange_t)0b00001000;
+    } else if (testedRange == 4) {
+        testedRange = (adxl345bRange_t)0b00001001;
+    } else if (testedRange == 8) {
+        testedRange = (adxl345bRange_t)0b00001010;
+    } else if (testedRange == 16) {
+        testedRange = (adxl345bRange_t)0b00001011;
+    } else {
+        TEST_FAIL_MESSAGE("This range does not exist");
+    }
+
+    uint8_t previousRange;
+    adxl345bErrorCode_t errorCode =
+        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, previousRange, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+
+    if (previousRange != testedRange) {
+        errorCode = adxl345bChangeMeasurementRange(sensor, testedRange);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            adxl345bChangeMeasurementRange(sensor, previousRange);
+            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        }
+    }
+    uint8_t buffer;
+    errorCode =
+        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, buffer, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        adxl345bChangeMeasurementRange(sensor, previousRange);
+        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+    }
+    TEST_ASSERT_EQUAL(testedRange, buffer);
+    if (previousRange != testedRange) {
+        adxl345bChangeMeasurementRange(sensor, previousRange)
+    };
+}
+
+paramTest(checkRangeValues, 2)
+paramTest(checkRangeValues, 4)
+paramTest(checkRangeValues, 8)
+paramTest(checkRangeValues, 16)
+
+
 void setUp() {}
 void tearDown() {};
 
@@ -145,6 +192,14 @@ int main() {
     RUN_TEST(checkSerialNumber);
     RUN_TEST(makeSelfTest);
     RUN_TEST(runCalibration);
+
+    /* region checkRangeValues */
+    RUN_TEST(checkRangeValues2);
+    RUN_TEST(checkRangeValues4);
+    RUN_TEST(checkRangeValues8);
+    RUN_TEST(checkRangeValues16);
+    /* endregion checkRangeValues */
+
     UNITY_END();
     deInit();
 
