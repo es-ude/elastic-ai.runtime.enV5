@@ -1,0 +1,9 @@
+[project]
+name = "elastic-ai.runtime.usb-protocol"
+version = "0.1.0"
+description = "USB-Protocol to interact with elastic Node."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyserial>=3.5",
+]
