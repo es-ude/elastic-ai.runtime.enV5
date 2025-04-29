@@ -41,13 +41,6 @@ if (NOT TARGET _eai_runtime_inclusion_marker)
         add_subdirectory(src/sensor)
         add_subdirectory(src/usb_protocol)
 
-        add_subdirectory(test/unit/Pac193x)
-        add_subdirectory(test/unit/FpgaConfigurationHandler)
-        add_subdirectory(test/unit/Http)
-        add_subdirectory(test/unit/Network)
-        add_subdirectory(test/unit/MqttBroker)
-        add_subdirectory(test/unit/Sht3x)
-
         if (EAI_RUNTIME_TOP_LEVEL_PROJECT)
             add_subdirectory(test/unit)
         endif ()
