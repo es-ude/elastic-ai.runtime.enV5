@@ -1,3 +1,4 @@
+
 def test_xor_byte():
     a = 255
     b = 254

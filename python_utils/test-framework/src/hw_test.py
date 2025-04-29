@@ -3,9 +3,9 @@ import argparse
 import time
 
 if __name__ == "__main__":
-    """example call 
+    """example call
         python -m elasticai.testing.hw_test -d /media/jan/RPI-RP2/ -p /dev/ttyACM0 -t ../build/env5_rev2_debug/test/hardware/Esp/HWTestAskEspForOkViaPico.uf2
-        
+
         Help:
         execute `python3 ./hw_tst.py --help`
     """
