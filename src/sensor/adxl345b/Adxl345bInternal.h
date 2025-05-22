@@ -54,15 +54,12 @@ adxl345bInternalConvertRawValueToLSB(adxl345bSensorConfiguration_t sensor, const
 /*!
  * @brief function to convert the lsb value received from the sensor to a actual float
  * value
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param sensor[in] configuration for sensor to use
  * @param lsb[in] raw data received from the sensor
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(adxl345bSensorConfiguration_t sensor,
-                                                              int lsb, float *gValue);
+static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(int lsb, float *gValue);
 
 /*!
  * @brief combination of adxl345bInternalConvertRawValueToLSB(...) and
