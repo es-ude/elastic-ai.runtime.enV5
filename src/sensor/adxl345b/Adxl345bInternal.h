@@ -12,6 +12,7 @@
  */
 
 #include "include/Adxl345bTypedefs.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef struct adxl345bRangeSetting {
@@ -139,6 +140,16 @@ static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sens
                                               int64_t sizeOfBuffer, uint8_t remainder,
                                               uint8_t maxFifoRead, uint8_t *buffer,
                                               uint8_t fifoInformation);
+
+/*! @brief Sets the bit to use the Selftest-Force in the ADXL345B_REGISTER_DATA_FORMAT without
+ * changing other information stored in register
+ *
+ * @param sensor[in] configuration for sensor to use
+ * @param forceEnable true -> enable Selftest-Force; flase -> disable Selftest-Force
+ * @return return the error code (0 if everything passed)
+ */
+static adxl345bErrorCode_t adxl345bInternalSetSelftestBit(adxl345bSensorConfiguration_t sensor,
+                                                          bool forceEnable);
 
 /*!
  * @brief stores selected Range Information in static parameter
