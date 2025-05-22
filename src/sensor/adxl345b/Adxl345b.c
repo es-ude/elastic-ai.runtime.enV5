@@ -1,14 +1,14 @@
 #define SOURCE_FILE "ADXL345B-LIB"
 
-#include "math.h"
-
+#include "include/eai/sensor/Adxl345b.h"
 #include "Adxl345bInternal.h"
 #include "eai/Common.h"
 #include "eai/hal/I2c.h"
 #include "eai/hal/Sleep.h"
 #include "eai/hal/Time.h"
-#include "include/eai/sensor/Adxl345b.h"
 #include "include/eai/sensor/Adxl345bTypedefs.h"
+
+#include "math.h"
 
 /* region CONSTANTS */
 
@@ -320,7 +320,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    errorCode = adxl345bInternalEnableSelftestForce(sensor);
+    errorCode = adxl345bInternalEnableSelf[48;40;187;960;1870ttestForce(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -339,7 +339,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
             return errorCode;
         }
 
-        if (interrupt_source & ADXL345B_BITMASK_DATA_READY) {
+        if ((interrupt_source & ADXL345B_BITMASK_DATA_READY) == ADXL345B_BITMASK_DATA_READY) {
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -722,21 +722,9 @@ adxl345bInternalConvertRawValueToLSB(adxl345bSensorConfiguration_t sensor, const
     return ADXL345B_NO_ERROR;
 }
 
-static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(adxl345bSensorConfiguration_t sensor,
-                                                              int lsb, float *gValue) {
-    uint8_t currentDataFormatSetting;
-    adxl345bErrorCode_t errorCode = adxl345bInternalReadDataFromSensor(
-        sensor, ADXL345B_REGISTER_DATA_FORMAT, &currentDataFormatSetting, 1);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-    float rangeScaleFactor = adxl345bSelectedRange.tenBitScaleFactor;
-
-    if ((currentDataFormatSetting & ADXL345B_BITMASK_FULL_RES) == ADXL345B_BITMASK_FULL_RES) {
-        rangeScaleFactor = adxl345bSelectedRange.fullResScaleFactor;
-    }
+static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(int lsb, float *gValue) {
     PRINT_DEBUG("convert LSB value to G value");
-    float realValue = (float)lsb * rangeScaleFactor;
+    float realValue = (float)lsb * adxl345bSelectedRange.tenBitScaleFactor;
     *gValue = realValue;
     PRINT_DEBUG("LSB: %i, G value: %f", lsb, realValue);
 
@@ -756,7 +744,7 @@ adxl345bInternalConvertRawValueToGValue(adxl345bSensorConfiguration_t sensor,
     }
 
     float intermediateGValue;
-    errorCode = adxl345bInternalConvertLSBtoGValue(sensor, intermediateLsb, &intermediateGValue);
+    errorCode = adxl345bInternalConvertLSBtoGValue(intermediateLsb, &intermediateGValue);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("conversion to G value failed");
         return errorCode;
