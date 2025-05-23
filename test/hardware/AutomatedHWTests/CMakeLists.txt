@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if (BUILDING_FOR_ELASTIC_NODE)
     add_executable(TestFlash TestFlash.c)
     target_link_libraries(TestFlash PRIVATE
             EnV5HwConfiguration
@@ -91,4 +91,26 @@ if(BUILDING_FOR_ELASTIC_NODE)
             unity
     )
     create_enV5_executable(CheckEspForOkViaPico)
-endif()
+
+    add_executable(TestFPGACommunication TestFPGACommunication.c)
+    target_link_libraries(TestFPGACommunication
+            Common
+            UsbProtocol
+            EnV5HwConfiguration
+            EnV5HwController
+            Flash
+            Gpio
+            Sleep
+            Esp
+            Network
+            FpgaConfigurationHandler
+            Stub
+
+            Pico::pico_stdlib
+            Pico::pico_bootrom
+            Pico::hardware_spi
+
+            unity
+    )
+    create_enV5_executable(TestFPGACommunication)
+endif ()
