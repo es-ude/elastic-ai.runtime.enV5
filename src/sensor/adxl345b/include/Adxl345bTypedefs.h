@@ -46,7 +46,15 @@ enum {
     // ADXL345B_BW_RATE_3200 = 0b00001111, //!< 3200  only available for SPI
 
 };
-
+/* Sensitivity values of the sensor depending on supply voltage and resolution in LSB/g */
+enum {
+    ADXL345B_IDEAL_SENSITIVITY_FULL_RES_3V3 = 265,
+    ADXL345B_IDEAL_SENSITIVITY_FULL_RES_2V5 = 256,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_2G_2V5 = 256,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_4G_2V5 = 128,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_8G_2V5 = 64,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_16G_2V5 = 32
+};
 /* i2c address of the sensor
  *
  * defines the possible i2c addresses of the sensor:
@@ -123,9 +131,8 @@ typedef enum adxl345bErrorCode {
     ADXL345B_CONFIGURATION_ERROR = 0x12,
     ADXL345B_RANGE_ERROR = 0x13,
     ADXL345B_UNDEFINED_ERROR = 0x20,
-    ADXL345B_SELF_TEST_FAILED_FOR_X = 0x31,
-    ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,
-    ADXL345B_SELF_TEST_FAILED_FOR_Z = 0x33,
+    ADXL345B_SELF_TEST_FAILED = 0x31,
+    ADXL345B_CALIBRATION_ERROR = 0x32,
 } adxl345bErrorCode_t;
 
 #endif /* ENV5_ADXL345B_TYPEDEFS */

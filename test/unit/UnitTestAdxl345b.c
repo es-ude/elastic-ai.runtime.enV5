@@ -711,7 +711,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
         expected_xAxis = expected_yAxis = expected_zAxis = realValue;
     }
     adxl345bGetSingleMeasurement(sensor, rawData);
-    adxl345bConvertDataXYZ(&actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
+    adxl345bConvertDataXYZ(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
 
     TEST_ASSERT_EQUAL_FLOAT(expected_xAxis, actual_xAxis);
     TEST_ASSERT_EQUAL_FLOAT(expected_yAxis, actual_yAxis);
