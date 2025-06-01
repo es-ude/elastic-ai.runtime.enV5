@@ -93,7 +93,7 @@ adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t
     uint8_t newDataFormatSetting =
         currentDataFormatSetting || adxl345bSelectedRange.settingForRange;
 
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
+    error[48;40;187;960;1870tCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
                                                    newDataFormatSetting);
     return errorCode;
 }
@@ -256,7 +256,7 @@ adxl345bErrorCode_t adxl345bInternalCheckInterruptSource(adxl345bSensorConfigura
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl3[48;40;187;960;1870t45bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
+adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
                                            uint8_t *responseBuffer) {
     adxl345bErrorCode_t errorCode;
     errorCode = adxl345bInternalConvertRawValueToGValue(&responseBuffer[0], xAxis);
@@ -382,8 +382,8 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    /* set selftest-bit to disable force */
-    errorCode = adxl345bInternalSetSelftestBit(sensor, false);
+
+    errorCode = adxl345bInternalDisableSelftestForce(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
@@ -447,8 +447,10 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int avgSampleWithoutForceY = sumSamplesWithoutForceY / numberOfSamples;
     int avgSampleWithoutForceZ = sumSamplesWithoutForceZ / numberOfSamples;
 
-    /* set selftest-bit to enable force */
-    errorCode = adxl345bInternalSetSelftestBit(sensor, true);
+    errorCode = errorCode = adxl345bInternalDisableSelftestForce(sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
 
     sleep_for_ms(2);
 
@@ -509,7 +511,6 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     int avgSampleWithForceY = sumSamplesWithForceY / numberOfSamples;
     int avgSampleWithForceZ = sumSamplesWithForceZ / numberOfSamples;
 
-    // return to default operation mode
     adxl345bInternalWriteDefaultLowPowerConfiguration(sensor);
 
     /* compare average to datasheet */
@@ -707,8 +708,24 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t
     return ADXL345B_NO_ERROR;
 }
 
-static adxl345bErrorCode_t adxl345bInternalSetSelftestBit(adxl345bSensorConfiguration_t sensor,
-                                                          bool forceEnable) {
+static adxl345bErrorCode_t
+adxl345bInternalDisableSelftestBit(adxl345bSensorConfiguration_t sensor) {
+    adxl345bErrorCode_t errorCode;
+    uint8_t currentDataFormatSetting;
+    errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
+                                                   &currentDataFormatSetting, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    /* reset/clear selftest-bit */
+    uint8_t newDataFormatSetting = currentDataFormatSetting & 0b01111111;
+
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
+                                                   newDataFormatSetting);
+    return errorCode;
+}
+
+static adxl345bErrorCode_t adxl345bInternalEnableSelftestBit(adxl345bSensorConfiguration_t sensor) {
     adxl345bErrorCode_t errorCode;
     uint8_t currentDataFormatSetting;
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
@@ -718,18 +735,12 @@ static adxl345bErrorCode_t adxl345bInternalSetSelftestBit(adxl345bSensorConfigur
     }
     /* reset/clear selftest-bit */
     currentDataFormatSetting = currentDataFormatSetting & 0b01111111;
-    /* prepare selftest-bit */
-    if (forceEnable) {
-        currentDataFormatSetting = currentDataFormatSetting || 0b100000000;
-    }
-
     /* set selftest-bit */
+    uint8_t newDataFormatSetting = currentDataFormatSetting || 0b100000000;
+
     errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
-                                                   currentDataFormatSetting);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-    return ADXL345B_NO_ERROR;
+                                                   newDataFormatSetting);
+    return errorCode;
 }
 
 static adxl345bErrorCode_t
