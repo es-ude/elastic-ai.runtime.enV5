@@ -7,6 +7,7 @@
 #include "eai/hal/Sleep.h"
 #include "eai/hal/Time.h"
 #include "include/eai/sensor/Adxl345bTypedefs.h"
+#include "math.h"
 
 /* region CONSTANTS */
 
@@ -35,7 +36,7 @@ adxl345bErrorCode_t adxl345bInit(adxl345bSensorConfiguration_t sensor) {
     i2cErrorCode_t i2cErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
                                                   commandBuffer, sizeOfCommandBuffer);
     if (i2cErrorCode != I2C_NO_ERROR) {
-        PRINT("sensor not available on bus; i2c_ERROR: %02X", i2cErrorCode);
+        PRINT("sensor not available on bus; i2c_ERROR: %0[48;40;187;960;1870t2X", i2cErrorCode);
         return ADXL345B_INIT_ERROR;
     }
 
@@ -94,7 +95,7 @@ adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t
     uint8_t newDataFormatSetting =
         currentDataFormatSetting || adxl345bSelectedRange.settingForRange;
 
-    error[48;40;187;960;1870tCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
                                                    newDataFormatSetting);
     return errorCode;
 }
@@ -257,18 +258,18 @@ adxl345bErrorCode_t adxl345bInternalCheckInterruptSource(adxl345bSensorConfigura
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
-                                           uint8_t *responseBuffer) {
+adxl345bErrorCode_t adxl345bConvertDataXYZ(adxl345bSensorConfiguration_t sensor, float *xAxis,
+                                           float *yAxis, float *zAxis, uint8_t *responseBuffer) {
     adxl345bErrorCode_t errorCode;
-    errorCode = adxl345bInternalConvertRawValueToGValue(&responseBuffer[0], xAxis);
+    errorCode = adxl345bInternalConvertRawValueToGValue(sensor, &responseBuffer[0], xAxis);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    errorCode = adxl345bInternalConvertRawValueToGValue(&responseBuffer[2], yAxis);
+    errorCode = adxl345bInternalConvertRawValueToGValue(sensor, &responseBuffer[2], yAxis);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    errorCode = adxl345bInternalConvertRawValueToGValue(&responseBuffer[4], zAxis);
+    errorCode = adxl345bInternalConvertRawValueToGValue(sensor, &responseBuffer[4], zAxis);
     return errorCode;
 }
 
@@ -365,8 +366,8 @@ adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
-                                            int *deltaY, int *deltaZ) {
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *averageX,
+                                            int *averageY, int *averageZ) {
     adxl345bErrorCode_t errorCode;
     errorCode = adxl345bActivateMeasurementMode(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
@@ -411,15 +412,15 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
             }
 
             int dataX, dataY, dataZ;
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[0], &dataX);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[0], &dataX);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[2], &dataY);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[2], &dataY);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[4], &dataZ);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[4], &dataZ);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -474,15 +475,15 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
             }
 
             int dataX, dataY, dataZ;
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[0], &dataX);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[0], &dataX);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[2], &dataY);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[2], &dataY);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
-            errorCode = adxl345bInternalConvertRawValueToLSB(&responseBuffer[4], &dataZ);
+            errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &responseBuffer[4], &dataZ);
             if (errorCode != ADXL345B_NO_ERROR) {
                 return errorCode;
             }
@@ -513,13 +514,10 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
 
     /* compare average to datasheet */
     int deltaOfAverageX = avgSampleWithForceX - avgSampleWithoutForceX;
-    *deltaX = deltaOfAverageX;
 
     int deltaOfAverageY = avgSampleWithForceY - avgSampleWithoutForceY;
-    *deltaY = deltaOfAverageY;
 
     int deltaOfAverageZ = avgSampleWithForceZ - avgSampleWithoutForceZ;
-    *deltaZ = deltaOfAverageZ;
 
     /* See Table 15. Self-Test Output in LSB for FULL RESOLUTION
      [multiply X and Y by 1.77 and Z by 1.47 -because of 3.3V- (See Table 14)]
@@ -534,55 +532,62 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     float minDeltaX = 88.5, maxDeltaX = 955.8;
     float minDeltaY = -955.8, maxDeltaY = -88.5;
     float minDeltaZ = 110.25, maxDeltaZ = 1286.25;
+
     if (!(minDeltaX <= deltaOfAverageX && deltaOfAverageX <= maxDeltaX)) {
-        return ADXL345B_SELF_TEST_FAILED_FOR_X;
+        return ADXL345B_SELF_TEST_FAILED;
     }
 
     if (!(minDeltaY <= deltaOfAverageY && deltaOfAverageY <= maxDeltaY)) {
-        return ADXL345B_SELF_TEST_FAILED_FOR_Y;
+        return ADXL345B_SELF_TEST_FAILED;
     }
 
     if (!(minDeltaZ <= deltaOfAverageZ && deltaOfAverageZ <= maxDeltaZ)) {
-        return ADXL345B_SELF_TEST_FAILED_FOR_Z;
+        return ADXL345B_SELF_TEST_FAILED;
     }
 
     return ADXL345B_NO_ERROR;
 }
 
 adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sensor) {
-    int deltaX, deltaY, deltaZ;
-    adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(sensor, &deltaX, &deltaY, &deltaZ);
-    if (errorCode == ADXL345B_NO_ERROR) {
-        return ADXL345B_NO_ERROR;
-    }
-    if (errorCode != ADXL345B_SELF_TEST_FAILED_FOR_X &&
-        errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Y &&
-        errorCode != ADXL345B_SELF_TEST_FAILED_FOR_Z) {
+    int xMeasuredAtZeroG, yMeasuredAtZeroG, zMeasuredAtOneG;
+    adxl345bErrorCode_t errorCode =
+        adxl345bPerformSelfTest(sensor, &xMeasuredAtZeroG, &yMeasuredAtZeroG, &zMeasuredAtOneG);
+    if (errorCode != ADXL345B_SELF_TEST_FAILED) {
         return errorCode;
     }
-
-    int8_t offsetX, offsetY, offsetZ;
-    // TODO: Woher kommen diese Werte?
-    int maxDeltaX = 489, maxDeltaY = -46, maxDeltaZ = 791;
-    int minDeltaX = 46, minDeltaY = -489, minDeltaZ = 69;
-    offsetX = adxl345bInternalCalculateCalibrationOffset(deltaX, maxDeltaX, minDeltaX);
-    offsetY = adxl345bInternalCalculateCalibrationOffset(deltaY, maxDeltaY, minDeltaY);
-    offsetZ = adxl345bInternalCalculateCalibrationOffset(deltaZ, maxDeltaZ, minDeltaZ);
-
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_X, offsetX);
+    errorCode =
+        adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_800);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_Y, offsetY);
+    int8_t offsetXYZ[3] = {0};
+    errorCode = adxl345bInternalCalculateCalibrationOffset(
+        sensor, xMeasuredAtZeroG, yMeasuredAtZeroG, zMeasuredAtOneG, &offsetXYZ[0], &offsetXYZ[1],
+        &offsetXYZ[2]);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_Z, offsetZ);
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_X, offsetXYZ[0]);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-
-    return ADXL345B_NO_ERROR;
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_Y, offsetXYZ[1]);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_OFFSET_Z, offsetXYZ[2]);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    PRINT_DEBUG("offsetX %d LSB", offsetXYZ[0]);
+    PRINT_DEBUG("offsetY %d LSB", offsetXYZ[1]);
+    PRINT_DEBUG("offsetZ %d LSB", offsetXYZ[2]);
+    errorCode =
+        adxl345bPerformSelfTest(sensor, &xMeasuredAtZeroG, &yMeasuredAtZeroG, &zMeasuredAtOneG);
+    if (errorCode == ADXL345B_SELF_TEST_FAILED) {
+        return ADXL345B_CALIBRATION_ERROR;
+    }
+    return errorCode;
 }
 
 /* endregion HEADER FUNCTION IMPLEMENTATIONS */
@@ -651,13 +656,27 @@ static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConf
     return ADXL345B_NO_ERROR;
 }
 
-static adxl345bErrorCode_t adxl345bInternalConvertRawValueToLSB(const uint8_t rawData[2],
-                                                                int *lsbValue) {
+static adxl345bErrorCode_t
+adxl345bInternalConvertRawValueToLSB(adxl345bSensorConfiguration_t sensor, const uint8_t rawData[2],
+                                     int *lsbValue) {
+    uint8_t currentDataFormatSetting;
+    adxl345bErrorCode_t errorCode = adxl345bInternalReadDataFromSensor(
+        sensor, ADXL345B_REGISTER_DATA_FORMAT, &currentDataFormatSetting, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+
+    uint8_t fullResolutionMask = 0b00001000;
+    uint8_t msbRangeMask = adxl345bSelectedRange.msbMask;
+
+    if ((currentDataFormatSetting & fullResolutionMask) != fullResolutionMask) {
+        msbRangeMask = 0b00000011; // check Figure 49. in Documentation
+    }
     PRINT_DEBUG("convert raw data to LSB value");
-    if (rawData[1] <= (adxl345bSelectedRange.msbMask >> 1)) {
+    if (rawData[1] <= (msbRangeMask >> 1)) {
         PRINT_DEBUG("entered positive case");
-        uint16_t rawValue = ((uint16_t)(rawData[1] & (adxl345bSelectedRange.msbMask >> 1)) << 8) |
-                            (uint16_t)rawData[0];
+        uint16_t rawValue =
+            ((uint16_t)(rawData[1] & (msbRangeMask >> 1)) << 8) | (uint16_t)rawData[0];
         *lsbValue = (int)rawValue;
     } else {
         PRINT_DEBUG("entered negative case");
@@ -666,9 +685,9 @@ static adxl345bErrorCode_t adxl345bInternalConvertRawValueToLSB(const uint8_t ra
          * 1. revert two complement: number minus 1 and flip bits
          * 2. convert to int and multiply with -1
          */
-        uint16_t rawValue = ((uint16_t)(rawData[1] & (adxl345bSelectedRange.msbMask >> 1)) << 8) |
-                            (uint16_t)rawData[0];
-        rawValue = (rawValue - 0x0001) ^ ((adxl345bSelectedRange.msbMask >> 1) << 8 | 0x00FF);
+        uint16_t rawValue =
+            ((uint16_t)(rawData[1] & (msbRangeMask >> 1)) << 8) | (uint16_t)rawData[0];
+        rawValue = (rawValue - 0x0001) ^ ((msbRangeMask >> 1) << 8 | 0x00FF);
         *lsbValue = (-1) * (int)rawValue;
     }
 
@@ -685,11 +704,13 @@ static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(int lsb, float *gV
     return ADXL345B_NO_ERROR;
 }
 
-static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t rawData[2],
-                                                                   float *gValue) {
+static adxl345bErrorCode_t
+adxl345bInternalConvertRawValueToGValue(adxl345bSensorConfiguration_t sensor,
+                                        const uint8_t rawData[2], float *gValue) {
     PRINT_DEBUG("converting raw data to G value");
     int intermediateLsb;
-    adxl345bErrorCode_t errorCode = adxl345bInternalConvertRawValueToLSB(rawData, &intermediateLsb);
+    adxl345bErrorCode_t errorCode =
+        adxl345bInternalConvertRawValueToLSB(sensor, rawData, &intermediateLsb);
     if (errorCode != ADXL345B_NO_ERROR) {
         PRINT_DEBUG("conversion to LSB failed");
         return errorCode;
@@ -783,19 +804,53 @@ adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t 
     return ADXL345B_NO_ERROR;
 }
 
-static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
-                                                         int minValue) {
-    PRINT_DEBUG("trying to calibrate offset");
-    if (measuredDelta <= minValue) {
-        PRINT_DEBUG("offset is %i", minValue - measuredDelta);
-        return (int8_t)(minValue - measuredDelta);
+static adxl345bErrorCode_t adxl345bInternalCalculateCalibrationOffset(
+    adxl345bSensorConfiguration_t sensor, int xMeasuredAtZeroG, int yMeasuredAtZeroG,
+    int zMeasuredAtOneG, int8_t *xOffset, int8_t *yOffset, int8_t *zOffset) {
+    int zExpectedAtZeroG = zMeasuredAtOneG - ADXL345B_IDEAL_SENSITIVITY_FULL_RES_3V3;
+
+    uint8_t rawdata[6] = {0};
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawdata);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
     }
-    if (measuredDelta >= maxValue) {
-        PRINT_DEBUG("offset is %i", minValue - measuredDelta);
-        return (int8_t)(maxValue - measuredDelta);
+
+    int dataX, dataY, dataZ;
+    errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &rawdata[0], &dataX);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
     }
-    PRINT_DEBUG("offset is %i", 0);
-    return 0;
+    errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &rawdata[2], &dataY);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    errorCode = adxl345bInternalConvertRawValueToLSB(sensor, &rawdata[4], &dataZ);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+    int xOffsetLSB = dataX - xMeasuredAtZeroG;
+    int yOffsetLSB = dataY - yMeasuredAtZeroG;
+    int zOffsetLSB = dataZ - zExpectedAtZeroG;
+
+    float *xyLSBtoOffsetScaleFactor, *zLSBtoOffsetScaleFactor;
+    adxl345bInternalCalculateOffsetRegisterScaleFactors(&xyLSBtoOffsetScaleFactor,
+                                                        &zLSBtoOffsetScaleFactor);
+    /* Because the offset register is additive,
+     * the values are negated and rounded to the nearest LSB of the offset register */
+    *xOffset = (int8_t)(-round((float)(xOffsetLSB) * (*xyLSBtoOffsetScaleFactor)));
+    *yOffset = (int8_t)(-round((float)(yOffsetLSB) * (*xyLSBtoOffsetScaleFactor)));
+    *zOffset = (int8_t)(-round((float)(zOffsetLSB) * (*zLSBtoOffsetScaleFactor)));
+    return errorCode;
 }
 
+static void adxl345bInternalCalculateOffsetRegisterScaleFactors(float *xyOffsetScaleFactor,
+                                                                float *zOffsetScaleFactor) {
+    float offsetRegisterResolution = 15.6;
+    /* The z-axis sensitivity is unaffected by a change in supply voltage */
+    float zSensitivityMgPerLsb = 1000.0f / ADXL345B_IDEAL_SENSITIVITY_FULL_RES_2V5;  // ~3.77
+    float xySensitivityMgPerLsb = 1000.0f / ADXL345B_IDEAL_SENSITIVITY_FULL_RES_3V3; // ~3.9
+
+    *zOffsetScaleFactor = zSensitivityMgPerLsb / offsetRegisterResolution;
+    *xyOffsetScaleFactor = xySensitivityMgPerLsb / offsetRegisterResolution;
+}
 /* endregion HELPER FUNCTION IMPLEMENTATIONS */

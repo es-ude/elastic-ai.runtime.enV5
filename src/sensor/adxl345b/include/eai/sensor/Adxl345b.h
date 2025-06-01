@@ -60,15 +60,17 @@ adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, ui
                                         uint16_t samplesForTrigger);
 
 /*!
- *@brief convert raw data into g-values of xAxis,yAxis and zAxis
+ * @brief convert raw data into g-values of xAxis,yAxis and zAxis
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
+ * @param sensor[in] configuration for sensor to use
  * @param xAxis,yAxis,zAxis[out] actual G values from the sensor
  * @param responseBuffer[in] needs to be at least 6 bytes
  * @return return the error code (0 if everything passed)
  *
  */
-adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
-                                           uint8_t *responseBuffer);
+adxl345bErrorCode_t adxl345bConvertDataXYZ(adxl345bSensorConfiguration_t sensor, float *xAxis,
+                                           float *yAxis, float *zAxis, uint8_t *responseBuffer);
 
 /*!
  * @brief changes the measurement range of the sensor
@@ -154,12 +156,12 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
  * @IMPORTANT function assumes that the sensor is not moved during the process
  *
  * @param sensor[in] configuration for sensor to use
- * @param deltaX,deltaY,deltaZ[out] delta of G Values
+ * @param avarageX,avarageY,avarageZ[out] avagare of G Values for further calibration
  *
  * @return                          return the error code (0 if self-test passed)
  */
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
-                                            int *deltaY, int *deltaZ);
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *avarageX,
+                                            int *avarageY, int *avarageZ);
 
 adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor,
                                          uint8_t fifoInformation);

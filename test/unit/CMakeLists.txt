@@ -81,5 +81,6 @@ add_elastic_ai_unit_test(
             SleepDummy
             I2cDummy
             TimeDummy
+            m
 )
 
