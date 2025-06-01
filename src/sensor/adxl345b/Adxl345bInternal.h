@@ -39,13 +39,16 @@ static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConf
 
 /*!
  * @brief function to convert the raw value received from the sensor to a lsb value
+ * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
+ * @param sensor[in] configuration for sensor to use
  * @param rawData[in]   raw data received from the sensor
  * @param lsbValue[out] LSB value
  * @return              return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalConvertRawValueToLSB(const uint8_t rawData[2],
-                                                                int *lsbValue);
+static adxl345bErrorCode_t
+adxl345bInternalConvertRawValueToLSB(adxl345bSensorConfiguration_t sensor, const uint8_t rawData[2],
+                                     int *lsbValue);
 
 /*!
  * @brief function to convert the lsb value received from the sensor to a actual float
@@ -60,19 +63,23 @@ static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(int lsb, float *gV
 /*!
  * @brief combination of adxl345bInternalConvertRawValueToLSB(...) and
  * adxl345bInternalConvertLSBtoGValue(...)
+ * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
+ * @param sensor[in] configuration for sensor to use
  * @param rawData[in] raw data received from the sensor
  * @param gValue[out] real world G value
  * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalConvertRawValueToGValue(const uint8_t rawData[2],
-                                                                   float *gValue);
+static adxl345bErrorCode_t
+adxl345bInternalConvertRawValueToGValue(adxl345bSensorConfiguration_t sensor,
+                                        const uint8_t rawData[2], float *gValue);
 
 /*!
  * @brief function to set the sensor into low power mode at 2G range with full
  * resolution
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
+ * @param sensor[in] configuration for sensor to use
  * @return return the error code (0 if everything passed)
  */
 static adxl345bErrorCode_t
@@ -82,14 +89,22 @@ adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t 
  * @brief function to calculate the offset that should be passed to the sensor
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param measuredDelta[in] delta measured during self test
- * @param maxValue[in]      max value that would be accepted
- * @param minValue[in]      min value that would be accepted
+ * @param xMeasuredAtZeroG[in] average of measured x values at Zero G
+ * @param yMeasuredAtZeroG[in] average of measured y values at Zero G
+ * @param zMeasuredAtOneG[in]  average of measured z values at One G
+ * @param xOffset[out] pointer to int8_t where offset of X will be stored
+ * @param yOffset[out] pointer to int8_t where offset of Y will be stored
+ * @param zOffset[out] pointer to int8_t where offset of Z will be stored
+ *
  * @return                  8 bit two complement that should be passed to the
  * sensor as offset
+ * @note expects sensor to operate in full resolution with BW Rate between 100Hz and 800Hz
+ * @note x,y should be oriented with 0g - z should be oriented with 1g like shown in Figure 58 of
+ * the documentation
  */
-static int8_t adxl345bInternalCalculateCalibrationOffset(int measuredDelta, int maxValue,
-                                                         int minValue);
+static adxl345bErrorCode_t adxl345bInternalCalculateCalibrationOffset(
+    adxl345bSensorConfiguration_t sensor, int xMeasuredAtZeroG, int yMeasuredAtZeroG,
+    int zMeasuredAtOneG, int8_t *xOffset, int8_t *yOffset, int8_t *zOffset);
 
 /*!
  * @brief polls InterruptSource until specified interrupt occurs
@@ -107,15 +122,27 @@ static adxl345bErrorCode_t
 adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8_t mask);
 
 /*!
+ * @brief calculates scalefactor that is needed to convert averaged LSB values to offsetregister
+ * format
+ *
+ * @param xyOffsetScaleFactor[out] pointer to float where calculated scalefactor will be stored
+ * @param zOffsetScaleFactor[out] pointer to float where calculated scalefactor will be stored
+ * @return
+ * @note expects sensor to operate in full resolution with BW Rate between 100Hz and 800Hz
+ */
+static void adxl345bInternalCalculateOffsetRegisterScaleFactors(float *xyOffsetScaleFactor,
+                                                                float *zOffsetScaleFactor);
+
+/*!
  * @brief reads raw data of xAxis,yAxis and zAxis
  *
  * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *              - there must be at least 5 μs between the end of reading the data registers and the
- * start of a new read
+ *              - there must be at least 5 μs between the end of reading the data registers and
+ * the start of a new read
  *
  * @param sensor[in] configuration for sensor to use
- * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to be
- * at least 6 bytes
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to
+ * be at least 6 bytes
  * @return return the error code (0 if everything passed)
  *
  * @note read only, raw data needs to be converted into g-values
@@ -126,8 +153,8 @@ static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sen
 /*! @brief
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
- * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to be
- * at least 6 bytes
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to
+ * be at least 6 bytes
  * @param maxFifoRead maximal Data you want to fetch from Fifo
  * @return return the error code (0 if everything passed)
  */
@@ -150,7 +177,8 @@ static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sens
                                               uint8_t fifoInformation);
 
 /*!
- * @brief disables selftest force by setting selftest bit to 0 in the ADXL345B_REGISTER_DATA_FORMAT
+ * @brief disables selftest force by setting selftest bit to 0 in the
+ ADXL345B_REGISTER_DATA_FORMAT
  * without changing other information stored in register
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
@@ -161,8 +189,8 @@ static adxl345bErrorCode_t
 adxl345bInternalDisableSelftestForce(adxl345bSensorConfiguration_t sensor);
 
 /*!
- * @brief enables selftest force by setting selftest bit to 1 in the ADXL345B_REGISTER_DATA_FORMAT
- * without changing other information stored in register
+ * @brief enables selftest force by setting selftest bit to 1 in the
+ * ADXL345B_REGISTER_DATA_FORMAT without changing other information stored in register
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
  * @return return the error code (0 if everything passed)
