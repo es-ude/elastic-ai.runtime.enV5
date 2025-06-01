@@ -71,9 +71,9 @@ adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zA
                                            uint8_t *responseBuffer);
 
 /*!
- * @brief change the measurement range of the sensor
+ * @brief changes the measurement range of the sensor
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *
+ * @WARNING changes configuration to full resolution
  * @param sensor[in] configuration for sensor to use
  * @param newRange[in] value of enum in Adxl345bTypedefs.h
  * @return             return the error code (0 if everything passed)
@@ -143,7 +143,7 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
  * @brief trigger the execution of the self-test procedure
  *
  *
- * @WARNING after testing the sensor is configured in low power mode at 2G range with full
+ * @WARNING after testing the sensor is configured in low power mode at 12.5Hz, 2G range with full
  * resolution.
  * @WARNING major configuration changes in:
  * @WARNING     - ADXL345B_REGISTER_POWER_CONTROL
@@ -174,5 +174,15 @@ adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor,
  * @return return the error code (0 if self-calibration passed)
  */
 adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sensor);
+
+/*!
+ * @brief activates measurement mode
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @WARNING clears link bit, disables all sleep functions and sets the frequency of readings in
+ * sleep mode to 8Hz
+ * @param sensor
+ * @return return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_t sensor);
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */

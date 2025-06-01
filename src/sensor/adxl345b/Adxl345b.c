@@ -84,19 +84,18 @@ adxl345bErrorCode_t adxl345bChangeMeasurementRange(adxl345bSensorConfiguration_t
     uint8_t currentDataFormatSetting;
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
                                                    &currentDataFormatSetting, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
     /* reset/clear Range */
     currentDataFormatSetting = currentDataFormatSetting & 0b11110000;
     /* set new Range */
     uint8_t newDataFormatSetting =
         currentDataFormatSetting || adxl345bSelectedRange.settingForRange;
 
-    /* right adjusted storage, selected range settings for full resolution */
     errorCode = adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
                                                    newDataFormatSetting);
-    if (errorCode != ADXL345B_NO_ERROR) {
-        return errorCode;
-    }
-    return ADXL345B_NO_ERROR;
+    return errorCode;
 }
 
 adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t sensor,
@@ -196,7 +195,6 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
         }
         errorCode = manageFifoDataRead(sensor, size - counter, remainder, maxFifoRead,
                                        rawData + counter, fifoInformation);
-        /* update variables */
         counter += maxFifoRead;
         if (errorCode != ADXL345B_NO_ERROR) {
             return errorCode;
@@ -213,7 +211,6 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
     int64_t counter = 0;
     sizeOfRawData -= (sizeOfRawData % 6);
 
-    /* read and set configuration*/
     uint8_t fifoInformation;
     errorCode =
         adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &fifoInformation, 1);
@@ -356,23 +353,24 @@ static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t senso
     return errorCode;
 }
 
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
-                                            int *deltaY, int *deltaZ) {
-    adxl345bErrorCode_t errorCode;
-
-    /* disable sleep/wakeup functions and activate measurement mode by clearing register and set
-back to measurement mode with a subsequent write */
-    errorCode =
+adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_t sensor) {
+    adxl345bErrorCode_t errorCode =
         adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00000000);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
     errorCode =
         adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_POWER_CONTROL, 0b00001000);
+    return errorCode;
+}
+
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
+                                            int *deltaY, int *deltaZ) {
+    adxl345bErrorCode_t errorCode;
+    errorCode = adxl345bActivateMeasurementMode(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
-
     /* standard mode, 100Hz */
     errorCode =
         adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_100);
@@ -386,6 +384,9 @@ back to measurement mode with a subsequent write */
     }
     /* set selftest-bit to disable force */
     errorCode = adxl345bInternalSetSelftestBit(sensor, false);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
 
     sleep_for_ms(2);
 
@@ -712,6 +713,9 @@ static adxl345bErrorCode_t adxl345bInternalSetSelftestBit(adxl345bSensorConfigur
     uint8_t currentDataFormatSetting;
     errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT,
                                                    &currentDataFormatSetting, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
     /* reset/clear selftest-bit */
     currentDataFormatSetting = currentDataFormatSetting & 0b01111111;
     /* prepare selftest-bit */

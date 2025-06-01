@@ -24,7 +24,7 @@ enum {
     ADXL345B_BW_RATE_0_point_1 = 0b00010000,
     //!  represents BW_RATE 0.2
     ADXL345B_BW_RATE_0_point_2 = 0b00010001,
-    ADXL345B_BW_RATE_0_point_39 = 0b00010010, //!<  represents BW_RATE0.39
+    ADXL345B_BW_RATE_0_point_39 = 0b00010010, //!<  represents BW_RATE 0.39
     //!  represents BW_RATE 0.78
     ADXL345B_BW_RATE_0_point_78 = 0b00010011,
     //!  represents BW_RATE 0.56
