@@ -280,7 +280,7 @@ _Noreturn void t_stressTest_enterBootModeTask(void) {
     }
 }
 
-// TODO: adxl_task mit MQTT_task testen
+// TODO: test adxl_task with MQTT_task
 
 int main(void) {
     // init stdio and esp
