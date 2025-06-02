@@ -17,8 +17,9 @@
 
 typedef struct adxl345bRangeSetting {
     uint8_t settingForRange;
-    uint8_t msbMask;   //!< used for converting raw data to LSB value
-    float scaleFactor; //!< used for converting LSB value to G value
+    uint8_t msbMask;          //!< used for converting raw data to LSB value
+    float tenBitScaleFactor;  //!< used for converting LSB value to G value
+    float fullResScaleFactor; //!< used for converting LSB value to G value
 } adxl345bRangeSetting_t;
 
 /*!
@@ -164,11 +165,11 @@ static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t senso
 /*! @brief
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
- * @param sizeOfBuffer modulo 6 needs to be 0
- * @param remainder modulo 6 needs to be 0
- * @param maxFifoRead maximal Data you want to fetch from Fifo
+ * @param sizeOfBuffer[in] modulo 6 needs to be 0
+ * @param remainder[in] modulo 6 needs to be 0
+ * @param maxFifoRead[in] maximal Data you want to fetch from Fifo
  * @param buffer[out] memory where data received from the sensor is stored
- * @param fifoInformation Infomation which is stored in ADXL345B_FIFO_CONTROL
+ * @param fifoInformation[in] Infomation which is stored in ADXL345B_FIFO_CONTROL
  * @return return the error code (0 if everything passed)
  */
 static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sensor,
@@ -201,9 +202,37 @@ adxl345bInternalEnableSelftestForce(adxl345bSensorConfiguration_t sensor);
 /*!
  * @brief stores selected Range Information in static parameter
  *
- * @param range range to be selected
+ * @param range[in] range to be selected
  * @return return the error code (0 if everything passed)
  */
 static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range);
+/*!
+ *
+ * @param sensor[in]
+ * @param adxlRegister[in] register that should be changed
+ * @param mask[in] mask which describes which bits should be changed
+ * @return return the error code (0 if everything passed)
+ * @note examples for mask:
+ * 0b10000000 -> Bit7 will be set to 1
+ * 0b11000000 -> Bit7 and Bit6 will be set to 1
+ * @note check ADXL345B_BITMASK -Enum
+ */
+static adxl345bErrorCode_t adxl345bInternalSetRegisterBits(adxl345bSensorConfiguration_t sensor,
+                                                           adxl345bRegister_t adxlRegister,
+                                                           uint8_t mask);
+/*!
+ *
+ * @param sensor[in]
+ * @param adxlRegister[in] register that should be changed
+ * @param mask[in] mask which describes which bits should be changed
+ * @return return the error code (0 if everything passed)
+ * @note examples for mask:
+ * 0b10000000 -> Bit7 will be set to 0
+ * 0b11000000 -> Bit7 and Bit6 will be set to 0
+ * @note check ADXL345B_BITMASK -Enum
+ */
+static adxl345bErrorCode_t adxl345bInternalClearRegisterBits(adxl345bSensorConfiguration_t sensor,
+                                                             adxl345bRegister_t adxlRegister,
+                                                             uint8_t mask);
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */

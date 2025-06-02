@@ -75,7 +75,7 @@ adxl345bErrorCode_t adxl345bConvertDataXYZ(adxl345bSensorConfiguration_t sensor,
 /*!
  * @brief changes the measurement range of the sensor
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- * @WARNING changes configuration to full resolution
+ * @WARNING changes configuration to full resolution, clears justify bit
  * @param sensor[in] configuration for sensor to use
  * @param newRange[in] value of enum in Adxl345bTypedefs.h
  * @return             return the error code (0 if everything passed)
@@ -182,9 +182,21 @@ adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sen
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @WARNING clears link bit, disables all sleep functions and sets the frequency of readings in
  * sleep mode to 8Hz
- * @param sensor
+ * @param sensor[in]
  * @return return the error code (0 if everything passed)
  */
 adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_t sensor);
+/*!
+ *
+ * @param sensor[in]
+ * @return return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bSetFullResolutionMode(adxl345bSensorConfiguration_t sensor);
+/*!
+ *
+ * @param sensor[in]
+ * @return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bSetTenBitMode(adxl345bSensorConfiguration_t sensor);
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */
