@@ -682,7 +682,7 @@ void adxl345bConvertDataXYZCorrectValue(void) {
     float expected_xAxis = 0, expected_yAxis = 0, expected_zAxis = 0;
     float actual_xAxis = 0, actual_yAxis = 0, actual_zAxis = 0;
     const uint8_t MSB_MASK = 0b00000011;
-    const float SCALE_FACTOR_FOR_RANGE = 0.0043f;
+    const float SCALE_FACTOR_FOR_RANGE = 0.00377f;
     /* only used lower 2 bits -> 2G Range consists of 10 Bit*/
     uint8_t topByte = byteZero & MSB_MASK;
 
