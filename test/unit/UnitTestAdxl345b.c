@@ -1,6 +1,7 @@
 #include "I2cUnitTest.h"
 #include "eai/sensor/Adxl345b.h"
 #include <memory.h>
+#include <stdint.h>
 #include <unity.h>
 
 /*! JUST HERE TO SATISFY THE COMPILER
