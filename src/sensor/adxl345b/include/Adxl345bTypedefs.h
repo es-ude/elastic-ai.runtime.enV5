@@ -109,6 +109,22 @@ enum {
     ADXL345B_FIFOMODE_TRIGGER = 0b11000000,
 };
 
+/*! Bitmask that defines which bits are relevant(1) for the information in the register and which
+ * are not(0) */
+enum {
+    ADXL345B_BITMASK_DATA_READY = 0b10000000,
+    ADXL345B_BITMASK_WATERMARK = 0b00000010,
+    ADXL345B_BITMASK_LOW_POWER = 0b00010000,
+    ADXL345B_BITMASK_MEASURE = 0b00001000,
+    ADXL345B_BITMASK_SELF_TEST = 0b10000000,
+    ADXL345B_BITMASK_FULL_RES = 0b00001000,
+    ADXL345B_BITMASK_JUSTIFY = 0b00000100,
+    ADXL345B_BITMASK_RANGE = 0b00000011,
+    ADXL345B_BITMASK_ENTRIES = 0b00111111,
+    ADXL345B_BITMASK_SAMPLES = 0b00011111,
+    ADXL345B_BITMASK_FIFOMODE = 0b11000000
+};
+
 typedef struct adxl345bSensorConfiguration {
     i2c_inst_t *i2c_host;
     adxl345bI2cAddress_t i2c_slave_address;
