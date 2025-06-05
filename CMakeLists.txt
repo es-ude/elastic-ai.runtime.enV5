@@ -14,40 +14,28 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
     add_unity()
     add_ctest()
   endif()
+
   add_cexception()
   add_runtime_c()
 
-  if(DEBUG_OUTPUT)
-    add_definitions(-DDEBUG_MODE)
-  endif()
-
+  if (DEBUG_OUTPUT)
+      add_definitions(-DDEBUG_MODE)
+  endif ()
   if(_BUILDING_FOR_HARDWARE)
     add_freertos()
+  endif()
 
-    add_subdirectory(src)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-Werror=int-conversion>)
+  add_compile_options(-ftrapv) # abort execution on integer overflow
 
-    if(EAI_RUNTIME_TOP_LEVEL_PROJECT)
+  add_subdirectory(src)
+
+  if (EAI_RUNTIME_TOP_LEVEL_PROJECT)
       add_subdirectory(test/hardware)
-    endif()
-  else()
-    add_compile_options(-ftrapv) # abort execution on integer overflow
-
-    add_subdirectory(src/common)
-    add_subdirectory(src/filesystem)
-    add_subdirectory(src/flash)
-    add_subdirectory(src/fpga/fpgaConfigurationHandler)
-    add_subdirectory(src/hal)
-    add_subdirectory(src/network)
-    add_subdirectory(src/rtos)
-    add_subdirectory(src/sensor)
-    add_subdirectory(src/usb_protocol)
-
-    if(EAI_RUNTIME_TOP_LEVEL_PROJECT)
       add_subdirectory(test/unit)
-    endif()
-  endif()
+  endif ()
+endif ()
 
-  if(BUILDING_FOR_HARDWARE AND NOT TARGET tinyusb_device)
-    message(WARNING "not building project, because tinyusb not initialized")
-  endif()
+if(BUILDING_FOR_HARDWARE AND NOT TARGET tinyusb_device)
+  message(WARNING "not building project, because tinyusb not initialized")
 endif()
