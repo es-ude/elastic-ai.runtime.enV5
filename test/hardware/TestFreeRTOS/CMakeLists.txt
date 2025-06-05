@@ -21,7 +21,9 @@ target_link_libraries(HardwareTestFreeRtosQueues
 
         freeRtos::FreeRTOS-Kernel
         Pico::pico_stdlib
+        Pico::pico_bootrom
         Pico::hardware_spi
+        Pico::hardware_watchdog
 )
 create_enV5_executable(HardwareTestFreeRtosQueues)
 
@@ -35,7 +37,5 @@ target_link_libraries(HardwareTestSMP
         freeRtos::FreeRTOS-Kernel
         Pico::pico_stdlib
         Pico::pico_bootrom
-
 )
-target_compile_definitions(HardwareTestSMP PRIVATE DEBUG)
 create_enV5_executable(HardwareTestSMP)
