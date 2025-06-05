@@ -4,7 +4,6 @@ NetworkConfig.c
 picotool/picotool*/
 
 ### IDE/Environment
-.envrc
 .idea/
 .vimrc
 .tool-versions
@@ -126,3 +125,9 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 build/
+
+
+### devenv
+.devenv/
+.devenv.flake.nix
+.direnv/
