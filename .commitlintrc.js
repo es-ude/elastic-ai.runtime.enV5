@@ -18,6 +18,7 @@ module.exports = {
                    2, "always",
                    [
                      'github',
+                     'devenv',
                      'usb-protocol',
                      'hal',
                      'sensor',
