@@ -1,0 +1,6 @@
+add_library(ExperimentProtocol src/ExperimentProtocol.c)
+target_include_directories(ExperimentProtocol INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+target_include_directories(ExperimentProtocol PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/experiment_protocol)
+
+add_library(StdIOExperimentEndpoint src/StdIODataTransmission.c)
+target_include_directories(StdIOExperimentEndpoint PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include/experiment_protocol)

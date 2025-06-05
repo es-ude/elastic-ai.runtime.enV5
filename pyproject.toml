@@ -1,0 +1,31 @@
+[project]
+authors = [{ name = "Department Embedded Systems - University Duisburg Essen" }]
+license = { text = "MIT" }
+requires-python = ">=3.12"
+dependencies = [
+    "pyserial>=3.5",
+]
+name = "elasticai.runtime.env5"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+
+[dependency-groups]
+dev = [
+    "pre-commit == 4.1.0",
+    "pytest>=8.4.1",
+]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["python_utils/test-framework/src"]
+
+[tool.uv.workspace]
+members = [
+    "python_utils/test-framewok",
+    "python_utils/usb-protocol",
+    "python_utils/bitfile_scripts",
+    "python_utils/experiment-protocol",
+]

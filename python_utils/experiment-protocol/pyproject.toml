@@ -1,0 +1,8 @@
+[project]
+name = "experiment-protocol"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "Lukas Einhaus", email = "lukas.einhaus@uni-due.de" }]
+requires-python = ">=3.12"
+dependencies = []
