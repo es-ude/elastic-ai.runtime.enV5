@@ -45,7 +45,7 @@ adxl345bErrorCode_t adxl345bWriteConfigurationToSensor(adxl345bSensorConfigurati
  * @brief sets FIFO Mode and interrupt information
  *
  * @IMPORTANT - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *            - The expected default mode is BYPASS
+ * @IMPORTANT - The expected default mode is BYPASS
  *
  * @param sensor[in] configuration for sensor to use
  * @param fifoMode FIFO Mode to be set
@@ -60,21 +60,22 @@ adxl345bErrorCode_t adxl345bSetFIFOMode(adxl345bSensorConfiguration_t sensor, ui
                                         uint16_t samplesForTrigger);
 
 /*!
- *@brief convert raw data into g-values of xAxis,yAxis and zAxis
+ * @brief convert raw data into g-values of xAxis,yAxis and zAxis
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- *
+ * @param sensor[in] configuration for sensor to use
  * @param xAxis,yAxis,zAxis[out] actual G values from the sensor
  * @param responseBuffer[in] needs to be at least 6 bytes
  * @return return the error code (0 if everything passed)
  *
  */
-adxl345bErrorCode_t adxl345bConvertDataXYZ(float *xAxis, float *yAxis, float *zAxis,
-                                           uint8_t *responseBuffer);
+adxl345bErrorCode_t adxl345bConvertDataXYZ(adxl345bSensorConfiguration_t sensor, float *xAxis,
+                                           float *yAxis, float *zAxis, uint8_t *responseBuffer);
 
 /*!
- * @brief change the measurement range of the sensor
+ * @brief changes the measurement range of the sensor
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *
+ * @WARNING changes configuration to full resolution, clears justify bit
  * @param sensor[in] configuration for sensor to use
  * @param newRange[in] value of enum in Adxl345bTypedefs.h
  * @return             return the error code (0 if everything passed)
@@ -117,7 +118,7 @@ adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t s
  * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be
  * at least 6 bytes. (2 bytes each Axis)
  * @param sizeOfRawData[in] number of required Data
- * @return
+ * @return return the error code (0 if everything passed)
  */
 adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_t sensor,
                                                     uint8_t *rawData, uint32_t sizeOfRawData);
@@ -126,7 +127,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
  * @brief reads raw data from the sensor. limited by milliseconds or given buffer for rawData
  *
  * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *              - Can be interrupted.caller needs to ensure free rtos
+ * @IMPORTANT   - Can be interrupted.caller needs to ensure free rtos
  *
  * @param sensor[in] configuration for sensor to use
  * @param rawData[out] raw data array received from the xAxis,yAxis,zAxis. Each raw data needs to be
@@ -134,7 +135,7 @@ adxl345bErrorCode_t adxl345bGetMultipleMeasurements(adxl345bSensorConfiguration_
  * @param milliseconds[in] measuring-time in milliseconds
  * @param sizeOfRawData[in/out] maximum size of rawData which is manipulated to return actual size
  * of read rawData
- * @return
+ * @return return the error code (0 if everything passed)
  */
 adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfiguration_t sensor,
                                                             uint8_t *rawData, uint32_t milliseconds,
@@ -143,19 +144,28 @@ adxl345bErrorCode_t adxl345bGetMeasurementsForNMilliseconds(adxl345bSensorConfig
 /*!
  * @brief trigger the execution of the self-test procedure
  *
- * function assumes that the sensor is not moved during the process
+ *
+ * @WARNING after testing the sensor is configured in low power mode at 12.5Hz, 2G range with full
+ * resolution.
+ * @WARNING major configuration changes in:
+ * @WARNING     - ADXL345B_REGISTER_POWER_CONTROL
+ * @WARNING     - ADXL345B_REGISTER_DATA_FORMAT
+ * @WARNING     - ADXL345B_REGISTER_INTERRUPT_ENABLE
+ *
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @IMPORTANT function assumes that the sensor is not moved during the process
  *
  * @param sensor[in] configuration for sensor to use
- * @param deltaX,deltaY,deltaZ[out] delta of G Values
+ * @param avarageX,avarageY,avarageZ[out] avagare of G Values for further calibration
  *
  * @return                          return the error code (0 if self-test passed)
  */
-adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *deltaX,
-                                            int *deltaY, int *deltaZ);
+adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *avarageX,
+                                            int *avarageY, int *avarageZ);
 
 adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor,
                                          uint8_t fifoInformation);
+
 /*!
  * @brief trigger a self calibration run
  *
@@ -166,5 +176,27 @@ adxl345bErrorCode_t adxl345bResetTrigger(adxl345bSensorConfiguration_t sensor,
  * @return return the error code (0 if self-calibration passed)
  */
 adxl345bErrorCode_t adxl345bRunSelfCalibration(adxl345bSensorConfiguration_t sensor);
+
+/*!
+ * @brief activates measurement mode
+ * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @WARNING clears link bit, disables all sleep functions and sets the frequency of readings in
+ * sleep mode to 8Hz
+ * @param sensor[in]
+ * @return return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_t sensor);
+/*!
+ *
+ * @param sensor[in]
+ * @return return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bSetFullResolutionMode(adxl345bSensorConfiguration_t sensor);
+/*!
+ *
+ * @param sensor[in]
+ * @return the error code (0 if everything passed)
+ */
+adxl345bErrorCode_t adxl345bSetTenBitMode(adxl345bSensorConfiguration_t sensor);
 
 #endif /* ENV5_ADXL345B_PUBLIC_HEADER */
