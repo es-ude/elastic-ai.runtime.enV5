@@ -1,7 +1,10 @@
 [project]
-name = "bitfile-scripts"
+authors = [
+    { name = "Intelligent Embedded Systems - University Duisburg Essen" },
+]
+license = { text = "MIT" }
+name = "elasticai.runtime.bitfilescripts"
 version = "0.1.0"
-description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
     "flask>=3.1.0",
