@@ -1,5 +1,9 @@
 [project]
-name = "elastic-ai.runtime.usb-protocol"
+authors = [
+    { name = "Intelligent Embedded Systems - University Duisburg Essen" },
+]
+license = { text = "MIT" }
+name = "elasticai.runtime.usbprotocol"
 version = "0.1.0"
 description = "USB-Protocol to interact with elastic Node."
 readme = "README.md"
