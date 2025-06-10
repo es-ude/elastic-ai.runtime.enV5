@@ -12,26 +12,24 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-    outputs:
-      release_tag: ${{ steps.release.outputs.VERSION }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Graphviz
-        uses: ts-graphviz/setup-graphviz@v1
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          cache: npm
-          node-version: "lts/*"
-      - name: Install semantic-release Plugin
-        run: npm clean-install
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
-      - name: Create Release
+      - name: Cocogitto release
         id: release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        uses: cocogitto/cocogitto-action@v3
+        with:
+          release: true
+          git-user: "Intelligent Embedded Systems @ UDE"
+          git-user-email: "no-reply@ies.uni-due.de"
+      - name: Generate Changelog
+        run: |
+          cog changelog --at ${{ steps.release.outputs.version }} \
+            -t full_hash > GITHUB_CHANGELOG.md
+      - name: Upload github release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: GITHUB_CHANGELOG.md
+          tag_name: ${{ steps.release.outputs.version }}
