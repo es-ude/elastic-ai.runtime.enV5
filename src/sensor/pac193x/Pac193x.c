@@ -641,10 +641,9 @@ static float pac193xInternalConvertToFloat(uint64_t input) {
     return (float)input;
 }
 
-static float pac193xInternalCalculateAccumulatorCount(uint64_t input,
-                                                      __attribute((__unused__)) float resistor,
-                                                      __attribute((__unused__))
-                                                      uint8_t sampleRate) {
+static float
+pac193xInternalCalculateAccumulatorCount(uint64_t input, __attribute((__unused__)) float resistor,
+                                         __attribute((__unused__)) uint8_t sampleRate) {
     return pac193xInternalConvertToFloat(input);
 }
 
