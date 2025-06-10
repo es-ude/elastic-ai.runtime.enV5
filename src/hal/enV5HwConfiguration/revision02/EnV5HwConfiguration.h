@@ -205,13 +205,11 @@
 #endif
 
 #ifndef PAC_ONE_R_SENSE
-#define PAC_ONE_R_SENSE                                                                            \
-    { 0.82f, 0.82f, 0.82f, 0.82f }
+#define PAC_ONE_R_SENSE {0.82f, 0.82f, 0.82f, 0.82f}
 #endif
 
 #ifndef PAC_ONE_USED_CHANNELS
-#define PAC_ONE_USED_CHANNELS                                                                      \
-    { .uint_channelsInUse = 0b00001111 }
+#define PAC_ONE_USED_CHANNELS {.uint_channelsInUse = 0b00001111}
 #endif
 
 /* endregion PAC193x I*/
@@ -232,13 +230,11 @@
 #endif
 
 #ifndef PAC_TWO_R_SENSE
-#define PAC_TWO_R_SENSE                                                                            \
-    { 0.82f, 0.82f, 0.82f, 0.82f }
+#define PAC_TWO_R_SENSE {0.82f, 0.82f, 0.82f, 0.82f}
 #endif
 
 #ifndef PAC_TWO_USED_CHANNELS
-#define PAC_TWO_USED_CHANNELS                                                                      \
-    { .uint_channelsInUse = 0b00001111 }
+#define PAC_TWO_USED_CHANNELS {.uint_channelsInUse = 0b00001111}
 #endif
 
 /* endregion PAC193x II */
