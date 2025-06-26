@@ -92,7 +92,7 @@ in
         if [ -e "$1" ]; then
           if [ -r "$1" ]; then
             if [[ "$1" == *.uf2 ]]; then
-              picotool load -f "$1"
+              picotool load -v -x -f "$1"
             else
               echo "Not a valid file type (UF2)!"
               exit 1
@@ -116,6 +116,40 @@ in
         SRC_FILES=$(find $SRC_DIRECTORIES -name .git -prune -o -regextype posix-egrep -regex "$INCLUDE_REGEX" -print)
         for file in $SRC_FILES; do
           clang-format -i -Werror --style=file --fallback-style="llvm" $file
+        done
+      '';
+      package = pkgs.bash;
+      description = "apply clang-format to src,test directory";
+    };
+    run_test = {
+      exec = ''
+        echo "Run Test: $1"
+        flash_node "build/env5_rev2_release/test/hardware/AutomatedHWTests/$1.uf2"
+        echo "Waiting for test to finish"
+        sleep 1
+        while read -r line; do
+          if [[ -n "$2" ]]; then
+            echo "$line"
+          fi
+          if [[ -n "$line" ]]; then
+            if [[ "OK" == "$line" ]]; then
+              echo "  OK"
+              break
+            elif [[ "FAIL" == "$line" ]]; then
+              echo "  FAIL"
+              break
+            fi
+          fi
+        done < /dev/ttyACM0
+      '';
+      package = pkgs.bash;
+      description = "apply clang-format to src,test directory";
+    };
+    run_tests = {
+      exec = ''
+        TESTS="TestFreeRTOSTask TestFreeRTOSQueue TestFreeRTOSTaskDualCore TestFilesystem TestFlash TestFPGACommunication"
+        for file in $TESTS; do
+          run_test "$file"
         done
       '';
       package = pkgs.bash;
