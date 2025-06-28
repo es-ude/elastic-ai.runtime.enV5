@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <sys/unistd.h>
 
+#ifdef paramTest(fn, param)
 #define paramTest(fn, param)                                                                       \
     void fn##param(void) {                                                                         \
         fn(param);                                                                                 \
