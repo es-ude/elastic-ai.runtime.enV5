@@ -24,9 +24,15 @@ in
   languages.c.enable = true;
   languages.python = {
     enable = true;
-    package = unstablePkgs.python312;
-    uv.enable = true;
-    uv.package = unstablePkgs.uv;
+    package = pkgs.python312;
+    # venv.enable = true;
+    # venv.quiet = true;
+    uv = {
+      enable = true;
+      package = unstablePkgs.uv;
+      sync.enable = true;
+      sync.allExtras = true;
+    };
   };
 
   process.manager.implementation = "process-compose";

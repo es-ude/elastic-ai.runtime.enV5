@@ -2,13 +2,13 @@ from pathlib import Path
 from time import sleep
 from typing import Union
 
-import serial
+from serial import Serial
 
 from .recommended_commands import EnV5RecommendedRemoteControlProtocol
 
 
 class UserRemoteControl:
-    def __init__(self, device: serial.Serial, logging_level: str = "INFO"):
+    def __init__(self, device: Serial, logging_level: str = "INFO"):
         self._enV5RCP = EnV5RecommendedRemoteControlProtocol(device)
         self._enV5RCP.set_logger_level(logging_level)
         self.chunk_size = self._enV5RCP.get_chunk_size_for_flash()

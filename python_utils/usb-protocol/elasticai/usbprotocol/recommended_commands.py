@@ -1,7 +1,4 @@
 import math
-from pathlib import Path
-from sys import byteorder
-from time import sleep
 from typing import Callable
 
 import serial
