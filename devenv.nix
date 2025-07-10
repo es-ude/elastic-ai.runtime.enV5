@@ -98,7 +98,7 @@ in
         if [ -e "$1" ]; then
           if [ -r "$1" ]; then
             if [[ "$1" == *.uf2 ]]; then
-              picotool load -v -x -f "$1"
+              ( exec picotool load -v -x -f "$1" >/dev/null 2>&1 )
             else
               echo "Not a valid file type (UF2)!"
               exit 1
@@ -129,38 +129,67 @@ in
     };
     run_test = {
       exec = ''
-        echo "Run Test: $1"
         flash_node "build/env5_rev2_release/test/hardware/AutomatedHWTests/$1.uf2"
-        echo "Waiting for test to finish"
-        sleep 1
+        echo "Running Test: $1"
+        sleep 2
         while read -r line; do
           if [[ -n "$2" ]]; then
             echo "$line"
           fi
           if [[ -n "$line" ]]; then
-            if [[ "OK" == "$line" ]]; then
-              echo "  OK"
+            if [[ "$line" == "OK" ]]; then
+              echo "OK" > /tmp/test_result_$1
+              echo -e "  \e[32mOK\e[0m"
               break
-            elif [[ "FAIL" == "$line" ]]; then
-              echo "  FAIL"
+            elif [[ "$line" == "FAIL" ]]; then
+              echo "FAIL" > /tmp/test_result_$1
+              echo -e "  \e[31mFAIL\e[0m"
               break
             fi
           fi
         done < /dev/ttyACM0
       '';
       package = pkgs.bash;
-      description = "apply clang-format to src,test directory";
+      description = "run one test (with or without debug output) and print the result";
     };
+
     run_tests = {
       exec = ''
         TESTS="TestFreeRTOSTask TestFreeRTOSQueue TestFreeRTOSTaskDualCore TestFilesystem TestFlash TestFPGACommunication"
-        for file in $TESTS; do
-          run_test "$file"
+        test_results=""
+
+        for test in $TESTS; do
+          echo "Running test" $test
+          run_test "$test" > /dev/null
+          result_file="/tmp/test_result_$test"
+          if [[ -f "$result_file" ]]; then
+            result=$(cat "$result_file")
+
+            if [[ "$result" == "OK" ]]; then
+              test_results+="  \e[32mOK\e[0m    | $test"$'\n'
+            elif [[ "$result" == "FAIL" ]]; then
+              test_results+="  \e[31mFAIL\e[0m  | $test"$'\n'
+            else
+              test_results+="$result | $test"$'\n'
+            fi
+
+            rm "$result_file"
+          else
+            test_results+="  ERROR | $test"$'\n'
+          fi
         done
+
+        echo "----------------"
+        echo -e "Result:\n$test_results"
       '';
+
+
       package = pkgs.bash;
-      description = "apply clang-format to src,test directory";
+      description = "run all hardware tests and print their result";
     };
+
+
+
   };
 
   tasks = {
