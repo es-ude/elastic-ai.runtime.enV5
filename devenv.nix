@@ -25,8 +25,8 @@ in
   languages.python = {
     enable = true;
     package = pkgs.python312;
-    # venv.enable = true;
-    # venv.quiet = true;
+    venv.enable = true;
+    venv.quiet = true;
     uv = {
       enable = true;
       package = unstablePkgs.uv;

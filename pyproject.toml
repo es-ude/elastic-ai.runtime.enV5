@@ -25,3 +25,8 @@ exclude = [
 
 [tool.hatch.version]
 source = "vcs"
+
+[dependency-groups]
+lsp = [
+    "pynvim>=0.5.2",
+]
