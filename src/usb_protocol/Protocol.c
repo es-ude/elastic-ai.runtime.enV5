@@ -7,6 +7,7 @@
 
 #include "Sleep.h"
 #include "UsbProtocolBase.h"
+#include "UsbProtocolCustomCommands.h"
 #include "internal/Tools.h"
 
 /* region TYPEDEFS/VARIABLES/DEFINES */
