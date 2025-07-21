@@ -72,6 +72,18 @@ static void blinkLED(uint exception) {
     }
 }
 
+static void addDefaultFunctions(void) {
+    addCommand(2, &readSkeletonId);
+    addCommand(3, &getChunkSize);
+    addCommand(4, &sendDataToFlash);
+    addCommand(5, &readDataFromFlash);
+    addCommand(6, &setFpgaPower);
+    addCommand(7, &setFpgaLeds);
+    addCommand(8, &setMcuLeds);
+    addCommand(9, &runInference);
+    addCommand(10, &deployModel);
+}
+
 static void initialize(void) {
     env5HwControllerInit();
 
@@ -80,7 +92,7 @@ static void initialize(void) {
 
     flashInit(&flashConfig);
 
-    usbProtocolInit(readByteForProtocol, sendBytesForProtocol, &flashConfig);
+    usbProtocolInit(readByteForProtocol, sendBytesForProtocol, &flashConfig, addDefaultFunctions);
     usbProtocolRegisterCommand(241, &countdownHandle);
 }
 

@@ -7,8 +7,6 @@
 
 #include "Sleep.h"
 #include "UsbProtocolBase.h"
-#include "UsbProtocolCustomCommands.h"
-#include "internal/DefaultCommands.h"
 #include "internal/Tools.h"
 
 /* region TYPEDEFS/VARIABLES/DEFINES */
@@ -79,19 +77,6 @@ static uint8_t readChecksum(void) {
     return checksum;
 }
 
-//! add default commands
-static void addDefaultFunctions(void) {
-    addCommand(2, &readSkeletonId);
-    addCommand(3, &getChunkSize);
-    addCommand(4, &sendDataToFlash);
-    addCommand(5, &readDataFromFlash);
-    addCommand(6, &setFpgaPower);
-    addCommand(7, &setFpgaLeds);
-    addCommand(8, &setMcuLeds);
-    addCommand(9, &runInference);
-    addCommand(10, &deployModel);
-}
-
 static void cleanMessageBuffer(usbProtocolMessage_t *message) {
     if (message != NULL) {
         if (message->payload != NULL) {
@@ -106,8 +91,11 @@ static void cleanMessageBuffer(usbProtocolMessage_t *message) {
 
 /* region PUBLIC FUNCTIONS */
 
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
-                     flashConfiguration_t *flashConfiguration) {
+void usbProtocolInit(
+    usbProtocolReadData readFunction,
+    usbProtocolSendData sendFunction,
+    flashConfiguration_t *flashConfiguration,
+    usbDefaultCommands *defaultCommands) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
@@ -116,7 +104,7 @@ void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendF
     usbProtocolSendHandle = sendFunction;
     usbProtocolFlashConfig = flashConfiguration;
 
-    addDefaultFunctions();
+    defaultCommands();
 }
 
 bool usbProtocolSendMessage(usbProtocolMessage_t *message) {

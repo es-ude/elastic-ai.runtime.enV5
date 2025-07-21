@@ -57,11 +57,15 @@ typedef void *usbProtocolReceiveBuffer;
  * @param[in] readFunction function providing input for the protocol handler
  * @param[in] sendFunction function allowing the handler to send a response
  * @param[in] flashConfiguration pointer to configuration for flash
+ * @param[in] defaultCommandCreator function adding commands on init
  *
  * @throws USB_PROTOCOL_ERROR_NULL_POINTER a function provided is not defined
  */
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
-                     flashConfiguration_t *flashConfiguration);
+void usbProtocolInit(
+    usbProtocolReadData readFunction,
+    usbProtocolSendData sendFunction,
+    flashConfiguration_t *flashConfiguration,
+    void *defaultCommandCreator);
 
 /*!
  * @brief function waiting for data (command + payload + checksum) (BLOCKING)
