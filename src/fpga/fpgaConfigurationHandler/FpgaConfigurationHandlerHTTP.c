@@ -1,16 +1,17 @@
 #define SOURCE_FILE "FPGA-CONFIGRATION-HANDLER-HTTP"
 
-#include "CException.h"
-#include "Common.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandlerInternal.h"
-#include "HTTP.h"
-#include "include/FpgaConfigurationHandler.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "CException.h"
+
+#include "FpgaConfigurationHandlerInternal.h"
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/network/HTTP.h"
 
 /* region PUBLIC FUNCTION IMPLEMENTATIONS */
 

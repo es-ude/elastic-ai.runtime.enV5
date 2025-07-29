@@ -1,8 +1,8 @@
 #define SOURCE_FILE "GPIO-LIB"
 
-#include "include/Gpio.h"
-
 #include "hardware/gpio.h"
+
+#include "eai/hal/Gpio.h"
 
 gpioErrorCode_t gpioInitPin(gpioPin_t pin, gpioDirection_t direction) {
     gpio_init(pin);

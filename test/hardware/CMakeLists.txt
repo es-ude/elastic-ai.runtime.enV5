@@ -1,4 +1,5 @@
 add_subdirectory(Helper)
+
 add_subdirectory(TestFreeRTOS)
 add_subdirectory(Esp)
 add_subdirectory(TestNetworking)
@@ -10,5 +11,5 @@ add_subdirectory(TestFlowPrediction)
 add_subdirectory(TestMiddleware)
 add_subdirectory(TestFlashFileSystem)
 add_subdirectory(TestUsbProtocol)
-add_subdirectory(AutomatedHWTests)
 
+add_subdirectory(AutomatedHWTests)

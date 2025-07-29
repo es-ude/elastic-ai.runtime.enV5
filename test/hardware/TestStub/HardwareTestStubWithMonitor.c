@@ -7,26 +7,26 @@
 
 #define SOURCE_FILE "HWTEST-STUB-WITH-MONITOR"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Esp.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
-#include "FreeRtosMutexWrapper.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
-#include "MqttBroker.h"
-#include "Network.h"
-#include "Protocol.h"
-#include "middleware.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
 
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
+#include "Protocol.h"
+#include "eai//flash/Flash.h"
+#include "eai/Common.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/fpga/middleware.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
+#include "eai/network/Network.h"
+#include "eai/rtos/FreeRtosMutexWrapper.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 typedef struct downloadRequest {
     char *url;

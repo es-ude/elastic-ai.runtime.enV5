@@ -1,10 +1,11 @@
-#include "EnV5HwConfiguration.h"
-#include "Uart.h"
+#include <stdio.h>
+
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 #include "string.h"
 
-#include <stdio.h>
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/Uart.h"
 
 static uartConfiguration_t uartConfig;
 

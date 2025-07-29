@@ -6,11 +6,11 @@
 #include <pico/bootrom.h>
 #include <pico/stdio_usb.h>
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "I2c.h"
-#include "Pac193x.h"
-#include "Pac193xTypedefs.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/I2c.h"
+#include "eai/sensor/Pac193x.h"
+#include "eai/sensor/Pac193xTypedefs.h"
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {

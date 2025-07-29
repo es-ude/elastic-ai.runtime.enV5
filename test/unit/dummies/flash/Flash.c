@@ -1,6 +1,6 @@
-#include "Flash.h"
-#include "Common.h"
-#include "FlashTypedefs.h"
+#include "eai/flash/Flash.h"
+// #include "eai/Common.h"
+#include "eai/flash/FlashTypedefs.h"
 
 #include <stdbool.h>
 #include <stdint.h>

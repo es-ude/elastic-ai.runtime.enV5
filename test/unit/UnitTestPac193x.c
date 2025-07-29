@@ -1,9 +1,10 @@
-#include "I2cUnitTest.h"
-#include "Pac193x.h"
-
-#include "unity.h"
 #include <stdint.h>
 #include <string.h>
+
+#include "unity.h"
+
+#include "I2cUnitTest.h"
+#include "eai/sensor/Pac193x.h"
 
 /* region CONSTANTS */
 

@@ -4,10 +4,7 @@
 
 #include "hardware/timer.h"
 
-/* IMPORTANT: We include as `include/Time.h` to avoid conflict with the pico `time.h`
- * header on case-insensitive platforms (e.g., MacOS).
- */
-#include "include/Time.h"
+#include "eai/hal/Time.h"
 
 uint64_t timeUs64(void) {
     return time_us_64();

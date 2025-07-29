@@ -3,8 +3,8 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
-#include "Common.h"
-#include "FreeRtosQueueWrapper.h"
+#include "eai/Common.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
 
 #ifndef FREERTOS_QUEUE_WRAPPER_WAIT_IF_FULL
 //! Time in milliseconds to wait if the queue is full

@@ -1,9 +1,9 @@
 #define SOURCE_FILE "NETWORK-CHECK-TEST"
 
-#include "Common.h"
-#include "FreeRtosTaskWrapper.h"
 #include "HardwareTestHelper.h"
-#include "Network.h"
+#include "eai/Common.h"
+#include "eai/network/Network.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 /*!
  * Tries to connect to the network which is specified in NetworkConfig.c.

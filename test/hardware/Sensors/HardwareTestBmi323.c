@@ -1,18 +1,19 @@
 #define SOURCE_FILE "HW-TEST-BMI323"
 
-#include "CException.h"
 #include "hardware/spi.h"
 #include "pico/bootrom.h"
 #include "pico/stdio.h"
 #include "pico/stdio_usb.h"
 
-#include "Bmi323.h"
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Sleep.h"
-#include "Spi.h"
-#include "SpiTypedefs.h"
+#include "CException.h"
+
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Sleep.h"
+#include "eai/hal/Spi.h"
+#include "eai/hal/SpiTypedefs.h"
+#include "eai/sensor/Bmi323.h"
 
 #define LIMIT (100)
 

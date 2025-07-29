@@ -3,8 +3,7 @@
 
 #include <stdint.h>
 
-#include "HTTP.h"
-#include "include/FpgaConfigurationHandler.h"
+#include "eai/flash/FlashTypedefs.h"
 
 /* region HTTP */
 

@@ -1,15 +1,15 @@
 #define SOURCE_FILE "TEST-HELPER"
 
-#include "HardwareTestHelper.h"
-#include "EnV5HwController.h"
-#include "Esp.h"
-#include "FreeRtosTaskWrapper.h"
-#include "MqttBroker.h"
-#include "Network.h"
-
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+#include "HardwareTestHelper.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
+#include "eai/network/Network.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 void connectToNetwork(void) {
     networkTryToConnectToNetworkUntilSuccessful();

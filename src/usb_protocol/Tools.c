@@ -5,8 +5,8 @@
 
 #include "CException.h"
 
-#include "UsbProtocolBase.h"
-#include "UsbProtocolCustomCommands.h"
+#include "eai/com/UsbProtocolBase.h"
+#include "eai/com/UsbProtocolCustomCommands.h"
 #include "internal/Tools.h"
 
 //! number of bytes always present in response (command + payload length + checksum)

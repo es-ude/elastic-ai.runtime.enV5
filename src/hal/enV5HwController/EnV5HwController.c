@@ -2,11 +2,11 @@
 
 #include <stdbool.h>
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Gpio.h"
-#include "Sleep.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Sleep.h"
 
 void env5HwControllerInit() {
     env5HwControllerLedsInit();

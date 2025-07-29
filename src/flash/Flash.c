@@ -8,16 +8,16 @@
 
 #define SOURCE_FILE "FLASH"
 
-#include "stdio.h"
 #include <stdint.h>
+#include <stdio.h>
 
-#include "Common.h"
 #include "FlashInternal.h"
-#include "Sleep.h"
-#include "Spi.h"
-#include "SpiTypedefs.h"
-#include "include/Flash.h"
-#include "include/FlashTypedefs.h"
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
+#include "eai/flash/FlashTypedefs.h"
+#include "eai/hal/Sleep.h"
+#include "eai/hal/Spi.h"
+#include "eai/hal/SpiTypedefs.h"
 
 /* region PUBLIC HEADER FUNCTIONS */
 void flashInit(flashConfiguration_t *flashConfig) {

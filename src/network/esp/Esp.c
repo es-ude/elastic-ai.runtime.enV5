@@ -1,17 +1,18 @@
 #define SOURCE_FILE "ESP"
 
-#include "Esp.h"
-#include "AtCommands.h"
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EspInternal.h"
-#include "FreeRtosTaskWrapper.h"
-#include "Sleep.h"
-#include "Uart.h"
 #include <stdbool.h>
 
 #include "hardware/uart.h"
-#include "pico/time.h"
+// #include "pico/time.h"
+
+#include "EspInternal.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+// #include "eai/hal/Sleep.h"
+#include "eai/hal/Uart.h"
+#include "eai/network/AtCommands.h"
+#include "eai/network/Esp.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 /* region VARIABLES */
 

@@ -1,11 +1,11 @@
-#include "Esp.h"
-#include "EspUnitTest.h"
-#include "HTTP.h"
+#include <stdlib.h>
 
 #include "CException.h"
 #include "unity.h"
 
-#include <stdlib.h>
+#include "EspUnitTest.h"
+#include "eai/network/Esp.h"
+#include "eai/network/HTTP.h"
 
 void setUp() {
     ESPDUMMY_RETURN_CODE = ESP_WRONG_ANSWER_RECEIVED;

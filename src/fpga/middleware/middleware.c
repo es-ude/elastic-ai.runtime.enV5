@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "Gpio.h"
-#include "Qxi.h"
-#include "middleware.h"
+#include "eai/fpga/middleware.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Qxi.h"
 
 void middlewareInit() {
     qxiInit();

@@ -1,8 +1,8 @@
 #include "hardware/spi.h"
 
-#include "Gpio.h"
-#include "Qxi.h"
-#include "Spi.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Qxi.h"
+#include "eai/hal/Spi.h"
 
 static spiConfiguration_t spiToFpgaConfig = {.spiInstance = QXI_SPI,
                                              .baudrate = QXI_BAUD_RATE,

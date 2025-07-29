@@ -1,28 +1,26 @@
 #define SOURCE_FILE "MAIN"
 
-// internal headers
-#include "Adxl345b.h"
-#include "Common.h"
-#include "Esp.h"
-// unsure if we need this at all
-// #include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
-#include "HardwareTestHelper.h"
-#include "MqttBroker.h"
-#include "Pac193x.h"
-#include "Protocol.h"
-#include "Spi.h"
-
 // pico-sdk headers
-#include <hardware/i2c.h>
-#include <hardware/spi.h>
-#include <hardware/watchdog.h>
-#include <pico/bootrom.h>
-#include <pico/stdlib.h>
+#include "hardware/i2c.h"
+#include "hardware/spi.h"
+#include "hardware/watchdog.h"
+#include "pico/bootrom.h"
+#include "pico/stdlib.h"
 
 // external headers
 #include <malloc.h>
 #include <string.h>
+
+// internal headers
+#include "HardwareTestHelper.h"
+#include "Protocol.h"
+#include "eai/Common.h"
+#include "eai/hal/Spi.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
+#include "eai/sensor/Adxl345b.h"
+#include "eai/sensor/Pac193x.h"
 
 /* region SENSOR DEFINITION */
 adxl345bSensorConfiguration_t sensor = {
