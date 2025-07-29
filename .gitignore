@@ -9,6 +9,7 @@ picotool/picotool*/
 .tool-versions
 .justfile
 **/.DS_Store
+.cache/
 
 ### NodeJS
 node_modules/
