@@ -1,7 +1,8 @@
 #include "CException.h"
-#include "I2cUnitTest.h"
-#include "Sht3x.h"
 #include "unity.h"
+
+#include "I2cUnitTest.h"
+#include "eai/sensor/Sht3x.h"
 
 static sht3xSensorConfiguration_t sensor;
 

@@ -9,11 +9,11 @@
 
 #include "CException.h"
 
-#include "Common.h"
-#include "Sleep.h"
-#include "Spi.h"
-#include "SpiTypedefs.h"
-#include "include/Bmi323.h"
+#include "eai/Common.h"
+#include "eai/hal/Sleep.h"
+#include "eai/hal/Spi.h"
+#include "eai/hal/SpiTypedefs.h"
+#include "eai/sensor/Bmi323.h"
 
 #include "bmi3.h"
 #include "bmi323.h"

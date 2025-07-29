@@ -6,7 +6,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "Flash.h"
+#include "eai/com/UsbProtocolBase.h"
+#include "eai/flash/FlashTypedefs.h"
 
 typedef struct usbProtocolMessageFrame {
     size_t length;

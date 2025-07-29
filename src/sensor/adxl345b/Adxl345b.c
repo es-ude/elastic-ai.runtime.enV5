@@ -1,12 +1,12 @@
 #define SOURCE_FILE "ADXL345B-LIB"
 
-#include "include/Adxl345b.h"
+#include "eai/sensor/Adxl345b.h"
 #include "Adxl345bInternal.h"
-#include "Common.h"
-#include "I2c.h"
-#include "Sleep.h"
-#include "Time.h"
-#include "include/Adxl345bTypedefs.h"
+#include "eai/Common.h"
+#include "eai/hal/I2c.h"
+#include "eai/hal/Sleep.h"
+#include "eai/hal/Time.h"
+#include "eai/sensor/Adxl345bTypedefs.h"
 
 /* region CONSTANTS */
 

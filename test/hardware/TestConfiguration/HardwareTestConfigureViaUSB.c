@@ -22,11 +22,11 @@
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,

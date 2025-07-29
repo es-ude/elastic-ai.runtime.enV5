@@ -1,9 +1,9 @@
 #define SOURCE_FILE "FILESYSTEM"
 
-#include "FileSystem.h"
-#include "Common.h"
+#include "eai/flash/FileSystem.h"
 #include "FileSystemInternal.h"
-#include "Flash.h"
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
 #include "math.h"
 
 #include <stdlib.h>

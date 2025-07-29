@@ -5,9 +5,10 @@
 
 #include "CException.h"
 
-#include "Sleep.h"
-#include "UsbProtocolBase.h"
-#include "UsbProtocolCustomCommands.h"
+#include "eai/com/UsbProtocolBase.h"
+#include "eai/com/UsbProtocolCustomCommands.h"
+#include "eai/flash/FlashTypedefs.h"
+// #include "eai/hal/Sleep.h"
 #include "internal/DefaultCommands.h"
 #include "internal/Tools.h"
 

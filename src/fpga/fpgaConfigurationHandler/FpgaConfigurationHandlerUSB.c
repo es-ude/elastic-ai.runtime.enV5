@@ -6,9 +6,9 @@
 #include "pico/stdio.h"
 #include "pico/stdio_usb.h"
 
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
 #include "FpgaConfigurationHandlerInternal.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
 
 /* ```mermaid
  *  sequenceDiagram
@@ -32,25 +32,6 @@
  *      Note over e,c: transmission finished
  *  ```
  */
-
-/* region PUBLIC FUNCTION IMPLEMENTATIONS */
-
-fpgaConfigurationHandlerError_t
-fpgaConfigurationHandlerDownloadConfigurationViaUsb(flashConfiguration_t *flashConfiguration,
-                                                    uint32_t sectorID) {
-    stdio_usb_init();
-    while (!stdio_usb_connected()) {}
-
-    fpgaConfigurationHandlerWaitForStartRequest();
-    uint32_t totalLength = fpgaConfigurationHandlerGetFileLength();
-    fpgaConfigurationHandlerGetChunks(flashConfiguration, totalLength,
-                                      sectorID * flashConfiguration->bytesPerSector);
-
-    printf("o");
-    return FPGA_RECONFIG_NO_ERROR;
-}
-
-/* endregion PUBLIC FUNCTION IMPLEMENTATIONS */
 
 /* region INTERNAL FUNCTION IMPLEMENTATIONS */
 
@@ -116,3 +97,22 @@ static void fpgaConfigurationHandlerGetChunks(flashConfiguration_t *flashConfigu
 }
 
 /* endregion INTERNAL FUNCTION IMPLEMENTATIONS */
+
+/* region PUBLIC FUNCTION IMPLEMENTATIONS */
+
+fpgaConfigurationHandlerError_t
+fpgaConfigurationHandlerDownloadConfigurationViaUsb(flashConfiguration_t *flashConfiguration,
+                                                    uint32_t sectorID) {
+    stdio_usb_init();
+    while (!stdio_usb_connected()) {}
+
+    fpgaConfigurationHandlerWaitForStartRequest();
+    uint32_t totalLength = fpgaConfigurationHandlerGetFileLength();
+    fpgaConfigurationHandlerGetChunks(flashConfiguration, totalLength,
+                                      sectorID * flashConfiguration->bytesPerSector);
+
+    printf("o");
+    return FPGA_RECONFIG_NO_ERROR;
+}
+
+/* endregion PUBLIC FUNCTION IMPLEMENTATIONS */

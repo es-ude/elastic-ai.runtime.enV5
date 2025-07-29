@@ -6,10 +6,10 @@
  * => Broker should NOT provide LWT-Message!
  */
 
-#include "Common.h"
 #include "HardwareTestHelper.h"
-#include "MqttBroker.h"
-#include "Sleep.h"
+#include "eai/Common.h"
+#include "eai/hal/Sleep.h"
+#include "eai/network/MqttBroker.h"
 
 int main() {
     initHardwareTest();

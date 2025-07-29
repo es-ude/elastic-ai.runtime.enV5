@@ -1,9 +1,10 @@
-#include "HTTP.h"
-#include "CException.h"
-
-#include "httpDummy.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include "CException.h"
+
+#include "eai/network/HTTP.h"
+#include "httpDummy.h"
 
 HttpResponse_t *HTTPResponse = NULL;
 

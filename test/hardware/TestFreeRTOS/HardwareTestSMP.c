@@ -1,12 +1,12 @@
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-SMP"
 
-#include "Common.h"
-#include "EnV5HwController.h"
-#include "FreeRtosTaskWrapper.h"
-
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 // just here to make FreeRTOS happy
 #include "FreeRTOS.h"

@@ -1,7 +1,7 @@
 #ifndef ENV5_ESP_UNITTEST_HEADER
 #define ENV5_ESP_UNITTEST_HEADER
 
-#include "Esp.h"
+#include "eai/network/Esp.h"
 
 extern espErrorCode_t ESPDUMMY_RETURN_CODE;
 

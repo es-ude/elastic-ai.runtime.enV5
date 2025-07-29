@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "AtCommands.h"
-#include "Common.h"
-#include "Esp.h"
-#include "FreeRtosTaskWrapper.h"
-#include "HTTP.h"
-#include "include/Network.h"
+#include "eai/Common.h"
+#include "eai/network/AtCommands.h"
+#include "eai/network/Esp.h"
+#include "eai/network/HTTP.h"
+#include "eai/network/Network.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 extern networkCredentials_t networkCredentials;
 

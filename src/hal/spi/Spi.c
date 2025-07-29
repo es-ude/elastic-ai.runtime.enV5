@@ -16,11 +16,11 @@
 
 #include "hardware/spi.h"
 
-#include "Common.h"
-#include "Gpio.h"
-#include "Spi.h"
 #include "SpiInternal.h"
-#include "SpiTypedefs.h"
+#include "eai/Common.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Spi.h"
+#include "eai/hal/SpiTypedefs.h"
 
 /* region PUBLIC HEADER FUNCTIONS */
 

@@ -5,10 +5,10 @@
 
 #include "CException.h"
 
-#include "AtCommands.h"
-#include "Common.h"
-#include "Esp.h"
-#include "include/HTTP.h"
+#include "eai/Common.h"
+#include "eai/network/AtCommands.h"
+#include "eai/network/Esp.h"
+#include "eai/network/HTTP.h"
 
 HttpResponse_t *HTTPResponse = NULL;
 volatile uint32_t httpCount = 0;

@@ -1,15 +1,16 @@
 #define SOURCE_FILE "SHT3X-Test"
 
-#include <hardware/i2c.h>
-#include <pico/bootrom.h>
-#include <pico/stdio_usb.h>
+#include "hardware/i2c.h"
+#include "pico/bootrom.h"
+#include "pico/stdio_usb.h"
 
 #include "CException.h"
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "I2c.h"
-#include "Sht3x.h"
+
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/I2c.h"
+#include "eai/sensor/Sht3x.h"
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {

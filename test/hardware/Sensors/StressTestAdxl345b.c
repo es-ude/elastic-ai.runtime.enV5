@@ -1,18 +1,18 @@
 #define SOURCE_FILE "ADXL345-StressTest"
-#include "Adxl345b.h"
-#include "Common.h"
-#include "FreeRtosTaskWrapper.h"
-#include "I2c.h"
 
-#include "EnV5HwController.h"
-#include "Esp.h"
-#include "HardwareTestHelper.h"
-
-#include "Protocol.h"
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
 #include "pico/stdlib.h"
+
+#include "HardwareTestHelper.h"
+#include "Protocol.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/I2c.h"
+#include "eai/network/Esp.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
+#include "eai/sensor/Adxl345b.h"
 
 /* endregion HELPER*/
 

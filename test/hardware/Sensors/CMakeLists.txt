@@ -30,6 +30,7 @@ if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(HardwareTestAdxl345b HardwareTestAdxl345b.c)
     target_link_libraries(HardwareTestAdxl345b PRIVATE
             Adxl345b
+            Time
             HWTestCommon
     )
     create_enV5_executable(HardwareTestAdxl345b)

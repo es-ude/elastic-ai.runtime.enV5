@@ -1,12 +1,12 @@
 #define SOURCE_FILE "MQTT-PUBSUB-TEST"
 
-#include "Common.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
+#include <stdio.h>
+
 #include "HardwareTestHelper.h"
 #include "Protocol.h"
-
-#include <stdio.h>
+#include "eai/Common.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 /*!
  * Connects to Wi-Fi and MQTT Broker.

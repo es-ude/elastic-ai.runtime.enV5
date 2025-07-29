@@ -4,12 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "AtCommands.h"
 #include "CException.h"
-#include "Common.h"
-#include "Esp.h"
+
 #include "MqttBrokerInternal.h"
-#include "include/MqttBroker.h"
+#include "eai/Common.h"
+#include "eai/network/AtCommands.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
 
 // header from elastic-ai.runtime.c
 #include "CommunicationEndpoint.h"

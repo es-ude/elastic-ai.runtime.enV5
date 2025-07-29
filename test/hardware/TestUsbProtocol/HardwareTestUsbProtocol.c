@@ -1,18 +1,17 @@
 #define SOURCE_FILE "HW-TEST_USB-PROTOCOL"
 
-#include "UsbProtocolBase.h"
-#include "UsbProtocolCustomCommands.h"
-
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Flash.h"
-#include "Gpio.h"
-#include "Sleep.h"
+#include "hardware/spi.h"
+#include "pico/stdlib.h"
 
 #include "CException.h"
 
-#include "hardware/spi.h"
-#include "pico/stdlib.h"
+#include "eai/com/UsbProtocolBase.h"
+#include "eai/com/UsbProtocolCustomCommands.h"
+#include "eai/flash/Flash.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Sleep.h"
 
 spiConfiguration_t spiToFlash = {.spiInstance = FLASH_SPI_MODULE,
                                  .baudrate = FLASH_SPI_BAUDRATE,

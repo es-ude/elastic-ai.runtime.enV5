@@ -5,18 +5,18 @@
 
 #define SOURCE_FILE "TEST_FPGA_COMMUNICATION"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
-#include "stub.h"
-
-#include "unity.h"
-
 #include "hardware/spi.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+#include "unity.h"
+
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/fpga/stub.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
 
 uint32_t echoSkeletonSector = 0;
 

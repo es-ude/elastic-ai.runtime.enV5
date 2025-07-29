@@ -1,6 +1,6 @@
-#include "Sleep.h"
-
 #include "pico/time.h"
+
+#include "eai/hal/Sleep.h"
 
 void sleep_for_ms(uint32_t msToSleep) {
     sleep_ms(msToSleep);

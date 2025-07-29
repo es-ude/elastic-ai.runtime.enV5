@@ -1,8 +1,9 @@
 #include "CException.h"
-#include "Esp.h"
-#include "EspUnitTest.h"
-#include "MqttBroker.h"
 #include "unity.h"
+
+#include "EspUnitTest.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
 
 extern mqttBrokerHost_t mqttHost;
 

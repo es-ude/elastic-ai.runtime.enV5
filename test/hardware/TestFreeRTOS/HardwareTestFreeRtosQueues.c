@@ -8,17 +8,17 @@
 
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-QUEUES"
 
-#include "Common.h"
-#include "EnV5HwController.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
+#include "stdlib.h"
+#include "string.h"
 
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
 
-#include "stdlib.h"
-#include "string.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 queue_t messageQueue;
 

@@ -1,16 +1,15 @@
 #define SOURCE_FILE "UART-TO-ESP"
+#include <stdlib.h>
+#include <string.h>
 
-#include "Uart.h"
-#include "Common.h"
-#include "Gpio.h"
-#include "UartInternal.h"
-
-#include "EnV5HwConfiguration.h"
 #include "hardware/irq.h"
 #include "hardware/uart.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include "UartInternal.h"
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/Gpio.h"
+#include "eai/hal/Uart.h"
 
 /* region VARIABLES */
 
