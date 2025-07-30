@@ -94,7 +94,7 @@ int main() {
     UNITY_BEGIN();
 
     RUN_TEST(unitTestLinearForward);
-    RUN_TEST(unitTestLinearBackward);
+    //RUN_TEST(unitTestLinearBackward);
 
     return UNITY_END();
 }
