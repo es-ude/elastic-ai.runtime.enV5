@@ -10,3 +10,14 @@ float *linearForward(linearConfig_t *config, float *input) {
     output[1] = -4.f;
     return output;
 };
+
+float *linearBackward(linearConfig_t *config, float *grad, float *input) {
+    ;
+}
+
+float* ReLUForward(ReLUConfig_t *config, float *input) {
+    ;
+}
+float* ReLUBackward(ReLUConfig_t *config, float *grad, float *input) {
+    ;
+}

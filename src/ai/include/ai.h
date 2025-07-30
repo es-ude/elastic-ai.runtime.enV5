@@ -36,4 +36,13 @@ typedef struct linearConfig{
 float* linearForward(linearConfig_t *config, float *input);
 float* linearBackward(linearConfig_t *config, float *grad, float *input);
 
+
+// ReLU
+typedef struct ReLUConfig {
+    size_t size;
+}ReLUConfig_t;
+
+float* ReLUForward(ReLUConfig_t *config, float *input);
+float* ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
+
 #endif
