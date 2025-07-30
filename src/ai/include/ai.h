@@ -45,4 +45,7 @@ typedef struct ReLUConfig {
 float* ReLUForward(ReLUConfig_t *config, float *input);
 float* ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
 
+//Loss Functions
+float* MSELossDOutput(float* output, float* label, size_t size);
+
 #endif
