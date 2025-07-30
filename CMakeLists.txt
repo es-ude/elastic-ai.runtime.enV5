@@ -40,6 +40,7 @@ if (NOT TARGET _eai_runtime_inclusion_marker)
         add_subdirectory(src/rtos)
         add_subdirectory(src/sensor)
         add_subdirectory(src/usb_protocol)
+        add_subdirectory(src/ai)
 
         if (EAI_RUNTIME_TOP_LEVEL_PROJECT)
             add_subdirectory(test/unit)

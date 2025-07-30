@@ -27,11 +27,22 @@ foreach (arg
         hardware_i2c
         hardware_spi
         hardware_timer
-        hardware_rtc
         hardware_uart
         hardware_irq
         hardware_base
         hardware_watchdog
+        # For RP2040 specific
+        # hardware_rtc
+        # For RP2350 Specific
+        pico_sha256
+        hardware_dcp
+        hardware_powman
+        hardware_rcp
+        hardware_sha256
+        # RISC-V RP235X only
+        #hardware_hazard3
+        #hardware_riscv
+        #hardware_riscv_platform_timer
 )
     __add_pico_lib(${arg})
 endforeach ()

@@ -25,7 +25,7 @@ if (NOT TARGET _eai_runtime_pre_init_marker)
 
     include(third_party_deps)
     include(set_build_target)
-    add_pico_sdk("2.0.0")
+    add_pico_sdk("2.2.0")
 
     macro(eai_runtime_init)
         if (NOT CMAKE_PROJECT_NAME)

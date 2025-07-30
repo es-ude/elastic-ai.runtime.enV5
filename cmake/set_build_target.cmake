@@ -5,6 +5,6 @@ if(NOT (ELASTIC_AI_TARGET IN_LIST AVAILABLE_TARGETS))
 elseif (${ELASTIC_AI_TARGET} STREQUAL HOST)
     include(${CMAKE_CURRENT_LIST_DIR}/host.cmake)
 else ()
-    include(${CMAKE_CURRENT_LIST_DIR}/env5.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/pico2w.cmake)
 endif ()
 
