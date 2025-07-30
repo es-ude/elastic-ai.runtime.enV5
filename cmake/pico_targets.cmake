@@ -76,7 +76,7 @@ foreach(arg
   pico_stdio_rtt
   pico_standard_binary_info
   pico_standard_link
-)
+
   __add_pico_lib(${arg})
 endforeach()
 
