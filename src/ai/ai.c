@@ -25,3 +25,11 @@ float* ReLUBackward(ReLUConfig_t *config, float *grad, float *input) {
 float* MSELossDOutput(float* output, float* label, size_t size) {
     ;
 }
+
+void SGDStep(SGDConfig_t *SGDConfig) {
+    ;
+}
+
+void SGDZeroGrad(SGDConfig_t *SGDConfig) {
+    ;
+}

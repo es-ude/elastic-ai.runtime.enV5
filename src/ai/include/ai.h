@@ -48,4 +48,27 @@ float* ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
 //Loss Functions
 float* MSELossDOutput(float* output, float* label, size_t size);
 
+//OPTIM
+
+// Momentum is same Size as Parameter struct
+typedef struct momentumBuffer {
+    void *parameter; // Pointer to ONE parameter struct: Bin mir gerade nicht sicher, ob das so mit dem * so muss
+    float *momentums; // Array of momentums of size of parameter
+} momentumBuffer_t;
+
+typedef struct SGDConfig {
+    float lr; // factor for learning rate
+    float momentum; // factor for momentum
+    float weightDecay; // factor to decrease the weight
+    momentumBuffer_t *momentum_buffer; // array of momentum buffers
+    size_t sizeMomentumBuffers;
+} SGDConfig_t;
+
+// Perform all updates elementwise in this sequence. Also, see https://docs.pytorch.org/docs/stable/generated/torch.optim.SGD.html
+// grad = grad + weightDecay * parameter
+// momentumBuffer = momentum * momentumBuffer + grad
+// parameter = parameter - lr * momentumBuffer
+void SGDStep(SGDConfig_t *SGDConfig);
+void SGDZeroGrad(SGDConfig_t *SGDConfig);
+
 #endif

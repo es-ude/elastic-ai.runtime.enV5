@@ -113,13 +113,113 @@ void unitTestMSELossDOutput() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, dLossOutput, sizeof(output)/sizeof(float));
 }
 
+void unitTestSGDStep() {
+    float wP[] = {1.f, 2.f, -3.f};
+    float wGrad[] = {1.f, -1.f, 2.f};
+    float wMomentum[] = {0.f, 0.f, 0.f}; //zeros size of P
+
+    float bP[] = {-1.f, 3.f};
+    float bGrad[] = {1.f, 3.f};
+    float bMomentum[] = {0.f, 0.f}; //zeros size of P
+
+    parameter_t weight;
+    weight.p = wP;
+    weight.grad = wGrad;
+    weight.size = sizeof(wP)/sizeof(float);
+
+    parameter_t bias;
+    bias.p = bP;
+    bias.grad = bGrad;
+    bias.size = sizeof(bP)/sizeof(float);
+
+    momentumBuffer_t wMomentumBuffer;
+    wMomentumBuffer.parameter = &weight;
+    wMomentumBuffer.momentums = wMomentum;
+
+    momentumBuffer_t bMomentumBuffer;
+    bMomentumBuffer.parameter = &bias;
+    bMomentumBuffer.momentums = bMomentum;
+
+    void *momentumBufferPtr = {&wMomentumBuffer, &bMomentumBuffer};
+
+    SGDConfig_t config;
+    config.lr = 0.1f;
+    config.momentum = 0.9f;
+    config.weight_decay = 0.01f;
+    config.momentum_buffer = momentumBufferPtr;
+    config.size = sizeof(momentumBufferPtr)/sizeof(momentumBuffer_t);
+
+    SGDStep(&config);
+
+    float wPExpected[] = {0.899f, 2.098f, -3.197f};
+    float bPExpected[] = {-1.099f, 2.697f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wP, wPExpected, sizeof(wPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bP, bPExpected, sizeof(bPExpected)/sizeof(float));
+
+    //Second Step with same grads but with momentum now
+    SGDStep(&config);
+
+    float wPExpected2[] = {0.82708f, 1.06984f, -2.05876f};
+    float bPExpected2[] = {0.98892f, 2.48124f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wP, wPExpected2, sizeof(wPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bP, bPExpected2, sizeof(bPExpected)/sizeof(float));
+
+}
+
+void unitTestSGDZeroGrad() {
+    float wP[] = {1.f, 2.f, -3.f};
+    float wGrad[] = {1.f, -1.f, 2.f};
+    float wMomentum[] = {0.f, 0.f, 0.f}; //zeros size of P
+
+    float bP[] = {-1.f, 3.f};
+    float bGrad[] = {1.f, 3.f};
+    float bMomentum[] = {0.f, 0.f}; //zeros size of P
+
+    parameter_t weight;
+    weight.p = wP;
+    weight.grad = wGrad;
+    weight.size = sizeof(wP)/sizeof(float);
+
+    parameter_t bias;
+    bias.p = bP;
+    bias.grad = bGrad;
+    bias.size = sizeof(bP)/sizeof(float);
+
+    momentumBuffer_t wMomentumBuffer;
+    wMomentumBuffer.parameter = &weight;
+    wMomentumBuffer.momentums = wMomentum;
+
+    momentumBuffer_t bMomentumBuffer;
+    bMomentumBuffer.parameter = &bias;
+    bMomentumBuffer.momentums = bMomentum;
+
+    void *momentumBufferPtr = {&wMomentumBuffer, &bMomentumBuffer};
+
+    SGDConfig_t config;
+    config.lr = 0.1f;
+    config.momentum = 0.9f;
+    config.weight_decay = 0.01f;
+    config.momentum_buffer = momentumBufferPtr;
+    config.size = sizeof(momentumBufferPtr)/sizeof(momentumBuffer_t);
+
+    SGDZeroGrad(&config);
+    float wGradExpected[] = {0.f, 0.f, 0.f};
+    float bGradExpected[] = {0.f, 0.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wGrad, wGradExpected, sizeof(wGradExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bGrad, bGradExpected, sizeof(bGradExpected)/sizeof(float));
+
+}
+
 int main() {
     UNITY_BEGIN();
-
     RUN_TEST(unitTestLinearForward);
     RUN_TEST(unitTestLinearBackward);
     RUN_TEST(unitTestReLUForward);
     RUN_TEST(unitTestReLUBackward);
     RUN_TEST(unitTestMSELossDOutput);
+    RUN_TEST(unitTestSGDStep);
     return UNITY_END();
 }
