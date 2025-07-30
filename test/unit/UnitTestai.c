@@ -5,7 +5,7 @@
 #include "unity.h"
 
 #include "ai.h"
-//#include "linear.h"
+
 
 void setUp() {
     ;
@@ -44,15 +44,6 @@ void unitTestLinearForward() {
 
 }
 
-// MSELoss derived to the output = Element-wise Output-Label
-void unitTestMSELossDOutput() {
-    float label[] = {2.f, 3.f, 4.f};
-    float output[] = {-2.f, 1.f, 3.f};
-    float* lossToPropagate=MSELossDOutput(output, label, sizeof(output)/sizeof(float));
-    float expectedLossToPropagate[] = {4.f, -2.f, -1.f};
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedLossToPropagate, lossToPropagate, sizeof(expectedLossToPropagate)/sizeof(float));
-}
-
 void unitTestLinearBackward() {
     parameter_t weight;
     float wP[] = {-1.f, 2.f, -3.f, 4.f, 5.f, -6.f};
@@ -89,12 +80,37 @@ void unitTestLinearBackward() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig.weight.grad, linearConfig.weight.size);
 }
 
+void unitTestReLUForward() {
+    float input[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
+
+    ReLUConfig_t config;
+    config.size = sizeof(input)/sizeof(float);
+
+    float *result = ReLUForward(&config, input);
+    float expected[] = {0.f, 0.f, 1.f, 2.f, 5.f, 0.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, result, config.size);
+}
+
+void unitTestReLUBackward() {
+    float input[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
+    float grad[] = {0.f, 2.f, -4.f, 6.f, 3.f, 2.f};
+
+    ReLUConfig_t config;
+    config.size = sizeof(input)/sizeof(float);
+
+    float *result = ReLUBackward(&config, grad, input);
+    float expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, result, config.size);
+}
 
 int main() {
     UNITY_BEGIN();
 
     RUN_TEST(unitTestLinearForward);
-    //RUN_TEST(unitTestLinearBackward);
-
+    RUN_TEST(unitTestLinearBackward);
+    RUN_TEST(unitTestReLUForward);
+    RUN_TEST(unitTestReLUBackward);
     return UNITY_END();
 }
