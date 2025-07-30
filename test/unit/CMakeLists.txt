@@ -83,3 +83,11 @@ add_elastic_ai_unit_test(
             TimeDummy
 )
 
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+            ai
+        MORE_LIBS
+            Common
+            #linear
+            #optim
+)
