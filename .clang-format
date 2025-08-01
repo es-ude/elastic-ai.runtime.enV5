@@ -2,7 +2,7 @@
 BasedOnStyle: llvm
 ColumnLimit: 100
 IncludeBlocks: Preserve
-SortIncludes: true
+SortIncludes: CaseSensitive
 ---
 Language: Cpp
 IndentWidth: 4

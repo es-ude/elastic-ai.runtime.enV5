@@ -1,9 +1,27 @@
+# elastic-ai.runtime.enV5
+
+<!--toc:start-->
+
+- [elastic-ai.runtime.enV5](#elastic-airuntimeenv5)
+  - [System Requirements](#system-requirements)
+  - [Set Up](#set-up)
+    - [Get the Source Code](#get-the-source-code)
+    - [Setup devenv](#setup-devenv)
+      - [Python Environment [OPTIONAL]](#python-environment-optional)
+    - [Compile the Source Code](#compile-the-source-code)
+    - [Local Test Execution](#local-test-execution)
+    - [enV5 Node Execution](#env5-node-execution)
+    - [Flash the enV5](#flash-the-env5)
+    - [Get Output from the enV5 Node](#get-output-from-the-env5-node)
+  - [External Dependencies](#external-dependencies)
+  - [Troubleshooting](#troubleshooting)
+  - [Glossary](#glossary)
+  <!--toc:end-->
+
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/es-ude/elastic-ai.runtime.enV5/run_checks.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/es-ude/elastic-ai.runtime.enV5)](https://github.com/es-ude/elastic-ai.runtime.enV5/releases/latest)
 [![View Python-Tutorial on GitHub](https://img.shields.io/github/stars/es-ude/elastic-ai.runtime.enV5?color=232323&label=elastic-ai.runtime.enV5&logo=github&labelColor=232323)](https://github.com/es-ude/elastic-ai.runtime-enV5)
 [![Author es-ude](https://img.shields.io/badge/es-ude-b820f9?labelColor=b820f9&logo=githubsponsors&logoColor=fff)](https://github.com/es-ude)
-
-# elastic-ai.runtime.enV5
 
 > [!IMPORTANT]
 > If you want to create your own project with the enV5 platform refer to
