@@ -19,6 +19,7 @@ in
       u.picotool
       pkgs.minicom
       pkgs.nanomq
+      pkgs.vale
     ];
 
   languages.c.enable = true;

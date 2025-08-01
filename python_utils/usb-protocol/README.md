@@ -1,21 +1,22 @@
-# enV5 Remote Control Protocol
+# enV5 Remote-Control-Protocol
 
-In this file the communication protocol is explained.
+This file explains the communication protocol.
 
-The communication is driven by the external device to determine the elasticNodes behavior.
-The communication protocol is as follows. For each communication an ack or nack is sent by the receiver.
+The communication is driven by the external device to determine the elastic-nodes behavior.
+The communication protocol is as follows.
+For each communication an `ack` or `nack` is sent by the receiver.
 As a default we recommend to throw an error after 5 failed attempts.
 
-The byteorder for number conversion is big endian.
+The byte-order for number conversion is big-endian.
 
-This protocol only works with skeleton V2.
+This protocol only works with the FPGA skeleton version 2.
 
 ## Transmission
 
 **Transmission**
 
 | command | payload-size |      payload |      checksum |
-|--------:|-------------:|-------------:|--------------:|
+| ------: | -----------: | -----------: | ------------: |
 | 1 bytes |      4 bytes | payload-size | Checksum-size |
 
 ## Checksum-function
@@ -24,13 +25,13 @@ This protocol only works with skeleton V2.
 
 ## Commands
 
-The first 128 are our commands.
-The second 128 can be user specific commands.
+The first 128 commands are our commands.
+The second 128 commands can be user specific commands.
 
 **Commands**
 
 |                  command | uint8 |
-|-------------------------:|:------|
+| -----------------------: | :---- |
 |                     nack | 0     |
 |                      ack | 1     |
 |         read skeleton id | 2     |
@@ -64,8 +65,8 @@ sequenceDiagram
 
 ### read skeleton id
 
-**❗ IMPORTANT**\
-Model needs to be deployed in advance.
+> [!IMPORTANT]\
+> Model needs to be deployed in advance.
 
 The payload for the nack response is empty
 
@@ -82,7 +83,7 @@ sequenceDiagram
 **Payload**
 
 | chunk-size |
-|------------|
+| ---------- |
 | 31-0       |
 
 ```mermaid
@@ -95,11 +96,11 @@ sequenceDiagram
 
 ### send data to flash
 
-**❗ IMPORTANT**\
-Chunk-size has to be requested in advance.
+> [!IMPORTANT]
+> Chunk-size has to be requested in advance.
 
-**❗ IMPORTANT**\
-Turn off FPGA in advance.
+> [!IMPORTANT]
+> Turn off FPGA in advance.
 
 ```mermaid
 sequenceDiagram
@@ -113,11 +114,11 @@ sequenceDiagram
 
 ### read data from flash
 
-**❗ IMPORTANT**\
-Chunk-size has to be requested in advance.
+> [!IMPORTANT]
+> Chunk-size has to be requested in advance.
 
-**❗ IMPORTANT**\
-Turn off FPGA in advance.
+> [!IMPORTANT]
+> Turn off FPGA in advance.
 
 ```mermaid
 sequenceDiagram
@@ -147,7 +148,7 @@ sequenceDiagram
 **Payload**
 
 | Bit | FPGA LED |
-|----:|:---------|
+| --: | :------- |
 | 7-4 | None     |
 |   3 | 4        |
 |   2 | 3        |
@@ -167,7 +168,7 @@ sequenceDiagram
 **Payload**
 
 | Bit | MCU LED |
-|----:|:--------|
+| --: | :------ |
 | 7-3 | None    |
 |   2 | 3       |
 |   1 | 2       |
@@ -183,11 +184,11 @@ sequenceDiagram
 
 ### inference with data
 
-**❗ IMPORTANT**\
-Chunk-size has to be requested in advance.
+> [!IMPORTANT]
+> Chunk-size has to be requested in advance.
 
-**❗ IMPORTANT**\
-Deploy model in advance
+> [!IMPORTANT]
+> Deploy model in advance
 
 ```mermaid
 sequenceDiagram
@@ -206,19 +207,19 @@ sequenceDiagram
 
 ### deploy model
 
-**❗ IMPORTANT**\
-Chunk-size has to be requested in advance.
+> [!IMPORTANT]
+> Chunk-size has to be requested in advance.
 
-**❗ IMPORTANT**\
-Model needs to be send to flash in advance.
+> [!IMPORTANT]
+> Model needs to be send to flash in advance.
 
-**❗ IMPORTANT**\
-FPGA needs to be turned on.
+> [!IMPORTANT]
+> FPGA needs to be turned on.
 
 **payload**
 
 | Bit | Payload    |
-|----:|:-----------|
+| --: | :--------- |
 | 7-1 | None       |
 |   0 | true/false |
 
