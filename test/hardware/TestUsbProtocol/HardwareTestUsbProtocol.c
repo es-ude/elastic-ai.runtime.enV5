@@ -91,9 +91,9 @@ static void initialize(void) {
     while (!stdio_usb_connected()) {}
 
     flashInit(&flashConfig);
+    setupFlashForUsbProtocol(&flashConfig);
 
     usbProtocolInit(readByteForProtocol, sendBytesForProtocol,addDefaultFunctions);
-    setupFlash(&flashConfig);
 
     usbProtocolRegisterCommand(241, &countdownHandle);
 }

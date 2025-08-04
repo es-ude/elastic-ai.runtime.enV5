@@ -71,8 +71,7 @@ void usbProtocolInit(
  * @param[in] flashConfiguration struct holding flash configuration
  *
  */
-
-void setupFlash(flashConfiguration_t *flashConfiguration)
+void setupFlashForUsbProtocol(flashConfiguration_t *flashConfiguration);
 
 /*!
  * @brief function waiting for data (command + payload + checksum) (BLOCKING)

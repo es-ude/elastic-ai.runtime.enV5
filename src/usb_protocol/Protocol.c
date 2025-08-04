@@ -106,7 +106,7 @@ void usbProtocolInit(
     defaultCommands();
 }
 
-void setupFlash(flashConfiguration_t *flashConfiguration) {
+void setupFlashForUsbProtocol(flashConfiguration_t *flashConfiguration) {
     usbProtocolFlashConfig = flashConfiguration;
 }
 
