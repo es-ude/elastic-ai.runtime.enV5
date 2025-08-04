@@ -92,7 +92,9 @@ static void initialize(void) {
 
     flashInit(&flashConfig);
 
-    usbProtocolInit(readByteForProtocol, sendBytesForProtocol, &flashConfig, addDefaultFunctions);
+    usbProtocolInit(readByteForProtocol, sendBytesForProtocol,addDefaultFunctions);
+    setupFlash(&flashConfig);
+
     usbProtocolRegisterCommand(241, &countdownHandle);
 }
 

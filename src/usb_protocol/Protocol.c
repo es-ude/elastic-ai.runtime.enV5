@@ -95,7 +95,6 @@ static void cleanMessageBuffer(usbProtocolMessage_t *message) {
 void usbProtocolInit(
     usbProtocolReadData readFunction,
     usbProtocolSendData sendFunction,
-    flashConfiguration_t *flashConfiguration,
     usbDefaultCommands *defaultCommands) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
@@ -103,9 +102,12 @@ void usbProtocolInit(
 
     usbProtocolReadHandle = readFunction;
     usbProtocolSendHandle = sendFunction;
-    usbProtocolFlashConfig = flashConfiguration;
 
     defaultCommands();
+}
+
+void setupFlash(flashConfiguration_t *flashConfiguration) {
+    usbProtocolFlashConfig = flashConfiguration;
 }
 
 bool usbProtocolSendMessage(usbProtocolMessage_t *message) {

@@ -3,8 +3,6 @@
 
 #include <stddef.h>
 
-#include "Flash.h"
-
 /* region TYPEDEFS */
 
 typedef enum usbProtocolErrorCodes {
@@ -42,6 +40,8 @@ typedef usbProtocolErrorCodes_t (*usbProtocolSendData)(uint8_t *bytes, size_t nu
 
 typedef void *usbProtocolReceiveBuffer;
 
+typedef flashConfiguration_t *void;
+
 /* endregion TYPEDEFS */
 
 /*!
@@ -56,7 +56,6 @@ typedef void *usbProtocolReceiveBuffer;
  *
  * @param[in] readFunction function providing input for the protocol handler
  * @param[in] sendFunction function allowing the handler to send a response
- * @param[in] flashConfiguration pointer to configuration for flash
  * @param[in] defaultCommandCreator function adding commands on init
  *
  * @throws USB_PROTOCOL_ERROR_NULL_POINTER a function provided is not defined
@@ -64,8 +63,16 @@ typedef void *usbProtocolReceiveBuffer;
 void usbProtocolInit(
     usbProtocolReadData readFunction,
     usbProtocolSendData sendFunction,
-    flashConfiguration_t *flashConfiguration,
     void *defaultCommandCreator);
+
+/*!
+ * @brief initializes the usb protocol handler
+ *
+ * @param[in] flashConfiguration struct holding flash configuration
+ *
+ */
+
+void setupFlash(flashConfiguration_t *flashConfiguration)
 
 /*!
  * @brief function waiting for data (command + payload + checksum) (BLOCKING)
