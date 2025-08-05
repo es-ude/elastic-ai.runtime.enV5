@@ -2,6 +2,7 @@
 ## region UNIT-TEST: unit-test_sht3
 add_subdirectory(dummies)
 include(unit_test.cmake)
+add_subdirectory(ai)
 
 add_library(UnitTestCommon INTERFACE)
 target_link_libraries(UnitTestCommon INTERFACE
@@ -82,13 +83,4 @@ add_elastic_ai_unit_test(
             I2cDummy
             TimeDummy
             m
-)
-
-add_elastic_ai_unit_test(
-        LIB_UNDER_TEST
-            ai
-        MORE_LIBS
-            Common
-            #linear
-            #optim
 )

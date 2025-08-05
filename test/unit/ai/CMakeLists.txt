@@ -1,13 +1,12 @@
 add_subdirectory(helpers)
 add_subdirectory(nn)
-add_subdirectory(optim)
 add_subdirectory(loss_functions)
+add_subdirectory(optim)
 
-add_library(ai
-        ai.c
-)
-target_include_directories(ai PUBLIC include)
-target_link_libraries(ai PRIVATE
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+        ai
+        MORE_LIBS
         Common
         AiHelpers
         Linear
