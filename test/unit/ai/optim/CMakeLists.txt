@@ -1,0 +1,6 @@
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+        SGD
+        MORE_LIBS
+        AiHelpers
+)
