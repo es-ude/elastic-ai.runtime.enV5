@@ -67,16 +67,30 @@ void unitTestLinearBackward() {
 
     float *propagated_loss = linearBackward(&linearConfig, loss, input);
 
-    float expected_propagated_loss[] = {-6.f, -27.f, -36.f};
+    float expected_propagated_loss[] = {-8.f, -23.f, 30.f};
 
-    float expected_weight_grad[] = {0.f, 6.f, -12.f, 0.f, -3.f, -6.f};
+    float expected_weight_grad[] = {0.f, -4.f, -8.f, 0.f, -3.f, -6.f};
+
+    // weight.grad[0] = loss[0] * input[0]
+    // weight.grad[1] = loss[0] * input[1]
+    // weight.grad[2] = loss[0] * input[2]
+    // weight.grad[3] = loss[1] * input[0]
+    // weight.grad[4] = loss[1] * input[1]
+    // weight.grad[5] = loss[1] * input[2]
+
+
+    // prop_loss[0] = wP[0]*loss[0] + wP[3]*loss[1]
+    // prop_loss[1] = wP[1]*loss[0] + wP[4]*loss[1]
+    // prop_loss[2] = wP[2]*loss[0] + wP[5]*loss[1]
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propagated_loss, sizeof(expected_propagated_loss)/sizeof(float));
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig.weight.grad, linearConfig.weight.size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(loss, linearConfig.bias.grad, linearConfig.bias.size);
 }
 
 int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestLinearForward);
+    RUN_TEST(unitTestLinearBackward);
     UNITY_END();
 }
