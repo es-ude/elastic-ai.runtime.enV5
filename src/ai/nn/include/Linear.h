@@ -6,8 +6,8 @@
 typedef struct linearConfig{
     size_t inputSize;
     size_t outputSize;
-    parameter_t weight;
-    parameter_t bias;
+    parameter_t *weight;
+    parameter_t *bias;
 } linearConfig_t;
 
 /*! @brief Gets linearConfig_t for a given weight & bias
