@@ -4,19 +4,26 @@
 
 // Momentum is same Size as Parameter struct
 typedef struct momentumBuffer {
-    void *parameter; // Pointer to ONE parameter struct: Bin mir gerade nicht sicher, ob das so mit dem * so muss
-    float *momentums; // Array of momentums of size of parameter
+    parameter_t *parameter; // Pointer to ONE parameter struct: Bin mir gerade nicht sicher, ob das so mit dem * so muss
+    float *momentums; // Pointer to array of momentums of size of parameter
 } momentumBuffer_t;
 
 typedef struct SGDConfig {
     float lr; // factor for learning rate
     float momentum; // factor for momentum
     float weightDecay; // factor to decrease the weight
-    momentumBuffer_t *momentum_buffer; // array of momentum buffers
+    momentumBuffer_t **momentum_buffer; // array of momentum buffers
     size_t sizeMomentumBuffers; //number of elements in momentum buffers
 } SGDConfig_t;
 
-/*! @brief Initalizes the SGDConfig for a given array of layerForwardBackward with lr, momentum &
+/*! @brief initalizes the momentumBuffer for a given parameter
+ *
+ * @parameter parameter: pointer to parameter
+ * @return : Pointer to momentumBuffer
+ */
+momentumBuffer_t *initMomentumBuffer(parameter_t *parameter);
+
+/*! @brief Initializes the SGDConfig for a given array of layerForwardBackward with lr, momentum &
  * weightDecay
  *
  * @param model : Pointer to array of type layerForwardBackward_t
@@ -26,7 +33,7 @@ typedef struct SGDConfig {
  * @param weightDecay : weight decay factor
  * @return : Pointer to SGDConfig
  */
-SGDConfig_t *initSGDConfig(layerForwardBackward_t *model, size_t sizeModel, float lr, float momentum, float weightDecay);
+SGDConfig_t *initSGDConfig(layerForwardBackward_t **model, size_t sizeModel, float lr, float momentum, float weightDecay);
 
 /*! @brief SGD Step implementation
  * Perform all updates elementwise in this sequence. Also, see
@@ -37,18 +44,11 @@ SGDConfig_t *initSGDConfig(layerForwardBackward_t *model, size_t sizeModel, floa
  *
  * @param SGDConfig : Pointer to SGDConfig.
  */
-void SGDStep(SGDConfig_t *SGDConfig);
+void SGDStep(const SGDConfig_t *SGDConfig);
 
 /*! @brief Zeros the gradients for a given SGDConfig
  *
  * @param SGDConfig : Pointer to SGDConfig
  */
-void SGDZeroGrad(SGDConfig_t *SGDConfig);
-
-/*! @brief initalizes the momentumBuffer for a given parameter
- *
- * @param parameter: pointer to parameter
- * @return : Pointer to momentumBuffer
- */
-momentumBuffer_t *initMomentumBuffer(void *parameter);
+void SGDZeroGrad(const SGDConfig_t *SGDConfig);
 #endif //SGD_H

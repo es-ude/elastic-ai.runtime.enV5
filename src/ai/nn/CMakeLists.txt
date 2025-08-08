@@ -7,6 +7,16 @@ target_link_libraries(Linear PRIVATE
         AiHelpers
 )
 
+add_library(Conv1d
+            Conv1d.c
+)
+
+target_include_directories(Conv1d PUBLIC include)
+target_link_libraries(Conv1d PRIVATE
+        Common
+        AiHelpers
+)
+
 add_library(ReLU
         ReLU.c
 )

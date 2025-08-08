@@ -23,6 +23,16 @@ float *linearForward(linearConfig_t *config, float *input) {
     return output;
 }
 
+float *linearForwardAutomatic(void *config, float *input) {
+    linearConfig_t *configInternal = config;
+    return linearForward(configInternal, input);
+}
+
+float *linearBackwardAutomatic(void *config, float *grad, float *input) {
+    linearConfig_t *configInternal = config;
+    return linearBackward(configInternal, grad, input);
+}
+
 float *linearBackward(linearConfig_t *config, float *grad, float *input) {
     size_t inputSize = config->inputSize;
     size_t outputSize = config->outputSize;
@@ -34,10 +44,10 @@ float *linearBackward(linearConfig_t *config, float *grad, float *input) {
         for (size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
             weightIndex = lossIndex * inputSize + inputIndex;
 
-            config->weight->grad[weightIndex] = grad[lossIndex] * input[inputIndex];
+            config->weight->grad[weightIndex] += grad[lossIndex] * input[inputIndex];
             propagatedLoss[inputIndex] += config->weight->p[weightIndex] * grad[lossIndex];
         }
-        config->bias->grad[lossIndex] = grad[lossIndex];
+        config->bias->grad[lossIndex] += grad[lossIndex];
     }
 
     return propagatedLoss;
@@ -64,7 +74,7 @@ layerForward_t *initLinearLayerForwardWithWeightBias(float *weight, size_t sizeW
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->config = initLinearConfigWithWeightBias(weight, sizeWeights, bias, sizeBias);
     layerForward->type = LINEAR;
-    layerForward->layerForward = &linearForward;
+    layerForward->layerForward = &linearForwardAutomatic;
     return layerForward;
 }
 
@@ -79,8 +89,8 @@ layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weig
     layerForwardBackward->config =
         initLinearConfigWithWeightBias(weight, sizeWeights, bias, sizeBias);
     layerForwardBackward->type = LINEAR;
-    layerForwardBackward->layerForward = &linearForward;
-    layerForwardBackward->layerBackward = &linearBackward;
+    layerForwardBackward->layerForward = &linearForwardAutomatic;
+    layerForwardBackward->layerBackward = &linearBackwardAutomatic;
     return layerForwardBackward;
 }
 

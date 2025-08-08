@@ -87,4 +87,8 @@ float *linearForward(linearConfig_t *config, float *input);
  */
 float *linearBackward(linearConfig_t *config, float *grad, float *input);
 
+float *linearForwardAutomatic(void *config, float *input);
+
+float *linearBackwardAutomatic(void *config, float *grad, float *input);
+
 #endif //LINEAR_H
