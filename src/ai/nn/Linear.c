@@ -2,6 +2,8 @@
 
 #include "Linear.h"
 
+#include <Common.h>
+
 float *linearForward(linearConfig_t *config, float *input) {
     size_t inputSize = config->inputSize;
     size_t outputSize = config->outputSize;
@@ -13,9 +15,9 @@ float *linearForward(linearConfig_t *config, float *input) {
         float result = 0;
         for (size_t j = 0; j < inputSize; j++) {
             weightIndex = i * inputSize + j;
-            result += input[j] * config->weight.p[weightIndex];
+            result += input[j] * config->weight->p[weightIndex];
         }
-        output[i] = result + config->bias.p[i];
+        output[i] = result + config->bias->p[i];
     }
 
     return output;
@@ -32,23 +34,29 @@ float *linearBackward(linearConfig_t *config, float *grad, float *input) {
         for (size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
             weightIndex = lossIndex * inputSize + inputIndex;
 
-            config->weight.grad[weightIndex] = grad[lossIndex] * input[inputIndex];
-            propagatedLoss[inputIndex] += config->weight.p[inputIndex + lossIndex * inputSize] * grad[lossIndex];
+            config->weight->grad[weightIndex] = grad[lossIndex] * input[inputIndex];
+            propagatedLoss[inputIndex] += config->weight->p[inputIndex + lossIndex * inputSize] * grad[lossIndex];
         }
-        config->bias.grad[lossIndex] = grad[lossIndex];
+        config->bias->grad[lossIndex] = grad[lossIndex];
     }
 
     return propagatedLoss;
 }
 
-    linearConfig_t *initLinearConfigWithWeightBias(float *weight, size_t sizeWeights, float *bias,
+linearConfig_t *initLinearConfigWithWeightBias(float *weight, size_t sizeWeights, float *bias,
                                                    size_t sizeBias) {
-        ;
-    }
+    linearConfig_t *config = calloc(1, sizeof(linearConfig_t));
+    config->weight = initParameter(weight, sizeWeights);
+    config->bias = initParameter(bias, sizeBias);
+    config->inputSize = sizeWeights/sizeBias;
+    config->outputSize = sizeBias;
 
-    linearConfig_t *initLinearConfigWithInputOutputSize(size_t inputSize, size_t outputSize) {
-        ;
-    }
+    return config;
+}
+
+linearConfig_t *initLinearConfigWithInputOutputSize(size_t inputSize, size_t outputSize) {
+    ;
+}
 
     layerForward_t *initLinearLayerForwardWithWeightBias(float *weight, size_t sizeWeights,
                                                          float *bias, size_t sizeBias) {
