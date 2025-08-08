@@ -6,14 +6,15 @@
 
 parameter_t *initParameter(float *p, size_t size) {
     parameter_t *param = calloc(1, sizeof(parameter_t));
-    param->size = size;
 
     param->p = calloc(size, sizeof(float));
     memcpy(param->p, p, size * sizeof(float));
 
+    param->size = size;
     param->grad = calloc(size, sizeof(float));
     return param;
 }
+
 
 
 float *sequentialForward(layerForward_t network[], float *input) {

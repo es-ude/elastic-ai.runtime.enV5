@@ -29,6 +29,13 @@ void unitTestReLUBackward() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, result, config.size);
 }
 
+void unitTestInitReLUConfig() {
+    size_t size = 3;
+    ReLUConfig_t *config = initReLUConfig(size);
+
+    TEST_ASSERT_EQUAL_size_t(size, config->size);
+}
+
 void setUp() {}
 void tearDown() {}
 
@@ -36,5 +43,6 @@ int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestReLUForward);
     RUN_TEST(unitTestReLUBackward);
+    RUN_TEST(unitTestInitReLUConfig);
     UNITY_END();
 }
