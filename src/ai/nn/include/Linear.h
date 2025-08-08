@@ -57,7 +57,7 @@ layerForward_t *initLinearLayerWithInputOutputSize(size_t inputSize, size_t outp
  * @param sizeBias : size of array of weights
  * @return : pointer to layerForwardBackward_t
  */
-layerForwardBackward_t *initLinearLayerBackwardWithWeightBias(float *weight, size_t sizeWeights, float *bias, size_t sizeBias);
+layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weight, size_t sizeWeights, float *bias, size_t sizeBias);
 
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init

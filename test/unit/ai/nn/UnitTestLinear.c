@@ -7,8 +7,8 @@
 #include "AiHelpers.h"
 #include "Linear.h"
 
-void setUp(){}
-void tearDown(){}
+void setUp() {}
+void tearDown() {}
 
 linearConfig_t *initLinearConfig() {
     size_t weightSize = 6;
@@ -44,8 +44,10 @@ void unitTestLinearBackward() {
 
     float expected_weight_grad[] = {0.f, -4.f, -8.f, 0.f, -3.f, -6.f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propagated_loss, sizeof(expected_propagated_loss)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig->weight->grad, linearConfig->weight->size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propagated_loss,
+                                  sizeof(expected_propagated_loss) / sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig->weight->grad,
+                                  linearConfig->weight->size);
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(loss, linearConfig->bias->grad, linearConfig->bias->size);
 }
 
@@ -55,12 +57,62 @@ void unitTestInitLinearConfigWithWeightBias() {
     float weights[] = {1.f, 2.f, 3.f, 4.f};
     float bias[] = {-1.f, -2.f};
 
-    linearConfig_t *linearConfig = initLinearConfigWithWeightBias(weights, weightSize, bias, biasSize);
+    linearConfig_t *linearConfig =
+        initLinearConfigWithWeightBias(weights, weightSize, bias, biasSize);
 
     float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
     float biasGrad[] = {0.f, 0.f};
 
-    TEST_ASSERT_EQUAL_size_t(weightSize/biasSize, linearConfig->inputSize);
+    TEST_ASSERT_EQUAL_size_t(weightSize / biasSize, linearConfig->inputSize);
+    TEST_ASSERT_EQUAL_size_t(biasSize, linearConfig->outputSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(weights, linearConfig->weight->p, weightSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bias, linearConfig->bias->p, biasSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(weightsGrad, linearConfig->weight->grad, weightSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(biasGrad, linearConfig->bias->grad, biasSize);
+}
+
+void unitTestInitLinearForwardWithWeightBias() {
+    size_t weightSize = 4;
+    size_t biasSize = 2;
+    float weights[] = {1.f, 2.f, 3.f, 4.f};
+    float bias[] = {-1.f, -2.f};
+
+    layerForward_t *linearLayerForward =
+        initLinearLayerForwardWithWeightBias(weights, weightSize, bias, biasSize);
+    layerType_t layerType = LINEAR;
+    TEST_ASSERT_EQUAL(layerType, linearLayerForward->type);
+    TEST_ASSERT_EQUAL(&linearForward, linearLayerForward->layerForward);
+    linearConfig_t *linearConfig = linearLayerForward->config;
+
+    float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
+    float biasGrad[] = {0.f, 0.f};
+
+    TEST_ASSERT_EQUAL_size_t(weightSize / biasSize, linearConfig->inputSize);
+    TEST_ASSERT_EQUAL_size_t(biasSize, linearConfig->outputSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(weights, linearConfig->weight->p, weightSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bias, linearConfig->bias->p, biasSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(weightsGrad, linearConfig->weight->grad, weightSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(biasGrad, linearConfig->bias->grad, biasSize);
+}
+
+void unitTestInitLinearForwardBackwardWithWeightBias() {
+    size_t weightSize = 4;
+    size_t biasSize = 2;
+    float weights[] = {1.f, 2.f, 3.f, 4.f};
+    float bias[] = {-1.f, -2.f};
+
+    layerForwardBackward_t *linearLayerForwardBackward =
+        initLinearLayerForwardBackwardWithWeightBias(weights, weightSize, bias, biasSize);
+    layerType_t layerType = LINEAR;
+    TEST_ASSERT_EQUAL(layerType, linearLayerForwardBackward->type);
+    TEST_ASSERT_EQUAL(&linearForward, linearLayerForwardBackward->layerForward);
+    TEST_ASSERT_EQUAL(&linearBackward, linearLayerForwardBackward->layerBackward);
+    linearConfig_t *linearConfig = linearLayerForwardBackward->config;
+
+    float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
+    float biasGrad[] = {0.f, 0.f};
+
+    TEST_ASSERT_EQUAL_size_t(weightSize / biasSize, linearConfig->inputSize);
     TEST_ASSERT_EQUAL_size_t(biasSize, linearConfig->outputSize);
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(weights, linearConfig->weight->p, weightSize);
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(bias, linearConfig->bias->p, biasSize);
@@ -73,5 +125,7 @@ int main() {
     RUN_TEST(unitTestLinearForward);
     RUN_TEST(unitTestLinearBackward);
     RUN_TEST(unitTestInitLinearConfigWithWeightBias);
+    RUN_TEST(unitTestInitLinearForwardWithWeightBias);
+    RUN_TEST(unitTestInitLinearForwardBackwardWithWeightBias);
     UNITY_END();
 }
