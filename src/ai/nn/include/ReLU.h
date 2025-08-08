@@ -13,6 +13,14 @@ typedef struct ReLUConfig {
  */
 ReLUConfig_t *initReLUConfig(size_t size);
 
+layerForward_t *initReLULayerForward(size_t size);
+
+layerForwardBackward_t *initReLULayerBackward(size_t size);
+
+void freeReLUForward(layerForward_t *layer);
+
+void freeReLUBackward(layerForwardBackward_t *layer);
+
 /*! @brief Forward call for the ReLU layer
  *
  * @param config : gives the number of inputs
@@ -30,4 +38,7 @@ float * ReLUForward(ReLUConfig_t *config, float *input);
  */
 float * ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
 
+float *ReLUForwardAutomatic(void *config, float *input);
+
+float *ReLUBackwardAutomatic(void *config, float *grad, float *input);
 #endif //RELU_H

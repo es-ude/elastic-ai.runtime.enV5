@@ -13,6 +13,9 @@
  * float *backward(layerConfig_t *config, float *grad, float *input);
  */
 
+typedef float *(forward)(void*, float*);
+typedef float *(backward)(void*, float*, float*);
+
 /*! @brief Describes each parameter
  * p = array of parameter values
  * grad = array of size parameter in which the corresponding gradients can be summed up
@@ -34,7 +37,8 @@ parameter_t *initParameter(float *p, size_t size);
 
 typedef enum layerType {
     LINEAR,
-    RELU
+    RELU,
+    CONV1D
 }layerType_t;
 
 /*! @brief Describes how you can generally construct layers
@@ -44,7 +48,7 @@ typedef enum layerType {
  * type = type of layer
  */
 typedef struct layerForward {
-    void* layerForward;
+    forward *layerForward;
     void* config;
     layerType_t type;
 }layerForward_t;
@@ -55,7 +59,7 @@ typedef struct layerForward {
  * @param input: input for the neural network
  * @return : pointer to array of results
  */
-float *sequentialForward(layerForward_t network[], float *input);
+float *sequentialForward(layerForward_t *network, size_t sizeNetwork,  float *input);
 
 /*! @brief Describes how you can generally construct layers for Forward & Backward
  * layerForward = pointer to forward function of the layer
@@ -64,8 +68,8 @@ float *sequentialForward(layerForward_t network[], float *input);
  * type = Type of layer
  */
 typedef struct layerForwardBackward {
-    void* layerForward;
-    void* layerBackward;
+    forward *layerForward;
+    backward *layerBackward;
     void* config;
     layerType_t type;
 }layerForwardBackward_t;
@@ -76,7 +80,8 @@ typedef struct layerForwardBackward {
  * @param lossFunction: Pointer to loss function that looks like lossFunction(float *output, float
  * *label, size_t size);
  * @param input : Array of inputs
+ * @return returns result from forward pass
  */
-void sequentialCalculateGrads(layerForwardBackward_t network[], void* lossFunction, float *input);
+float *sequentialCalculateGrads(layerForwardBackward_t *network, size_t sizeNetwork, void* lossFunction, float *input);
 
 #endif //AIHELPERS_H

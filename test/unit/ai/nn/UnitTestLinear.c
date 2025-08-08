@@ -34,7 +34,6 @@ void unitTestLinearBackward() {
     linearConfig_t *linearConfig = initLinearConfig();
 
     float input[] = {0.f, 1.f, 2.f};
-    float *output = linearForward(linearConfig, input);
 
     float loss[] = {-4.f, -3.f};
 
@@ -44,11 +43,27 @@ void unitTestLinearBackward() {
 
     float expected_weight_grad[] = {0.f, -4.f, -8.f, 0.f, -3.f, -6.f};
 
+    float expected_bias_grad[] = {-4.f, -3.f};
+
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propagated_loss,
                                   sizeof(expected_propagated_loss) / sizeof(float));
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig->weight->grad,
                                   linearConfig->weight->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(loss, linearConfig->bias->grad, linearConfig->bias->size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_bias_grad, linearConfig->bias->grad, linearConfig->bias->size);
+
+    float *propagated_loss_2 = linearBackward(linearConfig, loss, input);
+
+    float expected_propagated_loss_2[] = {-8.f, -23.f, 30.f};
+
+    float expected_weight_grad_2[] = {0.f, -8.f, -16.f, 0.f, -6.f, -12.f};
+
+    float expected_bias_grad_2[] = {-8.f, -6.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss_2, propagated_loss_2,
+                              sizeof(expected_propagated_loss_2) / sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad_2, linearConfig->weight->grad,
+                                  linearConfig->weight->size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_bias_grad_2, linearConfig->bias->grad, linearConfig->bias->size);
 }
 
 void unitTestInitLinearConfigWithWeightBias() {
@@ -81,7 +96,7 @@ void unitTestInitLinearForwardWithWeightBias() {
         initLinearLayerForwardWithWeightBias(weights, weightSize, bias, biasSize);
     layerType_t layerType = LINEAR;
     TEST_ASSERT_EQUAL(layerType, linearLayerForward->type);
-    TEST_ASSERT_EQUAL(&linearForward, linearLayerForward->layerForward);
+    TEST_ASSERT_EQUAL(&linearForwardAutomatic, linearLayerForward->layerForward);
     linearConfig_t *linearConfig = linearLayerForward->config;
 
     float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
@@ -105,8 +120,8 @@ void unitTestInitLinearForwardBackwardWithWeightBias() {
         initLinearLayerForwardBackwardWithWeightBias(weights, weightSize, bias, biasSize);
     layerType_t layerType = LINEAR;
     TEST_ASSERT_EQUAL(layerType, linearLayerForwardBackward->type);
-    TEST_ASSERT_EQUAL(&linearForward, linearLayerForwardBackward->layerForward);
-    TEST_ASSERT_EQUAL(&linearBackward, linearLayerForwardBackward->layerBackward);
+    TEST_ASSERT_EQUAL(&linearForwardAutomatic, linearLayerForwardBackward->layerForward);
+    TEST_ASSERT_EQUAL(&linearBackwardAutomatic, linearLayerForwardBackward->layerBackward);
     linearConfig_t *linearConfig = linearLayerForwardBackward->config;
 
     float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
@@ -120,6 +135,46 @@ void unitTestInitLinearForwardBackwardWithWeightBias() {
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(biasGrad, linearConfig->bias->grad, biasSize);
 }
 
+void unitTestLinearForwardAutomatic() {
+    float input[] = {1.f, 2.f};
+    float weights[] = {1.f, 2.f, 3.f, 4.f};
+    float bias[] = {-1.f, -2.f};
+    layerForward_t *l = initLinearLayerForwardWithWeightBias(weights, 4, bias, 2);
+    float *out = l->layerForward(l->config, input);
+    float expectedOut[] = {4.f, 9.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOut, out, 2);
+}
+
+void unitTestLinearForwardBackwardAutomatic() {
+    float input[] = {0.f, 1.f, 2.f};
+
+    float loss[] = {-4.f, -3.f};
+    float weight[] = {-1.f, 2.f, -3.f, 4.f, 5.f, -6.f};
+    float bias[] = {-1.f, 3.f};
+
+    layerForwardBackward_t *l = initLinearLayerForwardBackwardWithWeightBias(weight,6,bias,2);
+    float *result = l->layerForward(l->config, input);
+    float expected_result[] = {-5.f, -4.f};;
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_result, result, 2);
+    float expected_propagated_loss[] = {-8.f, -23.f, 30.f};
+
+    float expected_weight_grad[] = {0.f, -4.f, -8.f, 0.f, -3.f, -6.f};
+
+    float expected_bias_grad[] = {-4.f, -3.f};
+
+    float *propagatedLoss = l->layerBackward(l->config, loss, input);
+
+    linearConfig_t *linearConfig = l->config;
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propagatedLoss,
+                              sizeof(expected_propagated_loss) / sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig->weight->grad,
+                                  linearConfig->weight->size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_bias_grad, linearConfig->bias->grad, linearConfig->bias->size);
+}
+
 int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestLinearForward);
@@ -127,5 +182,7 @@ int main() {
     RUN_TEST(unitTestInitLinearConfigWithWeightBias);
     RUN_TEST(unitTestInitLinearForwardWithWeightBias);
     RUN_TEST(unitTestInitLinearForwardBackwardWithWeightBias);
+    RUN_TEST(unitTestLinearForwardAutomatic);
+    RUN_TEST(unitTestLinearForwardBackwardAutomatic);
     UNITY_END();
 }

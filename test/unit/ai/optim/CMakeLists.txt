@@ -3,4 +3,6 @@ add_elastic_ai_unit_test(
         SGD
         MORE_LIBS
         AiHelpers
+        Linear
+        ReLU
 )

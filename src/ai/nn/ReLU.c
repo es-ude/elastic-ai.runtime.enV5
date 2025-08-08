@@ -8,6 +8,32 @@ ReLUConfig_t *initReLUConfig(size_t size) {
     return config;
 }
 
+layerForward_t *initReLULayerForward(size_t size) {
+    layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
+    layerForward->type = RELU;
+    layerForward->config = initReLUConfig(size);
+    layerForward->layerForward = ReLUForwardAutomatic;
+    return layerForward;
+}
+
+layerForwardBackward_t *initReLULayerBackward(size_t size) {
+    layerForwardBackward_t *layerForward = calloc(1, sizeof(layerForward_t));
+    layerForward->type = RELU;
+    layerForward->config = initReLUConfig(size);
+    layerForward->layerForward = ReLUForwardAutomatic;
+    layerForward->layerBackward = ReLUBackwardAutomatic;
+    return layerForward;
+}
+
+void freeReLUForward(layerForward_t *layer ) {
+
+}
+
+void freeReLUBackward(layerForwardBackward_t *layer) {
+
+}
+
+
 float *ReLUForward(ReLUConfig_t *config, float *input) {
 
     float *output = calloc(config->size, sizeof(float));
@@ -33,4 +59,12 @@ float *ReLUBackward(ReLUConfig_t *config, float *grad, float *input) {
     return outputGrad;
 }
 
+float *ReLUForwardAutomatic(void *config, float *input) {
+    ReLUConfig_t *configInternal = config;
+    return ReLUForward(configInternal, input);
+}
 
+float *ReLUBackwardAutomatic(void *config, float *grad, float *input) {
+    ReLUConfig_t *configInternal = config;
+    return ReLUBackward(configInternal, grad, input);
+}
