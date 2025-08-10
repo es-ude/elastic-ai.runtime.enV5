@@ -2,15 +2,25 @@
 
 #include "SGD.h"
 
-SGDConfig_t *initSGDConfig(layerForwardBackward_t *model, size_t sizeModel, float lr,
-float momentum, float weightDecay) {}
 
-void SGDStep(SGDConfig_t *SGDConfig) {
-    ;
+void SGDStep(SGDConfig_t *config) {
+    for (size_t i = 0; i < config->sizeMomentumBuffers; ++i) {
+        parameter_t *param = config->momentum_buffer[i].parameter;
+        float *momentum = config->momentum_buffer[i].momentums;
+
+        for (size_t j = 0; j < param->size; ++j) {
+            float grad = param->grad[j] + config->weightDecay * param->p[j];
+            momentum[j] = config->momentum * momentum[j] + grad;
+            param->p[j] -= config->lr * momentum[j];
+        }
+    }
 }
 
-void SGDZeroGrad(SGDConfig_t *SGDConfig) {
-    ;
+void SGDZeroGrad(SGDConfig_t *config) {
+    for (size_t i = 0; i < config->sizeMomentumBuffers; ++i) {
+        parameter_t *param = config->momentum_buffer[i].parameter;
+        for (size_t j = 0; j < param->size; ++j) {
+            param->grad[j] = 0.0f;
+        }
+    }
 }
-
-momentumBuffer_t *initMomentumBuffer(void *parameter) {}
