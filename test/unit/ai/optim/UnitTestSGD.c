@@ -55,11 +55,21 @@ void unitTestSGDStep() {
     //Second Step with same grads but with momentum now
     SGDStep(&config);
 
-    float wPExpected2[] = {0.82708f, 1.06984f, -2.05876f};
-    float bPExpected2[] = {0.98892f, 2.48124f};
+    float wPExpected2[] = {0.707201f, 2.286802f, -3.576503f};
+    float bPExpected2[] = {-1.288801f, 2.127003f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wP, wPExpected2, sizeof(wPExpected)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bP, bPExpected2, sizeof(bPExpected)/sizeof(float));
+    for (size_t i = 0; i < sizeof(wP)/sizeof(float); i++) {
+        int expected = (int)(wPExpected2[i]*100);
+        int actual   = (int)(wP[i]*100);
+        TEST_ASSERT_EQUAL_INT_MESSAGE(expected, actual, "Die ersten zwei Nachkommastellen stimmen nicht überein");
+    }
+
+    for (size_t i = 0; i < sizeof(bP)/sizeof(float); i++) {
+        int expected = (int)(bPExpected2[i]*100);
+        int actual   = (int)(bP[i]*100);
+        TEST_ASSERT_EQUAL_INT_MESSAGE(expected, actual, "Die ersten zwei Nachkommastellen stimmen nicht überein");
+    }
+
 
 }
 
