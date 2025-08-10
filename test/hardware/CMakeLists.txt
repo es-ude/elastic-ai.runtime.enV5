@@ -11,4 +11,5 @@ add_subdirectory(TestMiddleware)
 add_subdirectory(TestFlashFileSystem)
 add_subdirectory(TestUsbProtocol)
 add_subdirectory(AutomatedHWTests)
+add_subdirectory(Ai)
 

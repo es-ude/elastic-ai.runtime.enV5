@@ -188,9 +188,37 @@ in
       description = "run all hardware tests and print their result";
     };
 
+    run_ai_test = {
+          exec = ''
+            flash_node "build/env5_rev2_release/test/hardware/Ai/$1.uf2"
+            echo "Running Test: $1"
+            sleep 2
+            while read -r line; do
+              if [[ -n "$2" ]]; then
+                echo "$line"
+              fi
+            done < /dev/ttyACM0
+          '';
+          package = pkgs.bash;
+          description = "run one ai test and print the result";
+    };
 
+    run_ai_tests = {
+      exec = ''
+        TESTS=("TestMemoryUsageLinearForward" "TestMemoryUsageLinearBackward")
+        for test in "''${TESTS[@]}"; do
+          echo "----------------------------------------"
 
-  };
+          run_ai_test "$test" 1
+          sleep 2
+          echo ""
+        done
+      '';
+
+      package = pkgs.bash;
+      description = "run AI hardware tests (memory usage) and print results";
+    };
+};
 
   tasks = {
     "build:unit-test" = {
