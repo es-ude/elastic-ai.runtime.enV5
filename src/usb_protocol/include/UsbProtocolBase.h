@@ -38,9 +38,15 @@ typedef usbProtocolErrorCodes_t (*usbProtocolReadData)(uint8_t *bytes, size_t nu
  */
 typedef usbProtocolErrorCodes_t (*usbProtocolSendData)(uint8_t *bytes, size_t numberOfBytes);
 
+/*!
+ * @brief function regestering default Commands on init 
+ *
+ */
+typedef void (*usbDefaultCommands)(void);
+
 typedef void *usbProtocolReceiveBuffer;
 
-typedef flashConfiguration_t *void;
+typedef struct flashConfiguration flashConfiguration_t;
 
 /* endregion TYPEDEFS */
 
@@ -63,7 +69,7 @@ typedef flashConfiguration_t *void;
 void usbProtocolInit(
     usbProtocolReadData readFunction,
     usbProtocolSendData sendFunction,
-    void *defaultCommandCreator);
+    usbDefaultCommands defaultCommandCreator);
 
 /*!
  * @brief initializes the usb protocol handler

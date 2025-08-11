@@ -95,7 +95,7 @@ static void cleanMessageBuffer(usbProtocolMessage_t *message) {
 void usbProtocolInit(
     usbProtocolReadData readFunction,
     usbProtocolSendData sendFunction,
-    usbDefaultCommands *defaultCommands) {
+    usbDefaultCommands defaultCommands) {
     if (readFunction == NULL || sendFunction == NULL) {
         Throw(USB_PROTOCOL_ERROR_NULL_POINTER);
     }
