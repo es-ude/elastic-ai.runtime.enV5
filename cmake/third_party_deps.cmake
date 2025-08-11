@@ -8,7 +8,7 @@ macro(add_pico_sdk tag)
 endmacro()
 
 macro(init_pico_sdk)
-    # pico_sdk_init()
+    pico_sdk_init()
 
     include(pico_targets)
     include(custom_targets)
