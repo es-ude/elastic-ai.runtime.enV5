@@ -1,1 +1,0 @@
-set(NOT_ELASTIC_NODE INTERNAL "1" "we're not building for elastic node, but for the dev systems")

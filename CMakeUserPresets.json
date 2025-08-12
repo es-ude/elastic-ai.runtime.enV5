@@ -1,0 +1,28 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "pico2w_debug",
+      "displayName": "Pico2W Debug",
+      "inherits": "gen_ninja",
+      "cacheVariables": {
+        "ELASTIC_AI_TARGET": "PICO2W",
+        "HW_CONFIG_PATH": "pico_hw_config/EnV5HwConfiguration.h",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEBUG_MODE": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "pico2w_debug",
+      "configurePreset": "pico2w_debug",
+      "jobs": 4
+    }
+  ]
+}
