@@ -145,40 +145,39 @@ static void adxl345bInternalCalculateOffsetRegisterScaleFactors(float *xyOffsetS
  * the start of a new read
  *
  * @param sensor[in] configuration for sensor to use
- * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to
- * be at least 6 bytes
+ * @param rawSamples[out] memory where data received from the sensor is stored
  * @return return the error code (0 if everything passed)
  *
  * @note read only, raw data needs to be converted into g-values
  */
 static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor,
-                                               uint8_t *dataResponseBuffer);
+                                               adxl345bRawData_t *rawSamples);
 
 /*! @brief
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
- * @param dataResponseBuffer[out] memory where data received from the sensor is stored. needs to
- * be at least 6 bytes
+ * @param dataResponseBuffer[out] memory where data received from the sensor is stored.
  * @param maxFifoRead maximal Data you want to fetch from Fifo
  * @return return the error code (0 if everything passed)
  */
 static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t sensor,
-                                             uint8_t *dataResponseBuffer, uint8_t maxFifoRead);
+                                             adxl345bRawData_t *dataResponseBuffer,
+                                             uint8_t maxFifoRead);
 
 /*! @brief
  * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  * @param sensor[in] configuration for sensor to use
- * @param sizeOfBuffer[in] modulo 6 needs to be 0
- * @param remainder[in] modulo 6 needs to be 0
- * @param maxFifoRead[in] maximal Data you want to fetch from Fifo
- * @param buffer[out] memory where data received from the sensor is stored
+ * @param sizeOfBuffer[in]
+ * @param remainder[in]
+ * @param maxFifoRead[in] maximal amount of samples you want to fetch from Fifo
+ * @param buffer[out] memory where samples received from the sensor is stored
  * @param fifoInformation[in] Infomation which is stored in ADXL345B_FIFO_CONTROL
  * @return return the error code (0 if everything passed)
  */
 static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sensor,
-                                              int64_t sizeOfBuffer, uint8_t remainder,
-                                              uint8_t maxFifoRead, uint8_t *buffer,
-                                              uint8_t fifoInformation);
+                                              uint8_t fifoInformation, uint8_t maxFifoRead,
+                                              uint8_t remainder, adxl345bRawData_t *buffer,
+                                              int64_t sizeOfBuffer);
 
 /*!
  * @brief disables selftest force by setting selftest bit to 0 in the
@@ -189,6 +188,7 @@ static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sens
 
  * @return return the error code (0 if everything passed)
  */
+
 static adxl345bErrorCode_t
 adxl345bInternalDisableSelftestForce(adxl345bSensorConfiguration_t sensor);
 
