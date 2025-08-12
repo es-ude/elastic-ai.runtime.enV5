@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, edited]
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   lint-commits:
@@ -39,11 +39,11 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: 'true'
+          submodules: "true"
       - name: prepare devenv
         uses: ./.github/actions/prepare-devenv
       - name: run unit-tests
-        run: devenv shell devenv tasks run check:unit-test
+        run: devenv shell devenv tasks run check:unit-test -m all
 
   build_all_targets:
     needs:
@@ -53,8 +53,8 @@ jobs:
       - name: checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: 'true'
+          submodules: "true"
       - name: prepare devenv
         uses: ./.github/actions/prepare-devenv
       - name: build pico targets
-        run: devenv shell devenv tasks run check:build-pico-targets
+        run: devenv shell devenv tasks run check:build-pico-targets -m all
