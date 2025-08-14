@@ -61,7 +61,7 @@ static void getGValue() {
     uint8_t rawData[6];
     adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
     if (errorCode == ADXL345B_NO_ERROR) {
-        errorCode = adxl345bConvertDataXYZ(&xAxis, &yAxis, &zAxis, rawData);
+        errorCode = adxl345bConvertDataXYZ(sensor, &xAxis, &yAxis, &zAxis, rawData);
         if (errorCode == ADXL345B_NO_ERROR) {
             /* 0.2G equals a deviation of about 1% from the ideal value
              * this deviation is given by the datasheet as the accepted tolerance

@@ -24,7 +24,7 @@ enum {
     ADXL345B_BW_RATE_0_point_1 = 0b00010000,
     //!  represents BW_RATE 0.2
     ADXL345B_BW_RATE_0_point_2 = 0b00010001,
-    ADXL345B_BW_RATE_0_point_39 = 0b00010010, //!<  represents BW_RATE0.39
+    ADXL345B_BW_RATE_0_point_39 = 0b00010010, //!<  represents BW_RATE 0.39
     //!  represents BW_RATE 0.78
     ADXL345B_BW_RATE_0_point_78 = 0b00010011,
     //!  represents BW_RATE 0.56
@@ -46,7 +46,15 @@ enum {
     // ADXL345B_BW_RATE_3200 = 0b00001111, //!< 3200  only available for SPI
 
 };
-
+/* Sensitivity values of the sensor depending on supply voltage and resolution in LSB/g */
+enum {
+    ADXL345B_IDEAL_SENSITIVITY_FULL_RES_3V3 = 265,
+    ADXL345B_IDEAL_SENSITIVITY_FULL_RES_2V5 = 256,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_2G_2V5 = 256,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_4G_2V5 = 128,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_8G_2V5 = 64,
+    ADXL345B_IDEAL_SENSITIVITY_10BIT_16G_2V5 = 32
+};
 /* i2c address of the sensor
  *
  * defines the possible i2c addresses of the sensor:
@@ -101,6 +109,22 @@ enum {
     ADXL345B_FIFOMODE_TRIGGER = 0b11000000,
 };
 
+/*! Bitmask that defines which bits are relevant(1) for the information in the register and which
+ * are not(0) */
+enum {
+    ADXL345B_BITMASK_DATA_READY = 0b10000000,
+    ADXL345B_BITMASK_WATERMARK = 0b00000010,
+    ADXL345B_BITMASK_LOW_POWER = 0b00010000,
+    ADXL345B_BITMASK_MEASURE = 0b00001000,
+    ADXL345B_BITMASK_SELF_TEST = 0b10000000,
+    ADXL345B_BITMASK_FULL_RES = 0b00001000,
+    ADXL345B_BITMASK_JUSTIFY = 0b00000100,
+    ADXL345B_BITMASK_RANGE = 0b00000011,
+    ADXL345B_BITMASK_ENTRIES = 0b00111111,
+    ADXL345B_BITMASK_SAMPLES = 0b00011111,
+    ADXL345B_BITMASK_FIFOMODE = 0b11000000
+};
+
 typedef struct adxl345bSensorConfiguration {
     i2c_inst_t *i2c_host;
     adxl345bI2cAddress_t i2c_slave_address;
@@ -123,9 +147,8 @@ typedef enum adxl345bErrorCode {
     ADXL345B_CONFIGURATION_ERROR = 0x12,
     ADXL345B_RANGE_ERROR = 0x13,
     ADXL345B_UNDEFINED_ERROR = 0x20,
-    ADXL345B_SELF_TEST_FAILED_FOR_X = 0x31,
-    ADXL345B_SELF_TEST_FAILED_FOR_Y = 0x32,
-    ADXL345B_SELF_TEST_FAILED_FOR_Z = 0x33,
+    ADXL345B_SELF_TEST_FAILED = 0x31,
+    ADXL345B_CALIBRATION_ERROR = 0x32,
 } adxl345bErrorCode_t;
 
 #endif /* ENV5_ADXL345B_TYPEDEFS */
