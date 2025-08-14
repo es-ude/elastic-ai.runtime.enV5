@@ -5,6 +5,7 @@ if(NOT DEFINED _EAI_REVISION)
     message(FATAL_ERROR "Missing hardware configuration")
   elseif(IS_ABSOLUTE ${HW_CONFIG_PATH})
     if(${HW_CONFIG_PATH} MATCHES "\\/EnV5HwConfiguration\\.h$")
+      message("Loading EnV5HwConfiguration.h from: ${HW_CONFIG_PATH}")
       target_include_directories(EnV5HwConfiguration INTERFACE
         HW_CONFIG_PATH
       )
