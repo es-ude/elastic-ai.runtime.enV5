@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "eai/flash/FlashTypedefs.h"
-
 /* region TYPEDEFS */
 
 typedef enum usbProtocolErrorCodes {
@@ -41,7 +39,15 @@ typedef usbProtocolErrorCodes_t (*usbProtocolReadData)(uint8_t *bytes, size_t nu
  */
 typedef usbProtocolErrorCodes_t (*usbProtocolSendData)(uint8_t *bytes, size_t numberOfBytes);
 
+/*!
+ * @brief function regestering default Commands on init 
+ *
+ */
+typedef void (*usbDefaultCommands)(void);
+
 typedef void *usbProtocolReceiveBuffer;
+
+typedef struct flashConfiguration flashConfiguration_t;
 
 /* endregion TYPEDEFS */
 
@@ -57,12 +63,22 @@ typedef void *usbProtocolReceiveBuffer;
  *
  * @param[in] readFunction function providing input for the protocol handler
  * @param[in] sendFunction function allowing the handler to send a response
- * @param[in] flashConfiguration pointer to configuration for flash
+ * @param[in] defaultCommandCreator function adding commands on init
  *
  * @throws USB_PROTOCOL_ERROR_NULL_POINTER a function provided is not defined
  */
-void usbProtocolInit(usbProtocolReadData readFunction, usbProtocolSendData sendFunction,
-                     flashConfiguration_t *flashConfiguration);
+void usbProtocolInit(
+    usbProtocolReadData readFunction,
+    usbProtocolSendData sendFunction,
+    usbDefaultCommands defaultCommandCreator);
+
+/*!
+ * @brief initializes the usb protocol handler
+ *
+ * @param[in] flashConfiguration struct holding flash configuration
+ *
+ */
+void setupFlashForUsbProtocol(flashConfiguration_t *flashConfiguration);
 
 /*!
  * @brief function waiting for data (command + payload + checksum) (BLOCKING)
