@@ -39,6 +39,7 @@
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "files.associations": {
         "usbprotocolcustomcommands.h": "c",
-        "flash.h": "c"
+        "flash.h": "c",
+        "env5hwconfiguration.h": "c"
     }
 }
