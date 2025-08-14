@@ -7,8 +7,13 @@ on:
       - "main"
 
 jobs:
-  lint-commits:
-    runs-on: ubuntu-latest
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
@@ -16,45 +21,7 @@ jobs:
           fetch-depth: 0
       - name: prepare devenv
         uses: ./.github/actions/prepare-devenv
-      - name: validate commit messages
-        run: devenv shell devenv tasks run check:commit-lint
-
-  clang-format:
-    needs:
-      - lint-commits
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-      - name: prepare devenv
-        uses: ./.github/actions/prepare-devenv
-      - name: validate code style
-        run: devenv shell devenv tasks run check:code-lint
-
-  unit-tests:
-    needs:
-      - clang-format
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: "true"
-      - name: prepare devenv
-        uses: ./.github/actions/prepare-devenv
-      - name: run unit-tests
-        run: devenv shell devenv tasks run check:unit-test -m all
-
-  build_all_targets:
-    needs:
-      - unit-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: "true"
-      - name: prepare devenv
-        uses: ./.github/actions/prepare-devenv
-      - name: build pico targets
-        run: devenv shell devenv tasks run check:build-pico-targets -m all
+      - name: run checks
+        shell: devenv shell bash -- -e {0}
+        run: |
+          devenv tasks run -m before check
