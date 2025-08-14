@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #include "eai/Common.h"
-#include "EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwConfiguration.h"
 #include "eai/hal/EnV5HwController.h"
 #include "eai/hal/Gpio.h"
 #include "eai/hal/Sleep.h"
