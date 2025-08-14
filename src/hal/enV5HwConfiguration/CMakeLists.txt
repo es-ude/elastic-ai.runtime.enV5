@@ -1,18 +1,27 @@
 add_library(EnV5HwConfiguration INTERFACE)
 
 if(NOT DEFINED _EAI_REVISION)
+  message(STATUS "Using custom Hardware Configuration at ${HW_CONFIG_PATH}")
   if(NOT DEFINED HW_CONFIG_PATH)
     message(FATAL_ERROR "Missing hardware configuration")
-  elseif(IS_ABSOLUTE ${HW_CONFIG_PATH})
-    if(${REVISION_FILEPATH} MATCHES "\\/EnV5HwConfiguration\\.h$")
-      target_include_directories(EnV5HwConfiguration INTERFACE
-        HW_CONFIG_PATH
+  elseif(
+    (IS_ABSOLUTE ${HW_CONFIG_PATH}) AND
+    (EXISTS ${HW_CONFIG_PATH}) AND
+    (IS_DIRECTORY ${HW_CONFIG_PATH})
+  )
+    if(NOT EXISTS "${HW_CONFIG_PATH}/eai/hal/EnV5HwConfiguration.h")
+      message(FATAL_ERROR
+        "Provided directory needs to contain '/eai/hal/EnV5HwConfiguration.h'"
       )
     else()
-      message(FATAL_ERROR
-        "Provided file needs to be named EnV5HwConfiguration.h: ${HW_CONFIG_PATH}"
+      target_include_directories(EnV5HwConfiguration INTERFACE
+        ${HW_CONFIG_PATH}
       )
     endif()
+  else()
+    message(FATAL_ERROR
+      "Please provide an absolute path to the hardware configuration directory"
+    )
   endif()
 elseif(${_EAI_REVISION} STREQUAL "1")
   target_include_directories(EnV5HwConfiguration INTERFACE
