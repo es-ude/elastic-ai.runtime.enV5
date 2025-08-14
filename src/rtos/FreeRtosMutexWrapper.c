@@ -1,9 +1,10 @@
-#include "FreeRtosMutexWrapper.h"
-#include "Common.h"
-#include "FreeRTOS.h"
-#include "FreeRtosTaskWrapper.h"
-
 #include <stdbool.h>
+
+#include "FreeRTOS.h"
+
+#include "eai/Common.h"
+#include "eai/rtos/FreeRtosMutexWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 mutex_t freeRtosMutexWrapperCreate(void) {
     mutex_t mutex = xSemaphoreCreateMutex();

@@ -6,22 +6,22 @@
  * Responds to data requests for these topics!
  */
 
-// src headers
-#include "Common.h"
-#include "Esp.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
-#include "HardwareTestHelper.h"
-#include "MqttBroker.h"
-#include "Pac193x.h"
-#include "Protocol.h"
+// external headers
+#include <malloc.h>
+#include <string.h>
 
 // pico-sdk
 #include <hardware/i2c.h>
 
-// external headers
-#include <malloc.h>
-#include <string.h>
+// src headers
+#include "HardwareTestHelper.h"
+#include "Protocol.h"
+#include "eai/Common.h"
+#include "eai/network/Esp.h"
+#include "eai/network/MqttBroker.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
+#include "eai/sensor/Pac193x.h"
 
 typedef enum topics {
     WIFI = 0,

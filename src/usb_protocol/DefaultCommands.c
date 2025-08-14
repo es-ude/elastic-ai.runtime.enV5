@@ -3,19 +3,19 @@
 #include "string.h"
 
 #include "CException.h"
-#include "hardware/spi.h"
+// #include "hardware/spi.h"
 
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Flash.h"
-#include "Gpio.h"
-#include "Sleep.h"
-#include "Spi.h"
-#include "include/UsbProtocolCustomCommands.h"
+#include "eai/com/UsbProtocolCustomCommands.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/middleware.h"
+#include "eai/fpga/stub.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Gpio.h"
+// #include "eai/hal/Sleep.h"
+// #include "eai/hal/Spi.h"
 #include "internal/DefaultCommands.h"
 #include "internal/Tools.h"
-#include "middleware.h"
-#include "stub.h"
 
 //! number of bytes always present in response (command + payload length + checksum)
 #define BASE_LENGTH (sizeof(uint8_t) + sizeof(uint32_t) + sizeof(uint8_t))

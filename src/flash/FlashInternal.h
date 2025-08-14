@@ -1,7 +1,7 @@
 #ifndef ENV5_FLASH_INTERNAL_HEADER
 #define ENV5_FLASH_INTERNAL_HEADER
 
-#include "FlashTypedefs.h"
+#include "eai/flash/FlashTypedefs.h"
 
 static size_t calculateBytesPerSector(const uint8_t *config);
 

@@ -1,3 +1,6 @@
 add_library(RtosDummy FreeRtosTaskWrapper.c)
+target_link_libraries(RtosDummy PRIVATE
+        Sleep
+        Common
+)
 target_link_libraries(RtosDummy PUBLIC freeRtosUtils)
-target_link_libraries(RtosDummy PRIVATE Sleep Common)

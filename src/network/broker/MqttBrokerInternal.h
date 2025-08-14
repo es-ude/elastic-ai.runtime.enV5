@@ -1,6 +1,8 @@
 #ifndef ENV5_MQTTBROKER_INTERNAL_HEADER
 #define ENV5_MQTTBROKER_INTERNAL_HEADER
 
+#include <stdlib.h>
+
 #include "Posting.h"
 #include "Subscriber.h"
 

@@ -1,13 +1,13 @@
 # Power Sensor
 
 - Type: **PAC193X**
-- [Datasheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
+- [data sheet](https://ww1.microchip.com/downloads/en/DeviceDoc/PAC1931-Family-Data-Sheet-DS20005850E.pdf)
 - Usage:
-    - Measure Power consumption of the FPGA/Flash
-    - Measure Power consumption of the Wi-Fi module
-- Provided Functionality can be found in [Pac193x.h](./include/Pac193x.h)
+  - Measure Power consumption of the FPGA/Flash
+  - Measure Power consumption of the Wi-Fi module
+- You can find the provided functionality in [Pac193x.h](./include/Pac193x.h).
 
-## Basic Usage Example
+## Basic usage example
 
 ```C
 #include "pac193x/Pac193x.h"
@@ -43,6 +43,4 @@ int main(void) {
 }
 ```
 
-More detailed examples, on how to use this sensor, can be found
-in [HardwaretestPac193x.c](../../../test/hardware/Sensors/HardwaretestPac193x.c).
-
+You can find more detailed examples on how to use this sensor in [HardwaretestPac193x.c](../../../test/hardware/Sensors/HardwaretestPac193x.c).

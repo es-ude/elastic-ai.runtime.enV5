@@ -1,9 +1,9 @@
+#include <stdio.h>
+
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 #include "string.h"
-
-#include <stdio.h>
 
 uart_inst_t *uartInstance = uart1;
 int baudrate = 115200;

@@ -15,23 +15,23 @@
 
 #define SOURCE_FILE "HWTEST-STUB"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Esp.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
-#include "HTTP.h"
-#include "Network.h"
-#include "stub.h"
-#include "stub_defs.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "hardware/spi.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "eai/Common.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/fpga/stub.h"
+#include "eai/fpga/stub_defs.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/network/Esp.h"
+#include "eai/network/HTTP.h"
+#include "eai/network/Network.h"
 
 char baseUrl[] = "http://192.168.178.24:5000/getconfig";
 char lengthUrl[] = "http://192.168.178.24:5000/length";

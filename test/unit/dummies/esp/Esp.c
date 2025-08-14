@@ -1,5 +1,5 @@
-#include "Esp.h"
-#include "include/EspUnitTest.h"
+#include "eai/network/Esp.h"
+#include "EspUnitTest.h"
 
 #include <stdbool.h>
 #include <stdio.h>

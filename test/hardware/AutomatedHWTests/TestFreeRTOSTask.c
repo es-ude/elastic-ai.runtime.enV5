@@ -7,17 +7,18 @@
 
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-TASKS"
 
-#include "Common.h"
-#include "EnV5HwController.h"
-// needed to make compiler happy
-#include "FreeRTOS.h"
-#include "FreeRtosTaskWrapper.h"
 #include "unity.h"
 
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-#include <task.h>
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
+
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
+#include "task.h"
 
 uint16_t val1 = 0;
 uint16_t val2 = 0;

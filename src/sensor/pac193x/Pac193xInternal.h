@@ -1,9 +1,10 @@
 #ifndef ENV5_PAC193X_INTERNAL_HEADER
 #define ENV5_PAC193X_INTERNAL_HEADER
 
-#include "include/Pac193xTypedefs.h"
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "eai/sensor/Pac193xTypedefs.h"
 
 typedef union pac193xInternalDataBuffer {
     uint64_t value;

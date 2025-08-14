@@ -3,10 +3,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "Common.h"
-#include "FreeRtosTaskWrapper.h"
 #include "FreeRtosTaskWrapperInternal.h"
-#include "Sleep.h"
+#include "eai/Common.h"
+#include "eai/hal/Sleep.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 static void freeRtosTaskWrapperInternalInvokeTaskCode(void *p_taskCode) {
     TaskCodeFunc taskCode = (TaskCodeFunc)p_taskCode;

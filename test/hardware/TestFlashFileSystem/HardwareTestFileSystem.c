@@ -1,20 +1,20 @@
 #define SOURCE_FILE "DEMO_FILESYSTEM"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "Esp.h"
-#include "FileSystem.h"
-#include "Flash.h"
-#include "FpgaConfigurationHandler.h"
-#include "Network.h"
-#include "Sleep.h"
+#include <stdlib.h>
 
 #include "hardware/spi.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
 
-#include <stdlib.h>
+#include "eai/Common.h"
+#include "eai/flash/FileSystem.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Sleep.h"
+#include "eai/network/Esp.h"
+#include "eai/network/Network.h"
 
 spiConfiguration_t spiToFlashConfig = {.sckPin = FLASH_SPI_CLOCK,
                                        .misoPin = FLASH_SPI_MISO,

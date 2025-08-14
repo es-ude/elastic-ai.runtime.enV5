@@ -6,8 +6,9 @@
 #include "CException.h"
 
 #include "Sleep.h"
-#include "UsbProtocolBase.h"
-#include "UsbProtocolCustomCommands.h"
+#include "eai/com/UsbProtocolBase.h"
+#include "eai/com/UsbProtocolCustomCommands.h"
+#include "internal/DefaultCommands.h"
 #include "internal/Tools.h"
 
 /* region TYPEDEFS/VARIABLES/DEFINES */

@@ -1,2 +1,0 @@
-add_library(pico_stdlib_dummy stdio.c)
-target_include_directories(pico_stdlib_dummy PUBLIC include)

@@ -1,9 +1,9 @@
 #define SOURCE_FILE "STUB"
 
-#include "stub.h"
-#include "Sleep.h"
-#include "middleware.h"
-#include "stub_defs.h"
+#include "eai/fpga/stub.h"
+#include "eai/fpga/middleware.h"
+#include "eai/fpga/stub_defs.h"
+#include "eai/hal/Sleep.h"
 
 #ifndef ADDR_COMPUTATION_ENABLE
 #error ADDR_COMPUTATION_ENABLE not defined!

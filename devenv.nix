@@ -19,6 +19,7 @@ in
       u.picotool
       pkgs.minicom
       pkgs.nanomq
+      pkgs.vale
     ];
 
   languages.c.enable = true;
@@ -35,18 +36,17 @@ in
     };
   };
 
-  process.manager.implementation = "process-compose";
-  processes = {
-    mqtt_broker = {
-      exec = "nanomq start -d -p 1883";
-      process-compose = {
-        is_daemon = true;
-        shutdown.command = "nanomq stop";
-      };
-    };
-  };
-
   scripts = {
+    start_mqtt_broker = {
+      exec = "nanomq start -d -p 1883";
+      package = pkgs.bash;
+      description = "start nanomq broker";
+    };
+    stop_mqtt_broker = {
+      exec = "nanomq stop";
+      package = pkgs.bash;
+      description = "stop nanomq broker";
+    };
     publish = {
       exec = ''nanomq_cli pub -t "$1" -m "$2"'';
       package = pkgs.bash;
@@ -70,6 +70,26 @@ in
       '';
       package = pkgs.bash;
       description = "setup cmake";
+    };
+    clean_cmake = {
+      exec = ''
+        cmake --build --target clean --preset unit_test
+        cmake --build --target clean --preset env5_rev2_debug
+        cmake --build --target clean --preset env5_rev2_release
+      '';
+      package = pkgs.bash;
+      description = "clean cmake";
+    };
+    build_unit_tests = {
+      exec = ''
+        if [ -z "$1" ]; then
+          cmake --build --preset unit_test --target "$1"
+        else
+          cmake --build --preset unit_test
+        fi
+      '';
+      package = pkgs.bash;
+      description = "build unit-tests";
     };
     build_pico_release = {
       exec = ''
@@ -152,7 +172,6 @@ in
       package = pkgs.bash;
       description = "run one test (with or without debug output) and print the result";
     };
-
     run_tests = {
       exec = ''
         TESTS="TestFreeRTOSTask TestFreeRTOSQueue TestFreeRTOSTaskDualCore TestFilesystem TestFlash TestFPGACommunication"
@@ -182,34 +201,44 @@ in
         echo "----------------"
         echo -e "Result:\n$test_results"
       '';
-
-
       package = pkgs.bash;
       description = "run all hardware tests and print their result";
     };
-
-
-
   };
 
   tasks = {
+    "prepare:cmake" = {
+      exec = ''
+        setup_cmake
+        clean_cmake
+      '';
+      before = [ "build:unit-test" "build:debug-targets" "build:release-targets" ];
+    };
     "build:unit-test" = {
+        exec = ''
+          build_unit_tests
+        '';
+      before = [ "check:unit-test" ];
+    };
+    "build:debug-targets" = {
+        exec = ''
+          build_pico_debug
+        '';
+      before = [ "check:build-pico-targets" ];
+    };
+    "build:release-targets" = {
+        exec = ''
+          build_pico_release
+        '';
+      before = [ "check:build-pico-targets" ];
+    };
+    "check:unit-test" = {
       exec = ''
-        cmake --preset unit_test
-        cmake --build --clean-first --preset unit_test
+        ctest --preset unit_test
       '';
     };
-    "build:pico-release-targets" = {
-      exec = ''
-        cmake --preset env5_rev2_release
-        cmake --build --clean-first --preset env5_rev2_release
-      '';
-    };
-    "build:pico-debug-targets" = {
-      exec = ''
-        cmake --preset env5_rev2_debug
-        cmake --build --clean-first --preset env5_rev2_debug
-      '';
+    "check:build-pico-targets" = {
+      exec = '''';
     };
     "check:commit-lint" = {
       exec = ''
@@ -226,15 +255,6 @@ in
           clang-format --dry-run -Werror --style=file --fallback-style="llvm" $file
         done
       '';
-    };
-    "check:unit-test" = {
-      exec = ''
-        ctest --preset unit_test
-      '';
-      after = ["build:unit-test"];
-    };
-    "check:build-pico-targets" = {
-      after = ["build:pico-release-targets" "build:pico-debug-targets"];
     };
   };
 

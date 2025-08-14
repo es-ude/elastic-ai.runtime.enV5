@@ -1,5 +1,5 @@
 #define SOURCE_FILE "FPGA-CONFIGRATION-HANDLER-BASE"
 
-#include "include/FpgaConfigurationHandler.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
 
 void fpgaConfigurationHandlerInitialize() {}

@@ -4,9 +4,9 @@
 
 #include "unity.h"
 
-#include "Flash.h"
 #include "FlashUnitTest.h"
-#include "FpgaConfigurationHandler.h"
+#include "eai/flash/Flash.h"
+#include "eai/fpga/FpgaConfigurationHandler.h"
 #include "httpDummy.h"
 
 flashConfiguration_t flashConfiguration;

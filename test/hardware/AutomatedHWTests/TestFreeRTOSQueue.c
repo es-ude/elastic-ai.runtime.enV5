@@ -1,15 +1,17 @@
 #define SOURCE_FILE "FREERTOS-HWTEST"
 
-#include "Common.h"
-#include "EnV5HwController.h"
-#include "FreeRtosQueueWrapper.h"
-#include "FreeRtosTaskWrapper.h"
-#include "stdlib.h"
-#include "string.h"
-#include "unity.h"
+#include <stdlib.h>
+#include <string.h>
 
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
+
+#include "unity.h"
+
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/rtos/FreeRtosQueueWrapper.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 #define QUEUE_SIZE 5
 

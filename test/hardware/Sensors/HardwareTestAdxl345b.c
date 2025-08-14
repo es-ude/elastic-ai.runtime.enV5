@@ -1,11 +1,13 @@
 #define SOURCE_FILE "ADXL345-Test"
 
-#include "Adxl345b.h"
-#include "Common.h"
-#include "I2c.h"
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
+
+#include "eai/Common.h"
+#include "eai/hal/I2c.h"
+#include "eai/hal/Time.h"
+#include "eai/sensor/Adxl345b.h"
 
 /* region HELPER */
 
@@ -141,7 +143,10 @@ int main(void) {
     PRINT("===== START TEST =====");
     PRINT("Please enter to request g (G value), s (serialNo), t (self test), "
           "c (calibration) or b (Boot mode)");
+
     while (1) {
+        uint32_t loc = timeUs32();
+
         char input = getchar_timeout_us(10000000); /* 10 seconds wait */
 
         switch (input) {

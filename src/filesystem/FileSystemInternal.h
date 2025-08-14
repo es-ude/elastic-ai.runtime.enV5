@@ -1,6 +1,8 @@
 #ifndef ENV5_FILESYSTEM_INTERNAL_HEADER
 #define ENV5_FILESYSTEM_INTERNAL_HEADER
 
+#include "eai/flash/FileSystem.h"
+
 /*! @brief Sets all sectors in sectorFree to 1 (free).
  *
  * @param filesystemConfig Config of used filesystem

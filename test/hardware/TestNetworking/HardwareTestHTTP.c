@@ -5,9 +5,10 @@
  */
 
 #include "CException.h"
-#include "Common.h"
-#include "HTTP.h"
+
 #include "HardwareTestHelper.h"
+#include "eai/Common.h"
+#include "eai/network/HTTP.h"
 
 void _Noreturn runTest(void) {
     PRINT("=== STARTING TEST ===");

@@ -4,15 +4,15 @@
 
 #define SOURCE_FILE "HARDWARE-TEST-FREERTOS-TASKS"
 
-#include "Common.h"
-#include "EnV5HwConfiguration.h"
-#include "EnV5HwController.h"
-#include "FreeRtosTaskWrapper.h"
-#include "Gpio.h"
-
 #include "hardware/watchdog.h"
 #include "pico/bootrom.h"
 #include "pico/stdlib.h"
+
+#include "eai/Common.h"
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/EnV5HwController.h"
+#include "eai/hal/Gpio.h"
+#include "eai/rtos/FreeRtosTaskWrapper.h"
 
 _Noreturn void blinkLed1Task() {
     while (1) {
