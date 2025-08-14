@@ -4,7 +4,7 @@ if(NOT DEFINED _EAI_REVISION)
   if(NOT DEFINED HW_CONFIG_PATH)
     message(FATAL_ERROR "Missing hardware configuration")
   elseif(IS_ABSOLUTE ${HW_CONFIG_PATH})
-    if(${REVISION_FILEPATH} MATCHES "\\/EnV5HwConfiguration\\.h$")
+    if(${HW_CONFIG_PATH} MATCHES "\\/EnV5HwConfiguration\\.h$")
       target_include_directories(EnV5HwConfiguration INTERFACE
         HW_CONFIG_PATH
       )
@@ -23,4 +23,3 @@ elseif(${_EAI_REVISION} STREQUAL "2")
     ${CMAKE_CURRENT_LIST_DIR}/revision02
   )
 endif()
-
