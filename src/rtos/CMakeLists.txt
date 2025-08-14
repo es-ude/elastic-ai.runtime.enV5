@@ -5,7 +5,10 @@ if(_BUILDING_FOR_HARDWARE)
     FreeRtosQueueWrapper.c
     FreeRtosMutexWrapper.c
   )
+
   target_include_directories(freeRtosUtils PUBLIC include)
+  target_include_directories(freeRtosUtils PUBLIC config)
+
   target_link_libraries(freeRtosUtils PRIVATE
     Common
     Sleep

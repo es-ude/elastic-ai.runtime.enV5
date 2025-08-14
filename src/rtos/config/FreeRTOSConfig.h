@@ -100,10 +100,6 @@
 #define configTICK_CORE 0
 #define configRUN_MULTIPLE_PRIORITIES 1
 
-/* RP2040 specific */
-#define configSUPPORT_PICO_SYNC_INTEROP 1
-#define configSUPPORT_PICO_TIME_INTEROP 1
-
 #include <assert.h>
 /* Define to trap errors during development. */
 #define configASSERT(x) assert(x)
@@ -136,5 +132,16 @@ to exclude the API function. */
 #define configUSE_CORE_AFFINITY 1
 #define configNUM_CORES 2
 #define configUSE_PASSIVE_IDLE_HOOK 0
+
+#ifdef PICO_RP2040
+#define configSUPPORT_PICO_SYNC_INTEROP 1
+#define configSUPPORT_PICO_TIME_INTEROP 1
+#elifdef PICO_RP2350
+#define configENABLE_MPU 0
+#define configENABLE_FPU 1
+#define configENABLE_TRUSTZONE 0
+#define configRUN_FREERTOS_SECURE_ONLY 1
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY 16
+#endif
 
 #endif /* FREERTOS_CONFIG_H */
