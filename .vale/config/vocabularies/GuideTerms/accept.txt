@@ -29,3 +29,5 @@ schedular
 MQTT
 CMake
 Sensortec
+devenv
+direnv
