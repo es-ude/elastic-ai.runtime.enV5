@@ -6,7 +6,7 @@ if(NOT DEFINED _EAI_REVISION)
   endif()
   message("Loading EnV5HwConfiguration.h from: ${HW_CONFIG_PATH}")
   target_include_directories(EnV5HwConfiguration INTERFACE
-    HW_CONFIG_PATH
+    ${HW_CONFIG_PATH}
   )
 elseif(${_EAI_REVISION} STREQUAL "1")
   target_include_directories(EnV5HwConfiguration INTERFACE
