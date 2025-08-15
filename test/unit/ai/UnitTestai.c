@@ -40,13 +40,15 @@ void unitTestNNTraining() {
         loss[1] = 0.f;
         for (int i=0; i<sizeof(inputs)/sizeof(inputs[0]); i++) {
 
-            float *out = l0->layerForward(l0->config, inputs[i]);
+            forward *fwd = layerFunctions[l0->type].forwardFunc;
+            float *out = fwd(l0->config, inputs[i]);
 
             float *lossLocal = MSELossDOutput(out, labels[i], 2);
             loss[0] += lossLocal[0];
             loss[1] += lossLocal[1];
 
-            float *propLoss = l0->layerBackward(l0->config, loss, inputs[i]);
+            backward *bwd = layerFunctions[l0->type].backwardFunc;
+            float *propLoss = bwd(l0->config, loss, inputs[i]);
 
         }
 

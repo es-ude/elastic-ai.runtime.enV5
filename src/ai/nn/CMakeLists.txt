@@ -27,7 +27,7 @@ target_link_libraries(ReLU PRIVATE
 )
 
 add_library(Softmax
-        softmax.c
+        Softmax.c
 )
 
 target_include_directories(Softmax PUBLIC include)

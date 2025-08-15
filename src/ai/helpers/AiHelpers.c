@@ -1,10 +1,19 @@
 #define SOURCE_FILE "AI-HELPERS"
 
 #include "AiHelpers.h"
+#include "Conv1d.h"
 #include "Linear.h"
+#include "Softmax.h"
 #include "ReLU.h"
 
 #include <string.h>
+
+const layerFunctionEntry_t layerFunctions[] = {
+    [LINEAR] = {linearForwardAutomatic, linearBackwardAutomatic},
+    [RELU] = {ReLUForwardAutomatic, ReLUBackwardAutomatic},
+    [CONV1D] = {conv1dForwardAutomatic, conv1dBackwardAutomatic},
+    [SOFTMAX] = {NULL, NULL}
+};
 
 parameter_t *initParameter(float *p, size_t size) {
     parameter_t *param = calloc(1, sizeof(parameter_t));
@@ -18,63 +27,61 @@ parameter_t *initParameter(float *p, size_t size) {
 }
 
 
-
 float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input) {
-    float *output = 0;
     for (size_t i = 0; i < sizeNetwork; i++) {
-        network[i]->layerForward(network[i]->config, input);
-        switch (network[i]->type) {
-        case LINEAR:
-            output = linearForward(network[i]->config, input);
-            break;
-        case RELU:
-            output = ReLUForward(network[i]->config, input);
-            break;
-        case CONV1D:
-            break;
-        }
+        layerType_t type = network[i]->type;
+        forward *fwd = layerFunctions[type].forwardFunc;
+        input = fwd(network[i]->config, input);
     }
-
-    return output;
+    return input;
 }
 
-float *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork,
-                                void *lossFunction, float *input, float *label) {
+
+trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
+                                          size_t sizeNetwork,
+                                          float *(*lossFunction)(
+                                              float *prediction, float *label, size_t outputSize),
+                                          float *input,
+                                          float *label) {
 
     // Array of Pointers
     float **layerOutputs = malloc((sizeNetwork + 1) * sizeof(float *));
     layerOutputs[0] = input;
 
     // Forward Pass
-    for (size_t i = 0; i < sizeNetwork; i++) {
-        layerOutputs[i + 1] = network[i]->layerForward(network[i].config, layerOutputs[i]);
+    for (size_t i = 1; i < sizeNetwork + 1; i++) {
+        forward *fwd = layerFunctions[network[i - 1]->type].forwardFunc;
+        layerOutputs[i] = fwd(network[i - 1]->config, layerOutputs[i - 1]);
     }
 
     // Determine Output Size
     size_t outputSize = 0;
-    switch (network[sizeNetwork - 1].type) {
+    switch (network[sizeNetwork - 1]->type) {
     case LINEAR:
-        linearConfig_t *linearConfig = network[sizeNetwork].config;
+        linearConfig_t *linearConfig = network[sizeNetwork - 1]->config;
         outputSize = linearConfig->outputSize;
         break;
     case RELU:
-        ReLUConfig_t *reluConfig = network[sizeNetwork].config;
+        ReLUConfig_t *reluConfig = network[sizeNetwork - 1]->config;
         outputSize = reluConfig->size;
         break;
-    case CONV1D:
+    default:
         break;
     }
 
     // Loss
     float *grad = lossFunction(layerOutputs[sizeNetwork], label, outputSize);
+    trainingStats_t *trainingStats = calloc(1, sizeof(trainingStats_t));
+    trainingStats->loss = grad;
 
     // Backward Pass
     for (size_t i = sizeNetwork; i-- > 0;) {
-        grad = network[i].layerBackward(network[i].config, grad, layerOutputs[i]);
+        backward *bwd = layerFunctions[network[i]->type].backwardFunc;
+        grad = bwd(network[i]->config, grad, layerOutputs[i - 1]);
     }
 
-    float *output = layerOutputs[sizeNetwork];
-    free(layerOutputs);
+    trainingStats->output = layerOutputs[sizeNetwork];
 
-    return output;
+    return trainingStats;
 }
+

@@ -22,3 +22,11 @@ float *conv1dForward(conv1dConfig_t *config, float *input) {
 float *conv1dBackward(conv1dConfig_t *config, float *grad, float *input) {
 
 }
+
+float *conv1dForwardAutomatic(conv1dConfig_t *config, float *input) {
+
+}
+
+float *conv1dBackwardAutomatic(conv1dConfig_t *config, float *grad, float *input) {
+
+}

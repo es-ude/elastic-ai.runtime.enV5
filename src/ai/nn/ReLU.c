@@ -12,7 +12,6 @@ layerForward_t *initReLULayerForward(size_t size) {
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = RELU;
     layerForward->config = initReLUConfig(size);
-    layerForward->layerForward = ReLUForwardAutomatic;
     return layerForward;
 }
 
@@ -20,8 +19,6 @@ layerForwardBackward_t *initReLULayerBackward(size_t size) {
     layerForwardBackward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = RELU;
     layerForward->config = initReLUConfig(size);
-    layerForward->layerForward = ReLUForwardAutomatic;
-    layerForward->layerBackward = ReLUBackwardAutomatic;
     return layerForward;
 }
 
