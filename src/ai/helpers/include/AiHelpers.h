@@ -51,6 +51,7 @@ typedef struct layerForward {
     forward *layerForward;
     void* config;
     layerType_t type;
+    uint16_t inputSize;
 }layerForward_t;
 
 /*! @brief Computes Forward output for a given input and sequential network
@@ -59,7 +60,7 @@ typedef struct layerForward {
  * @param input: input for the neural network
  * @return : pointer to array of results
  */
-float *sequentialForward(layerForward_t *network, size_t sizeNetwork,  float *input);
+float *sequentialForward(layerForward_t **network, size_t sizeNetwork,  float *input);
 
 /*! @brief Describes how you can generally construct layers for Forward & Backward
  * layerForward = pointer to forward function of the layer
@@ -72,7 +73,13 @@ typedef struct layerForwardBackward {
     backward *layerBackward;
     void* config;
     layerType_t type;
+    uint16_t inputSize;
 }layerForwardBackward_t;
+
+typedef struct trainingStats {
+    float *loss;
+    float *output;
+}trainingStats_t;
 
 /*! @brief Computes Forward & Backward to calculate gradients for a given input & loss function
  *
@@ -80,8 +87,8 @@ typedef struct layerForwardBackward {
  * @param lossFunction: Pointer to loss function that looks like lossFunction(float *output, float
  * *label, size_t size);
  * @param input : Array of inputs
- * @return returns result from forward pass
+ * @return returns result from trainingStats_t forward pass
  */
-float *sequentialCalculateGrads(layerForwardBackward_t *network, size_t sizeNetwork, void* lossFunction, float *input);
+trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork, void* lossFunction, float *input, float *label);
 
 #endif //AIHELPERS_H

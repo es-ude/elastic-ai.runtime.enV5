@@ -19,15 +19,16 @@ parameter_t *initParameter(float *p, size_t size) {
 
 
 
-float *sequentialForward(layerForward_t *network, size_t sizeNetwork, float *input) {
+float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input) {
     float *output = 0;
     for (size_t i = 0; i < sizeNetwork; i++) {
-        switch (network[i].type) {
+        network[i]->layerForward(network[i]->config, input);
+        switch (network[i]->type) {
         case LINEAR:
-            output = linearForward(network[i].config, input);
+            output = linearForward(network[i]->config, input);
             break;
         case RELU:
-            output = ReLUForward(network[i].config, input);
+            output = ReLUForward(network[i]->config, input);
             break;
         case CONV1D:
             break;
@@ -37,7 +38,7 @@ float *sequentialForward(layerForward_t *network, size_t sizeNetwork, float *inp
     return output;
 }
 
-float *sequentialCalculateGrads(layerForwardBackward_t *network, size_t sizeNetwork,
+float *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork,
                                 void *lossFunction, float *input, float *label) {
 
     // Array of Pointers
@@ -46,7 +47,7 @@ float *sequentialCalculateGrads(layerForwardBackward_t *network, size_t sizeNetw
 
     // Forward Pass
     for (size_t i = 0; i < sizeNetwork; i++) {
-        layerOutputs[i + 1] = network[i].layerForward(network[i].config, layerOutputs[i]);
+        layerOutputs[i + 1] = network[i]->layerForward(network[i].config, layerOutputs[i]);
     }
 
     // Determine Output Size
