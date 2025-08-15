@@ -20,61 +20,51 @@ parameter_t *initParameter(float *p, size_t size) {
 
 
 float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input) {
-    float *output = 0;
+    float *output = input;
     for (size_t i = 0; i < sizeNetwork; i++) {
-        network[i]->layerForward(network[i]->config, input);
-        switch (network[i]->type) {
-        case LINEAR:
-            output = linearForward(network[i]->config, input);
-            break;
-        case RELU:
-            output = ReLUForward(network[i]->config, input);
-            break;
-        case CONV1D:
-            break;
-        }
+        output = network[i]->forward(network[i]->config, input);
     }
-
     return output;
 }
 
-float *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork,
-                                void *lossFunction, float *input, float *label) {
+trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork,
+                                          void *lossFunction, float *input, float *label) {
 
     // Array of Pointers
     float **layerOutputs = malloc((sizeNetwork + 1) * sizeof(float *));
     layerOutputs[0] = input;
 
     // Forward Pass
-    for (size_t i = 0; i < sizeNetwork; i++) {
-        layerOutputs[i + 1] = network[i]->layerForward(network[i].config, layerOutputs[i]);
+    for (size_t i = 1; i < sizeNetwork + 1; i++) {
+        layerOutputs[i] = network[i-1]->forward(network[i-1]->config, layerOutputs[i-1]);
     }
 
     // Determine Output Size
     size_t outputSize = 0;
-    switch (network[sizeNetwork - 1].type) {
+    switch (network[sizeNetwork - 1]->type) {
     case LINEAR:
-        linearConfig_t *linearConfig = network[sizeNetwork].config;
+        linearConfig_t *linearConfig = network[sizeNetwork-1]->config;
         outputSize = linearConfig->outputSize;
         break;
     case RELU:
-        ReLUConfig_t *reluConfig = network[sizeNetwork].config;
+        ReLUConfig_t *reluConfig = network[sizeNetwork-1]->config;
         outputSize = reluConfig->size;
         break;
-    case CONV1D:
+    default:
         break;
     }
 
     // Loss
     float *grad = lossFunction(layerOutputs[sizeNetwork], label, outputSize);
+    trainingStats_t  *trainingStats = calloc(1, sizeof(trainingStats_t));
+    trainingStats->loss = grad;
 
     // Backward Pass
     for (size_t i = sizeNetwork; i-- > 0;) {
-        grad = network[i].layerBackward(network[i].config, grad, layerOutputs[i]);
+        grad = network[i]->backward(network[i]->config, grad, layerOutputs[i-1]);
     }
 
-    float *output = layerOutputs[sizeNetwork];
-    free(layerOutputs);
+    trainingStats->output = layerOutputs[sizeNetwork];
 
-    return output;
+    return trainingStats;
 }
