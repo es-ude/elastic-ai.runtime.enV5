@@ -12,16 +12,10 @@
 #include <pico/stdio_usb.h>
 #include <pico/time.h>
 
-#define paramTest(fn, param)                                                                       \
-    void fn##param(void) {                                                                         \
-        fn(param);                                                                                 \
+#define parameterTest(fn, parameter)                                                               \
+    void fn##parameter(void) {                                                                     \
+        fn(parameter);                                                                             \
     }
-
-/* region HELPER */
-
-static uint16_t samplesForTrigger = 30;
-
-/* endregion HELPER*/
 
 /* region I2C DEFINITION */
 i2cConfiguration_t i2cConfig = {
@@ -39,6 +33,67 @@ adxl345bSensorConfiguration_t sensor = {
     .i2c_host = ADXL_I2C_MODULE,
 };
 /* endregion SENSOR DEFINITION */
+
+/* region HELPER */
+
+static uint16_t samplesForTrigger = 30;
+
+static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConfiguration_t sensor,
+                                                              adxl345bRegister_t registerToRead,
+                                                              uint8_t *responseBuffer,
+                                                              uint8_t sizeOfResponseBuffer) {
+    uint8_t sizeOfCommandBuffer = 1;
+    uint8_t commandBuffer[sizeOfCommandBuffer];
+    commandBuffer[0] = registerToRead;
+
+    PRINT_DEBUG("requesting data from sensor");
+    i2cErrorCode_t i2cErrorCode = i2cWriteCommand(sensor.i2c_host, sensor.i2c_slave_address,
+                                                  commandBuffer, sizeOfCommandBuffer);
+    if (i2cErrorCode != I2C_NO_ERROR) {
+        PRINT_DEBUG("sending request failed");
+        return ADXL345B_SEND_COMMAND_ERROR;
+    }
+
+    PRINT_DEBUG("receiving data from sensor");
+    i2cErrorCode = i2cReadData(sensor.i2c_host, sensor.i2c_slave_address, responseBuffer,
+                               sizeOfResponseBuffer);
+    if (i2cErrorCode != I2C_NO_ERROR) {
+        PRINT_DEBUG("receiving data failed");
+        return ADXL345B_RECEIVE_DATA_ERROR;
+    }
+
+    PRINT_DEBUG("successful received data from sensor");
+    return ADXL345B_NO_ERROR;
+}
+
+static float floatToAbs(float input) {
+    if (input < 0) {
+        return (-1) * input;
+    } else {
+        return input;
+    }
+}
+
+static adxl345bErrorCode_t changeTestedFifoMode(uint8_t *previousFifoMode, uint8_t testedFifoMode) {
+    /* check current Fifo-Mode */
+    adxl345bErrorCode_t errorCode =
+        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, previousFifoMode, 1);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("Internal Reading failed; adxl345b_ERROR: %02X", errorCode);
+        return errorCode;
+    }
+    /* set Fifo-Mode if necessary*/
+    if (*previousFifoMode != testedFifoMode) {
+        errorCode = adxl345bSetFIFOMode(sensor, testedFifoMode, samplesForTrigger);
+        if (errorCode != ADXL345B_NO_ERROR) {
+            adxl345bSetFIFOMode(sensor, *previousFifoMode, samplesForTrigger);
+            PRINT("Setting FifoMode failed; adxl345b_ERROR: %02X", errorCode);
+        }
+    }
+    return errorCode;
+}
+
+/* endregion HELPER*/
 
 void init() {
     /* enable print to console */
@@ -70,7 +125,7 @@ void init() {
     }
 }
 
-void checkInitValues(adxl345bRegister_t registerToCheck) {
+static void checkInitValues(adxl345bRegister_t registerToCheck) {
     uint8_t buffer;
     uint8_t expectedValue;
     if (registerToCheck == ADXL345B_REGISTER_BW_RATE) {
@@ -85,46 +140,48 @@ void checkInitValues(adxl345bRegister_t registerToCheck) {
         TEST_FAIL_MESSAGE("This register is not changed by init");
     }
     adxl345bErrorCode_t errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, registerToCheck, buffer, 1);
+        adxl345bInternalReadDataFromSensor(sensor, registerToCheck, &buffer, 1);
     if (errorCode == ADXL345B_NO_ERROR) {
         TEST_ASSERT_EQUAL(expectedValue, buffer);
     } else {
-        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        PRINT("checkInitValues failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
 }
-paramTest(checkInitValues, ADXL345B_REGISTER_BW_RATE);
-paramTest(checkInitValues, ADXL345B_REGISTER_POWER_CONTROL);
-paramTest(checkInitValues, ADXL345B_REGISTER_INTERRUPT_ENABLE);
-paramTest(checkInitValues, ADXL345B_REGISTER_DATA_FORMAT);
-
+parameterTest(checkInitValues, ADXL345B_REGISTER_BW_RATE);
+parameterTest(checkInitValues, ADXL345B_REGISTER_POWER_CONTROL);
+parameterTest(checkInitValues, ADXL345B_REGISTER_INTERRUPT_ENABLE);
+parameterTest(checkInitValues, ADXL345B_REGISTER_DATA_FORMAT);
 
 static void checkSerialNumber() {
     uint8_t serialNumber = 0;
     adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
     if (errorCode != ADXL345B_NO_ERROR) {
-        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        PRINT("adxl345bReadSerialNumber failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
-    TEST_ASSERT_EQUAL(0xE5, serialNumber);
+    TEST_ASSERT_EQUAL_HEX8(0xE5, serialNumber);
 }
 
 static void makeSelfTest() {
     int delta_x, delta_y, delta_z;
     adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(sensor, &delta_x, &delta_y, &delta_z);
     if (errorCode != ADXL345B_NO_ERROR) {
-        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        PRINT("adxl345bPerformSelfTest failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
 }
 
 static void runCalibration() {
-    PRINT("Start Calibration of ADXL345b");
     adxl345bErrorCode_t errorCode = adxl345bRunSelfCalibration(sensor);
     if (errorCode == ADXL345B_NO_ERROR) {
-        PRINT("  \033[0;32mSUCCESSFUL\033[0m");
+        PRINT("adxl345bRunSelfCalibration successful; adxl345b_ERROR: %02X", errorCode);
+        TEST_PASS();
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
+        PRINT("adxl345bRunSelfCalibration failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
 }
-
 
 void checkRangeValues(uint8_t testedRange) {
     if (testedRange == 2) {
@@ -140,46 +197,46 @@ void checkRangeValues(uint8_t testedRange) {
     }
 
     uint8_t previousRange;
-    adxl345bErrorCode_t errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, previousRange, 1);
+    adxl345bErrorCode_t errorCode = adxl345bInternalReadDataFromSensor(
+        sensor, ADXL345B_REGISTER_DATA_FORMAT, &previousRange, 1);
     if (errorCode != ADXL345B_NO_ERROR) {
-        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        PRINT("InternalReadDataFromSensor failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
 
     if (previousRange != testedRange) {
         errorCode = adxl345bChangeMeasurementRange(sensor, testedRange);
         if (errorCode != ADXL345B_NO_ERROR) {
             adxl345bChangeMeasurementRange(sensor, previousRange);
-            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+            PRINT("adxl345bChangeMeasurementRange failed; adxl345b_ERROR: %02X", errorCode);
+            TEST_FAIL();
         }
     }
     uint8_t buffer;
     errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, buffer, 1);
+        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_DATA_FORMAT, &buffer, 1);
     if (errorCode != ADXL345B_NO_ERROR) {
         adxl345bChangeMeasurementRange(sensor, previousRange);
-        TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
+        PRINT("adxl345bChangeMeasurementRange failed; adxl345b_ERROR: %02X", errorCode);
+        TEST_FAIL();
     }
     TEST_ASSERT_EQUAL(testedRange, buffer);
     if (previousRange != testedRange) {
-        adxl345bChangeMeasurementRange(sensor, previousRange)
-    };
+        adxl345bChangeMeasurementRange(sensor, previousRange);
+    }
 }
 
-paramTest(checkRangeValues, 2)
-paramTest(checkRangeValues, 4)
-paramTest(checkRangeValues, 8)
-paramTest(checkRangeValues, 16)
+parameterTest(checkRangeValues, 2) parameterTest(checkRangeValues, 4)
+    parameterTest(checkRangeValues, 8) parameterTest(checkRangeValues, 16)
 
-
-/*! causes side effects: this function changes the FIFO-Mode persistently */
-    void setGivenFifoModeAndCheckValues(uint8_t testedfifoMode) {
-    adxl345bErrorCode_t adxl345bSetFIFOMode(sensor, testedFifoMode, samplesForTrigger);
+    /*! causes side effects: this function changes the FIFO-Mode persistently */
+    void setGivenFifoModeAndCheckValues(uint8_t testedFifoMode) {
+    adxl345bErrorCode_t errorCode = adxl345bSetFIFOMode(sensor, testedFifoMode, samplesForTrigger);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
     uint8_t buffer;
-    errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, buffer, 1);
+    errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, &buffer, 1);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
@@ -187,41 +244,30 @@ paramTest(checkRangeValues, 16)
         (testedFifoMode & 0b11000000) | (samplesForTrigger & 0b00011111);
     TEST_ASSERT_EQUAL(expectedFIFOConfiguration, buffer);
 }
-paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_BYPASS);
-paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_FIFO);
-paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_STREAM);
-paramTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_TRIGGER);
+parameterTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_BYPASS);
+parameterTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_FIFO);
+parameterTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_STREAM);
+parameterTest(setGivenFifoModeAndCheckValues, ADXL345B_FIFOMODE_TRIGGER);
 
 void checkSingleGValue(uint8_t testedFifoMode) {
-    /* check current Fifo-Mode */
     uint8_t previousFifoMode;
-    adxl345bErrorCode_t errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, previousFifoMode, 1);
+    adxl345bErrorCode_t errorCode = changeTestedFifoMode(&previousFifoMode, testedFifoMode);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
-    /* set Fifo-Mode if necessary*/
-    if (previousFifoMode != testedFifoMode) {
-        errorCode = adxl345bSetFIFOMode(sensor, testedFifoMode, samplesForTrigger);
-        if (errorCode != ADXL345B_NO_ERROR) {
-            adxl345bSetFIFOMode(sensor, previousFifoMode, samplesForTrigger);
-            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
-        }
-    }
     /* initialize Variables*/
     float xAxis = 0, yAxis = 0, zAxis = 0;
-    uint8_t rawData[sizeOfRawData];
-    adxl345bErrorCode_t errorCode;
+    adxl345bRawData_t *rawData;
 
     if (testedFifoMode != ADXL345B_FIFOMODE_BYPASS) {
-        errorCode = adxl345bGetMultipleMeasurements(sensor, rawData, sizeOfRawData);
+        errorCode = adxl345bGetMultipleMeasurements(sensor, rawData, 1);
     } else {
         errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
     }
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
-    errorCode = adxl345bConvertDataXYZ(&xAxis, &yAxis, &zAxis, rawData);
+    errorCode = adxl345bConvertDataXYZ(sensor, &xAxis, &yAxis, &zAxis, rawData);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
@@ -239,40 +285,27 @@ void checkSingleGValue(uint8_t testedFifoMode) {
 
     /* reset Fifo-Mode if necessary */
     if (previousFifoMode != testedFifoMode) {
-        adxl345bSetFIFOMode(sensor, prevousFifoMode, samplesForTrigger);
+        adxl345bSetFIFOMode(sensor, previousFifoMode, samplesForTrigger);
         if (errorCode != ADXL345B_NO_ERROR) {
             TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
         }
     }
 }
-paramTest(checkSingleGValue, ADXL345B_FIFOMODE_BYPASS);
-paramTest(checkSingleGValue, ADXL345B_FIFOMODE_FIFO);
-paramTest(checkSingleGValue, ADXL345B_FIFOMODE_STREAM);
-paramTest(checkSingleGValue, ADXL345B_FIFOMODE_TRIGGER);
+parameterTest(checkSingleGValue, ADXL345B_FIFOMODE_BYPASS);
+parameterTest(checkSingleGValue, ADXL345B_FIFOMODE_FIFO);
+parameterTest(checkSingleGValue, ADXL345B_FIFOMODE_STREAM);
+parameterTest(checkSingleGValue, ADXL345B_FIFOMODE_TRIGGER);
 
 void checkMultipleGValues(uint8_t testedFifoMode) {
-    /* check current Fifo-Mode */
-    uint8_t previousifoMode;
-    adxl345bErrorCode_t errorCode =
-        adxl345bInternalReadDataFromSensor(sensor, ADXL345B_FIFO_CONTROL, previousFifoMode, 1);
+    uint8_t previousFifoMode;
+    adxl345bErrorCode_t errorCode = changeTestedFifoMode(&previousFifoMode, testedFifoMode);
     if (errorCode != ADXL345B_NO_ERROR) {
         TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
     }
 
-    /* set Fifo-Mode if necessary*/
-    if (previousFifoMode != testedFifoMode) {
-        adxl345bSetFIFOMode(sensor, prevousFifoMode, samplesForTrigger);
-        if (errorCode != ADXL345B_NO_ERROR) {
-            TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
-        }
-    }
-
     /* initialize variables */
     float xAxis = 0, yAxis = 0, zAxis = 0;
-    sizeOfRawData = 100;
-    uint8_t rawData[sizeOfRawData];
-    memset(rawData, 0, sizeOfRawData);
-    adxl345bErrorCode_t errorCode;
+    adxl345bRawData_t *rawData;
 
     if (testedFifoMode == ADXL345B_FIFOMODE_BYPASS) {
         errorCode = adxl345bGetMultipleMeasurements(sensor, rawData, sizeOfRawData);
@@ -298,24 +331,21 @@ void checkMultipleGValues(uint8_t testedFifoMode) {
      */
     float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
 
-    // TODO: this could maybe fail. Better test range
-    TEST_ASSERT_EQUAL_FLOAT(1.0f, sumOfAxis);
-
     TEST_ASSERT_FLOAT_WITHIN(1.0f, sumOfAxis, 0.6f);
 
     /* reset Fifo-Mode if necessary */
     if (previousFifoMode != testedFifoMode) {
-        adxl345bSetFIFOMode(sensor, prevousFifoMode, samplesForTrigger);
+        adxl345bSetFIFOMode(sensor, previousFifoMode, samplesForTrigger);
         if (errorCode != ADXL345B_NO_ERROR) {
             TEST_FAIL_MESSAGE("ADXL_ERROR occurred");
         }
     }
 }
 
-paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_BYPASS);
-paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_FIFO);
-paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_STREAM);
-paramTest(checkMultipleGValues, ADXL345B_FIFOMODE_TRIGGER);
+parameterTest(checkMultipleGValues, ADXL345B_FIFOMODE_BYPASS);
+parameterTest(checkMultipleGValues, ADXL345B_FIFOMODE_FIFO);
+parameterTest(checkMultipleGValues, ADXL345B_FIFOMODE_STREAM);
+parameterTest(checkMultipleGValues, ADXL345B_FIFOMODE_TRIGGER);
 
 void checkGValuesWithMeasuringForNMilliseconds(uint32_t milliseconds) {
     uint8_t numberOfSamples = 103;
@@ -365,13 +395,13 @@ void checkGValuesWithMeasuringForNMilliseconds(uint32_t milliseconds) {
     TEST_ASSERT_EACH_FLOAT_WITHIN(1.0f, sumsOfAxis, 0.6f);
 }
 /*should be tested with all FIFO-Modes*/
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 1);
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 2);
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 3);
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 10);
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 1000);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 1);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 2);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 3);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 10);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 1000);
 /*! collects one minute rawData for GValues: */
-paramTest(checkGValuesWithMeasuringForNMilliseconds, 60000);
+parameterTest(checkGValuesWithMeasuringForNMilliseconds, 60000);
 
 void setUp() {}
 void tearDown() {};
