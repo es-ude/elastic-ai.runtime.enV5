@@ -148,9 +148,7 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInBypassMode(uint8_t *readBu
 
     /* generate sample data without any real world connection to test
      * implementation */
-    for (uint8_t index = 0; index < sizeOfReadBuffer; index++) {
-        readBuffer[index] = byteZero;
-    }
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
 
     return 0x00;
 }
@@ -199,6 +197,29 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readB
         return 0x00;
     }
     i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteThree);
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bWithFullResOFF(uint8_t *readBuffer,
+                                                                   uint8_t sizeOfReadBuffer,
+                                                                   uint8_t slaveAddress,
+                                                                   i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, dataFormatFullResOFF);
+
+    return 0x00;
+}
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bWithFullResON(uint8_t *readBuffer,
+                                                                  uint8_t sizeOfReadBuffer,
+                                                                  uint8_t slaveAddress,
+                                                                  i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, dataFormatFullResON);
+
     return 0x00;
 }
 
