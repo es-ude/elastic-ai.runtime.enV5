@@ -11,6 +11,7 @@ target_link_libraries(ai PRIVATE
         Common
         AiHelpers
         Linear
+        Softmax
         ReLU
         MSE
         SGD

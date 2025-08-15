@@ -11,7 +11,6 @@ layerForward_t *initSoftmaxLayerForward(size_t size) {
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = RELU;
     layerForward->config = initSoftmaxConfig(size);
-    layerForward->layerForward = softmaxForwardAutomatic;
     return layerForward;
 }
 
@@ -19,8 +18,6 @@ layerForwardBackward_t *initSoftmaxLayerBackward(size_t size) {
     layerForwardBackward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = RELU;
     layerForward->config = initSoftmaxConfig(size);
-    layerForward->layerForward = softmaxForwardAutomatic;
-    layerForward->layerBackward = softmaxBackwardAutomatic;
     return layerForward;
 }
 

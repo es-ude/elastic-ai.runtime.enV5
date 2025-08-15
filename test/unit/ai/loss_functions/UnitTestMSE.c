@@ -18,5 +18,5 @@ void unitTestMSELossDOutput() {
 int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestMSELossDOutput);
-    UNITY_END();
+    return UNITY_END();
 }

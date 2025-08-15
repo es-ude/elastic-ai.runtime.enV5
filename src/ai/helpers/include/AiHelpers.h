@@ -1,6 +1,7 @@
 #ifndef AIHELPERS_H
 #define AIHELPERS_H
 
+#include <stdint.h>
 #include <stdlib.h>
 
 /*! Generally every layer will have something like this
@@ -9,23 +10,46 @@
  * // Forward call for the layer that calculates the output of the layer for a given input
  * float *forward(layerConfig_t *config, float *input);
  *
- * //Backward call for the layer that calculates the gradients in respect to the inputs and in respect to the parameters
- * float *backward(layerConfig_t *config, float *grad, float *input);
+ * //Backward call for the layer that calculates the gradients in respect to the inputs and in
+ * respect to the parameters float *backward(layerConfig_t *config, float *grad, float *input);
  */
 
-typedef float *(forward)(void*, float*);
-typedef float *(backward)(void*, float*, float*);
+typedef float*(forward)(void*, float*);
+typedef float*(backward)(void*, float*, float*);
 
 /*! @brief Describes each parameter
  * p = array of parameter values
  * grad = array of size parameter in which the corresponding gradients can be summed up
  * size = size of array p & grad
  */
-typedef struct parameter {
-    float *p;
-    float *grad;
+typedef struct parameter
+{
+    float* p;
+    float* grad;
     size_t size;
 } parameter_t;
+
+/*! @brief Enum of possible layer types
+ */
+typedef enum layerType
+{
+    LINEAR,
+    RELU,
+    CONV1D,
+    SOFTMAX
+} layerType_t;
+
+/*! @brief Pairs forward and backward functions of layer
+ */
+typedef struct
+{
+    forward* forwardFunc;
+    backward* backwardFunc;
+} layerFunctionEntry_t;
+
+/*! @brief Array, that pairs enum layer types to forward/backward functions
+ */
+extern const layerFunctionEntry_t layerFunctions[];
 
 /*! @brief Init the parameter_t construct
  *
@@ -33,14 +57,7 @@ typedef struct parameter {
  * @param size
  * @return : pointer to parameter
  */
-parameter_t *initParameter(float *p, size_t size);
-
-typedef enum layerType {
-    LINEAR,
-    RELU,
-    CONV1D,
-    SOFTMAX
-}layerType_t;
+parameter_t* initParameter(float* p, size_t size);
 
 /*! @brief Describes how you can generally construct layers
  *
@@ -48,12 +65,12 @@ typedef enum layerType {
  * config = config needed to execute the layer
  * type = type of layer
  */
-typedef struct layerForward {
-    forward *layerForward;
+typedef struct layerForward
+{
     void* config;
     layerType_t type;
     uint16_t inputSize;
-}layerForward_t;
+} layerForward_t;
 
 /*! @brief Computes Forward output for a given input and sequential network
  *
@@ -61,7 +78,7 @@ typedef struct layerForward {
  * @param input: input for the neural network
  * @return : pointer to array of results
  */
-float *sequentialForward(layerForward_t **network, size_t sizeNetwork,  float *input);
+float* sequentialForward(layerForward_t** network, size_t sizeNetwork, float* input);
 
 /*! @brief Describes how you can generally construct layers for Forward & Backward
  * layerForward = pointer to forward function of the layer
@@ -69,18 +86,20 @@ float *sequentialForward(layerForward_t **network, size_t sizeNetwork,  float *i
  * config = config needed to execute the layer
  * type = Type of layer
  */
-typedef struct layerForwardBackward {
-    forward *layerForward;
-    backward *layerBackward;
+typedef struct layerForwardBackward
+{
     void* config;
     layerType_t type;
     uint16_t inputSize;
-}layerForwardBackward_t;
+} layerForwardBackward_t;
 
-typedef struct trainingStats {
-    float *loss;
-    float *output;
-}trainingStats_t;
+/*! @brief Struct, that contains loss and output
+ */
+typedef struct trainingStats
+{
+    float* loss;
+    float* output;
+} trainingStats_t;
 
 /*! @brief Computes Forward & Backward to calculate gradients for a given input & loss function
  *
@@ -90,6 +109,10 @@ typedef struct trainingStats {
  * @param input : Array of inputs
  * @return returns result from trainingStats_t forward pass
  */
-trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network, size_t sizeNetwork, void* lossFunction, float *input, float *label);
+trainingStats_t* sequentialCalculateGrads(layerForwardBackward_t** network,
+                                          size_t sizeNetwork,
+                                          float*(*lossFunction)(float* prediction, float* label, size_t outputSize),
+                                          float* input,
+                                          float* label);
 
-#endif //AIHELPERS_H
+#endif // AIHELPERS_H

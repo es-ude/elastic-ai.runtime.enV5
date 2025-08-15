@@ -1,7 +1,3 @@
-//
-// Created by Leo Buron on 15.08.25.
-//
-
 #ifndef SOFTMAX_H
 #define SOFTMAX_H
 #include "AiHelpers.h"

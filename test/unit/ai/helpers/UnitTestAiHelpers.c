@@ -25,6 +25,6 @@ void unitTestInitParameter() {
 int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestInitParameter);
-    UNITY_END();
+    return UNITY_END();
 }
 

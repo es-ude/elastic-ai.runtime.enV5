@@ -1,9 +1,5 @@
-//
-// Created by Leo Buron on 08.08.25.
-//
-
-#ifndef ENV5_RUNTIME_CONV1D_H
-#define ENV5_RUNTIME_CONV1D_H
+#ifndef CONV1D_H
+#define CONV1D_H
 #include "AiHelpers.h"
 
 #include <stdbool.h>
@@ -46,4 +42,8 @@ float *conv1dForward(conv1dConfig_t *config, float *input);
 
 float *conv1dBackward(conv1dConfig_t *config, float *grad, float *input);
 
-#endif // ENV5_RUNTIME_CONV1D_H
+float *conv1dForwardAutomatic(conv1dConfig_t *config, float *input);
+
+float *conv1dBackwardAutomatic(conv1dConfig_t *config, float *grad, float *input);
+
+#endif CONV1D_H

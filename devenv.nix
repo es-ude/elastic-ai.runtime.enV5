@@ -218,6 +218,16 @@ in
       package = pkgs.bash;
       description = "run AI hardware tests (memory usage) and print results";
     };
+
+    run_ai_unit_tests = {
+      exec = ''
+        cmake --preset unit_test
+        cmake --build --preset unit_test
+        ctest --preset unit_test -R "Ai"
+      '';
+      package = pkgs.bash;
+      description = "build and run only AI unit tests";
+    };
 };
 
   tasks = {

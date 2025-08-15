@@ -74,7 +74,6 @@ layerForward_t *initLinearLayerForwardWithWeightBias(float *weight, size_t sizeW
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->config = initLinearConfigWithWeightBias(weight, sizeWeights, bias, sizeBias);
     layerForward->type = LINEAR;
-    layerForward->layerForward = &linearForwardAutomatic;
     layerForward->inputSize = sizeBias;
     return layerForward;
 }
@@ -90,8 +89,6 @@ layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weig
     layerForwardBackward->config =
         initLinearConfigWithWeightBias(weight, sizeWeights, bias, sizeBias);
     layerForwardBackward->type = LINEAR;
-    layerForwardBackward->layerForward = &linearForwardAutomatic;
-    layerForwardBackward->layerBackward = &linearBackwardAutomatic;
     layerForwardBackward->inputSize = sizeBias;
     return layerForwardBackward;
 }
