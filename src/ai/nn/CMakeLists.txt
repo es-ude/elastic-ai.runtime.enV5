@@ -25,3 +25,14 @@ target_link_libraries(ReLU PRIVATE
         Common
         AiHelpers
 )
+
+add_library(Softmax
+        softmax.c
+)
+
+target_include_directories(Softmax PUBLIC include)
+target_link_libraries(Softmax PRIVATE
+    Common
+        AiHelpers
+
+)

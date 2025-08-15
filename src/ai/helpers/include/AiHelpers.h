@@ -38,7 +38,8 @@ parameter_t *initParameter(float *p, size_t size);
 typedef enum layerType {
     LINEAR,
     RELU,
-    CONV1D
+    CONV1D,
+    SOFTMAX
 }layerType_t;
 
 /*! @brief Describes how you can generally construct layers
