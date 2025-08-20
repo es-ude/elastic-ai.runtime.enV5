@@ -30,7 +30,6 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
     add_unity()
     add_ctest()
   endif()
-  add_freertos()
   add_cexception()
   add_runtime_c()
 
@@ -39,6 +38,8 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
   endif()
 
   if(_BUILDING_FOR_HARDWARE)
+    add_freertos()
+
     add_subdirectory(src)
 
     if(EAI_RUNTIME_TOP_LEVEL_PROJECT)

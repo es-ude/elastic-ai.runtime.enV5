@@ -86,11 +86,23 @@ macro(add_runtime_c)
 endmacro()
 
 macro(add_freertos)
-  FetchContent_Declare(
-            freertos_kernel
-            GIT_REPOSITORY https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-            GIT_TAG V11.0.1
-            SOURCE_SUBDIR portable/ThirdParty/GCC/RP2040)
+  if(${PICO_PLATFORM} STREQUAL "rp2040")
+    FetchContent_Declare(
+              freertos_kernel
+              GIT_REPOSITORY https://github.com/raspberrypi/FreeRTOS-Kernel.git
+              GIT_TAG 4f7299d6ea746b27a9dd19e87af568e34bd65b15
+              SOURCE_SUBDIR portable/ThirdParty/GCC/RP2040
+    )
+  elseif(${PICO_PLATFORM} STREQUAL "rp2350-arm-s")
+    FetchContent_Declare(
+              freertos_kernel
+              GIT_REPOSITORY https://github.com/raspberrypi/FreeRTOS-Kernel.git
+              GIT_TAG 4f7299d6ea746b27a9dd19e87af568e34bd65b15
+              SOURCE_SUBDIR portable/ThirdParty/GCC/RP2350_ARM_NTZ
+    )
+  else()
+    message(FATAL_ERROR "Unsupported PICO_PLATFORM: ${PICO_PLATFORM}")
+  endif()
   FetchContent_MakeAvailable(freertos_kernel)
 
   add_library(__freertos_kernel__hdrs INTERFACE)

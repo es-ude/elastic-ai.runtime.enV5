@@ -114,6 +114,7 @@ Mkfile.old
 dkms.conf
 
 ### CMake
+CMakeUserPresets.json
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -132,3 +133,5 @@ build/
 .devenv/
 .devenv.flake.nix
 .direnv/
+devenv.local.nix
+
