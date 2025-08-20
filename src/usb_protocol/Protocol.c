@@ -5,7 +5,7 @@
 
 #include "CException.h"
 
-#include "Sleep.h"
+#include "eai/hal/Sleep.h"
 #include "eai/com/UsbProtocolBase.h"
 #include "eai/com/UsbProtocolCustomCommands.h"
 #include "internal/DefaultCommands.h"
