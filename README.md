@@ -7,7 +7,7 @@
   - [Set Up](#set-up)
     - [Get the Source Code](#get-the-source-code)
     - [Setup devenv](#setup-devenv)
-      - [Python Environment [OPTIONAL]](#python-environment-optional)
+      - [Python Environment (OPTIONAL)](#python-environment-optional)
     - [Compile the Source Code](#compile-the-source-code)
     - [Local Test Execution](#local-test-execution)
     - [enV5 Node Execution](#env5-node-execution)
@@ -27,13 +27,15 @@
 > If you want to create your own project with the enV5 platform refer to
 > the [base-project](https://github.com/es-ude/enV5-base-project) as a starting point.
 
-This repository provides the Elastic-AI runtime implementation for the Elastic Node version 5 (enV5).
+This repository provides the Elastic-AI runtime implementation for the
+Elastic Node version 5 (enV5).
 A modular hardware platform with FPGA integration.
 
 > [!TIP]
-> More information about this project can be found at the [project homepage](https://www.uni-due.de/es/elastic_ai.php).
+> The [project homepage](https://www.uni-due.de/es/elastic_ai.php)
+> provides additional information.
 
-## System Requirements
+## System requirements
 
 - **[devenv](https://devenv.sh/getting-started/)**
   -> Tool for reproducible development environments
@@ -48,61 +50,70 @@ A modular hardware platform with FPGA integration.
 - **[Astral-UV](https://docs.astral.sh/uv/)** (through devenv)
   -> Python Runtime/Package Manager
 
-## Set Up
+## Set up
 
 > [!IMPORTANT]
-> This Guide assumes you are using a devenv compatible OS.
+> This Guide assumes you are using a devenv compatible operating system.
 
-### Get the Source Code
+### Get the source code
 
-At first, you have to download the source code from GitHub.
-This can be archived by running
+At first, you have to download the source code from GitHub:
 
 ```bash
-git clone https://github.com/es-ude/elastic-ai.runtime.enV5.git enV5  # Download the Repository
-cd enV5                                                               # Move inside the repository
-```
+# Download the Repository
+git clone https://github.com/es-ude/elastic-ai.runtime.enV5.git enV5
 
-in your shell.
+# Move inside the repository
+cd enV5
+```
 
 ### Setup devenv
 
-1. At first you have to install devenv.
-   This can be archived by following their instructions in their [Getting-Started-Guide](https://devenv.sh/getting-started/).
-2. Install [direnv](https://direnv.net/), to automatically load the development environment provided by devenv.
+1. At first you have to install devenv,
+   by following their instructions in their [Getting-Started-Guide](https://devenv.sh/getting-started/).
+2. Install [direnv](https://direnv.net/),
+   to automatically load the development environment provided by devenv.
 
-#### Python Environment [OPTIONAL]
+### Python environment
+
+> [!IMPORTANT]
+> If you use devenv this step is not required,
+> devenv automatically initializes and syncs a virtual Python environment.
 
 > [!NOTE]
-> The Python environment is only required if you want to use the provided python utilities to interact with the enV5 Node.
+> The Python environment is only required if you want to use
+> the provided python utilities to interact with the enV5 Node.
 
-To minimize the potential corruption of your system we recommend installing the dependencies inside
-a [virtual environment](https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv).
-The python environment can be created and prepared by running:
+To minimize the potential corruption of your system we recommend
+installing the dependencies inside a [virtual environment](https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv).
+Create a python environment by running:
 
 ```bash
-uv venv .venv              # create a virtual python environment under `.venv/`
+# create a virtual python environment under `.venv/`
+uv venv .venv
 uv sync --all-groups       # install all python dependencies
 ```
 
-### Compile the Source Code
+### Compile the source code
 
 > [!IMPORTANT]
-> You have to adjust the network/mqtt broker credentials as mentioned
+> You have to adjust the network/MQTT broker credentials as mentioned
 > in [network README](src/network/README.adoc)!
 
 > [!NOTE]
-> This project is based on CMake.
+> We use CMake to build this project.
 
-We provide three predefined profiles with the [CMakePresets.json](CMakePresets.json):
+We offer three predefined profiles with the [CMakePresets.json](CMakePresets.json):
 
 - unit_test
 - env5_rev2_release
 - env5_rev2_debug
 
-These profiles offer the required settings to either build for your local system (_unit_test_) to locally run test,
+These profiles offer the required settings to either build for your
+local system (_unit_test_) to locally run test,
 or to build for the enV5 Node (_env5_rev2_release_ and _env5_rev_2_debug_).
-The profile with the suffix _debug_ also provides additional console output for debugging purposes.
+The profile with the suffix _debug_ also provides additional console output
+for debugging purposes.
 
 To initialize the CMake Tool run:
 
@@ -113,34 +124,51 @@ cmake --preset env5_rev2_debug
 cmake --preset env5_rev2_release
 
 # custom function provided by devenv
-setup_cmake
+devenv tasks run prepare:cmake
 ```
 
 > [!WARNING]
 > Loading all required external dependencies from the internet can take a while.
 > See [external dependencies](#external-dependencies).
 
-### Local Test Execution
-
-The local execution of the unit tests is possible by using the `ctest` function as follows:
+After initializing the CMake Project you can compile the source code:
 
 ```bash
 # directly
+cmake --build --preset unit_test
+cmake --build --preset env5_rev2_debug
+cmake --build --preset env5_rev2_release
+
+# custom function provided by devenv
+devenv tasks run -m before build
+```
+
+### Local test execution
+
+The local execution of the unit tests is possible by using
+the `ctest` function as follows:
+
+```bash
+# directly
+cmake --build --preset unit_test
 ctest --preset unit_test
 
 # as a task provided by devenv
-devenv tasks run "check:unit-test"
+devenv tasks run -m before check:unit-test
 ```
 
 > [!NOTE]
 > You can then find the unit-test executables under [build/unit-test/test/unit](build/unit-test/test/unit).
 
-### enV5 Node Execution
+### Elastic-node executables
 
-You can find the hardware test executables for the enV5 Node under [build/env5_rev2_release](build/env5_rev2/test/hardware) or [build/env5_rev2_debug](build/env5_rev2_debug/test/hardware).
-You can then find the `*.uf2` files to flash the pico inside their directories.
+You can find the hardware test executables for the enV5 Node under
+[build/env5_rev2_release](build/env5_rev2/test/hardware) and
+[build/env5_rev2_debug](build/env5_rev2_debug/test/hardware).
+You can then find the `*.uf2` files to flash the hardware inside their directories,
+mirroring the source code structure.
 
-### Flash the enV5
+### Flash the elastic-node
 
 Run
 
@@ -158,19 +186,21 @@ flash_node <path_to_uf2>
    - Via the USB device through your file manager
    - Via the command line by executing `sudo cp <file>.uf2 /dev/sdX`
 
-### Get Output from the enV5 Node
+### Get output from the elastic-node
 
 To receive output from the enV5 you have to connect the enV5 to your local machine.
 Connect the USB-C port of the enV5 with a USB port of your local machine to do this.
 
-After you connect the enV5 to your computer, read the debug output from the device with a serial port reader such as screen, minicom, or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
-
-We recommend using minicom as it is the most versatile of the aforementioned tools.
-You can receive the output of the device by executing
+After you connect the enV5 to your computer, read the debug output from
+the device with a serial port reader such as screen, minicom, or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
 > [!IMPORTANT]
 > The serial port differs depending on the host machine!
-> It can be found via `ls /dev/tty*` (Linux) or `ls /dev/tty.*` (macOS) from the terminal.
+> You can find the device path via `ls /dev/tty*` (Linux)
+> or `ls /dev/tty.*` (macOS) from the terminal.
+
+We recommend using minicom as it is the most versatile of the aforementioned tools.
+You can receive the output of the device by executing
 
 ```bash
 minicom
@@ -183,10 +213,12 @@ minicom
 in your shell prompt.
 
 > [!CAUTION]
-> If you cannot receive any output from the enV5 the problem is possibly caused by a bug in the source code.
-> If the serial output is not initialized properly (see integration tests), the enV5 is not able to send the output to your device!
+> If you cannot receive any output from the enV5 the problem is possibly caused
+> by a bug in the source code.
+> If the serial output is not initialized properly (see integration tests),
+> the enV5 is not able to send the output to your device!
 
-## External Dependencies
+## External dependencies
 
 > [!IMPORTANT]
 > CMake will automatically download and initialize these dependencies!
@@ -207,13 +239,13 @@ This project uses the following external dependencies:
 
 ## Glossary
 
-|                   Term |        Scope        | Description                                                                                      |
-| ---------------------: | :-----------------: | :----------------------------------------------------------------------------------------------- |
-|                   enV5 |          –          | Hardware with the MCU, Flash, FPGA, …                                                            |
-|                  Flash |          –          | Flash storage on the board                                                                       |
-|                    HAL |          –          | Hardware Abstraction Layer Libraries to bundle direct hardware dependencies (UART, SPI, GPIO, …) |
-| Config / Configuration |  FPGA, Middleware   | bin file used to configure the FPGA                                                              |
-|               FreeRTOS |       Network       | Open Source Real Time operating system Used to emulate Threads                                   |
-|            ESP32 / ESP |       Network       | Wi-Fi Module from espressif                                                                      |
-|            AT Commands | Network, MQTT, HTTP | String based command set to control the ESP32 Wi-Fi module                                       |
-|                 Broker |    MQTT, Network    | MQTT User implementation used to publish and subscribe to topics                                 |
+|          Term |        Scope        | Description                                                                                        |
+| ------------: | :-----------------: | :------------------------------------------------------------------------------------------------- |
+|          enV5 |          –          | Hardware with the MCU, Flash, FPGA, ...                                                            |
+|         Flash |          –          | Flash storage on the board                                                                         |
+|           HAL |          –          | Hardware Abstraction Layer Libraries to bundle direct hardware dependencies (UART, SPI, GPIO, ...) |
+| configuration |  FPGA, Middleware   | bin file used to configure the FPGA                                                                |
+|      FreeRTOS |       Network       | Open Source Real Time operating system Used to emulate Threads                                     |
+|   ESP32 / ESP |       Network       | Wi-Fi Module from espressif                                                                        |
+|   AT Commands | Network, MQTT, HTTP | String based command set to control the ESP32 Wi-Fi module                                         |
+|        Broker |    MQTT, Network    | MQTT User implementation used to publish and subscribe to topics                                   |
