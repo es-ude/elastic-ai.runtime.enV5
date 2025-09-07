@@ -114,4 +114,19 @@ if(_BUILDING_FOR_HARDWARE)
   )
   create_enV5_executable(TestFPGACommunication)
 
+  add_executable(TestAdxl345b TestAdxl345b.c)
+  target_link_libraries(TestAdxl345b PRIVATE
+            EnV5HwConfiguration
+            Common
+            I2c
+            EnV5HwController
+            Adxl345b
+
+            Pico::pico_stdlib
+            Pico::hardware_i2c
+
+            unity
+  )
+  create_enV5_executable(TestAdxl345b)
+
 endif()
