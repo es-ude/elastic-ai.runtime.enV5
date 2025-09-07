@@ -1,15 +1,15 @@
 #ifndef ENV5_I2C_UNITTEST_HEADER
 #define ENV5_I2C_UNITTEST_HEADER
 
-#include "eai/hal/I2cTypedefs.h"
-#include <stdint.h>
+#include "eai/hal/I2c.h"
 
 /* region VARIABLES */
 
 static const uint8_t byteZero = 0xBE;
 static const uint8_t byteOne = 0xEF;
-static const uint8_t byteTwo = 0x55;
-static const uint8_t byteThree = 0xA7;
+static const uint8_t dataFormatFullResON = byteZero;
+static const uint8_t dataFormatFullResOFF = byteZero & 11110111;
+
 static const uint8_t correctByteChecksum = 0x92;
 static const uint8_t wrongByteChecksum = 0x00;
 
@@ -78,6 +78,16 @@ i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bInTriggerMode(uint8_t *readB
                                                                   uint8_t sizeOfReadBuffer,
                                                                   uint8_t slaveAddress,
                                                                   i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bWithFullResON(uint8_t *readBuffer,
+                                                                  uint8_t sizeOfReadBuffer,
+                                                                  uint8_t slaveAddress,
+                                                                  i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassForAdxl345bWithFullResOFF(uint8_t *readBuffer,
+                                                                   uint8_t sizeOfReadBuffer,
+                                                                   uint8_t slaveAddress,
+                                                                   i2c_inst_t *i2cHost);
 
 /* endregion ReadCommandPassForAdxl345b */
 i2cErrorCode_t i2cUnittestReadCommandPassForPac193x(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,

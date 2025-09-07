@@ -11,7 +11,6 @@ typedef struct i2c_inst i2c_inst_t;
  * LPM for Low Power Mode.
  */
 enum {
-
     //!  represents LPM_BW_RATE 12.5
     ADXL345B_BW_RATE_LPM_12_point_5 = 0b00010111,
     ADXL345B_BW_RATE_LPM_25 = 0b00011000,
@@ -129,6 +128,20 @@ typedef struct adxl345bSensorConfiguration {
     i2c_inst_t *i2c_host;
     adxl345bI2cAddress_t i2c_slave_address;
 } adxl345bSensorConfiguration_t;
+
+typedef struct adxl345bDataRegisters {
+    uint8_t xZero;
+    uint8_t xOne;
+    uint8_t yZero;
+    uint8_t yOne;
+    uint8_t zZero;
+    uint8_t zOne;
+} adxl345bDataRegisters_t;
+
+typedef union adxl345bRawData {
+    adxl345bDataRegisters_t dataRegisters;
+    uint8_t data[sizeof(adxl345bDataRegisters_t)];
+} adxl345bRawData_t;
 
 typedef enum adxl345bRange {
     ADXL345B_2G_RANGE,
