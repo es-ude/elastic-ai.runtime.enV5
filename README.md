@@ -233,7 +233,7 @@ This project uses the following external dependencies:
 
 ## Troubleshooting
 
-- To generate a clean CMake Build without deleting and initializing the build directory again run `cmake --build --target clean --preset <preset_to_clean>`.
+- To generate a clean CMake Build without deleting and initializing the build directory again run `cmake --build --target clean-first --preset <preset_to_clean>`.
 - If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! ([NetworkConfig.c](NetworkConfig.c))
 - [Debugging the FPGA](src/fpga/Vivado_Debugger.adoc)
 
