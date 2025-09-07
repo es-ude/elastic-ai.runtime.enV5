@@ -8,6 +8,7 @@
 #include "eai/hal/I2c.h"
 #include "eai/hal/Time.h"
 #include "eai/sensor/Adxl345b.h"
+#include "eai/sensor/Adxl345bTypedefs.h"
 
 /* region HELPER */
 
@@ -45,7 +46,7 @@ static void getSerialNumber() {
     uint8_t serialNumber = 0;
 
     PRINT("Requesting serial number.");
-    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(sensor, &serialNumber);
+    adxl345bErrorCode_t errorCode = adxl345bReadSerialNumber(&sensor, &serialNumber);
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  Expected: 0xE5, Actual: 0x%02X", serialNumber);
         PRINT(serialNumber == 0xE5 ? "  \033[0;32mPASSED\033[0m" : "  \033[0;31mFAILED\033[0m;");
@@ -57,44 +58,201 @@ static void getSerialNumber() {
 static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
-    PRINT("Requesting g values.");
-    uint8_t rawData[6];
-    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
-    if (errorCode == ADXL345B_NO_ERROR) {
-        errorCode = adxl345bConvertDataXYZ(sensor, &xAxis, &yAxis, &zAxis, rawData);
-        if (errorCode == ADXL345B_NO_ERROR) {
-            /* 0.2G equals a deviation of about 1% from the ideal value
-             * this deviation is given by the datasheet as the accepted tolerance
-             * for each axis therefore should epsilon be 0.6G
-             */
-            float sumOfAxis = floatToAbs(xAxis) + floatToAbs(yAxis) + floatToAbs(zAxis);
+    adxl345bErrorCode_t errorCode;
 
-            PRINT("  Expected: 01.0000G, Actual: %2.4fG = |%2.4fG| + |%2.4fG| + "
-                  "|%2.4fG| = X + Y + Z",
-                  sumOfAxis, xAxis, yAxis, zAxis);
-            PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f) ? "  \033[0;32mPASSED\033[0m"
-                                                                  : "  \033[0;31mFAILED\033[0m");
+    errorCode = adxl345bSetFullResolutionMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    errorCode = adxl345bWriteConfigurationToSensor(&sensor, ADXL345B_REGISTER_BW_RATE,
+                                                   ADXL345B_BW_RATE_1_point_56);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    errorCode = adxl345bSetFIFOMode(&sensor, ADXL345B_FIFOMODE_STREAM, 0);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    sleep_ms(2);
+    errorCode = adxl345bActivateMeasurementMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+
+    sleep_ms(10); // wait for measurement mode to be active
+
+    PRINT("Waiting for data ready interrupt.");
+    do {
+        errorCode = adxl345bCheckInterruptSet(&sensor, ADXL345B_INTERRUPT_DATA_READY);
+        if (errorCode != ADXL345B_INTERRUP_NOT_SET && errorCode != ADXL345B_NO_ERROR) {
+            PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+            return;
+        } else if (errorCode == ADXL345B_NO_ERROR) {
+            break;
+        }
+        sleep_ms(1);
+    } while (true);
+
+    PRINT("Requesting g values.");
+    adxl345bRawData_t rawData;
+    errorCode = adxl345bGetSingleMeasurement(&sensor, &rawData);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        adxl345bLsbSample_t lsbSample;
+        errorCode = adxl345bConvertBytesToLSB(rawData, &lsbSample);
+        if (errorCode == ADXL345B_NO_ERROR) {
+            adxl345bGValueSample_t gValues;
+            errorCode = adxl345bConvertLSBToGValue(lsbSample, &gValues);
+            if (errorCode == ADXL345B_NO_ERROR) {
+
+                /* 0.2G equals a deviation of about 1% from the ideal value
+                 * this deviation is given by the datasheet as the accepted tolerance
+                 * for each axis therefore should epsilon be 0.6G
+                 */
+                float sumOfAxis = gValues.x + gValues.y + gValues.z;
+
+                PRINT("  Expected: 01.0000G, Actual: %2.4fG = %2.4fG + %2.4fG + %2.4fG = X + Y "
+                      "+ Z",
+                      sumOfAxis, gValues.x, gValues.y, gValues.z);
+                PRINT(compareFloatsWithinRange(1.0f, sumOfAxis, 0.6f)
+                          ? "  \033[0;32mPASSED\033[0m"
+                          : "  \033[0;31mFAILED\033[0m");
+            } else {
+                PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
+            }
         } else {
             PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
         }
     }
+
+    errorCode = adxl345bDeactivateMeasurementMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
 }
 
+void configureSensor() {
+    adxl345bErrorCode_t errorCode;
+
+    errorCode = adxl345bSetFullResolutionMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    errorCode = adxl345bChangeMeasurementRange(&sensor, ADXL345B_8G_RANGE);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    errorCode = adxl345bWriteConfigurationToSensor(&sensor, ADXL345B_REGISTER_BW_RATE,
+                                                   ADXL345B_BW_RATE_1_point_56);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    errorCode = adxl345bSetFIFOMode(&sensor, ADXL345B_FIFOMODE_STREAM, 0);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    sleep_ms(10);
+    PRINT("CONFIGURED");
+}
+
+void record_three_seconds() {
+    adxl345bErrorCode_t errorCode;
+    errorCode = adxl345bActivateMeasurementMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    sleep_ms(3000);
+    errorCode = adxl345bDeactivateMeasurementMode(&sensor);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        PRINT("  \033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+        return;
+    }
+    PRINT("DONE RECORDING");
+}
+
+void read_measurement() {
+    adxl345bRawData_t sample = {};
+    adxl345bErrorCode_t errorCode;
+    errorCode = adxl345bGetSingleMeasurement(&sensor, &sample);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("RAW: %012X", sample.rawData);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+
+    adxl345bLsbSample_t lsbSample = {};
+    errorCode = adxl345bConvertBytesToLSB(sample, &lsbSample);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("LSB: X=%i - Y=%i - Z=%i", lsbSample.x, lsbSample.y, lsbSample.z);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+
+    adxl345bGValueSample_t gvalueSample = {};
+    errorCode = adxl345bConvertLSBToGValue(lsbSample, &gvalueSample);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("G-Value: X=%f - Y=%f - Z=%f", gvalueSample.x, gvalueSample.y, gvalueSample.z);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+}
+
+static void getFifoStatus() {
+    uint8_t fifoRegister = 0;
+    adxl345bErrorCode_t errorCode =
+        adxl345bReadConfigurationFromSensor(&sensor, ADXL345B_FIFO_STATUS, &fifoRegister);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("FIFO Status: 0x%02X", fifoRegister);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+}
+
+static void getIntStatus() {
+    uint8_t intRegister = 0;
+
+    adxl345bErrorCode_t errorCode =
+        adxl345bReadConfigurationFromSensor(&sensor, ADXL345B_REGISTER_INT_SOURCE, &intRegister);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("Interrupt Status: 0x%02X", intRegister);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+}
+static void getBwStatus() {
+    uint8_t intRegister = 0;
+
+    adxl345bErrorCode_t errorCode =
+        adxl345bReadConfigurationFromSensor(&sensor, ADXL345B_REGISTER_BW_RATE, &intRegister);
+    if (errorCode == ADXL345B_NO_ERROR) {
+        PRINT("BW Rate: 0x%02X", intRegister);
+    } else {
+        PRINT("\033[0;31mFAILED\033[0m adxl345b_ERROR: %02X", errorCode);
+    }
+}
 static void makeSelfTest() {
     PRINT("Start self test:");
     int delta_x, delta_y, delta_z;
-    adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(sensor, &delta_x, &delta_y, &delta_z);
-    PRINT("  X: %iLSB, Y: %iLSB, Z: %iLSB", delta_x, delta_y, delta_z);
+    adxl345bErrorCode_t errorCode = adxl345bPerformSelfTest(&sensor);
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  \033[0;32mPASSED\033[0m");
     } else {
-        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: %02X", errorCode);
+        PRINT("  \033[0;31mFAILED\033[0m; adxl345b_ERROR: 0x%02X", errorCode);
     }
 }
 
 static void runCalibration() {
     PRINT("Start Calibration:");
-    adxl345bErrorCode_t errorCode = adxl345bRunSelfCalibration(sensor);
+    adxl345bErrorCode_t errorCode = adxl345bPerformSelfCalibration(&sensor);
     if (errorCode == ADXL345B_NO_ERROR) {
         PRINT("  \033[0;32mSUCCESSFUL\033[0m");
     } else {
@@ -130,7 +288,7 @@ int main(void) {
     PRINT("===== START ADXL345B INIT =====");
     adxl345bErrorCode_t errorCode;
     while (1) {
-        errorCode = adxl345bInit(sensor);
+        errorCode = adxl345bInit(&sensor);
         if (errorCode == ADXL345B_NO_ERROR) {
             PRINT("Initialised ADXL345B.");
             break;
@@ -164,6 +322,24 @@ int main(void) {
             break;
         case 'b':
             enterBootMode();
+            break;
+        case '1':
+            getFifoStatus();
+            break;
+        case '2':
+            getIntStatus();
+            break;
+        case '3':
+            getBwStatus();
+            break;
+        case '4':
+            configureSensor();
+            break;
+        case '5':
+            record_three_seconds();
+            break;
+        case '6':
+            read_measurement();
             break;
         default:
             PRINT("Please enter to request g (G value), s (serialNo), t (self test), c "
