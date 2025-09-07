@@ -112,7 +112,8 @@ static adxl345bErrorCode_t adxl345bInternalCalculateCalibrationOffset(
 
 /*!
  * @brief polls InterruptSource until specified interrupt occurs
- *
+ * @warning asynchronous readings of acceleration data can lead to access-
+ing the acceleration data registers while they are being updated.
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use

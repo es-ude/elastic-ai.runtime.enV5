@@ -306,11 +306,17 @@ adxl345bErrorCode_t adxl345bActivateMeasurementMode(adxl345bSensorConfiguration_
 
 adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor, int *averageX,
                                             int *averageY, int *averageZ) {
+    printf("start selftest \n");
     adxl345bErrorCode_t errorCode;
     errorCode = adxl345bActivateMeasurementMode(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
+    errorCode = adxl345bSetFIFOMode(sensor, ADXL345B_FIFOMODE_BYPASS, 0b00011111);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
+
     errorCode =
         adxl345bWriteConfigurationToSensor(sensor, ADXL345B_REGISTER_BW_RATE, ADXL345B_BW_RATE_100);
     if (errorCode != ADXL345B_NO_ERROR) {
@@ -320,26 +326,39 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
+    errorCode = adxl345bInternalSetRegisterBits(sensor, ADXL345B_REGISTER_INTERRUPT_ENABLE, ADXL345B_BITMASK_DATA_READY);
+    if (errorCode != ADXL345B_NO_ERROR) {
+        return errorCode;
+    }
     errorCode = adxl345bInternalEnableSelftestForce(sensor);
     if (errorCode != ADXL345B_NO_ERROR) {
         return errorCode;
     }
+    printf("end setup \n");
 
     sleep_for_ms(2);
 
+    adxl345bRawData_t rawSamples;
+    adxl345bGetSingleMeasurement(sensor, *rawSamples);
+
+//TODO: Try overrun bit
     /* collect samples with force */
     int numberOfSamples = 10;
     int samplesWithForce[numberOfSamples][3];
     int counter = 0;
     while (counter < numberOfSamples) {
+        adxl345bInternalCheckInterruptSource(sensor, ADXL345B_BITMASK_DATA_READY);
+        printf("end overrun \n");
         uint8_t interrupt_source;
         errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_INTERRUPT_SOURCE,
                                                        &interrupt_source, 1);
+        printf("interrupt_source expected: 128 is: %d\n", interrupt_source);
         if (errorCode != ADXL345B_NO_ERROR) {
             return errorCode;
         }
-
+// not ???
         if (interrupt_source & ADXL345B_BITMASK_DATA_READY) {
+            printf("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeees");
             uint8_t sizeOfResponseBuffer = 6;
             uint8_t responseBuffer[sizeOfResponseBuffer];
 
@@ -371,7 +390,7 @@ adxl345bErrorCode_t adxl345bPerformSelfTest(adxl345bSensorConfiguration_t sensor
             counter++;
         }
     }
-
+    printf("end samples with force");
     /* calculate average of samples with force */
     int sumSamplesWithForceX = 0;
     int sumSamplesWithForceY = 0;
@@ -563,6 +582,7 @@ static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sen
 static adxl345bErrorCode_t
 adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8_t mask) {
     adxl345bErrorCode_t errorCode;
+    uint32_t time = 1;
     uint8_t interruptSource;
     do {
         errorCode = adxl345bInternalReadDataFromSensor(sensor, ADXL345B_REGISTER_INTERRUPT_SOURCE,
@@ -571,7 +591,11 @@ adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8
             PRINT_DEBUG("reading Register_Interrupt_Source failed");
             return errorCode;
         }
-    } while (!(interruptSource & mask));
+        sleep_for_ms(time);
+        time++;
+        printf("time: %d\n", time);
+        printf("interruptSource: %d\n", interruptSource);
+    } while (!(interruptSource)); //& mask));
     return errorCode;
 }
 static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range) {

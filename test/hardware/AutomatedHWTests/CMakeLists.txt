@@ -1,4 +1,3 @@
-if(BUILDING_FOR_ELASTIC_NODE)
     add_executable(TestFlash TestFlash.c)
     target_link_libraries(TestFlash PRIVATE
             EnV5HwConfiguration
@@ -128,4 +127,3 @@ if(BUILDING_FOR_ELASTIC_NODE)
             unity
     )
     create_enV5_executable(TestAdxl345b)
-endif ()

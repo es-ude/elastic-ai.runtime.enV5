@@ -151,7 +151,7 @@ in
       exec = ''
         flash_node "build/env5_rev2_release/test/hardware/AutomatedHWTests/$1.uf2"
         echo "Running Test: $1"
-        sleep 2
+        sleep 5
         while read -r line; do
           if [[ -n "$2" ]]; then
             echo "$line"
@@ -174,7 +174,7 @@ in
     };
     run_tests = {
       exec = ''
-        TESTS="TestFreeRTOSTask TestFreeRTOSQueue TestFreeRTOSTaskDualCore TestFilesystem TestFlash TestFPGACommunication"
+        TESTS="TestFreeRTOSTask TestFreeRTOSQueue TestFreeRTOSTaskDualCore TestFilesystem TestFlash TestFPGACommunication TestAdxl345b"
         test_results=""
 
         for test in $TESTS; do
