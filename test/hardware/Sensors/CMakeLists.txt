@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
   add_library(HWTestCommon INTERFACE)
   target_link_libraries(HWTestCommon INTERFACE
             I2c
@@ -26,7 +26,6 @@ if(BUILDING_FOR_ELASTIC_NODE)
   )
   create_env5_executable(HardwareTestSht3x)
 
-
   add_executable(HardwareTestAdxl345b HardwareTestAdxl345b.c)
   target_link_libraries(HardwareTestAdxl345b PRIVATE
             Adxl345b
@@ -35,7 +34,6 @@ if(BUILDING_FOR_ELASTIC_NODE)
   )
   create_enV5_executable(HardwareTestAdxl345b)
 
-
   add_executable(HardwareTestPac193x HardwareTestPac193x.c)
   target_link_libraries(HardwareTestPac193x PRIVATE
             Pac193x
@@ -43,14 +41,14 @@ if(BUILDING_FOR_ELASTIC_NODE)
   )
   create_enV5_executable(HardwareTestPac193x)
 
-
-  add_executable(HardwareTestPac193xAccumulator HardwareTestPac193xAccumulator.c)
+  add_executable(HardwareTestPac193xAccumulator
+            HardwareTestPac193xAccumulator.c
+  )
   target_link_libraries(HardwareTestPac193xAccumulator PRIVATE
             Pac193x
             HWTestCommon
   )
   create_enV5_executable(HardwareTestPac193xAccumulator)
-
 
   add_executable(HardwareTestDualPac193x HardwareTestDualPac193x.c)
   target_link_libraries(HardwareTestDualPac193x PRIVATE
@@ -59,7 +57,6 @@ if(BUILDING_FOR_ELASTIC_NODE)
   )
   create_enV5_executable(HardwareTestDualPac193x)
 
-
   add_executable(HardwareTestPac193xBuffer HardwareTestPac193xBuffer.c)
   target_link_libraries(HardwareTestPac193xBuffer PRIVATE
             Pac193x
@@ -67,12 +64,11 @@ if(BUILDING_FOR_ELASTIC_NODE)
   )
   create_enV5_executable(HardwareTestPac193xBuffer)
 
-
-
   add_executable(HardwareTestBmi323 HardwareTestBmi323.c)
   target_link_libraries(HardwareTestBmi323 PRIVATE
             Bmi323
             HWTestCommon
-    )
+  )
   create_enV5_executable(HardwareTestBmi323)
+
 endif()
