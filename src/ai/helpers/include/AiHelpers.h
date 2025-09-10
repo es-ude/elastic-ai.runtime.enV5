@@ -13,6 +13,38 @@
  * //Backward call for the layer that calculates the gradients in respect to the inputs and in
  * respect to the parameters float *backward(layerConfig_t *config, float *grad, float *input);
  */
+// qtype enum= FIXEDPOINT, FLOAT64, FLOAT32, FLOAT16,
+
+//Arithmetic formats
+//float, double, int8_t, int16_t, int32_t, int64_t;
+
+typedef struct fixedPointQ {
+    size_t int_bits;
+    size_t frac_bits;
+};
+
+typedef struct floatQ{
+    size_t mantissa_bits;
+    size_t exponent_bits;
+};
+
+typedef struct quantization {
+    qtype type;
+    void *qConfig;
+}quantization_t;
+
+typedef struct qTensor {
+    uint8_t *data;
+    quantization_t *quantization;
+    size_t dimensions;
+    size_t *dimSizes;
+}qTensor_t;
+
+typedef struct tensor {
+    float *data;
+    size_t dimensions;
+    size_t *dimSizes;
+}tensor_t;
 
 typedef float*(forward)(void*, float*);
 typedef float*(backward)(void*, float*, float*);

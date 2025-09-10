@@ -12,7 +12,7 @@ const layerFunctionEntry_t layerFunctions[] = {
     [LINEAR] = {linearForwardAutomatic, linearBackwardAutomatic},
     [RELU] = {ReLUForwardAutomatic, ReLUBackwardAutomatic},
     [CONV1D] = {conv1dForwardAutomatic, conv1dBackwardAutomatic},
-    [SOFTMAX] = {NULL, NULL}
+    [SOFTMAX] = {softmaxForwardAutomatic, softmaxBackwardAutomatic}
 };
 
 parameter_t *initParameter(float *p, size_t size) {
