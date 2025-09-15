@@ -1,5 +1,6 @@
 #ifndef SOFTMAX_H
 #define SOFTMAX_H
+
 #include "AiHelpers.h"
 
 #include <stdio.h>
@@ -17,8 +18,8 @@ layerForwardBackward_t *initSoftmaxLayerBackward(size_t size);
 void freeSoftmaxLayerForward(layerForward_t *layer);
 void freeSoftmaxLayerBackward(layerForwardBackward_t *layer);
 
-float *softmaxForward(softmaxConfig_t *config, float *input);
+float *softmaxForward(softmaxConfig_t *config, float *input, size_t inputSize);
 
-float *softmaxBackward(softmaxConfig_t *config, float *grad, float *input);
+float *softmaxBackward(softmaxConfig_t *config, float *grad, float *input, size_t inputSize);
 
 #endif // SOFTMAX_H

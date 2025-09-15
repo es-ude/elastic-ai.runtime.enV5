@@ -32,7 +32,8 @@ add_library(Softmax
 
 target_include_directories(Softmax PUBLIC include)
 target_link_libraries(Softmax PRIVATE
-    Common
+        Common
         AiHelpers
+        m
 
 )
