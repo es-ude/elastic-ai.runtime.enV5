@@ -112,7 +112,7 @@ void unitTestConv1dForward() {
     float expectedOutput[12] = {
         -10.f, -14.f, -18.f, -22.f, // outputChannel 0
         8.f, 10.f, 12.f, 14.f, // outputChannel 1
-        -3.f, -4.f, -5.f,-6.f // outputChannel 2
+        -3.f, -4.f, -5.f, -6.f // outputChannel 2
     };
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOutput, output, outputSize);
 }
@@ -144,15 +144,17 @@ void unitTestConv1dBackward() {
         -1.f, -2.f, -3.f, -4.f, -5.f, -6.f
     };
     size_t inputSize = sizeof(input) / sizeof(float);
-    float loss[inputSize] = {-1.f, 0.f, -2.f, -1.f, 1.f, 0.f, -2.f, -4.f, -2.f, -1.f, 0.f, -1.f};
+    float loss[] = {-1.f, 0.f, -2.f, -1.f, 1.f, 0.f, -2.f, -4.f, -2.f, -1.f, 0.f, -1.f};
     float *propagatedLoss1 = conv1dBackward(config, loss, input, inputSize);
 
-    float expectedPropagatedLoss1[inputSize] = {-0.8333f, -0.6667f, -1.0000f, -0.8333f, 0.1667f, -0.1667f,
-                                        -1.3333f, -0.3333f, 0.6667f, 0.3333f, -0.1667f, -0.8333f};
+    float expectedPropagatedLoss1[] = {-0.8333f, -0.6667f, -1.0000f, -0.8333f, 0.1667f,
+                                                -0.1667f,
+                                                -1.3333f, -0.3333f, 0.6667f, 0.3333f, -0.1667f,
+                                                -0.8333f};
 
     float expectedWeightGrad1[18] = {1.8333f, 2.5000f, 3.1667f, -1.8333f, -2.5000f, -3.1667f,
-                                    3.5000f, 4.3333f, 5.1667f, -3.5000f, -4.3333f, -5.1667f,
-                                    1.3333f, 2.0000f, 2.6667f, -1.3333f, -2.0000f, -2.6667f};
+                                     3.5000f, 4.3333f, 5.1667f, -3.5000f, -4.3333f, -5.1667f,
+                                     1.3333f, 2.0000f, 2.6667f, -1.3333f, -2.0000f, -2.6667f};
 
     float expectedBiasGrad1[3] = {0.6667f, 0.8333f, 0.6667f};
 
@@ -168,8 +170,10 @@ void unitTestConv1dBackward() {
 
     float *propagatedLoss2 = conv1dBackward(config, loss, input, inputSize);
 
-    float expectedPropagatedLoss2[inputSize] = {-0.8333f, -0.6667f, -1.0000f, -0.8333f, 0.1667f, -0.1667f,
-                                         -1.3333f, -0.3333f, 0.6667f, 0.3333f, -0.1667f, -0.8333f};
+    float expectedPropagatedLoss2[] = {-0.8333f, -0.6667f, -1.0000f, -0.8333f, 0.1667f,
+                                                -0.1667f,
+                                                -1.3333f, -0.3333f, 0.6667f, 0.3333f, -0.1667f,
+                                                -0.8333f};
 
     float expectedWeightGrad2[18] = {3.6667f, 5.0000f, 6.3333f, -3.6667f, -5.0000f, -6.3333f,
                                      7.0000f, 8.6667f, 10.3333f, -7.0000f, -8.6667f, -10.3333f,
@@ -187,7 +191,6 @@ void unitTestConv1dBackward() {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad2[i], config->bias->grad[i]);
     }
 }
-
 
 
 void unitTestConv1dBackwardComplex(void) {
@@ -227,7 +230,6 @@ void unitTestConv1dBackwardComplex(void) {
     for (size_t i = 0; i < config->bias->size; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad1[i], config->bias->grad[i]);
     }
-
 
     float *propagatedLoss2 = conv1dBackward(config, loss, input, 12);
     for (size_t i = 0; i < 12; ++i) {

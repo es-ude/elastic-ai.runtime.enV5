@@ -35,5 +35,4 @@ target_link_libraries(Softmax PRIVATE
         Common
         AiHelpers
         m
-
 )
