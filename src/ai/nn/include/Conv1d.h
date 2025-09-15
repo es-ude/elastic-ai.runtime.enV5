@@ -46,8 +46,4 @@ float *conv1dForward(conv1dConfig_t *config, float *input, size_t inputSize);
 
 float *conv1dBackward(conv1dConfig_t *config, float *grad, float *input, size_t inputSize);
 
-float *conv1dForwardAutomatic(void *config, float *input, size_t inputSize);
-
-float *conv1dBackwardAutomatic(void *config, float *grad, float *input, size_t inputSize);
-
 #endif // ENV5_RUNTIME_CONV1D_H

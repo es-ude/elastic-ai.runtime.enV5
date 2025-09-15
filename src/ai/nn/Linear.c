@@ -23,16 +23,6 @@ float *linearForward(linearConfig_t *config, float *input) {
     return output;
 }
 
-float *linearForwardAutomatic(void *config, float *input) {
-    linearConfig_t *configInternal = config;
-    return linearForward(configInternal, input);
-}
-
-float *linearBackwardAutomatic(void *config, float *grad, float *input) {
-    linearConfig_t *configInternal = config;
-    return linearBackward(configInternal, grad, input);
-}
-
 float *linearBackward(linearConfig_t *config, float *grad, float *input) {
     size_t inputSize = config->inputSize;
     size_t outputSize = config->outputSize;

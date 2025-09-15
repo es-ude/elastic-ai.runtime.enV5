@@ -55,13 +55,3 @@ float *ReLUBackward(ReLUConfig_t *config, float *grad, float *input) {
     }
     return outputGrad;
 }
-
-float *ReLUForwardAutomatic(void *config, float *input) {
-    ReLUConfig_t *configInternal = config;
-    return ReLUForward(configInternal, input);
-}
-
-float *ReLUBackwardAutomatic(void *config, float *grad, float *input) {
-    ReLUConfig_t *configInternal = config;
-    return ReLUBackward(configInternal, grad, input);
-}

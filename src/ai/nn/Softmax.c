@@ -29,17 +29,11 @@ void freeSoftmaxLayerBackward(layerForwardBackward_t *layer) {
 }
 
 float *softmaxForward(softmaxConfig_t *config, float *input) {
-
+    float arr[1] = {1.f};
+    return arr;
 }
 
 float *softmaxBackward(softmaxConfig_t *config, float *grad, float *input) {
-
-}
-
-float *softmaxForwardAutomatic(void *config, float *input) {
-
-}
-
-float *softmaxBackwardAutomatic(void *config, float *grad, float *input) {
-
+    float arr[1] = {1.f};
+    return arr;
 }
