@@ -28,33 +28,38 @@ typedef enum qtype
     FLOAT64
 } qtype_t;
 
-typedef struct fixedPointQ {
+typedef struct fixedPointQ
+{
     size_t int_bits;
     size_t frac_bits;
-}fixedPointQ_t;
+} fixedPointQ_t;
 
-typedef struct floatQ{
+typedef struct floatQ
+{
     size_t mantissa_bits;
     size_t exponent_bits;
-}floatQ_t;
+} floatQ_t;
 
-typedef struct quantization {
+typedef struct quantization
+{
     qtype_t type;
-    void *qConfig;
-}quantization_t;
+    void* qConfig;
+} quantization_t;
 
-typedef struct qTensor {
-    uint8_t *data;
-    quantization_t *quantization;
+typedef struct qTensor
+{
+    uint8_t* data;
+    quantization_t* quantization;
     size_t dimensions;
-    size_t *dimSizes;
-}qTensor_t;
+    size_t* dimSizes;
+} qTensor_t;
 
-typedef struct tensor {
-    float *data;
+typedef struct tensor
+{
+    float* data;
     size_t dimensions;
-    size_t *dimSizes;
-}tensor_t;
+    size_t* dimSizes;
+} tensor_t;
 
 typedef float*(forward)(void*, float*);
 typedef float*(backward)(void*, float*, float*);
