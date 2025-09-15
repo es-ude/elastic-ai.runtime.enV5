@@ -7,4 +7,5 @@ target_link_libraries(AiHelpers PRIVATE
         Linear
         ReLU
         Conv1d
+        Softmax
 )

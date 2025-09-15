@@ -18,18 +18,28 @@
 //Arithmetic formats
 //float, double, int8_t, int16_t, int32_t, int64_t;
 
+/*! @brief Enum of possible quantization types
+ */
+typedef enum qtype
+{
+    FIXEDPOINT,
+    FLOAT16,
+    FLOAT32,
+    FLOAT64
+} qtype_t;
+
 typedef struct fixedPointQ {
     size_t int_bits;
     size_t frac_bits;
-};
+}fixedPointQ_t;
 
 typedef struct floatQ{
     size_t mantissa_bits;
     size_t exponent_bits;
-};
+}floatQ_t;
 
 typedef struct quantization {
-    qtype type;
+    qtype_t type;
     void *qConfig;
 }quantization_t;
 

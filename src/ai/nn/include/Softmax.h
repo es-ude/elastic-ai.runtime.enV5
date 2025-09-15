@@ -21,8 +21,4 @@ float *softmaxForward(softmaxConfig_t *config, float *input);
 
 float *softmaxBackward(softmaxConfig_t *config, float *grad, float *input);
 
-float *softmaxForwardAutomatic(void *config, float *input);
-
-float *softmaxBackwardAutomatic(void *config, float *grad, float *input);
-
 #endif // SOFTMAX_H

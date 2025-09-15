@@ -38,7 +38,4 @@ float * ReLUForward(ReLUConfig_t *config, float *input);
  */
 float * ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
 
-float *ReLUForwardAutomatic(void *config, float *input);
-
-float *ReLUBackwardAutomatic(void *config, float *grad, float *input);
 #endif //RELU_H

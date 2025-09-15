@@ -235,14 +235,3 @@ float *conv1dBackward(conv1dConfig_t *config,
 
     return gradInput;
 }
-
-float *conv1dForwardAutomatic(void *config, float *input, size_t inputSize) {
-    conv1dConfig_t *configInternal = config;
-    return conv1dForward(configInternal, input, inputSize);
-}
-
-float *conv1dBackwardAutomatic(void *config, float *grad, float *input,
-                               size_t inputSize) {
-    conv1dConfig_t *configInternal = config;
-    return conv1dBackward(configInternal, grad, input, inputSize);
-}

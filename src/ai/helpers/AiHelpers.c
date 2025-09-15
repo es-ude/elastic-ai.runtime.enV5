@@ -9,10 +9,10 @@
 #include <string.h>
 
 const layerFunctionEntry_t layerFunctions[] = {
-    [LINEAR] = {linearForwardAutomatic, linearBackwardAutomatic},
-    [RELU] = {ReLUForwardAutomatic, ReLUBackwardAutomatic},
-    [CONV1D] = {conv1dForwardAutomatic, conv1dBackwardAutomatic},
-    [SOFTMAX] = {softmaxForwardAutomatic, softmaxBackwardAutomatic}
+    [LINEAR] = {linearForward, linearBackward},
+    [RELU] = {ReLUForward, ReLUBackward},
+    [CONV1D] = {conv1dForward, conv1dBackward},
+    [SOFTMAX] = {softmaxForward, softmaxBackward}
 };
 
 parameter_t *initParameter(float *p, size_t size) {
