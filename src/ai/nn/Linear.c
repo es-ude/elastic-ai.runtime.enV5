@@ -4,9 +4,10 @@
 
 #include <Common.h>
 
-float *linearForward(linearConfig_t *config, float *input) {
-    size_t inputSize = config->inputSize;
-    size_t outputSize = config->outputSize;
+float *linearForward(void *config, float *input) {
+    linearConfig_t *linearConfig = config;
+    size_t inputSize = linearConfig->inputSize;
+    size_t outputSize = linearConfig->outputSize;
     size_t weightIndex = 0;
 
     float *output = malloc(outputSize * sizeof(float));
@@ -15,17 +16,19 @@ float *linearForward(linearConfig_t *config, float *input) {
         float result = 0;
         for (size_t j = 0; j < inputSize; j++) {
             weightIndex = i * inputSize + j;
-            result += input[j] * config->weight->p[weightIndex];
+            result += input[j] * linearConfig->weight->p[weightIndex];
         }
-        output[i] = result + config->bias->p[i];
+        output[i] = result + linearConfig->bias->p[i];
     }
 
     return output;
 }
 
-float *linearBackward(linearConfig_t *config, float *grad, float *input) {
-    size_t inputSize = config->inputSize;
-    size_t outputSize = config->outputSize;
+float *linearBackward(void *config, float *grad, float *input) {
+    linearConfig_t *linearConfig = config;
+
+    size_t inputSize = linearConfig->inputSize;
+    size_t outputSize = linearConfig->outputSize;
 
     float *propagatedLoss = calloc(inputSize, sizeof(float));
 
@@ -34,10 +37,10 @@ float *linearBackward(linearConfig_t *config, float *grad, float *input) {
         for (size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
             weightIndex = lossIndex * inputSize + inputIndex;
 
-            config->weight->grad[weightIndex] += grad[lossIndex] * input[inputIndex];
-            propagatedLoss[inputIndex] += config->weight->p[weightIndex] * grad[lossIndex];
+            linearConfig->weight->grad[weightIndex] += grad[lossIndex] * input[inputIndex];
+            propagatedLoss[inputIndex] += linearConfig->weight->p[weightIndex] * grad[lossIndex];
         }
-        config->bias->grad[lossIndex] += grad[lossIndex];
+        linearConfig->bias->grad[lossIndex] += grad[lossIndex];
     }
 
     return propagatedLoss;

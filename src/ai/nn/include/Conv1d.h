@@ -1,7 +1,3 @@
-//
-// Created by Leo Buron on 08.08.25.
-//
-
 #ifndef ENV5_RUNTIME_CONV1D_H
 #define ENV5_RUNTIME_CONV1D_H
 #include "AiHelpers.h"
@@ -42,8 +38,8 @@ conv1dConfig_t *initConv1dConfigWithWeightAndBias(float *weight, float *bias, si
 
 conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, size_t kernelSize, size_t stride, size_t dilation, bool useBias, paddingType_t paddingType, size_t paddingSize);
 
-float *conv1dForward(conv1dConfig_t *config, float *input, size_t inputSize);
+float *conv1dForward(void *config, float *input, size_t inputSize);
 
-float *conv1dBackward(conv1dConfig_t *config, float *grad, float *input, size_t inputSize);
+float *conv1dBackward(void *config, float *grad, float *input, size_t inputSize);
 
 #endif // ENV5_RUNTIME_CONV1D_H

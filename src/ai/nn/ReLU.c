@@ -22,19 +22,16 @@ layerForwardBackward_t *initReLULayerBackward(size_t size) {
     return layerForward;
 }
 
-void freeReLUForward(layerForward_t *layer ) {
+void freeReLUForward(layerForward_t *layer) {}
 
-}
-
-void freeReLUBackward(layerForwardBackward_t *layer) {
-
-}
+void freeReLUBackward(layerForwardBackward_t *layer) {}
 
 
-float *ReLUForward(ReLUConfig_t *config, float *input) {
+float *ReLUForward(void *config, float *input) {
+    ReLUConfig_t *reluConfig = config;
 
-    float *output = calloc(config->size, sizeof(float));
-    for (size_t index = 0; index < config->size; index++) {
+    float *output = calloc(reluConfig->size, sizeof(float));
+    for (size_t index = 0; index < reluConfig->size; index++) {
         if (input[index] < 0.0f) {
             output[index] = 0.f;
         } else {
@@ -43,10 +40,13 @@ float *ReLUForward(ReLUConfig_t *config, float *input) {
     }
     return output;
 }
-float *ReLUBackward(ReLUConfig_t *config, float *grad, float *input) {
-    float *outputGrad = calloc(config->size, sizeof(float));
 
-    for (size_t i = 0; i < config->size; i++) {
+float *ReLUBackward(void *config, float *grad, float *input) {
+    ReLUConfig_t *reluConfig = config;
+
+    float *outputGrad = calloc(reluConfig->size, sizeof(float));
+
+    for (size_t i = 0; i < reluConfig->size; i++) {
         if (input[i] <= 0.0f) {
             outputGrad[i] = 0.0f;
         } else {
