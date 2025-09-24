@@ -75,7 +75,7 @@ layerForwardBackward_t *initLinearLayerBackwardWithInputOutputSize(size_t inputS
  * @param input : inputs for the linear layer
  * @return : output of the linear layer
  */
-float *linearForward(linearConfig_t *config, float *input);
+float *linearForward(void *config, float *input);
 
 /*! @brief Backward call for the linear layer that calculates the gradients in respect to the inputs
  * and in respect to the parameters
@@ -85,6 +85,6 @@ float *linearForward(linearConfig_t *config, float *input);
  * @param input : input that was put into the layer
  * @return : partial gradients of loss function for the previous layers
  */
-float *linearBackward(linearConfig_t *config, float *grad, float *input);
+float *linearBackward(void *config, float *grad, float *input);
 
 #endif //LINEAR_H

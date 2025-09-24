@@ -95,7 +95,7 @@ void unitTestInitLinearForwardWithWeightBias() {
         initLinearLayerForwardWithWeightBias(weights, weightSize, bias, biasSize);
     layerType_t layerType = LINEAR;
     TEST_ASSERT_EQUAL(layerType, linearLayerForward->type);
-    TEST_ASSERT_EQUAL_PTR(linearForwardAutomatic, layerFunctions[linearLayerForward->type].forwardFunc);
+    TEST_ASSERT_EQUAL_PTR(linearForward, layerFunctions[linearLayerForward->type].forwardFunc);
     linearConfig_t *linearConfig = linearLayerForward->config;
 
     float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};
@@ -119,8 +119,8 @@ void unitTestInitLinearForwardBackwardWithWeightBias() {
         initLinearLayerForwardBackwardWithWeightBias(weights, weightSize, bias, biasSize);
     layerType_t layerType = LINEAR;
     TEST_ASSERT_EQUAL(layerType, linearLayerForwardBackward->type);
-    TEST_ASSERT_EQUAL(&linearForwardAutomatic, layerFunctions[linearLayerForwardBackward->type].forwardFunc);
-    TEST_ASSERT_EQUAL(&linearBackwardAutomatic, layerFunctions[linearLayerForwardBackward->type].backwardFunc);
+    TEST_ASSERT_EQUAL(&linearForward, layerFunctions[linearLayerForwardBackward->type].forwardFunc);
+    TEST_ASSERT_EQUAL(&linearBackward, layerFunctions[linearLayerForwardBackward->type].backwardFunc);
     linearConfig_t *linearConfig = linearLayerForwardBackward->config;
 
     float weightsGrad[] = {0.f, 0.f, 0.f, 0.f};

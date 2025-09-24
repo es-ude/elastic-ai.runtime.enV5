@@ -27,7 +27,7 @@ void freeReLUBackward(layerForwardBackward_t *layer);
  * @param input : give the inputs
  * @return : calculates the output
  */
-float * ReLUForward(ReLUConfig_t *config, float *input);
+float * ReLUForward(void *config, float *input);
 
 /*! @brief Backward call for the ReLU layer calculating the gradients in respect to the inputs
  *
@@ -36,6 +36,6 @@ float * ReLUForward(ReLUConfig_t *config, float *input);
  * @param input : input that was put into the layer
  * @return : partial gradients of loss function for the previous layers
  */
-float * ReLUBackward(ReLUConfig_t *config, float *grad, float *input);
+float * ReLUBackward(void *config, float *grad, float *input);
 
 #endif //RELU_H

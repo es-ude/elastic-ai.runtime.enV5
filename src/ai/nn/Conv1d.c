@@ -121,15 +121,17 @@ conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, si
     return conv1dConfig;
 }
 
-float *conv1dForward(conv1dConfig_t *config,
+float *conv1dForward(void *config,
                      float *input,
                      size_t inputSize) {
-    size_t inputChannels = config->inputChannels;
-    size_t outputChannels = config->outputChannels;
-    size_t kernelSize = config->kernelSize;
-    size_t stride = config->stride;
-    size_t dilation = config->dilation;
-    size_t padding = config->padding->size;
+    conv1dConfig_t *conv1dConfig = config;
+
+    size_t inputChannels = conv1dConfig->inputChannels;
+    size_t outputChannels = conv1dConfig->outputChannels;
+    size_t kernelSize = conv1dConfig->kernelSize;
+    size_t stride = conv1dConfig->stride;
+    size_t dilation = conv1dConfig->dilation;
+    size_t padding = conv1dConfig->padding->size;
     size_t inputSizePerChannel = inputSize / inputChannels;
 
     size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, config);
@@ -153,12 +155,12 @@ float *conv1dForward(conv1dConfig_t *config,
                         continue;
                     }
                     sum += input[ic * inputSizePerChannel + (size_t)inputIndex]
-                        * config->weight->p[oc * inputChannels * kernelSize + ic * kernelSize + k];
+                        * conv1dConfig->weight->p[oc * inputChannels * kernelSize + ic * kernelSize + k];
                 }
             }
 
-            if (config->useBias) {
-                sum += config->bias->p[oc];
+            if (conv1dConfig->useBias) {
+                sum += conv1dConfig->bias->p[oc];
             }
 
             output[oc * outputSizePerChannel + i] = sum;
@@ -169,16 +171,18 @@ float *conv1dForward(conv1dConfig_t *config,
 }
 
 
-float *conv1dBackward(conv1dConfig_t *config,
+float *conv1dBackward(void *config,
                       float *gradOut,
                       float *input,
                       size_t inputSize) {
-    size_t inputChannels = config->inputChannels;
-    size_t outputChannels = config->outputChannels;
-    size_t kernelSize = config->kernelSize;
-    size_t stride = config->stride;
-    size_t dilation = config->dilation;
-    size_t padding = config->padding->size;
+    conv1dConfig_t *conv1dConfig = config;
+
+    size_t inputChannels = conv1dConfig->inputChannels;
+    size_t outputChannels = conv1dConfig->outputChannels;
+    size_t kernelSize = conv1dConfig->kernelSize;
+    size_t stride = conv1dConfig->stride;
+    size_t dilation = conv1dConfig->dilation;
+    size_t padding = conv1dConfig->padding->size;
     size_t inputSizePerChannel = inputSize / inputChannels;
     size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, config);
     size_t outputSizePerChannel = outputSize / outputChannels;
@@ -189,14 +193,14 @@ float *conv1dBackward(conv1dConfig_t *config,
     const float scale = 1.f / (float)inputSizePerChannel;
 
     // bias gradient: sum then accumulate normalized
-    if (config->useBias) {
+    if (conv1dConfig->useBias) {
         for (size_t oc = 0; oc < outputChannels; ++oc) {
             float sumB = 0.f;
             for (size_t i = 0; i < outputSizePerChannel; ++i) {
                 sumB += gradOut[oc * outputSizePerChannel + i];
             }
             // mean-negative
-            config->bias->grad[oc] += -sumB * scale;
+            conv1dConfig->bias->grad[oc] += -sumB * scale;
         }
     }
 
@@ -218,12 +222,12 @@ float *conv1dBackward(conv1dConfig_t *config,
 
                     // gradInput (flip handled in forward)
                     gradInput[ic * inputSizePerChannel + u] +=
-                        g * config->weight->p[
+                        g * conv1dConfig->weight->p[
                             oc * inputChannels * kernelSize + ic * kernelSize + k];
                 }
                 // accumulate mean-negative gradient
                 size_t wIdx = oc * inputChannels * kernelSize + ic * kernelSize + k;
-                config->weight->grad[wIdx] += -sumWeight * scale;
+                conv1dConfig->weight->grad[wIdx] += -sumWeight * scale;
             }
         }
     }

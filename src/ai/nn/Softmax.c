@@ -25,7 +25,9 @@ layerForwardBackward_t *initSoftmaxLayerBackward(size_t size) {
 }
 
 
-float *softmaxForward(softmaxConfig_t *config, float *input, size_t inputSize) {
+float *softmaxForward(void *config, float *input, size_t inputSize) {
+    softmaxConfig_t *softmaxConfig = config;
+
     float *output = calloc(inputSize, sizeof(float));
 
     float sum = 0;
@@ -40,7 +42,9 @@ float *softmaxForward(softmaxConfig_t *config, float *input, size_t inputSize) {
     return output;
 }
 
-float *softmaxBackward(softmaxConfig_t *config, float *grad, float *input, size_t inputSize) {
+float *softmaxBackward(void *config, float *grad, float *input, size_t inputSize) {
+    softmaxConfig_t *softmaxConfig = config;
+
     float *output = calloc(inputSize, sizeof(float));
 
     float jacobian[inputSize][inputSize];
