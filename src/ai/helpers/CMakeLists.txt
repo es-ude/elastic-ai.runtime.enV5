@@ -9,3 +9,12 @@ target_link_libraries(AiHelpers PRIVATE
         Conv1d
         Softmax
 )
+
+
+add_library(CSVReader
+        CSVReader.c
+)
+target_include_directories(CSVReader PUBLIC include)
+target_link_libraries(CSVReader PRIVATE
+        Common
+)
