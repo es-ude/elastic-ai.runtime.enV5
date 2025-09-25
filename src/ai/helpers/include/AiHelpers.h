@@ -61,8 +61,8 @@ typedef struct tensor
     size_t* dimSizes;
 } tensor_t;
 
-typedef float*(forward)(void*, float*);
-typedef float*(backward)(void*, float*, float*);
+typedef float*(forward)(void*, float*, size_t);
+typedef float*(backward)(void*, float*, float*, size_t);
 
 /*! @brief Describes each parameter
  * p = array of parameter values
@@ -125,7 +125,7 @@ typedef struct layerForward
  * @param input: input for the neural network
  * @return : pointer to array of results
  */
-float* sequentialForward(layerForward_t** network, size_t sizeNetwork, float* input);
+float* sequentialForward(layerForward_t** network, size_t sizeNetwork, float* input, size_t inputSize);
 
 /*! @brief Describes how you can generally construct layers for Forward & Backward
  * layerForward = pointer to forward function of the layer
@@ -160,6 +160,7 @@ trainingStats_t* sequentialCalculateGrads(layerForwardBackward_t** network,
                                           size_t sizeNetwork,
                                           float*(*lossFunction)(float* prediction, float* label, size_t outputSize),
                                           float* input,
+                                          size_t inputSize,
                                           float* label);
 
 #endif // AIHELPERS_H

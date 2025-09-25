@@ -48,16 +48,19 @@ csvData_t *csvReadBuffered(char *filePath, size_t requiredRows) {
     return NULL;
 }
 
-float *parseRowAsFloat(char *row, size_t entriesPerRow) {
+float *csvParseRowAsFloat(char *row, size_t entriesPerRow) {
     float *output = calloc(entriesPerRow, sizeof(float));
     size_t index = 0;
 
     char *token = strtok(row, ",");
     while (token != NULL && index < entriesPerRow) {
         output[index] = strtof(token, NULL);
+        //printf("Output[%lu]: %f", index, output[index]);
         index++;
         token = strtok(NULL, ",");
     }
+    //printf("\n");
+    free(row);
 
     return output;
 }

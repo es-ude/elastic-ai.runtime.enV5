@@ -3,6 +3,8 @@ add_elastic_ai_unit_test(
         AiHelpers
         MORE_LIBS
         Common
+        Linear
+        MSE
 )
 
 add_elastic_ai_unit_test(
