@@ -23,6 +23,7 @@ typedef struct kernels {
 typedef struct conv1dConfig {
     size_t inputChannels;
     size_t outputChannels;
+    size_t outputSize;
     size_t kernelSize;
     parameter_t *weight; // [channelIn][channelOut][kernelSize]
     parameter_t *bias;
@@ -41,5 +42,15 @@ conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, si
 float *conv1dForward(void *config, float *input, size_t inputSize);
 
 float *conv1dBackward(void *config, float *grad, float *input, size_t inputSize);
+
+layerForward_t *initConv1dLayerForward(float *weight, float *bias, size_t inputChannels,
+                                      size_t outputChannels, size_t kernelSize, size_t stride,
+                                      size_t dilation, paddingType_t paddingType,
+                                      size_t paddingSize, size_t inputSize);
+
+layerForwardBackward_t *initConv1dLayerForwardBackward(float *weight, float *bias, size_t inputChannels,
+                                       size_t outputChannels, size_t kernelSize, size_t stride,
+                                       size_t dilation, paddingType_t paddingType,
+                                       size_t paddingSize, size_t inputSize);
 
 #endif // ENV5_RUNTIME_CONV1D_H

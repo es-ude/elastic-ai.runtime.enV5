@@ -154,8 +154,12 @@ float *conv1dForward(void *config,
                     if (inputIndex < 0 || inputIndex >= (int)inputSizePerChannel) {
                         continue;
                     }
-                    sum += input[ic * inputSizePerChannel + (size_t)inputIndex]
-                        * conv1dConfig->weight->p[oc * inputChannels * kernelSize + ic * kernelSize + k];
+
+                    size_t input_idx = ic * inputSizePerChannel + (size_t)inputIndex;
+                    size_t weight_idx = oc * inputChannels * kernelSize + ic * kernelSize + k;
+
+                    sum += input[input_idx]
+                        * conv1dConfig->weight->p[weight_idx];
                 }
             }
 
@@ -183,14 +187,12 @@ float *conv1dBackward(void *config,
     size_t stride = conv1dConfig->stride;
     size_t dilation = conv1dConfig->dilation;
     size_t padding = conv1dConfig->padding->size;
+
     size_t inputSizePerChannel = inputSize / inputChannels;
     size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, config);
     size_t outputSizePerChannel = outputSize / outputChannels;
 
     float *gradInput = calloc(inputSize, sizeof(float));
-
-    // compute scale
-    const float scale = 1.f / (float)inputSizePerChannel;
 
     // bias gradient: sum then accumulate normalized
     if (conv1dConfig->useBias) {
@@ -199,43 +201,66 @@ float *conv1dBackward(void *config,
             for (size_t i = 0; i < outputSizePerChannel; ++i) {
                 sumB += gradOut[oc * outputSizePerChannel + i];
             }
-            // mean-negative
-            conv1dConfig->bias->grad[oc] += -sumB * scale;
+            conv1dConfig->bias->grad[oc] += sumB;
         }
     }
 
     // weight gradient & raw gradInput
     for (size_t oc = 0; oc < outputChannels; ++oc) {
-        for (size_t ic = 0; ic < inputChannels; ++ic) {
-            for (size_t k = 0; k < kernelSize; ++k) {
-                float sumWeight = 0.f;
-                for (size_t i = 0; i < outputSizePerChannel; ++i) {
+        for (size_t ic = 0; ic < inputChannels; ic++) {
+            for (size_t k = 0; k < kernelSize; k++) {
+                for (size_t i = 0; i < outputSizePerChannel; i++) {
                     int inputIndex = (int)i * (int)stride + (int)k * (int)dilation - (int)padding;
                     if (inputIndex < 0 || inputIndex >= (int)inputSizePerChannel)
                         continue;
 
                     float g = gradOut[oc * outputSizePerChannel + i];
-                    size_t u = inputIndex;
 
-                    // weight-grad raw sum
-                    sumWeight += g * input[ic * inputSizePerChannel + u];
+                    size_t u = ic * inputSizePerChannel + inputIndex;
+                    size_t wIdx = oc * inputChannels * kernelSize + ic * kernelSize + k;
 
-                    // gradInput (flip handled in forward)
-                    gradInput[ic * inputSizePerChannel + u] +=
-                        g * conv1dConfig->weight->p[
-                            oc * inputChannels * kernelSize + ic * kernelSize + k];
+                    conv1dConfig->weight->grad[wIdx] += g * input[u];
+
+                    gradInput[u] += g * conv1dConfig->weight->p[wIdx];
+
                 }
-                // accumulate mean-negative gradient
-                size_t wIdx = oc * inputChannels * kernelSize + ic * kernelSize + k;
-                conv1dConfig->weight->grad[wIdx] += -sumWeight * scale;
             }
         }
     }
 
-    // normalize & sign-flip gradInput
-    for (size_t i = 0; i < inputSize; ++i) {
-        gradInput[i] = -gradInput[i] * scale;
-    }
+    /*for (size_t i = 0; i < inputSize; i++) {
+        PRINT("output[%lu]: %f\n", i, gradInput[i]);
+    }*/
 
     return gradInput;
+}
+
+layerForward_t *initConv1dLayerForward(float *weight, float *bias, size_t inputChannels,
+                                       size_t outputChannels, size_t kernelSize, size_t stride,
+                                       size_t dilation, paddingType_t paddingType,
+                                       size_t paddingSize, size_t inputSize) {
+    layerForward_t *layerForward = malloc(sizeof(layerForward_t));
+    layerForward->config = initConv1dConfigWithWeightAndBias(
+        weight, bias, inputChannels, outputChannels, kernelSize, stride, dilation, paddingType,
+        paddingSize);
+    layerForward->type = CONV1D;
+    layerForward->inputSize = inputSize;
+
+    return layerForward;
+}
+
+layerForwardBackward_t *initConv1dLayerForwardBackward(float *weight, float *bias,
+                                                       size_t inputChannels,
+                                                       size_t outputChannels, size_t kernelSize,
+                                                       size_t stride,
+                                                       size_t dilation, paddingType_t paddingType,
+                                                       size_t paddingSize, size_t inputSize) {
+    layerForwardBackward_t *layerForwardBackward = malloc(sizeof(layerForwardBackward_t));
+    layerForwardBackward->config = initConv1dConfigWithWeightAndBias(
+        weight, bias, inputChannels, outputChannels, kernelSize, stride, dilation, paddingType,
+        paddingSize);
+    layerForwardBackward->type = CONV1D;
+    layerForwardBackward->inputSize = inputSize;
+
+    return layerForwardBackward;
 }

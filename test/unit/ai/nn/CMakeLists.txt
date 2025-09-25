@@ -17,6 +17,7 @@ add_elastic_ai_unit_test(
         Conv1d
         MORE_LIBS
         AiHelpers
+        MSE
 )
 
 add_elastic_ai_unit_test(

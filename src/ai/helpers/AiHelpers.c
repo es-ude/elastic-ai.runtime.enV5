@@ -27,11 +27,11 @@ parameter_t *initParameter(float *p, size_t size) {
 }
 
 
-float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input) {
+float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input, size_t inputSize) {
     for (size_t i = 0; i < sizeNetwork; i++) {
         layerType_t type = network[i]->type;
         forward *fwd = layerFunctions[type].forwardFunc;
-        input = fwd(network[i]->config, input);
+        input = fwd(network[i]->config, input, inputSize);
     }
     return input;
 }
@@ -42,16 +42,16 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           float *(*lossFunction)(
                                               float *prediction, float *label, size_t outputSize),
                                           float *input,
+                                          size_t inputSize,
                                           float *label) {
 
-    // Array of Pointers
     float **layerOutputs = malloc((sizeNetwork + 1) * sizeof(float *));
     layerOutputs[0] = input;
 
     // Forward Pass
-    for (size_t i = 1; i < sizeNetwork + 1; i++) {
-        forward *fwd = layerFunctions[network[i - 1]->type].forwardFunc;
-        layerOutputs[i] = fwd(network[i - 1]->config, layerOutputs[i - 1]);
+    for (size_t i = 0; i < sizeNetwork; i++) {
+        forward *fwd = layerFunctions[network[i]->type].forwardFunc;
+        layerOutputs[i+1] = fwd(network[i]->config, layerOutputs[i], inputSize);
     }
 
     // Determine Output Size
@@ -65,7 +65,12 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
         ReLUConfig_t *reluConfig = network[sizeNetwork - 1]->config;
         outputSize = reluConfig->size;
         break;
+    case CONV1D:
+        conv1dConfig_t *conv1dConfig = network[sizeNetwork-1]->config;
+        outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, conv1dConfig);
+        break;
     default:
+        printf("SWITCH CASE NOT FOUND\n");
         break;
     }
 
@@ -75,12 +80,12 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
     trainingStats->loss = grad;
 
     // Backward Pass
-    for (size_t i = sizeNetwork; i-- > 0;) {
+    for (int i = (int)(sizeNetwork - 1); i >= 0; i--) {
         backward *bwd = layerFunctions[network[i]->type].backwardFunc;
-        grad = bwd(network[i]->config, grad, layerOutputs[i - 1]);
+        grad = bwd(network[i]->config, grad, layerOutputs[i], inputSize);
     }
 
-    trainingStats->output = layerOutputs[sizeNetwork];
+    trainingStats->output = grad;
 
     return trainingStats;
 }
