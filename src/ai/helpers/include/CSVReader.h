@@ -2,6 +2,10 @@
 #define CSVREADER_H
 #include <stddef.h>
 
+#define CSV_INPUT_PATH "../../../../../../src/ai/CSVFiles/input.csv"
+#define CSV_LABEL_PATH "../../../../../../src/ai/CSVFiles/label.csv"
+#define CSV_SETTINGS_PATH "../../../../../../src/ai/CSVFiles/settings.csv"
+
 #define MAX_ROW_SIZE 20
 
 typedef struct csvData {
@@ -16,6 +20,6 @@ char** csvReadEntireFile(char path[]);
 
 csvData_t *csvReadBuffered(char *filePath, size_t requiredRowsPerRead);
 
-float *parseRowAsFloat();
+float *csvParseRowAsFloat(char *row, size_t entriesPerRow);
 
 #endif //CSVREADER_H

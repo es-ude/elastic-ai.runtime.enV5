@@ -44,14 +44,13 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           float *input,
                                           float *label) {
 
-    // Array of Pointers
     float **layerOutputs = malloc((sizeNetwork + 1) * sizeof(float *));
     layerOutputs[0] = input;
 
     // Forward Pass
-    for (size_t i = 1; i < sizeNetwork + 1; i++) {
-        forward *fwd = layerFunctions[network[i - 1]->type].forwardFunc;
-        layerOutputs[i] = fwd(network[i - 1]->config, layerOutputs[i - 1]);
+    for (size_t i = 0; i < sizeNetwork; i++) {
+        forward *fwd = layerFunctions[network[i]->type].forwardFunc;
+        layerOutputs[i+1] = fwd(network[i]->config, layerOutputs[i]);
     }
 
     // Determine Output Size
@@ -75,12 +74,12 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
     trainingStats->loss = grad;
 
     // Backward Pass
-    for (size_t i = sizeNetwork; i-- > 0;) {
+    for (int i = (int)(sizeNetwork - 1); i >= 0; i--) {
         backward *bwd = layerFunctions[network[i]->type].backwardFunc;
-        grad = bwd(network[i]->config, grad, layerOutputs[i - 1]);
+        grad = bwd(network[i]->config, grad, layerOutputs[i]);
     }
 
-    trainingStats->output = layerOutputs[sizeNetwork];
+    trainingStats->output = grad;
 
     return trainingStats;
 }

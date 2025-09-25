@@ -8,6 +8,7 @@ target_link_libraries(AiHelpers PRIVATE
         ReLU
         Conv1d
         Softmax
+        CSVReader
 )
 
 

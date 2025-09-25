@@ -48,7 +48,7 @@ csvData_t *csvReadBuffered(char *filePath, size_t requiredRows) {
     return NULL;
 }
 
-float *parseRowAsFloat(char *row, size_t entriesPerRow) {
+float *csvParseRowAsFloat(char *row, size_t entriesPerRow) {
     float *output = calloc(entriesPerRow, sizeof(float));
     size_t index = 0;
 
