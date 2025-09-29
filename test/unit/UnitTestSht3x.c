@@ -4,12 +4,69 @@
 #include "I2cUnitTest.h"
 #include "eai/sensor/Sht3x.h"
 
+/* region I2C_ReadCommands*/
+/* region HEADER_I2C_ReadCommands*/
+i2cErrorCode_t i2cUnittestReadCommandPass(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                          uint8_t slaveAddress, i2c_inst_t *i2cHost);
+i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFail(uint8_t *readBuffer,
+                                                         uint8_t sizeOfReadBuffer,
+                                                         uint8_t slaveAddress, i2c_inst_t *i2cHost);
+/* endregion HEADER_I2C_ReadCommands*/
+
+i2cErrorCode_t i2cUnittestReadCommandPass(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                          uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+    /**
+     * @brief failing I²C implementation
+     *
+     * I2C only writes one byte,
+     * this implementation breaks this rule by always writing three bytes in a
+     * row
+     *
+     * FIXME: Improve implementation to match I2C specifications
+     */
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    for (uint8_t index = 0; index < sizeOfReadBuffer; index = index + 3) {
+        readBuffer[index] = byteZero;
+        readBuffer[index + 1] = byteOne;
+        readBuffer[index + 2] = correctByteChecksum;
+    }
+
+    return 0x00;
+}
+i2cErrorCode_t i2cUnittestReadCommandProvokeChecksumFail(uint8_t *readBuffer,
+                                                         uint8_t sizeOfReadBuffer,
+                                                         uint8_t slaveAddress,
+                                                         i2c_inst_t *i2cHost) {
+    /**
+     * @brief failing I2C implementation
+     *
+     * I2C only writes one byte,
+     * this implementation breaks this rule by always writing three bytes in a
+     * row
+     *
+     * FIXME: Improve implementation to match I2C specifications
+     */
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    for (uint8_t index = 0; index < sizeOfReadBuffer; index = index + 3) {
+        readBuffer[index] = byteZero;
+        readBuffer[index + 1] = byteOne;
+        readBuffer[index + 2] = wrongByteChecksum;
+    }
+
+    return 0x00;
+}
+/* endregion I2C_ReadCommands */
+
 static sht3xSensorConfiguration_t sensor;
 
 void setUp(void) {
     /* Default: Point to Pass */
-    i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForSht3x;
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForSht3x;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandPass;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPass;
 }
 
 void tearDown(void) {}
@@ -73,7 +130,7 @@ void sht3xReadStatusRegisterGetReceiveDataFailErrorIfAckMissing(void) {
 }
 
 void sht3xReadStatusRegisterGetChecksumFailError(void) {
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
     CEXCEPTION_T exception;
 
     Try {
@@ -171,7 +228,7 @@ void sht3xReadSerialNumberGetReceiveDataFailErrorIfAckMissing(void) {
 }
 
 void sht3xReadSerialNumberGetChecksumFailError(void) {
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
     CEXCEPTION_T exception;
 
     Try {
@@ -255,7 +312,7 @@ void sht3xGetTemperatureGetReceiveDataFailErrorIfHardwareFails(void) {
 }
 
 void sht3xGetTemperatureGetChecksumFailError(void) {
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
 
     CEXCEPTION_T exception;
     Try {
@@ -368,7 +425,7 @@ void sht3xGetHumidityGetReceiveDataFailErrorIfAckMissing(void) {
 }
 
 void sht3xGetHumidityGetChecksumFailError(void) {
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
 
     CEXCEPTION_T exception;
     Try {
@@ -471,7 +528,7 @@ void sht3xGetTemperatureAndHumidityGetReceiveDataFailErrorIfAckMissing(void) {
 
 void sht3xGetTemperatureAndHumidityGetChecksumFailError(void) {
     float temperature, humidity;
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
 
     CEXCEPTION_T exception;
     Try {
@@ -582,7 +639,7 @@ void sht3xReadMeasurementBufferGetReceiveDataFailErrorIfAckMissing(void) {
 
 void sht3xReadMeasurementBufferGetChecksumFailError(void) {
     float temperature, humidity;
-    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFailForSht3x;
+    i2cUnittestReadCommand = i2cUnittestReadCommandProvokeChecksumFail;
 
     CEXCEPTION_T exception;
     Try {
