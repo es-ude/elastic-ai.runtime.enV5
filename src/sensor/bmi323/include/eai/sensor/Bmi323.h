@@ -25,7 +25,7 @@
  * @brief possible error codes for the API
  * @ingroup bmi323Types
  */
-typedef enum bmi323ErrorCodes {
+typedef enum bmi323ErrorCode {
     BMI323_ERROR_NULL_PTR = BMI3_E_NULL_PTR,
     BMI323_ERROR_COM_FAIL = BMI3_E_COM_FAIL,
     BMI323_ERROR_DEV_NOT_FOUND = BMI3_E_DEV_NOT_FOUND,
@@ -40,7 +40,7 @@ typedef enum bmi323ErrorCodes {
     BMI323_ERROR_INVALID_ST_SELECTION = BMI3_E_INVALID_ST_SELECTION,
     BMI323_ERROR_OUT_OF_RANGE = BMI3_E_OUT_OF_RANGE,
     BMI323_ERROR_FEATURE_ENGINE_STATUS = BMI3_E_FEATURE_ENGINE_STATUS,
-} bmi323ErrorCodes_t;
+} bmi323ErrorCode_t;
 
 /*!
  * @brief struct holding the configuration for the sensor
@@ -150,63 +150,67 @@ typedef struct bmi3_fifo_temperature_data bmi323TemperatureData_t;
  * @param[in,out] sensor struct holding the sensor configuration
  * @param[in] spi spi configuration
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323Init(bmi323SensorConfiguration_t *sensor, spiConfiguration_t *spi);
+bmi323ErrorCode_t bmi323Init(bmi323SensorConfiguration_t *sensor, spiConfiguration_t *spi);
 
 /*!
  * @brief get data from register
  * @ingroup bmi323GeneralAPI
  *
  * @code
- * void bmi323GetRegister (
+ * bmi323ErrorCode_t bmi323GetRegister (
  *      bmi323SensorConfiguration_t *sensor,
  *      uint8_t address,
  *      data_t *data
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] address address of the register to read
  * @param[out] data buffer for data read from sensor
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323GetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, data_t *data);
+bmi323ErrorCode_t bmi323GetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address,
+                                    data_t *data);
 
 /*!
  * @brief set register
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323SetRegister (
+ * bmi323ErrorCode_t bmi323SetRegister (
  *      bmi323SensorConfiguration_t *sensor,
  *      uint8_t address,
  *      data_t *data
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] address register to overwrite
  * @param[in] data data to write into register
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, data_t *data);
+bmi323ErrorCode_t bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address,
+                                    data_t *data);
 
 /*!
  * @brief enable/disable different sensor features
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323EnableFeature (
+ * bmi323ErrorCode_t bmi323EnableFeature (
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323Features *features
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] features Features to be enabled
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @Features
  * @verbatim
@@ -229,26 +233,27 @@ void bmi323SetRegister(bmi323SensorConfiguration_t *sensor, uint8_t address, dat
  * BMI323_GYRO_SELF_OFF     |     18
  * @endverbatim
  *
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *features);
+bmi323ErrorCode_t bmi323EnableFeature(bmi323SensorConfiguration_t *sensor,
+                                      bmi323Features_t *features);
 
 /*!
  * @brief configure different sensor features
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323SetSensorConfiguration (
+ * bmi323ErrorCode_t bmi323SetSensorConfiguration (
  *      bmi323SensorConfiguration_t *sensor,
  *      uint8_t numberOfFeatures,
  *      bmi323FeatureConfiguration *config
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] numberOfFeatures number of sensor features to configure
  * @param[in] config array containing one or more feature configurations
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @Features
  * @verbatim
@@ -271,26 +276,28 @@ void bmi323EnableFeature(bmi323SensorConfiguration_t *sensor, bmi323Features_t *
  * BMI323_GYRO_SELF_OFF     |     18
  * @endverbatim
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
-                                  bmi323FeatureConfiguration_t *config);
+bmi323ErrorCode_t bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor,
+                                               uint8_t numberOfFeatures,
+                                               bmi323FeatureConfiguration_t *config);
 
 /*!
  * @brief get configuration of different sensor features
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323GetSensorConfiguration(
+ * bmi323ErrorCode_t bmi323GetSensorConfiguration(
  *      bmi323SensorConfiguration_t *sensor,
  *      uint8_t numberOfFeatures,
  *      bmi323FeatureConfiguration *config
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] numberOfFeatures number of sensor features to read configuration from
  * @param[out] config  array containing one or more feature configurations
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @Features
  * @verbatim
@@ -313,126 +320,127 @@ void bmi323SetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t n
  * BMI323_GYRO_SELF_OFF     |     18
  * @endverbatim
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
  */
-void bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
-                                  bmi323FeatureConfiguration_t *config);
+bmi323ErrorCode_t bmi323GetSensorConfiguration(bmi323SensorConfiguration_t *sensor,
+                                               uint8_t numberOfFeatures,
+                                               bmi323FeatureConfiguration_t *config);
 
 /*!
  * @brief get interrupt configuration
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323GetInterruptConfig(
+ * bmi323ErrorCode_t bmi323GetInterruptConfig(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323InterruptConfig_t *config
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[out] config struct holding the interrupt configuration
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323GetInterruptConfig(bmi323SensorConfiguration_t *sensor, bmi323InterruptConfig_t *config);
+bmi323ErrorCode_t bmi323GetInterruptConfig(bmi323SensorConfiguration_t *sensor,
+                                           bmi323InterruptConfig_t *config);
 
 /*!
  * @brief set the interrupt configuration
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323SetInterruptConfig(
+ * bmi323ErrorCode_t bmi323SetInterruptConfig(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323InterruptConfig_t *config
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] config struct holding the interrupt configuration
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SetInterruptConfig(bmi323SensorConfiguration_t *sensor, bmi323InterruptConfig_t *config);
+bmi323ErrorCode_t bmi323SetInterruptConfig(bmi323SensorConfiguration_t *sensor,
+                                           bmi323InterruptConfig_t *config);
 
 /*!
  * @brief map interrupt to pin
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323SetInterruptMapping(
+ * bmi323ErrorCode_t bmi323SetInterruptMapping(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323InterruptMapping mapping
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] mapping mapping of interrupt and pin
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SetInterruptMapping(bmi323SensorConfiguration_t *sensor,
-                               bmi323InterruptMapping_t mapping);
+bmi323ErrorCode_t bmi323SetInterruptMapping(bmi323SensorConfiguration_t *sensor,
+                                            bmi323InterruptMapping_t mapping);
 
 /*!
  * @brief set the interrupt configuration of the sensor
  * @ingroup bmi323APIConfig
  *
  * @code
- * uint16_t bmi323GetInterruptStatus (
+ * bmi323ErrorCode_t bmi323GetInterruptStatus (
  *          bmi323SensorConfiguration_t *sensor,
- *          bmi323InterruptRegister_t interruptRegister
+ *          bmi323InterruptRegister_t interruptRegister,
+ *          uint16_t *interruptState
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] interruptRegister interrupt register to read
+ * @param[out] interruptState pointer to requested interrupt register
  *
- * @returns requested interrupt register
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @returns return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-uint16_t bmi323GetInterruptStatus(bmi323SensorConfiguration_t *sensor,
-                                  bmi323InterruptRegister_t interruptRegister);
+bmi323ErrorCode_t bmi323GetInterruptStatus(bmi323SensorConfiguration_t *sensor,
+                                           bmi323InterruptRegister_t interruptRegister,
+                                           uint16_t *interruptState);
 
 /*!
  * @brief get remapping of axes
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323GetRemappingOfAxes(
+ * bmi323ErrorCode_t bmi323GetRemappingOfAxes(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323AxesRemap *remapping
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
- * @param[out] remapping buffer for axes remapping
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[out] remapping pointer to buffer for axes remapping
  *
- * @returns requested interrupt register
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t *remapping);
+bmi323ErrorCode_t bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor,
+                                           bmi323AxesRemap_t *remapping);
 
 /*!
  * @brief remap axes to represent actual sensor application
  * @ingroup bmi323APIConfig
  *
  * @code
- * void bmi323SetRemappingOfAxes(
+ * bmi323ErrorCode_t bmi323SetRemappingOfAxes(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323AxesRemap remapping
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] remapping struct providing the remapping
  *
- * @returns requested interrupt register
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t remapping);
+bmi323ErrorCode_t bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor,
+                                           bmi323AxesRemap_t remapping);
 // end::prototypes_config[]
 /* endregion CONFIG */
 
@@ -449,16 +457,17 @@ void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  * @ingroup bmi323APIData
  *
  * @code
- * void bmi323GetData(
- *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t numberOfFeatures,
- *      bmi323SensorData_t *data
- * );
- * @endcode
- *
- * @param[in] sensor struct holding the sensor configuration
+* bmi323ErrorCode_t bmi323GetData(
+*      bmi323SensorConfiguration_t *sensor,
+*      uint8_t numberOfFeatures,
+*      bmi323SensorData_t *data
+* );
+* @endcode
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] numberOfFeatures number of sensor features to read from
  * @param[out]data array holding the buffer to store the read data
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @Features
  * @verbatim
@@ -481,46 +490,41 @@ void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  * BMI323_GYRO_SELF_OFF     |     18
  * @endverbatim
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+
  */
-void bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
-                   bmi323SensorData_t *data);
+bmi323ErrorCode_t bmi323GetData(bmi323SensorConfiguration_t *sensor, uint8_t numberOfFeatures,
+                                bmi323SensorData_t *data);
 
 /*!
  * @brief read temperature from the sensor
  * @ingroup bmi323APIData
  *
- * @code
- * float bmi323GetTemperature(
- *          bmi323SensorConfiguration_t * sensor
- * );
- * @endcode
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[out] temperatureInDegreeCelsius pointer to float where the temperature in degree celsius
+ * will be stored
  *
- * @param[in] sensor struct holding the sensor configuration
- *
- * @returns Temperature in degree Celsius
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-float bmi323GetTemperature(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323GetTemperature(bmi323SensorConfiguration_t *sensor,
+                                       float *temperatureInDegreeCelsius);
 
 /*!
  * @brief read the current time from the sensor
  * @ingroup bmi323APIData
  *
  * @code
- * float bmi323GetSensorTime(
- *          bmi323SensorConfiguration_t * sensor
+ * bmi323ErrorCode_t bmi323GetTemperature(
+ *          bmi323SensorConfiguration_t * sensor,
+ *          float *timeInSeconds
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[in] timeInSeconds pointer to float where the time in seconds since power up will be stored
  *
- * @returns time in seconds since power up
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-float bmi323GetSensorTime(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323GetSensorTime(bmi323SensorConfiguration_t *sensor, float *timeInSeconds);
 
 /*!
  * @brief convert raw value to degree per second (DPS)
@@ -577,137 +581,140 @@ float bmi323LsbToMps2(int16_t rawValue, uint8_t range, uint8_t resolution);
  * @ingroup bmi323APIData
  *
  * @code
- * void bmi323SetFifoConfiguration(
+ * bmi323ErrorCode_t bmi323SetFifoConfiguration(
  *      bmi323SensorConfiguration_t *sensor, bool enable,
  *      uint16_t configuration
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param enable[in] bool to disable/enable FIFO buffer
  * @param configuration[in] fifo configuration
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SetFifoConfiguration(bmi323SensorConfiguration_t *sensor, bool enable,
-                                uint16_t configuration);
+bmi323ErrorCode_t bmi323SetFifoConfiguration(bmi323SensorConfiguration_t *sensor, bool enable,
+                                             uint16_t configuration);
 
 /*!
  * @brief get FIFO buffer configuration
  * @ingroup bmi323APIData
  *
  * @code
- * uint16_t bmi323GetFifoConfiguration(
- *          bmi323SensorConfiguration_t *sensor
+ * bmi323ErrorCode_t bmi323GetFifoConfiguration(
+ *          bmi323SensorConfiguration_t *sensor,
+ *          uint16_t *configuration
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[out] configuration pointer to uint16_t where the configuration of the FIFO buffer will be
+ * stored
  *
- * @returns FIFO buffer configuration
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-uint16_t bmi323GetFifoConfiguration(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323GetFifoConfiguration(bmi323SensorConfiguration_t *sensor,
+                                             uint16_t *configuration);
 
 /*!
  * @brief get FIFO buffer length
  * @ingroup bmi323APIData
  *
  * @code
- * uint16_t bmi323GetFifoLength(
- *          bmi323SensorConfiguration_t *sensor
+ * bmi323ErrorCode_t bmi323GetFifoLength(
+ *          bmi323SensorConfiguration_t *sensor,
+ *          uint16_t *length
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[out] length pointer to uint16_t where the length of the FIFO buffer will be stored
  *
- * @returns FIFO buffer length
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-uint16_t bmi323GetFifoLength(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323GetFifoLength(bmi323SensorConfiguration_t *sensor, uint16_t *length);
 
 /*!
  * @brief get FIFO buffer frame
  * @ingroup bmi323APIData
  *
  * @code
- * uint16_t bmi323GetFifoFrame(
+ * bmi323ErrorCode_t bmi323GetFifoFrame(
  *          bmi323SensorConfiguration_t *sensor,
  *          bmi323FifoFrame_t *frame
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in,out] frame buffer/configuration for the FIFO frame to read
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323GetFifoFrame(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame);
+bmi323ErrorCode_t bmi323GetFifoFrame(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame);
 
 /*!
  * @brief retrieve accelerometer data from FIFO frame
  * @ingroup bmi323APIData
  *
  * @code
- * void bmi323ExtractAcceleratorData(
+ * bmi323ErrorCode_t bmi323ExtractAcceleratorData(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323FifoFrame_t *frame,
  *      bmi323AxesData_t *data
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] frame buffer/configuration for the FIFO frame to read
  * @param[in,out] data accelerometer data retrieved from @p frame
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323ExtractAcceleratorData(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame,
-                                  bmi323AxesData_t *data);
+bmi323ErrorCode_t bmi323ExtractAcceleratorData(bmi323SensorConfiguration_t *sensor,
+                                               bmi323FifoFrame_t *frame, bmi323AxesData_t *data);
 
 /*!
  * @brief retrieve gyroscope data from FIFO frame
  * @ingroup bmi323APIData
  *
  * @code
- * void bmi323ExtractGyroscopeData(
+ * bmi323ErrorCode_t bmi323ExtractGyroscopeData(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323FifoFrame_t *frame,
  *      bmi323AxesData_t *data
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] frame buffer/configuration for the FIFO frame to read
  * @param[in,out] data gyroscope data retrieved from @p frame
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323ExtractGyroscopeData(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame,
-                                bmi323AxesData_t *data);
+bmi323ErrorCode_t bmi323ExtractGyroscopeData(bmi323SensorConfiguration_t *sensor,
+                                             bmi323FifoFrame_t *frame, bmi323AxesData_t *data);
 
 /*!
  * @brief retrieve temperature data from FIFO frame
  * @ingroup bmi323APIData
  *
  * @code
- * void bmi323ExtractTemperatureData(
+ * bmi323ErrorCode_t bmi323ExtractTemperatureData(
  *      bmi323SensorConfiguration_t *sensor,
  *      bmi323FifoFrame_t *frame,
  *      bmi323TemperatureData_t *data
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] frame buffer/configuration for the FIFO frame to read
  * @param[in,out] data temperature data retrieved from @p frame
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323ExtractTemperatureData(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame,
-                                  bmi323TemperatureData_t *data);
+bmi323ErrorCode_t bmi323ExtractTemperatureData(bmi323SensorConfiguration_t *sensor,
+                                               bmi323FifoFrame_t *frame,
+                                               bmi323TemperatureData_t *data);
 // end::prototypes_fifo[]
 /* endregion FIFO */
 
@@ -725,14 +732,16 @@ void bmi323ExtractTemperatureData(bmi323SensorConfiguration_t *sensor, bmi323Fif
  * @ingroup bmi323APICommand
  *
  * @code
- * void bmi323SendCommand(
+ * bmi323ErrorCode_t bmi323SendCommand(
  *      bmi323SensorConfiguration_t *sensor,
  *      uint16_t command
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] command command to send to the sensor
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @verbatim
  * Commands                       |  Values
@@ -748,41 +757,42 @@ void bmi323ExtractTemperatureData(bmi323SensorConfiguration_t *sensor, bmi323Fif
  * BMI3_CMD_SOFT_RESET            |  0xDEAF
  * @endverbatim
  *
- * @throws ErrorCodes See #bmi323ErroCodes
  */
-void bmi323SendCommand(bmi323SensorConfiguration_t *sensor, uint16_t command);
+bmi323ErrorCode_t bmi323SendCommand(bmi323SensorConfiguration_t *sensor, uint16_t command);
 
 /*!
  * @brief perform soft reset of sensor
  * @ingroup bmi323APICommands
  *
  * @code
- * void bmi323SoftReset (
+ * bmi323ErrorCode_t bmi323SoftReset (
  *      bmi323SensorConfiguration_t *sensor
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  *
- * @throws ErrorCodes See #bmi323ErrorCodes
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  */
-void bmi323SoftReset(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323SoftReset(bmi323SensorConfiguration_t *sensor);
 
 /*!
  * @brief perform self test
  * @ingroup bmi323APICommands
  *
  * @code
- * void bmi323PerformSelfTest(
- *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t features,
- *      bmi323TestResults
- * );
- * @endcode
+* bmi323ErrorCode_t bmi323PerformSelfTest(
+*      bmi323SensorConfiguration_t *sensor,
+*      uint8_t features,
+*      bmi323TestResults
+* );
+* @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] features sensor features to test
  * @param[out] results results of the performed tests
+ *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @verbatim
  * feature              |  Value
@@ -791,30 +801,30 @@ void bmi323SoftReset(bmi323SensorConfiguration_t *sensor);
  * BMI3_ST_GYRO_ONLY    |      2
  * BMI3_ST_BOTH_ACC_GYR |      3
  * @endverbatim
- *
- * @throws ErrorCodes See #bmi323ErrorCodes
+
  */
-void bmi323PerformSelfTest(bmi323SensorConfiguration_t *sensor, uint8_t features,
-                           bmi323TestResults_t *results);
+bmi323ErrorCode_t bmi323PerformSelfTest(bmi323SensorConfiguration_t *sensor, uint8_t features,
+                                        bmi323TestResults_t *results);
 
 /*!
  * @brief perform self calibration of gyroscope
  * @ingroup bmi323APICommands
  *
  * @code
- * void bmi323PerformGyroscopeSelfCalibration(
- *      bmi323SensorConfiguration_t *sensor,
- *      uint8_t selfCalibrationFeature,
- *      uint8_t applyCorrection,
- *      bmi323SelfCalibrationResults* results
- * );
- * @endcode
+* bmi323ErrorCode_t bmi323PerformGyroscopeSelfCalibration(
+*      bmi323SensorConfiguration_t *sensor,
+*      uint8_t selfCalibrationFeature,
+*      uint8_t applyCorrection,
+*      bmi323SelfCalibrationResults* results
+* );
+* @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
  * @param[in] selfCalibrationFeature feature to use for self-calibration
  * @param[in] applyCorrection apply corrections after self-calibration
  * @param[out] results struct holding the results of the self-calibration
  *
+ * @return             return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @verbatim
  * Self Calibration Feature | Value
@@ -830,25 +840,28 @@ void bmi323PerformSelfTest(bmi323SensorConfiguration_t *sensor, uint8_t features
  * BMI3_SC_APPLY_CORR_EN  | 4
  * @endverbatim
  *
- * @throws ErrorCodes see #bmi323ErrorCodes
+
  */
-void bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
-                                           uint8_t selfCalibrationFeature, uint8_t applyCorrection,
-                                           bmi323SelfCalibrationResults_t *results);
+bmi323ErrorCode_t bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
+                                                        uint8_t selfCalibrationFeature,
+                                                        uint8_t applyCorrection,
+                                                        bmi323SelfCalibrationResults_t *results);
 
 /*!
  * @brief get the status from the sensor
  * @ingroup bmi323APICommands
  *
  * @code
- * void bmi323GetSensorStatus(
+ * bmi323ErrorCode_t bmi323GetSensorStatus(
  *      bmi323SensorConfiguration_t *sensor,
+ *      uint16_t *status
  * );
  * @endcode
  *
- * @param[in] sensor struct holding the sensor configuration
+ * @param[in] sensor pointer to sensor struct holding the sensor configuration
+ * @param[out] status pointer to uint16_t where sensor status will be stored
  *
- * @returns sensor status
+ * @returns return the error code (0 if everything passed) - See #bmi323ErrorCode
  *
  * @verbatim
  * Value    |  Status
@@ -859,9 +872,8 @@ void bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
  * 0x80     |  BMI3_STATUS_DRDY_ACC
  * @endverbatim
  *
- * @throws ErrorCodes see #bmi323ErrorCodes
  */
-uint16_t bmi323GetSensorStatus(bmi323SensorConfiguration_t *sensor);
+bmi323ErrorCode_t bmi323GetSensorStatus(bmi323SensorConfiguration_t *sensor, uint16_t *status);
 // end::prototypes_config[]
 /* endregion COMMANDS */
 
