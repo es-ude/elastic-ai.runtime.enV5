@@ -5,6 +5,10 @@ add_elastic_ai_unit_test(
         Common
         Linear
         MSE
+        CSVReader
+        CrossEntropy
+        ReLU
+        Softmax
 )
 
 add_elastic_ai_unit_test(

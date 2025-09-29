@@ -7,6 +7,10 @@
 
 size_t calcOutputSizeForInputSizeAndConv1dConfig(size_t inputSize, conv1dConfig_t *conv1dConfig) {
 
+    if (conv1dConfig->padding->type == SAME) {
+        return inputSize / conv1dConfig->inputChannels *conv1dConfig->outputChannels;
+    }
+
     size_t padding = conv1dConfig->padding->size;
     size_t dilation = conv1dConfig->dilation;
     size_t kernelSize = conv1dConfig->kernelSize;
@@ -121,116 +125,124 @@ conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, si
     return conv1dConfig;
 }
 
-float *conv1dForward(void *config,
-                     float *input,
-                     size_t inputSize) {
+float *conv1dForward(void *config, float *input, size_t inputSize) {
     conv1dConfig_t *conv1dConfig = config;
 
-    size_t inputChannels = conv1dConfig->inputChannels;
-    size_t outputChannels = conv1dConfig->outputChannels;
-    size_t kernelSize = conv1dConfig->kernelSize;
+    size_t inChannels = conv1dConfig->inputChannels;
+    size_t outChannels = conv1dConfig->outputChannels;
+    size_t kernel = conv1dConfig->kernelSize;
     size_t stride = conv1dConfig->stride;
     size_t dilation = conv1dConfig->dilation;
-    size_t padding = conv1dConfig->padding->size;
-    size_t inputSizePerChannel = inputSize / inputChannels;
+    size_t inSizePerChannel = inputSize / inChannels;
 
-    size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, config);
-    size_t outputSizePerChannel = outputSize / outputChannels;
+    // SAME padding berechnen
+    size_t outSizePerChannel;
+    size_t padLeft = 0, padRight = 0;
+    if (conv1dConfig->padding->type == SAME) {
+        outSizePerChannel = (inSizePerChannel + stride - 1) / stride; // ceil
+        size_t padNeeded = (outSizePerChannel - 1) * stride
+                         + dilation * (kernel - 1) + 1
+                         - inSizePerChannel;
+        if ((int)padNeeded < 0) padNeeded = 0;
+        padLeft  = padNeeded / 2;
+        padRight = padNeeded - padLeft;
+    } else { // VALID
+        outSizePerChannel = (inSizePerChannel + 2 * conv1dConfig->padding->size
+                             - dilation * (kernel - 1) - 1) / stride + 1;
+        padLeft = conv1dConfig->padding->size;
+        padRight = conv1dConfig->padding->size;
+    }
 
-    float *output = calloc(outputChannels * outputSizePerChannel, sizeof(float));
+    float *output = calloc(outChannels * outSizePerChannel, sizeof(float));
 
-    for (size_t oc = 0; oc < outputChannels; ++oc) {
-        for (size_t i = 0; i < outputSizePerChannel; ++i) {
+    for (size_t oc = 0; oc < outChannels; ++oc) {
+        for (size_t i = 0; i < outSizePerChannel; ++i) {
             float sum = 0.f;
+            for (size_t ic = 0; ic < inChannels; ++ic) {
+                for (size_t k = 0; k < kernel; ++k) {
+                    int inIndex = (int)i * (int)stride
+                                + (int)k * (int)dilation
+                                - (int)padLeft;
+                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel) continue;
 
-            // For each input channel and each element of the kernel
-            for (size_t ic = 0; ic < inputChannels; ++ic) {
-                for (size_t k = 0; k < kernelSize; ++k) {
-                    // compute the input index with stride, dilation, and padding
-                    int inputIndex = (int)i * (int)stride
-                                     + (int)k * (int)dilation
-                                     - (int)padding;
-                    // skip out-of-bounds (zero‐padding)
-                    if (inputIndex < 0 || inputIndex >= (int)inputSizePerChannel) {
-                        continue;
-                    }
+                    size_t inIdx = ic * inSizePerChannel + (size_t)inIndex;
+                    size_t wIdx  = oc * inChannels * kernel + ic * kernel + k;
 
-                    size_t input_idx = ic * inputSizePerChannel + (size_t)inputIndex;
-                    size_t weight_idx = oc * inputChannels * kernelSize + ic * kernelSize + k;
-
-                    sum += input[input_idx]
-                        * conv1dConfig->weight->p[weight_idx];
+                    sum += input[inIdx] * conv1dConfig->weight->p[wIdx];
                 }
             }
-
             if (conv1dConfig->useBias) {
                 sum += conv1dConfig->bias->p[oc];
             }
-
-            output[oc * outputSizePerChannel + i] = sum;
+            output[oc * outSizePerChannel + i] = sum;
         }
     }
-
     return output;
 }
 
 
-float *conv1dBackward(void *config,
-                      float *gradOut,
-                      float *input,
-                      size_t inputSize) {
+float *conv1dBackward(void *config, float *gradOut, float *input, size_t inputSize) {
     conv1dConfig_t *conv1dConfig = config;
 
-    size_t inputChannels = conv1dConfig->inputChannels;
-    size_t outputChannels = conv1dConfig->outputChannels;
-    size_t kernelSize = conv1dConfig->kernelSize;
+    size_t inChannels = conv1dConfig->inputChannels;
+    size_t outChannels = conv1dConfig->outputChannels;
+    size_t kernel = conv1dConfig->kernelSize;
     size_t stride = conv1dConfig->stride;
     size_t dilation = conv1dConfig->dilation;
-    size_t padding = conv1dConfig->padding->size;
+    size_t inSizePerChannel = inputSize / inChannels;
 
-    size_t inputSizePerChannel = inputSize / inputChannels;
-    size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(inputSize, config);
-    size_t outputSizePerChannel = outputSize / outputChannels;
+    // SAME padding berechnen
+    size_t outSizePerChannel;
+    size_t padLeft = 0, padRight = 0;
+    if (conv1dConfig->padding->type == SAME) {
+        outSizePerChannel = (inSizePerChannel + stride - 1) / stride;
+        size_t padNeeded = (outSizePerChannel - 1) * stride
+                         + dilation * (kernel - 1) + 1
+                         - inSizePerChannel;
+        if ((int)padNeeded < 0) padNeeded = 0;
+        padLeft  = padNeeded / 2;
+        padRight = padNeeded - padLeft;
+    } else { // VALID
+        outSizePerChannel = (inSizePerChannel + 2 * conv1dConfig->padding->size
+                             - dilation * (kernel - 1) - 1) / stride + 1;
+        padLeft = conv1dConfig->padding->size;
+        padRight = conv1dConfig->padding->size;
+    }
 
     float *gradInput = calloc(inputSize, sizeof(float));
 
-    // bias gradient: sum then accumulate normalized
+    // bias gradient
     if (conv1dConfig->useBias) {
-        for (size_t oc = 0; oc < outputChannels; ++oc) {
+        for (size_t oc = 0; oc < outChannels; ++oc) {
             float sumB = 0.f;
-            for (size_t i = 0; i < outputSizePerChannel; ++i) {
-                sumB += gradOut[oc * outputSizePerChannel + i];
+            for (size_t i = 0; i < outSizePerChannel; ++i) {
+                sumB += gradOut[oc * outSizePerChannel + i];
             }
             conv1dConfig->bias->grad[oc] += sumB;
         }
     }
 
-    // weight gradient & raw gradInput
-    for (size_t oc = 0; oc < outputChannels; ++oc) {
-        for (size_t ic = 0; ic < inputChannels; ic++) {
-            for (size_t k = 0; k < kernelSize; k++) {
-                for (size_t i = 0; i < outputSizePerChannel; i++) {
-                    int inputIndex = (int)i * (int)stride + (int)k * (int)dilation - (int)padding;
-                    if (inputIndex < 0 || inputIndex >= (int)inputSizePerChannel)
-                        continue;
+    // weight gradient & gradInput
+    for (size_t oc = 0; oc < outChannels; ++oc) {
+        for (size_t ic = 0; ic < inChannels; ++ic) {
+            for (size_t k = 0; k < kernel; ++k) {
+                for (size_t i = 0; i < outSizePerChannel; ++i) {
+                    int inIndex = (int)i * (int)stride
+                                + (int)k * (int)dilation
+                                - (int)padLeft;
+                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel) continue;
 
-                    float g = gradOut[oc * outputSizePerChannel + i];
+                    float g = gradOut[oc * outSizePerChannel + i];
 
-                    size_t u = ic * inputSizePerChannel + inputIndex;
-                    size_t wIdx = oc * inputChannels * kernelSize + ic * kernelSize + k;
+                    size_t inIdx = ic * inSizePerChannel + (size_t)inIndex;
+                    size_t wIdx  = oc * inChannels * kernel + ic * kernel + k;
 
-                    conv1dConfig->weight->grad[wIdx] += g * input[u];
-
-                    gradInput[u] += g * conv1dConfig->weight->p[wIdx];
-
+                    conv1dConfig->weight->grad[wIdx] += g * input[inIdx];
+                    gradInput[inIdx] += g * conv1dConfig->weight->p[wIdx];
                 }
             }
         }
     }
-
-    /*for (size_t i = 0; i < inputSize; i++) {
-        PRINT("output[%lu]: %f\n", i, gradInput[i]);
-    }*/
 
     return gradInput;
 }

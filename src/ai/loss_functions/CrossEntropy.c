@@ -3,6 +3,7 @@
 #include "math.h"
 #include "AiHelpers.h"
 
+#include <stdio.h>
 #include <string.h>
 
 

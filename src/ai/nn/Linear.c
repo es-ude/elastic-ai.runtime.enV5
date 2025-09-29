@@ -82,7 +82,9 @@ layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weig
     layerForwardBackward->config =
         initLinearConfigWithWeightBias(weight, sizeWeights, bias, sizeBias);
     layerForwardBackward->type = LINEAR;
-    layerForwardBackward->inputSize = sizeBias;
+    layerForwardBackward->inputSize = sizeWeights / sizeBias;
+
+    layerForwardBackward->outputSize = sizeBias;
     return layerForwardBackward;
 }
 

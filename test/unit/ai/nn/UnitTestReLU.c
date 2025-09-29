@@ -28,7 +28,7 @@ void unitTestInitReLULayerForward() {
 
 void unitTestInitReLULayerBackward() {
     size_t size = 10;
-    layerForwardBackward_t *layer = initReLULayerBackward(size);
+    layerForwardBackward_t *layer = initReLULayerForwardBackward(size);
     ReLUConfig_t *config = layer->config;
     TEST_ASSERT_EQUAL_size_t(size, config->size);
     TEST_ASSERT_EQUAL_PTR(ReLUForward, layerFunctions[layer->type].forwardFunc);

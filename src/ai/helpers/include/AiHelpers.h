@@ -64,6 +64,8 @@ typedef struct tensor
 typedef float*(forward)(void*, float*, size_t);
 typedef float*(backward)(void*, float*, float*, size_t);
 
+typedef float*(loss)(float*, float*, size_t);
+
 /*! @brief Describes each parameter
  * p = array of parameter values
  * grad = array of size parameter in which the corresponding gradients can be summed up
@@ -85,6 +87,20 @@ typedef enum layerType
     CONV1D,
     SOFTMAX
 } layerType_t;
+
+typedef enum lossFunctionType
+{
+    MSE,
+    CROSS_ENTROPY_DIST,
+    CROSS_ENTROPY_INDEX
+} lossFunctionType_t;
+
+typedef struct
+{
+    loss *lossFunction;
+} lossFunctionEntry_t;
+
+
 
 /*! @brief Pairs forward and backward functions of layer
  */
@@ -138,6 +154,7 @@ typedef struct layerForwardBackward
     void* config;
     layerType_t type;
     uint16_t inputSize;
+    uint16_t outputSize;
 } layerForwardBackward_t;
 
 /*! @brief Struct, that contains loss and output
@@ -158,7 +175,7 @@ typedef struct trainingStats
  */
 trainingStats_t* sequentialCalculateGrads(layerForwardBackward_t** network,
                                           size_t sizeNetwork,
-                                          float*(*lossFunction)(float* prediction, float* label, size_t outputSize),
+                                          lossFunctionType_t lossFunctionType,
                                           float* input,
                                           size_t inputSize,
                                           float* label);

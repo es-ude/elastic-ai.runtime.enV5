@@ -17,7 +17,7 @@ layerForward_t *initSoftmaxLayerForward(size_t size) {
     return layerForward;
 }
 
-layerForwardBackward_t *initSoftmaxLayerBackward(size_t size) {
+layerForwardBackward_t *initSoftmaxLayerForwardBackward(size_t size) {
     layerForwardBackward_t *layerBackward = calloc(1, sizeof(layerForward_t));
     layerBackward->type = SOFTMAX;
     layerBackward->config = initSoftmaxConfig(size);

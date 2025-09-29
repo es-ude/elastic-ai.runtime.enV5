@@ -5,6 +5,7 @@
 #define CSV_INPUT_PATH "../../../../../../src/ai/csv_files/input.csv"
 #define CSV_LABEL_PATH "../../../../../../src/ai/csv_files/label.csv"
 #define CSV_SETTINGS_PATH "../../../../../../src/ai/csv_files/settings.csv"
+#define CSV_DIST_PATH "../../../../../../src/ai/csv_files/distForCrossEntropy.csv"
 
 #define MAX_ROW_SIZE 1000
 

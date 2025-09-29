@@ -59,6 +59,8 @@ void unitTestCrossEntropyBackwardWithIndex() {
 }
 
 void unitTestCrossEntropyBackwardWithDistribution() {
+
+
     float logits[] = {2.f, 1.f, 0.1f};
     size_t inputSize = sizeof(logits) / sizeof(logits[0]);
     softmaxConfig_t *config = initSoftmaxConfig(inputSize);
