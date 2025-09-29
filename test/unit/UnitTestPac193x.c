@@ -6,6 +6,18 @@
 #include "I2cUnitTest.h"
 #include "eai/sensor/Pac193x.h"
 
+i2cErrorCode_t i2cUnittestReadCommandPass(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                          uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPass(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                          uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
+
+    return 0x00;
+}
+
 /* region CONSTANTS */
 
 /*! Denominator for unipolar voltage measurement: 2^{16} = 65536 */
@@ -35,8 +47,8 @@ static uint8_t usedChannelIndex = 1;
 
 void setUp(void) {
     /* Default: Point to Pass */
-    i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForPac193x;
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForPac193x;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandPass;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPass;
 
     pac193xSetChannelsInUse(SENSOR);
 }

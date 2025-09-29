@@ -8,7 +8,108 @@
 /*! JUST HERE TO SATISFY THE COMPILER
  *
  * @param i2cHost
- */
+
+/* region I2C_ReadCommandPass */
+/* region Header_I2C_ReadCommandPass */
+
+i2cErrorCode_t i2cUnittestReadCommandPassInBypassMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                      uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassInStreamMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                      uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassInFifoMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                    uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassInTriggerMode(uint8_t *readBuffer,
+                                                       uint8_t sizeOfReadBuffer,
+                                                       uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassWithFullResON(uint8_t *readBuffer,
+                                                       uint8_t sizeOfReadBuffer,
+                                                       uint8_t slaveAddress, i2c_inst_t *i2cHost);
+
+i2cErrorCode_t i2cUnittestReadCommandPassWithFullResOFF(uint8_t *readBuffer,
+                                                        uint8_t sizeOfReadBuffer,
+                                                        uint8_t slaveAddress, i2c_inst_t *i2cHost);
+/* endregion Header_I2C_ReadCommandPass */
+
+i2cErrorCode_t i2cUnittestReadCommandPassInBypassMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                      uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
+
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassInStreamMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                      uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b10000000 | 0b00000010 |
+                        0b00011111; // set Stream Mode, Watermark and samples for Trigger
+        return 0x00;
+    }
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteOne);
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassInFifoMode(uint8_t *readBuffer, uint8_t sizeOfReadBuffer,
+                                                    uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b01000000 | 0b00000010 |
+                        0b00011111; // set FiFo Mode, Watermark and samples for Trigger
+        return 0x00;
+    }
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassInTriggerMode(uint8_t *readBuffer,
+                                                       uint8_t sizeOfReadBuffer,
+                                                       uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    if (sizeOfReadBuffer == 1) {
+        readBuffer[0] = 0b11000000 | 0b00000010 |
+                        0b00011111; // set Trigger Mode, Watermark and samples for Trigger
+        return 0x00;
+    }
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, byteZero);
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassWithFullResOFF(uint8_t *readBuffer,
+                                                        uint8_t sizeOfReadBuffer,
+                                                        uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, dataFormatFullResOFF);
+
+    return 0x00;
+}
+
+i2cErrorCode_t i2cUnittestReadCommandPassWithFullResON(uint8_t *readBuffer,
+                                                       uint8_t sizeOfReadBuffer,
+                                                       uint8_t slaveAddress, i2c_inst_t *i2cHost) {
+
+    /* generate sample data without any real world connection to test
+     * implementation */
+    i2cUnittestWriteByteMultipleTimes(readBuffer, sizeOfReadBuffer, dataFormatFullResON);
+
+    return 0x00;
+}
+
+/* endregion ReadCommandPass */
 
 adxl345bSensorConfiguration_t sensor;
 uint32_t numberOfSamples;
@@ -17,8 +118,8 @@ uint32_t microseconds;
 
 void setUp(void) {
     /* Default: Point to Pass */
-    i2cUnittestWriteCommand = i2cUnittestWriteCommandPassForAdxl345b;
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInBypassMode;
+    i2cUnittestWriteCommand = i2cUnittestWriteCommandPass;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInBypassMode;
 
     numberOfSamples = 10;
     microseconds = 1;
@@ -226,7 +327,7 @@ void adxl345bGetMultipleMeasurementsReadCorrectValuesInStreamMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInStreamMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInStreamMode;
     uint8_t expectedRawData = byteOne;
 
     adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
@@ -239,7 +340,7 @@ void adxl345bGetMultipleMeasurementsReadCorrectValuesInFiFoMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInFifoMode;
     uint8_t expectedRawData = byteZero;
 
     adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
@@ -252,7 +353,7 @@ void adxl345bGetMultipleMeasurementsReadCorrectValuesInTriggerMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInTriggerMode;
     uint8_t expectedRawData = byteZero;
 
     adxl345bGetMultipleMeasurements(sensor, samples, numberOfSamples);
@@ -320,7 +421,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadSuccessfulInStreamMode(void) {
     microseconds = 30;
     adxl345bRawData_t samples[numberOfSamples];
 
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInStreamMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInStreamMode;
 
     adxl345bErrorCode_t errorCode =
         adxl345bGetMeasurementsForNMicroseconds(sensor, microseconds, samples, numberOfSamples);
@@ -333,7 +434,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadSuccessfulInFifoMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
     microseconds = 40;
 
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInFifoMode;
 
     adxl345bErrorCode_t errorCode =
         adxl345bGetMeasurementsForNMicroseconds(sensor, microseconds, samples, numberOfSamples);
@@ -345,7 +446,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadSuccessfulInTriggerMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
 
     microseconds = 50;
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInTriggerMode;
 
     adxl345bErrorCode_t errorCode =
         adxl345bGetMeasurementsForNMicroseconds(sensor, microseconds, samples, numberOfSamples);
@@ -361,7 +462,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadCorrectValuesInStreamMode(void) 
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInStreamMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInStreamMode;
     uint8_t expectedRawData = byteOne;
 
     adxl345bErrorCode_t errorCode =
@@ -382,7 +483,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadCorrectValuesInFifoMode(void) {
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInFifoMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInFifoMode;
     uint8_t expectedRawData = byteZero;
 
     adxl345bErrorCode_t errorCode =
@@ -402,7 +503,7 @@ void adxl345bGetMeasurementsForNMicrosecondsReadCorrectValuesInTriggerMode(void)
     adxl345bRawData_t samples[numberOfSamples];
 
     /* change ReadCommands to generate expected raw data received from I2C*/
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bInTriggerMode;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassInTriggerMode;
     uint8_t expectedRawData = byteZero;
 
     adxl345bErrorCode_t errorCode =
@@ -425,7 +526,7 @@ void adxl345bConvertDataXYZCorrectValueWithFullResON(void) {
     adxl345bRawData_t rawData;
     memset(&rawData, byteZero, sizeof(rawData));
 
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bWithFullResON;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassWithFullResON;
     adxl345bErrorCode_t errorCode =
         adxl345bConvertDataXYZ(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
     if (errorCode != ADXL345B_NO_ERROR) {
@@ -446,9 +547,9 @@ void adxl345bConvertDataXYZCorrectValueWithFullResOFF(void) {
     adxl345bRawData_t rawData;
     memset(&rawData, byteZero, sizeof(rawData));
 
-    i2cUnittestReadCommand = i2cUnittestReadCommandPassForAdxl345bWithFullResOFF;
+    i2cUnittestReadCommand = i2cUnittestReadCommandPassWithFullResOFF;
     adxl345bErrorCode_t errorCode =
-            adxl345bConvertDataXYZ(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
+        adxl345bConvertDataXYZ(sensor, &actual_xAxis, &actual_yAxis, &actual_zAxis, rawData);
     if (errorCode != ADXL345B_NO_ERROR) {
         printf("adxl345bConvertDataXYZ failed; adxl345b_ERROR: %02X", errorCode);
         TEST_FAIL();
