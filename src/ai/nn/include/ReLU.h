@@ -15,7 +15,7 @@ ReLUConfig_t *initReLUConfig(size_t size);
 
 layerForward_t *initReLULayerForward(size_t size);
 
-layerForwardBackward_t *initReLULayerBackward(size_t size);
+layerForwardBackward_t *initReLULayerForwardBackward(size_t size);
 
 void freeReLUForward(layerForward_t *layer);
 

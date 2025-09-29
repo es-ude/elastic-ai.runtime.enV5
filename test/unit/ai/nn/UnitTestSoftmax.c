@@ -21,9 +21,9 @@ void unitTestInitSoftmaxLayerForward() {
     TEST_ASSERT_EQUAL(layerType, layer->type);
 }
 
-void unitTestInitSoftmaxLayerBackward() {
+void unitTestInitSoftmaxLayerForwardBackward() {
     size_t size = 10;
-    layerForwardBackward_t *layer = initSoftmaxLayerBackward(size);
+    layerForwardBackward_t *layer = initSoftmaxLayerForwardBackward(size);
     softmaxConfig_t *config = layer->config;
     TEST_ASSERT_EQUAL_size_t(size, config->size);
     TEST_ASSERT_EQUAL_PTR(softmaxForward, layerFunctions[layer->type].forwardFunc);
@@ -69,7 +69,7 @@ int main() {
     UNITY_BEGIN();
     RUN_TEST(unitTestInitSoftmaxConfig);
     RUN_TEST(unitTestInitSoftmaxLayerForward);
-    RUN_TEST(unitTestInitSoftmaxLayerBackward);
+    RUN_TEST(unitTestInitSoftmaxLayerForwardBackward);
     RUN_TEST(unitTestSoftmaxForward);
     RUN_TEST(unitTestSoftmaxBackward);
     UNITY_END();

@@ -15,11 +15,11 @@ layerForward_t *initReLULayerForward(size_t size) {
     return layerForward;
 }
 
-layerForwardBackward_t *initReLULayerBackward(size_t size) {
-    layerForwardBackward_t *layerForward = calloc(1, sizeof(layerForward_t));
-    layerForward->type = RELU;
-    layerForward->config = initReLUConfig(size);
-    return layerForward;
+layerForwardBackward_t *initReLULayerForwardBackward(size_t size) {
+    layerForwardBackward_t *layerForwardBackward = calloc(1, sizeof(layerForward_t));
+    layerForwardBackward->type = RELU;
+    layerForwardBackward->config = initReLUConfig(size);
+    return layerForwardBackward;
 }
 
 void freeReLUForward(layerForward_t *layer) {}

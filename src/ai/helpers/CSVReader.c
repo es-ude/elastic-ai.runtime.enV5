@@ -55,7 +55,7 @@ float *csvParseRowAsFloat(char *row, size_t entriesPerRow) {
     char *token = strtok(row, ",");
     while (token != NULL && index < entriesPerRow) {
         output[index] = strtof(token, NULL);
-        //printf("Output[%lu]: %f", index, output[index]);
+        //printf("Output[%lu]: %f ", index, output[index]);
         index++;
         token = strtok(NULL, ",");
     }

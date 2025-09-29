@@ -11,7 +11,7 @@ softmaxConfig_t *initSoftmaxConfig(size_t size);
 
 layerForward_t *initSoftmaxLayerForward(size_t size);
 
-layerForwardBackward_t *initSoftmaxLayerBackward(size_t size);
+layerForwardBackward_t *initSoftmaxLayerForwardBackward(size_t size);
 
 void freeSoftmaxLayerForward(layerForward_t *layer);
 void freeSoftmaxLayerBackward(layerForwardBackward_t *layer);
