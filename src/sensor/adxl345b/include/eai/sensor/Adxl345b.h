@@ -101,9 +101,9 @@ adxl345bErrorCode_t adxl345bReadSerialNumber(adxl345bSensorConfiguration_t senso
  * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
  * @param sensor[in] configuration for sensor to use
- * @param rawSamples[out] raw data received from sensor
+ * @param rawSamples[out] pointer to adxl345bRawData_t in which raw data received from sensor will be stored
  *
- * @return                       return the error code (0 if everything passed)
+ * @return return the error code (0 if everything passed)
  */
 adxl345bErrorCode_t adxl345bGetSingleMeasurement(adxl345bSensorConfiguration_t sensor,
                                                  adxl345bRawData_t *rawSamples);
