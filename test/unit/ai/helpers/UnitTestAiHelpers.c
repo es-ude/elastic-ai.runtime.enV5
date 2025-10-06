@@ -426,7 +426,7 @@ void test_Conv1d_ReLU_Linear_Softmax_CrossEntropy() {
     float *csvDistributionFloat = csvParseRowAsFloat(csvDistributionString, 2);
 
     trainingStats_t *actual = sequentialCalculateGrads(model, modelSize,
-                                                       CROSS_ENTROPY_DIST,
+                                                       CROSS_ENTROPY,
                                                        csvInputFloat,
                                                        totalInputSize, csvDistributionFloat);
 
@@ -437,10 +437,6 @@ void test_Conv1d_ReLU_Linear_Softmax_CrossEntropy() {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expected[i], actual->output[i]);
     }
 }
-
-
-// TODO test cross entropy with index ???
-// TODO check weight grads in tests
 
 int main() {
     UNITY_BEGIN();

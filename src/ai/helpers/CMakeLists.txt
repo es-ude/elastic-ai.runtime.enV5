@@ -9,6 +9,8 @@ target_link_libraries(AiHelpers PRIVATE
         Conv1d
         Softmax
         CSVReader
+        MSE
+        CrossEntropy
 )
 
 

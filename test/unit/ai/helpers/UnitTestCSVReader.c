@@ -4,15 +4,15 @@
 #include <stdlib.h>
 
 void testCSVReadRow() {
-    char filePath[] = "../../../../../../example.csv";
+    char filePath[] = CSV_INPUT_PATH;
     char *actual = csvReadRow(filePath);
 
-    TEST_ASSERT_EQUAL_STRING("0, 1, 2, -4, -3\n", actual);
+    TEST_ASSERT_EQUAL_STRING("0, 1, 2, 3, 4, 5, 0, -1, -2, -3, -4, -5", actual);
 }
 
 void testCSVReadEntireFile() {
 
-    char filePath[] = "../../../../../../example.csv";
+    char filePath[] = CSV_INPUT_PATH;
     char **csvData = csvReadEntireFile(filePath);
 
     char row[MAX_ROW_SIZE];

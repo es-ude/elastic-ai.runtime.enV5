@@ -3,13 +3,8 @@
 
 #include "AiHelpers.h"
 
+float crossEntropyForward(const float *softmaxOutput, const float *distribution, const size_t inputSize);
 
-float crossEntropyForwardWithIndex(float *softmaxOutput, int classIndex);
-
-float crossEntropyForwardWithDistribution(float *softmaxOutput, float *distribution, size_t inputSize);
-
-float *crossEntropyBackwardWithIndex(float *softmaxOutput, int classIndex, size_t inputSize);
-
-float *crossEntropyBackwardWithDistribution(float *softmaxOutput, float *distribution, size_t inputSize);
+float *crossEntropySoftmaxBackward(const float *softmaxOutput, const float *distribution, const size_t inputSize);
 
 #endif //CROSSENTROPY_H
