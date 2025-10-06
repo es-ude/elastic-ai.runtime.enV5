@@ -136,11 +136,12 @@ void unitTestInitLinearForwardBackwardWithWeightBias() {
 
 void unitTestLinearForwardAutomatic() {
     float input[] = {1.f, 2.f};
+    size_t inputSize = sizeof(input) / sizeof(float);
     float weights[] = {1.f, 2.f, 3.f, 4.f};
     float bias[] = {-1.f, -2.f};
     layerForward_t *l = initLinearLayerForwardWithWeightBias(weights, 4, bias, 2);
     forward *fwd = layerFunctions[l->type].forwardFunc;
-    float *out = fwd(l->config, input);
+    float *out = fwd(l->config, input, inputSize);
     float expectedOut[] = {4.f, 9.f};
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOut, out, 2);
@@ -148,6 +149,7 @@ void unitTestLinearForwardAutomatic() {
 
 void unitTestLinearForwardBackwardAutomatic() {
     float input[] = {0.f, 1.f, 2.f};
+    size_t inputSize = sizeof(input) / sizeof(float);
 
     float loss[] = {-4.f, -3.f};
     float weight[] = {-1.f, 2.f, -3.f, 4.f, 5.f, -6.f};
@@ -155,7 +157,7 @@ void unitTestLinearForwardBackwardAutomatic() {
 
     layerForwardBackward_t *l = initLinearLayerForwardBackwardWithWeightBias(weight,6,bias,2);
     forward *forward = layerFunctions[l->type].forwardFunc;
-    float *result = forward(l->config, input);
+    float *result = forward(l->config, input, inputSize);
     float expected_result[] = {-5.f, -4.f};;
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_result, result, 2);
@@ -166,7 +168,7 @@ void unitTestLinearForwardBackwardAutomatic() {
     float expected_bias_grad[] = {-4.f, -3.f};
 
     backward *backward = layerFunctions[l->type].backwardFunc;
-    float *propagatedLoss = backward(l->config, loss, input);
+    float *propagatedLoss = backward(l->config, loss, input, inputSize);
 
     linearConfig_t *linearConfig = l->config;
 

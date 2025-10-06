@@ -5,8 +5,8 @@
 #include "Linear.h"
 #include "Softmax.h"
 #include "ReLU.h"
-#include "../loss_functions/include/CrossEntropy.h"
-#include "../loss_functions/include/MSE.h"
+#include "CrossEntropy.h"
+#include "MSE.h"
 
 #include <string.h>
 
@@ -19,8 +19,7 @@ const layerFunctionEntry_t layerFunctions[] = {
 
 const lossFunctionEntry_t lossFuntions[] = {
     [MSE] = {MSELossBackward},
-    [CROSS_ENTROPY_DIST] = {crossEntropyBackwardWithDistribution},
-    [CROSS_ENTROPY_INDEX] = {crossEntropyBackwardWithIndex},
+    [CROSS_ENTROPY] = {crossEntropySoftmaxBackward}
 };
 
 parameter_t *initParameter(float *p, size_t size) {
@@ -75,11 +74,8 @@ loss *getLossFunctionByType(lossFunctionType_t lossType) {
     case MSE:
         lossFunction = MSELossBackward;
         break;
-    case CROSS_ENTROPY_DIST:
-        lossFunction = crossEntropyBackwardWithDistribution;
-        break;
-    case CROSS_ENTROPY_INDEX:
-        lossFunction = crossEntropyBackwardWithIndex;
+    case CROSS_ENTROPY:
+        lossFunction = crossEntropySoftmaxBackward;
         break;
     default:
         printf("Loss type not found");
@@ -122,7 +118,7 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
 
 
     size_t backwardIndex = sizeNetwork - 1;
-    if(lossFunctionType == CROSS_ENTROPY_DIST || lossFunctionType == CROSS_ENTROPY_INDEX) {
+    if(lossFunctionType == CROSS_ENTROPY) {
         backwardIndex -= 1;
     }
     // Backward Pass

@@ -91,8 +91,7 @@ typedef enum layerType
 typedef enum lossFunctionType
 {
     MSE,
-    CROSS_ENTROPY_DIST,
-    CROSS_ENTROPY_INDEX
+    CROSS_ENTROPY
 } lossFunctionType_t;
 
 typedef struct

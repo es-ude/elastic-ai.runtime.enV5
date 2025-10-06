@@ -26,7 +26,7 @@ void unitTestInitSGDConfig() {
     float w0[] = {0.f, 1.f, 2.f};
     float b0[] = {0.f, 1.f, -1.f};
     layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
-    layerForwardBackward_t *relu0 = initReLULayerBackward(3);
+    layerForwardBackward_t *relu0 = initReLULayerForwardBackward(3);
     layerForwardBackward_t *linear1 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
     layerForwardBackward_t *model[3] = {linear0, relu0, linear1};
     size_t sizeModel = sizeof(model)/sizeof(model[0]);
