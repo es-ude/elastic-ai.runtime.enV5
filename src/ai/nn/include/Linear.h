@@ -3,22 +3,19 @@
 
 #include "AiHelpers.h"
 
-typedef struct linearConfig{
-    size_t inputSize;
-    size_t outputSize;
-    parameter_t *weight;
-    parameter_t *bias;
+typedef struct linearConfig
+{
+    parameterTensor_t* weight;
+    parameterTensor_t* bias;
 } linearConfig_t;
 
 /*! @brief Gets linearConfig_t for a given weight & bias
  *
- * @param weight : pointer to array of weight of linear layer
- * @param sizeWeights: number of weights in array
- * @param bias : pointer to array of bias of linear layer
- * @param sizeBias : number of bias in array
+ * @param weightTensor : Pointer to tensor containing weights
+ * @param biasTensor : Pointer to Tensor containing bias
  * @return: pointer to linearConfig_t
  */
-linearConfig_t *initLinearConfigWithWeightBias(float *weight, size_t sizeWeights, float *bias, size_t sizeBias);
+linearConfig_t* initLinearConfigWithWeightBias(parameterTensor_t* weightTensor, parameterTensor_t* biasTensor);
 
 /*! @brief Return pointer to linearConfig_t with automatic weight and bias instantiation, likely glorot
  *
@@ -27,18 +24,16 @@ linearConfig_t *initLinearConfigWithWeightBias(float *weight, size_t sizeWeights
  * @param outputSize : output size of linear layer
  * @return : pointer to linearConfig_t
  */
-linearConfig_t *initLinearConfigWithInputOutputSize(size_t inputSize, size_t outputSize);
+linearConfig_t* initLinearConfigWithInputOutputSize(size_t inputSize, size_t outputSize);
 
 /*! @brief Returns pointer to layerForward_t
  *
- * @param weight : pointer to array of weights of the linear layer
- * @param sizeWeights: size of array of weights
- * @param bias : pointer to array of bias of the linear layer
- * @param sizeBias : size of array of weights
+ * @param weightTensor : pointer to tensor of weights of the linear layer
+ * @param biasTensor : pointer to tensor of bias of the linear layer
  * @return : pointer to layerForward_t
  */
-layerForward_t *initLinearLayerForwardWithWeightBias(float *weight, size_t sizeWeights, float *bias, size_t sizeBias);
-
+layerForward_t* initLinearLayerForwardWithWeightBias(parameterTensor_t* weightTensor,
+                                                     parameterTensor_t* biasTensor);
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init
  * Low Prio
@@ -47,17 +42,15 @@ layerForward_t *initLinearLayerForwardWithWeightBias(float *weight, size_t sizeW
  * @param outputSize : outputSize of linear layer
  * @return : pointer to layerForward_t
  */
-layerForward_t *initLinearLayerWithInputOutputSize(size_t inputSize, size_t outputSize);
+layerForward_t* initLinearLayerWithInputOutputSize(size_t inputSize, size_t outputSize);
 
-/*! @brief Returns pointer to layerForward_t for a given weight and bias
+/*! @brief Returns pointer to layerForwardBackward_t for a given weight and bias
  *
- * @param weight : pointer to array of weights of the linear layer
- * @param sizeWeights: size of array of weights
- * @param bias : pointer to array of bias of the linear layer
- * @param sizeBias : size of array of weights
+* @param weightTensor : pointer to tensor of weights of the linear layer
+ * @param biasTensor : pointer to tensor of bias of the linear layer
  * @return : pointer to layerForwardBackward_t
  */
-layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weight, size_t sizeWeights, float *bias, size_t sizeBias);
+layerForwardBackward_t* initLinearLayerForwardBackwardWithWeightBias(tensor_t* weightTensor, tensor_t* biasTensor);
 
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init
@@ -67,24 +60,24 @@ layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(float *weig
  * @param outputSize : outputSize of linear layer
  * @return : pointer to layerForwardBackward_t
  */
-layerForwardBackward_t *initLinearLayerBackwardWithInputOutputSize(size_t inputSize, size_t outputSize);
+layerForwardBackward_t* initLinearLayerBackwardWithInputOutputSize(size_t inputSize, size_t outputSize);
 
 /*! @brief Forward call for linear layer
  *
  * @param config : Config of linear layer
- * @param input : inputs for the linear layer
+ * @param inputTensor : Tensor with inputs for the linear layer
  * @return : output of the linear layer
  */
-float *linearForward(void *config, float *input);
+tensor_t* linearForward(void* config, tensor_t* inputTensor);
 
 /*! @brief Backward call for the linear layer that calculates the gradients in respect to the inputs
  * and in respect to the parameters
  *
  * @param config : Config of linear layer
- * @param grad : partial gradients of loss function till here
- * @param input : input that was put into the layer
+ * @param gradTensor : partial gradients of loss function till here
+ * @param inputTensor : input that was put into the layer
  * @return : partial gradients of loss function for the previous layers
  */
-float *linearBackward(void *config, float *grad, float *input);
+tensor_t* linearBackward(void* config, tensor_t* gradTensor, tensor_t* inputTensor);
 
 #endif //LINEAR_H
