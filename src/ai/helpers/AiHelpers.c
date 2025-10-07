@@ -7,6 +7,7 @@
 #include "ReLU.h"
 #include "CrossEntropy.h"
 #include "MSE.h"
+#include "../../hal/spi/include/SpiTypedefs.h"
 
 #include <string.h>
 
@@ -22,15 +23,48 @@ const lossFunctionEntry_t lossFuntions[] = {
     [CROSS_ENTROPY] = {crossEntropySoftmaxBackward}
 };
 
-parameter_t *initParameter(float *p, size_t size) {
-    parameter_t *param = calloc(1, sizeof(parameter_t));
 
-    param->p = calloc(size, sizeof(float));
-    memcpy(param->p, p, size * sizeof(float));
+size_t calcTensorDataSize(size_t numberOfDimensions, size_t *dimensions) {
+    size_t dataSize = 1;
+    for (size_t i = 0; i < numberOfDimensions; i++) {
+        dataSize *= dimensions[i];
+    }
+    return dataSize;
+}
 
-    param->size = size;
-    param->grad = calloc(size, sizeof(float));
-    return param;
+size_t calcTotalNumberOfElementsByTensor(tensor_t *tensor) {
+    size_t totalSize = 1;
+    for (size_t i = 0; i < tensor->numberOfDimensions; i++) {
+        totalSize *= tensor->dimensions[i];
+    }
+    return totalSize;
+}
+
+tensor_t *initTensor(float *data, size_t numberOfDimensions, size_t *dimensions) {
+    tensor_t *tensor = malloc(sizeof(tensor_t));
+
+    size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
+
+    tensor->data = malloc(dataSize * sizeof(float));
+    memcpy(tensor->data, data, dataSize * sizeof(float));
+
+    tensor->numberOfDimensions = numberOfDimensions;
+
+    tensor->dimensions = calloc(numberOfDimensions, sizeof(size_t));
+    memcpy(tensor->dimensions, dimensions, numberOfDimensions * sizeof(size_t));
+
+    return tensor;
+}
+
+parameterTensor_t *initParameterTensor(float *data, size_t numberOfDimensions, size_t *dimensions) {
+    parameterTensor_t *parameterTensor = calloc(1, sizeof(parameterTensor_t));
+
+    parameterTensor->tensor = initTensor(data, numberOfDimensions, dimensions);
+    size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
+
+    parameterTensor->grad = calloc(dataSize, sizeof(float));
+
+    return parameterTensor;
 }
 
 
@@ -49,7 +83,7 @@ size_t calculateInputSizeForNextLayer(layerForwardBackward_t *currentLayer,
     size_t inputSizeNextLayer = -1;
     switch (currentLayer->type) {
     case LINEAR:
-        inputSizeNextLayer = ((linearConfig_t *)currentLayer->config)->outputSize;
+       inputSizeNextLayer = ((linearConfig_t *)currentLayer->config)->outputSize;
         break;
     case RELU:
         inputSizeNextLayer = ((ReLUConfig_t *)currentLayer->config)->size;
@@ -84,6 +118,12 @@ loss *getLossFunctionByType(lossFunctionType_t lossType) {
     return lossFunction;
 }
 
+
+/*! IMPORTANT: We assume, that if you use Cross Entropy as your loss function,
+ * you also use Softmax with it. We introduce Softmax as a dedicated Layer,
+ * but in the backward pass it is ignored. We do this, because the Cross Entropy Backward
+ * already takes the Softmax Backward into account.
+ */
 trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           size_t sizeNetwork,
                                           lossFunctionType_t lossFunctionType,
@@ -116,9 +156,8 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
     trainingStats_t *trainingStats = calloc(1, sizeof(trainingStats_t));
     trainingStats->loss = grad;
 
-
     size_t backwardIndex = sizeNetwork - 1;
-    if(lossFunctionType == CROSS_ENTROPY) {
+    if (lossFunctionType == CROSS_ENTROPY) {
         backwardIndex -= 1;
     }
     // Backward Pass

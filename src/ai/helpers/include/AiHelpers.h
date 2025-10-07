@@ -57,26 +57,24 @@ typedef struct qTensor
 typedef struct tensor
 {
     float* data;
-    size_t dimensions;
-    size_t* dimSizes;
+    size_t numberOfDimensions;
+    size_t* dimensions;
 } tensor_t;
+
+/*! @brief Describes a parameter tensor
+ * @param tensor = base tensor, containing data, numberOfDimensions and dimensions
+ * @param grad = array of same size as data array in base tensor, in which the corresponding gradients can be summed up
+ */
+typedef struct parameter
+{
+    struct tensor* tensor;
+    float* grad;
+} parameterTensor_t;
 
 typedef float*(forward)(void*, float*, size_t);
 typedef float*(backward)(void*, float*, float*, size_t);
 
 typedef float*(loss)(float*, float*, size_t);
-
-/*! @brief Describes each parameter
- * p = array of parameter values
- * grad = array of size parameter in which the corresponding gradients can be summed up
- * size = size of array p & grad
- */
-typedef struct parameter
-{
-    float* p;
-    float* grad;
-    size_t size;
-} parameter_t;
 
 /*! @brief Enum of possible layer types
  */
@@ -96,9 +94,8 @@ typedef enum lossFunctionType
 
 typedef struct
 {
-    loss *lossFunction;
+    loss* lossFunction;
 } lossFunctionEntry_t;
-
 
 
 /*! @brief Pairs forward and backward functions of layer
@@ -113,13 +110,31 @@ typedef struct
  */
 extern const layerFunctionEntry_t layerFunctions[];
 
-/*! @brief Init the parameter_t construct
+/*! @brief Calculate total number of elements of given tensor
  *
- * @param p
- * @param size
- * @return : pointer to parameter
+ * @param tensor
+ * @return : total number of elements
  */
-parameter_t* initParameter(float* p, size_t size);
+size_t calcTotalNumberOfElementsByTensor(tensor_t* tensor);
+
+
+size_t calcTensorDataSize(size_t numberOfDimensions, size_t *dimensions);
+
+/*! @brief Init tensor
+ * @param data : array of data
+ * @param numberOfDimensions : number of dimensions
+ * @param dimensions : array of dimensions
+ * @return : tensor
+ */
+tensor_t* initTensor(float* data, size_t numberOfDimensions, size_t* dimensions);
+
+/*! @brief Init tensor with grads
+ * @param data : array of data
+ * @param numberOfDimensions : number of dimensions
+ * @param dimensions : array of dimensions
+ * @return : parameter tensor
+ */
+parameterTensor_t* initParameterTensor(float* data, size_t numberOfDimensions, size_t* dimensions);
 
 /*! @brief Describes how you can generally construct layers
  *
