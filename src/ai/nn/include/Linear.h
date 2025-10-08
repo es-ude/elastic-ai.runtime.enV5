@@ -9,6 +9,8 @@ typedef struct linearConfig
     parameterTensor_t* bias;
 } linearConfig_t;
 
+tensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTensor);
+
 /*! @brief Gets linearConfig_t for a given weight & bias
  *
  * @param weightTensor : Pointer to tensor containing weights

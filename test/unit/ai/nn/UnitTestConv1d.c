@@ -20,20 +20,15 @@ conv1dConfig_t *InitConv1dConfigSimple() {
         -1.f, 0.f, 1.f, -1.f, 2.f, 3.f, //output channel 0
         0.f, 0.f, 0.f, 1.f, -1.f, -2.f, //output channel 1
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
-
-    tensor_t weightTensor = {
-        .data = weight,
-        .numberOfDimensions = 2,
-        .dimensions = (size_t[]){3, 6}
-    };
+    size_t weightDims[] = {3, 6};
+    size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
+    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[] = {0.f, 1.f, 2.f};
+    size_t biasDims[] = {3};
+    size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
+    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
 
-    tensor_t biasTensor = {
-        .data = bias,
-        .numberOfDimensions = 1,
-        .dimensions = (size_t[]){3}
-    };
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation, NONE,
         paddingSize);
@@ -43,23 +38,19 @@ conv1dConfig_t *InitConv1dConfigSimple() {
 conv1dConfig_t *initConv1dConfigComplex() {
     size_t inputChannels = 2, outputChannels = 3, kernelSize = 3, stride = 3, dilation = 2,
            paddingSize = 1;
+
     float weight[] = {
         -1.f, 0.f, 1.f, -1.f, 2.f, 3.f, //output channel 0
         0.f, 0.f, 0.f, 1.f, -1.f, -2.f, //output channel 1
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
-
-    tensor_t weightTensor = {
-        .data = weight,
-        .numberOfDimensions = 2,
-        .dimensions = (size_t[]){3, 6}
-    };
+    size_t weightDims[] = {3, 6};
+    size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
+    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[] = {0.f, 1.f, 2.f};
-    tensor_t biasTensor = {
-        .data = bias,
-        .numberOfDimensions = 1,
-        .dimensions = (size_t[]){3}
-    };
+    size_t biasDims[] = {3};
+    size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
+    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
 
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
@@ -68,10 +59,13 @@ conv1dConfig_t *initConv1dConfigComplex() {
     return config;
 }
 
-void TEST_ASSERT_PARAMETERS_EQUAL(parameter_t *a, parameter_t *b) {
-    TEST_ASSERT_EQUAL_size_t(a->size, b->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(a->p, b->p, a->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(a->grad, b->grad, a->size);
+void TEST_ASSERT_PARAMETER_TENSORS_EQUAL(parameterTensor_t *a, parameterTensor_t *b) {
+    size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(a->tensor);
+    TEST_ASSERT_EQUAL_size_t(a->tensor->numberOfDimensions, b->tensor->numberOfDimensions);
+    TEST_ASSERT_EQUAL_size_t_ARRAY(a->tensor->dimensions, b->tensor->dimensions,
+                                   a->tensor->numberOfDimensions);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(a->tensor->data, b->tensor->data, totalNumberOfElements);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(a->grad, b->grad, totalNumberOfElements);
 }
 
 
@@ -82,18 +76,15 @@ void unitTestInitConv1Config() {
     for (int i = 0; i < 24; i++) {
         weight[i] = (float)i;
     }
-    size_t weightDims[] = {3, 6};
-    tensor_t weightTensor;
-    weightTensor.data = weight;
-    weightTensor.numberOfDimensions = sizeof(weightDims) / sizeof(size_t);
-    weightTensor.dimensions = weightDims;
+    size_t weightDims[] = {3, 8};
+    size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
+    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[3] = {0.f, 0.f, 0.f};
     size_t biasDims[] = {3};
-    tensor_t biasTensor;
-    biasTensor.data = bias;
-    biasTensor.numberOfDimensions = sizeof(biasDims) / sizeof(size_t);
-    biasTensor.dimensions = biasDims;
+    size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
+    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
+
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
         ZEROS,
@@ -107,13 +98,9 @@ void unitTestInitConv1Config() {
     TEST_ASSERT_EQUAL_size_t(paddingSize, config->padding->size);
     TEST_ASSERT_BIT_HIGH(0, config->useBias);
 
-    parameter_t *expected_weight = initParameter(weight, sizeof(weight) / sizeof(weight[0]));
-    parameter_t *expected_bias = initParameter(bias, sizeof(bias) / sizeof(bias[0]));
-
-    TEST_ASSERT_PARAMETERS_EQUAL(expected_weight, config->weight);
-    TEST_ASSERT_PARAMETERS_EQUAL(expected_bias, config->bias);
+    TEST_ASSERT_PARAMETER_TENSORS_EQUAL(weightTensor, config->weight);
+    TEST_ASSERT_PARAMETER_TENSORS_EQUAL(biasTensor, config->bias);
 }
-
 
 void unitTestCalcOutputSizeForInputSizeAndConv1dConfigSimple() {
     conv1dConfig_t *config = InitConv1dConfigSimple();
@@ -139,6 +126,25 @@ void unitTestCalcOutputSizeForInputSizeAndConv1dConfigComplex() {
     size_t outputSize3 = calcOutputSizeForInputSizeAndConv1dConfig(36, config);
     size_t expectedOutputSize3 = 18;
     TEST_ASSERT_EQUAL_size_t(expectedOutputSize3, outputSize3);
+}
+
+void unitTestInitConv1dOutputTensor() {
+    conv1dConfig_t *conv1dConfig = initConv1dConfigComplex();
+    float input[12] = {
+        0.f, 1.f, 2.f, 3.f, 4.f, 5.f,
+        0.f, -1.f, -2.f, -3.f, -4.f, -5.f,
+    };
+    size_t inputDims[] = {2, 6};
+    size_t inputNumberOfDims = sizeof(inputDims) / sizeof(inputDims[0]);
+
+    tensor_t *inputTensor = initTensor(input, inputNumberOfDims, inputDims);
+
+    tensor_t *outputTensor = initConv1dOutputTensor(conv1dConfig, inputTensor);
+
+    size_t expectedNumberOfDimensions = 2;
+    size_t expectedDimensions[] = {3, 2};
+    TEST_ASSERT_EQUAL_size_t(expectedNumberOfDimensions, outputTensor->numberOfDimensions);
+    TEST_ASSERT_EQUAL_size_t_ARRAY(expectedDimensions, outputTensor->dimensions, expectedNumberOfDimensions);
 }
 
 void unitTestConv1dForward() {
@@ -221,7 +227,6 @@ void unitTestConv1dBackward() {
     size_t targetDims[] = {3, 4};
     tensor_t *targetTensor = initTensor(target, 2, targetDims);
 
-    size_t inputSize = sizeof(input) / sizeof(input[0]);
     tensor_t *gradOut = MSELossBackward(conv1dOutputTensor, targetTensor);
 
     tensor_t *propagatedLoss1 = conv1dBackward(config, gradOut, inputTensor);
@@ -237,13 +242,17 @@ void unitTestConv1dBackward() {
 
     float expectedBiasGrad1[3] = {0.6667f, 0.8333f, 0.6667f};
 
+    size_t inputSize = calcTotalNumberOfElementsByTensor(inputTensor);
+    size_t weightSize = calcTotalNumberOfElementsByTensor(config->weight->tensor);
+    size_t biasSize = calcTotalNumberOfElementsByTensor(config->bias->tensor);
+
     for (size_t i = 0; i < inputSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedPropagatedLoss1[i], propagatedLoss1->data[i]);
     }
-    for (size_t i = 0; i < config->weight->size; i++) {
+    for (size_t i = 0; i < weightSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedWeightGrad1[i], config->weight->grad[i]);
     }
-    for (size_t i = 0; i < config->bias->size; i++) {
+    for (size_t i = 0; i < biasSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad1[i], config->bias->grad[i]);
     }
 
@@ -263,24 +272,24 @@ void unitTestConv1dBackward() {
     for (size_t i = 0; i < inputSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedPropagatedLoss2[i], propagatedLoss2->data[i]);
     }
-    for (size_t i = 0; i < config->weight->size; i++) {
+    for (size_t i = 0; i < weightSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedWeightGrad2[i], config->weight->grad[i]);
     }
-    for (size_t i = 0; i < config->bias->size; i++) {
+    for (size_t i = 0; i < biasSize; i++) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad2[i], config->bias->grad[i]);
     }
 }
 
-
 void unitTestConv1dBackwardComplex(void) {
     conv1dConfig_t *config = initConv1dConfigComplex();
     float input[12] = {
-        1.f, 2.f, 3.f, 4.f, 5.f, 6.f,
-        -1.f, -2.f, -3.f, -4.f, -5.f, -6.f
+        0.f, 1.f, 2.f, 3.f, 4.f, 5.f,
+        0.f, -1.f, -2.f, -3.f, -4.f, -5.f,
     };
     size_t inputDims[] = {2, 6};
+    size_t inputNumberOfDims = sizeof(inputDims) / sizeof(inputDims[0]);
 
-    tensor_t *inputTensor = initTensor(input, 2, inputDims);
+    tensor_t *inputTensor = initTensor(input, inputNumberOfDims, inputDims);
 
     float conv1dForwardComplexOutput[6] = {
         -12.f, -10.f, // outputChannel 0
@@ -295,50 +304,55 @@ void unitTestConv1dBackwardComplex(void) {
         -2.f, -1.f, // oc1
         1.f, 0.f // oc2
     };
-    size_t deltaDims[] = {2, 3};
+    size_t deltaDims[] = {3, 2};
     tensor_t *deltaTensor = initTensor(delta, 2, deltaDims);
 
     float target[6];
     for (size_t i = 0; i < 6; i++) {
         target[i] = conv1dOutputTensor->data[i] + deltaTensor->data[i];
     }
-    tensor_t *targetTensor = initTensor(target, conv1dOutputTensor->numberOfDimensions, conv1dOutputTensor->dimensions);
+    tensor_t *targetTensor = initTensor(target, conv1dOutputTensor->numberOfDimensions,
+                                        conv1dOutputTensor->dimensions);
 
     tensor_t *gradOut = MSELossBackward(conv1dOutputTensor, targetTensor);
 
     float expectedPropagatedLoss1[12] = {
-        0.f, 0.1667f, 0.f, 0.5000f, 0.f, 0.f,
-        0.f, 0.1667f, 0.1667f, -0.1667f, -0.1667f, 0.f
+        0.0000f, 0.3333f, 0.0000f, 1.0000f, 0.0000f, 0.0000f,
+        0.0000f, 0.3333f, 0.3333f, -0.3333f, -0.3333f, 0.0000f
     };
 
     float expectedWeightGrad1[18] = {
-        0.f, 0.3333f, 0.6667f, 0.f, -0.3333f, -0.6667f, // oc0
-        0.5f, 1.5f, 1.3333f, -0.5f, -1.5f, -1.3333f, // oc1
-        0.f, -0.3333f, -0.6667f, 0.f, 0.3333f, 0.6667f // oc2
+        0.0000f, 0.3333f, 1.0000f, 0.0000f, -0.3333f, -1.0000f,  // oc0
+        0.6667f, 2.0000f, 2.0000f, -0.6667f, -2.0000f, -2.0000f, // oc1
+        0.0000f, -0.3333f, -1.0000f, 0.0000f, 0.3333f, 1.0000f   // oc2
     };
 
-    float expectedBiasGrad1[3] = {0.1667f, 0.5f, -0.1667f};
+    float expectedBiasGrad1[3] = {0.3333f,  1.0000f, -0.3333f};
 
-    tensor_t *propagatedLoss1 = conv1dBackward(config, gradOut, &inputTensor);
+    tensor_t *propagatedLoss1 = conv1dBackward(config, gradOut, inputTensor);
 
-    for (size_t i = 0; i < 12; ++i) {
+    size_t inputSize = calcTotalNumberOfElementsByTensor(inputTensor);
+    size_t weightSize = calcTotalNumberOfElementsByTensor(config->weight->tensor);
+    size_t biasSize = calcTotalNumberOfElementsByTensor(config->bias->tensor);
+
+    for (size_t i = 0; i < inputSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedPropagatedLoss1[i], propagatedLoss1->data[i]);
     }
-    for (size_t i = 0; i < config->weight->size; ++i) {
+    for (size_t i = 0; i < weightSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedWeightGrad1[i], config->weight->grad[i]);
     }
-    for (size_t i = 0; i < config->bias->size; ++i) {
+    for (size_t i = 0; i < biasSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad1[i], config->bias->grad[i]);
     }
 
     tensor_t *propagatedLoss2 = conv1dBackward(config, gradOut, inputTensor);
-    for (size_t i = 0; i < 12; ++i) {
+    for (size_t i = 0; i < inputSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedPropagatedLoss1[i], propagatedLoss2->data[i]);
     }
-    for (size_t i = 0; i < config->weight->size; ++i) {
+    for (size_t i = 0; i < weightSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedWeightGrad1[i] * 2.f, config->weight->grad[i]);
     }
-    for (size_t i = 0; i < config->bias->size; ++i) {
+    for (size_t i = 0; i < biasSize; ++i) {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expectedBiasGrad1[i] * 2.f, config->bias->grad[i]);
     }
 }
@@ -349,6 +363,7 @@ int main() {
     RUN_TEST(unitTestInitConv1Config);
     RUN_TEST(unitTestCalcOutputSizeForInputSizeAndConv1dConfigSimple);
     RUN_TEST(unitTestCalcOutputSizeForInputSizeAndConv1dConfigComplex);
+    RUN_TEST(unitTestInitConv1dOutputTensor);
 
     RUN_TEST(unitTestConv1dForward);
     RUN_TEST(unitTestConv1dForwardComplex);

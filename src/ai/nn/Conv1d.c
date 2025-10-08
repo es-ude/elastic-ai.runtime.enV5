@@ -26,8 +26,44 @@ size_t calcOutputSizeForInputSizeAndConv1dConfig(size_t inputSize, conv1dConfig_
     return outputSizePerChannel * outputChannels;
 }
 
-conv1dConfig_t *initConv1dConfigWithWeightAndBias(tensor_t weightTensor,
-                                                  tensor_t biasTensor,
+tensor_t *initConv1dOutputTensor(conv1dConfig_t *conv1dConfig, tensor_t *inputTensor) {
+    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+
+    if (inputTensor->numberOfDimensions != 2) {
+        printf("Error: Conv1d expects input tensor with 2 dimensions (C, L)\n");
+        return NULL;
+    }
+
+    size_t outputChannels = conv1dConfig->outputChannels;
+    size_t inputLength = inputTensor->dimensions[1];
+
+    size_t kernelSize = conv1dConfig->kernelSize;
+    size_t stride = conv1dConfig->stride;
+    size_t dilation = conv1dConfig->dilation;
+    size_t padding = conv1dConfig->padding->size;
+
+    size_t effectiveKernel = (kernelSize - 1) * dilation + 1;
+    size_t outputLength = (inputLength + 2 * padding - effectiveKernel) / stride + 1;
+
+    if (conv1dConfig->padding->type == SAME) {
+        outputLength = inputLength;
+    }
+
+    outputTensor->numberOfDimensions = 2;
+    outputTensor->dimensions = calloc(2, sizeof(size_t));
+    outputTensor->dimensions[0] = outputChannels;
+    outputTensor->dimensions[1] = outputLength;
+
+    size_t totalElements = outputChannels * outputLength;
+
+    outputTensor->data = calloc(totalElements, sizeof(float));
+
+    return outputTensor;
+}
+
+
+conv1dConfig_t *initConv1dConfigWithWeightAndBias(parameterTensor_t *weightTensor,
+                                                  parameterTensor_t *biasTensor,
                                                   size_t inputChannels,
                                                   size_t outputChannels,
                                                   size_t kernelSize,
@@ -41,27 +77,17 @@ conv1dConfig_t *initConv1dConfigWithWeightAndBias(tensor_t weightTensor,
     conv1dConfig->inputChannels = inputChannels;
     conv1dConfig->outputChannels = outputChannels;
     conv1dConfig->kernelSize = kernelSize;
+    conv1dConfig->weight = weightTensor;
+    conv1dConfig->bias = biasTensor;
 
     conv1dConfig->stride = stride;
     conv1dConfig->dilation = dilation;
 
-    conv1dConfig->padding = malloc(sizeof(padding_t));
+    conv1dConfig->padding = calloc(1, sizeof(padding_t));
     conv1dConfig->padding->type = paddingType;
     conv1dConfig->padding->size = paddingSize;
 
-    size_t weightSize = inputChannels * outputChannels * kernelSize;
-    conv1dConfig->weight = malloc(weightSize * sizeof(float));
-    conv1dConfig->weight->size = weightSize;
-    conv1dConfig->weight->p = malloc(weightSize * sizeof(float));
-    memcpy(conv1dConfig->weight->p, weightTensor.data, weightSize * sizeof(float));
-    conv1dConfig->weight->grad = calloc(weightSize, sizeof(float));
-
-    if (biasTensor.data) {
-        conv1dConfig->bias = malloc(sizeof(parameter_t));
-        conv1dConfig->bias->size = outputChannels;
-        conv1dConfig->bias->p = malloc(outputChannels * sizeof(float));
-        memcpy(conv1dConfig->bias->p, biasTensor.data, outputChannels * sizeof(float));
-        conv1dConfig->bias->grad = calloc(outputChannels, sizeof(float));
+    if (biasTensor->tensor->data) {
         conv1dConfig->useBias = true;
     } else {
         conv1dConfig->bias = NULL;
@@ -72,8 +98,8 @@ conv1dConfig_t *initConv1dConfigWithWeightAndBias(tensor_t weightTensor,
 }
 
 
-conv1dConfig_t *initConv1dConfigWithKernels(parameter_t *kernels,
-                                            float *bias,
+conv1dConfig_t *initConv1dConfigWithKernels(parameterTensor_t *kernels,
+                                            parameterTensor_t *bias,
                                             size_t inputChannels,
                                             size_t outputChannels,
                                             size_t kernelSize,
@@ -97,12 +123,8 @@ conv1dConfig_t *initConv1dConfigWithKernels(parameter_t *kernels,
     config->weight->grad = calloc(outputChannels * inputChannels * kernelSize,
                                   sizeof(float));
 
-    if (bias) {
+    if (bias->tensor->data) {
         config->useBias = true;
-        config->bias = calloc(1, sizeof(parameter_t));
-        config->bias->p = bias;
-        config->bias->size = outputChannels;
-        config->bias->grad = calloc(outputChannels, sizeof(float));
     }
 
     return config;
@@ -141,12 +163,14 @@ float *conv1dForward(void *config, tensor_t *inputTensor) {
     if (conv1dConfig->padding->type == SAME) {
         outSizePerChannel = (inSizePerChannel + stride - 1) / stride; // ceil
         size_t padNeeded = (outSizePerChannel - 1) * stride
-                         + dilation * (kernel - 1) + 1
-                         - inSizePerChannel;
-        if ((int)padNeeded < 0) padNeeded = 0;
-        padLeft  = padNeeded / 2;
+                           + dilation * (kernel - 1) + 1
+                           - inSizePerChannel;
+        if ((int)padNeeded < 0)
+            padNeeded = 0;
+        padLeft = padNeeded / 2;
         padRight = padNeeded - padLeft;
-    } else { // VALID
+    } else {
+        // VALID
         outSizePerChannel = (inSizePerChannel + 2 * conv1dConfig->padding->size
                              - dilation * (kernel - 1) - 1) / stride + 1;
         padLeft = conv1dConfig->padding->size;
@@ -161,18 +185,19 @@ float *conv1dForward(void *config, tensor_t *inputTensor) {
             for (size_t ic = 0; ic < inChannels; ++ic) {
                 for (size_t k = 0; k < kernel; ++k) {
                     int inIndex = (int)i * (int)stride
-                                + (int)k * (int)dilation
-                                - (int)padLeft;
-                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel) continue;
+                                  + (int)k * (int)dilation
+                                  - (int)padLeft;
+                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel)
+                        continue;
 
                     size_t inIdx = ic * inSizePerChannel + (size_t)inIndex;
-                    size_t wIdx  = oc * inChannels * kernel + ic * kernel + k;
+                    size_t wIdx = oc * inChannels * kernel + ic * kernel + k;
 
-                    sum += inputTensor->data[inIdx] * conv1dConfig->weight->p[wIdx];
+                    sum += inputTensor->data[inIdx] * conv1dConfig->weight->tensor->data[wIdx];
                 }
             }
             if (conv1dConfig->useBias) {
-                sum += conv1dConfig->bias->p[oc];
+                sum += conv1dConfig->bias->tensor->data[oc];
             }
             output[oc * outSizePerChannel + i] = sum;
         }
@@ -198,12 +223,14 @@ tensor_t *conv1dBackward(void *config, tensor_t *gradTensor, tensor_t *inputTens
     if (conv1dConfig->padding->type == SAME) {
         outSizePerChannel = (inSizePerChannel + stride - 1) / stride;
         size_t padNeeded = (outSizePerChannel - 1) * stride
-                         + dilation * (kernel - 1) + 1
-                         - inSizePerChannel;
-        if ((int)padNeeded < 0) padNeeded = 0;
-        padLeft  = padNeeded / 2;
+                           + dilation * (kernel - 1) + 1
+                           - inSizePerChannel;
+        if ((int)padNeeded < 0)
+            padNeeded = 0;
+        padLeft = padNeeded / 2;
         padRight = padNeeded - padLeft;
-    } else { // VALID
+    } else {
+        // VALID
         outSizePerChannel = (inSizePerChannel + 2 * conv1dConfig->padding->size
                              - dilation * (kernel - 1) - 1) / stride + 1;
         padLeft = conv1dConfig->padding->size;
@@ -233,17 +260,18 @@ tensor_t *conv1dBackward(void *config, tensor_t *gradTensor, tensor_t *inputTens
             for (size_t k = 0; k < kernel; ++k) {
                 for (size_t i = 0; i < outSizePerChannel; ++i) {
                     int inIndex = (int)i * (int)stride
-                                + (int)k * (int)dilation
-                                - (int)padLeft;
-                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel) continue;
+                                  + (int)k * (int)dilation
+                                  - (int)padLeft;
+                    if (inIndex < 0 || inIndex >= (int)inSizePerChannel)
+                        continue;
 
                     float g = gradTensor->data[oc * outSizePerChannel + i];
 
                     size_t inIdx = ic * inSizePerChannel + (size_t)inIndex;
-                    size_t wIdx  = oc * inChannels * kernel + ic * kernel + k;
+                    size_t wIdx = oc * inChannels * kernel + ic * kernel + k;
 
                     conv1dConfig->weight->grad[wIdx] += g * inputTensor->data[inIdx];
-                    gradInput->data[inIdx] += g * conv1dConfig->weight->p[wIdx];
+                    gradInput->data[inIdx] += g * conv1dConfig->weight->tensor->data[wIdx];
                 }
             }
         }
@@ -252,13 +280,15 @@ tensor_t *conv1dBackward(void *config, tensor_t *gradTensor, tensor_t *inputTens
     return gradInput;
 }
 
-layerForward_t *initConv1dLayerForward(tensor_t weightTensor, tensor_t biasTensor, size_t inputChannels,
+layerForward_t *initConv1dLayerForward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor,
+                                       size_t inputChannels,
                                        size_t outputChannels, size_t kernelSize, size_t stride,
                                        size_t dilation, paddingType_t paddingType,
                                        size_t paddingSize, size_t inputSize) {
     layerForward_t *layerForward = malloc(sizeof(layerForward_t));
     layerForward->config = initConv1dConfigWithWeightAndBias(
-        weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation, paddingType,
+        weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
+        paddingType,
         paddingSize);
     layerForward->type = CONV1D;
     layerForward->inputSize = inputSize;
@@ -266,7 +296,7 @@ layerForward_t *initConv1dLayerForward(tensor_t weightTensor, tensor_t biasTenso
     return layerForward;
 }
 
-layerForwardBackward_t *initConv1dLayerForwardBackward(tensor_t weightTensor, tensor_t biasTensor,
+layerForwardBackward_t *initConv1dLayerForwardBackward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor,
                                                        size_t inputChannels,
                                                        size_t outputChannels, size_t kernelSize,
                                                        size_t stride,
@@ -274,7 +304,8 @@ layerForwardBackward_t *initConv1dLayerForwardBackward(tensor_t weightTensor, te
                                                        size_t paddingSize, size_t inputSize) {
     layerForwardBackward_t *layerForwardBackward = malloc(sizeof(layerForwardBackward_t));
     layerForwardBackward->config = initConv1dConfigWithWeightAndBias(
-        weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation, paddingType,
+        weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
+        paddingType,
         paddingSize);
     layerForwardBackward->type = CONV1D;
     layerForwardBackward->inputSize = inputSize;

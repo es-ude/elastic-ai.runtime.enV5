@@ -5,7 +5,7 @@
 #include <Common.h>
 #include <string.h>
 
-tensor_t *initOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTensor) {
+tensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTensor) {
     size_t outputSize = linearConfig->weight->tensor->dimensions[0];
     tensor_t *outputTensor = malloc(sizeof(size_t));
     if (inputTensor->numberOfDimensions == 1) {
@@ -30,7 +30,7 @@ tensor_t *linearForward(void *config, tensor_t *inputTensor) {
     linearConfig_t *linearConfig = config;
     size_t weightIndex = 0;
 
-    tensor_t *outputTensor = initOutputTensor(linearConfig, inputTensor);
+    tensor_t *outputTensor = initLinearOutputTensor(linearConfig, inputTensor);
     size_t inputSize = 0;
     size_t outputSize = 0;
 

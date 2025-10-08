@@ -78,28 +78,35 @@ float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *in
     return input;
 }
 
-size_t calculateInputSizeForNextLayer(layerForwardBackward_t *currentLayer,
-                                      size_t inputSizeCurrentLayer) {
-    size_t inputSizeNextLayer = -1;
+tensor_t *initInputTensorForNextLayer(layerForwardBackward_t *currentLayer,
+                                         tensor_t *currentInputTensor) {
+    tensor_t *inputTensorNextLayer = malloc(sizeof(tensor_t));
     switch (currentLayer->type) {
     case LINEAR:
-       inputSizeNextLayer = ((linearConfig_t *)currentLayer->config)->outputSize;
+        inputTensorNextLayer = initLinearOutputTensor(currentLayer->config, currentInputTensor);
         break;
     case RELU:
-        inputSizeNextLayer = ((ReLUConfig_t *)currentLayer->config)->size;
+        inputTensorNextLayer->numberOfDimensions = currentInputTensor->numberOfDimensions;
+        inputTensorNextLayer->dimensions = calloc(inputTensorNextLayer->numberOfDimensions,
+                                                  sizeof(size_t));
+        memcpy(inputTensorNextLayer->dimensions, currentInputTensor->dimensions,
+               inputTensorNextLayer->numberOfDimensions * sizeof(size_t));
         break;
     case CONV1D:
-        inputSizeNextLayer =
-            calcOutputSizeForInputSizeAndConv1dConfig(inputSizeCurrentLayer, currentLayer->config);
+        inputTensorNextLayer = initConv1dOutputTensor(currentLayer->config, currentInputTensor);
         break;
     case SOFTMAX:
-        inputSizeNextLayer = ((softmaxConfig_t *)currentLayer->config)->size;
+        inputTensorNextLayer->numberOfDimensions = currentInputTensor->numberOfDimensions;
+        inputTensorNextLayer->dimensions = calloc(inputTensorNextLayer->numberOfDimensions,
+                                                  sizeof(size_t));
+        memcpy(inputTensorNextLayer->dimensions, currentInputTensor->dimensions,
+               inputTensorNextLayer->numberOfDimensions * sizeof(size_t));
         break;
     default:
         printf("SWITCH CASE NOT FOUND\n");
         break;
     }
-    return inputSizeNextLayer;
+    return inputTensorNextLayer;
 }
 
 loss *getLossFunctionByType(lossFunctionType_t lossType) {
@@ -118,12 +125,13 @@ loss *getLossFunctionByType(lossFunctionType_t lossType) {
     return lossFunction;
 }
 
-
+// TODO
+/*
 /*! IMPORTANT: We assume, that if you use Cross Entropy as your loss function,
  * you also use Softmax with it. We introduce Softmax as a dedicated Layer,
  * but in the backward pass it is ignored. We do this, because the Cross Entropy Backward
  * already takes the Softmax Backward into account.
- */
+ #1#
 trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           size_t sizeNetwork,
                                           lossFunctionType_t lossFunctionType,
@@ -171,3 +179,4 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
 
     return trainingStats;
 }
+*/
