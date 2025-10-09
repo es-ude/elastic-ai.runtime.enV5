@@ -52,7 +52,7 @@ layerForward_t* initLinearLayerWithInputOutputSize(size_t inputSize, size_t outp
  * @param biasTensor : pointer to tensor of bias of the linear layer
  * @return : pointer to layerForwardBackward_t
  */
-layerForwardBackward_t* initLinearLayerForwardBackwardWithWeightBias(tensor_t* weightTensor, tensor_t* biasTensor);
+layerForwardBackward_t* initLinearLayerForwardBackwardWithWeightBias(parameterTensor_t* weightTensor, parameterTensor_t* biasTensor);
 
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init

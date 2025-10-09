@@ -1,19 +1,22 @@
 #define SOURCE_FILE "SGD-UTEST"
 
-#include "../../../../src/ai/nn/include/Linear.h"
-#include "../../../../src/ai/nn/include/ReLU.h"
 #include "AiHelpers.h"
 #include "SGD.h"
+#include "Linear.h"
+#include "ReLU.h"
 #include "unity.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void setUp() {}
 void tearDown() {}
 
 void unitTestInitMomentumBuffer() {
     float p[] = {0.f, 1.f, 2.f};
-    parameter_t *param = initParameter(p, 3);
+    size_t pDims[] = {3};
+    size_t pNumberOfDims = 1;
+    parameterTensor_t *param = initParameterTensor(p, pNumberOfDims, pDims);
     momentumBuffer_t *momentumBuffer= initMomentumBuffer(param);
 
     float expectedMomentumBuffer[] = {0.f, 0.f, 0.f};
@@ -24,10 +27,18 @@ void unitTestInitMomentumBuffer() {
 
 void unitTestInitSGDConfig() {
     float w0[] = {0.f, 1.f, 2.f};
+    size_t w0Dims[] = {1,3};
+    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
+    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
+
     float b0[] = {0.f, 1.f, -1.f};
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
-    layerForwardBackward_t *relu0 = initReLULayerForwardBackward(3);
-    layerForwardBackward_t *linear1 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
+    size_t b0Dims[] = {3};
+    size_t b0NumberOfDims = 1;
+    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0Dims);
+
+    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
+    layerForwardBackward_t *relu0 = initReLULayerForwardBackward();
+    layerForwardBackward_t *linear1 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
     layerForwardBackward_t *model[3] = {linear0, relu0, linear1};
     size_t sizeModel = sizeof(model)/sizeof(model[0]);
     float lr = 0.1f;
@@ -49,21 +60,29 @@ void unitTestInitSGDConfig() {
     TEST_ASSERT_EQUAL_PTR(linear1Conf->weight, config->momentum_buffer[2]->parameter);
     TEST_ASSERT_EQUAL_PTR(linear1Conf->bias, config->momentum_buffer[3]->parameter);
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->weight->grad, config->momentum_buffer[0]->momentums, linear0Conf->weight->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->bias->grad, config->momentum_buffer[1]->momentums, linear0Conf->bias->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->weight->grad, config->momentum_buffer[2]->momentums, linear1Conf->weight->size);
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->bias->grad, config->momentum_buffer[3]->momentums, linear1Conf->bias->size);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->weight->grad, config->momentum_buffer[0]->momentums, calcTotalNumberOfElementsByTensor(w0Tensor->tensor));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->bias->grad, config->momentum_buffer[1]->momentums, calcTotalNumberOfElementsByTensor(b0Tensor->tensor));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->weight->grad, config->momentum_buffer[2]->momentums, calcTotalNumberOfElementsByTensor(w0Tensor->tensor));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->bias->grad, config->momentum_buffer[3]->momentums, calcTotalNumberOfElementsByTensor(b0Tensor->tensor));
 }
 
 
 void unitTestSGDStep() {
     float w0[] = {1.f, 2.f, -3.f};
+    size_t w0Dims[] = {1, 3};
+    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
+    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
     float w0Grad[] = {1.f, -1.f, 2.f};
+    memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
 
     float b0[] = {-1.f, 3.f};
+    size_t b0Dims[] = {3};
+    size_t b0NumberOfDims = 1;
+    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0Dims);
     float b0Grad[] = {1.f, 3.f};
+    memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
 
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
+    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
     linearConfig_t *linearConf = linear0->config;
     linearConf->weight->grad = w0Grad;
     linearConf->bias->grad = b0Grad;
@@ -79,8 +98,8 @@ void unitTestSGDStep() {
     float wPExpected[] = {0.899f, 2.098f, -3.197f};
     float bPExpected[] = {-1.099f, 2.697f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected, linearConf->weight->p, sizeof(wPExpected)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY( bPExpected, linearConf->bias->p, sizeof(bPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected, linearConf->weight->tensor->data, sizeof(wPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY( bPExpected, linearConf->bias->tensor->data, sizeof(bPExpected)/sizeof(float));
 
     // Second Step with same grads but with momentum now
     SGDStep(config);
@@ -88,18 +107,26 @@ void unitTestSGDStep() {
     float wPExpected2[] = {0.707201f, 2.284102f, -3.571103f};
     float bPExpected2[] = {-1.287001f, 2.121603f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected2, linearConf->weight->p,  sizeof(wPExpected2)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bPExpected2, linearConf->bias->p, sizeof(bPExpected2)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected2, linearConf->weight->tensor->data,  sizeof(wPExpected2)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bPExpected2, linearConf->bias->tensor->data, sizeof(bPExpected2)/sizeof(float));
 }
 
 void unitTestSGDZeroGrad() {
     float w0[] = {1.f, 2.f, -3.f};
+    size_t w0Dims[] = {1, 3};
+    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
+    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
     float w0Grad[] = {1.f, -1.f, 2.f};
+    memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
 
     float b0[] = {-1.f, 3.f};
+    size_t b0dims[] = {2};
+    size_t b0NumberOfDims = 1;
+    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0dims);
     float b0Grad[] = {1.f, 3.f};
+    memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
 
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0, 3, b0, 3);
+    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
     linearConfig_t *linearConf = linear0->config;
     linearConf->weight->grad = w0Grad;
     linearConf->bias->grad = b0Grad;

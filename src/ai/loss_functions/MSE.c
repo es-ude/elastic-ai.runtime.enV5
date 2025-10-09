@@ -3,16 +3,17 @@
 #include "MSE.h"
 
 #include <stdio.h>
+#include <string.h>
 
-tensor_t *MSELossBackward(tensor_t *output,tensor_t *label) {
+tensor_t *MSELossBackward(tensor_t *output, tensor_t *label) {
     size_t totalSize = calcTotalNumberOfElementsByTensor(output);
 
-    tensor_t *result = malloc(sizeof(tensor_t));
-    result->data = malloc(totalSize * sizeof(float));
-    result->dimensions = malloc(output->numberOfDimensions * sizeof(size_t));
+    tensor_t *result = calloc(1, sizeof(tensor_t));
+    result->data = calloc(totalSize, sizeof(float));
+    result->dimensions = calloc(output->numberOfDimensions,  sizeof(size_t));
 
     result->numberOfDimensions = output->numberOfDimensions;
-    result->dimensions = output->dimensions;
+    memcpy(result->dimensions, output->dimensions, result->numberOfDimensions);
 
     float mean = 2.f / (float)totalSize;
 
