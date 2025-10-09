@@ -1,45 +1,49 @@
 #include "Softmax.h"
 
 #include <math.h>
+#include <string.h>
 
 #define EULER_APPROX = 2.71828
 
-softmaxConfig_t *initSoftmaxConfig(size_t size) {
+softmaxConfig_t *initSoftmaxConfig() {
     softmaxConfig_t *config = calloc(1, sizeof(softmaxConfig_t));
-    config->size = size;
     return config;
 }
 
-layerForward_t *initSoftmaxLayerForward(size_t size) {
+layerForward_t *initSoftmaxLayerForward() {
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = SOFTMAX;
-    layerForward->config = initSoftmaxConfig(size);
+    layerForward->config = initSoftmaxConfig(0);
     return layerForward;
 }
 
-layerForwardBackward_t *initSoftmaxLayerForwardBackward(size_t size) {
+layerForwardBackward_t *initSoftmaxLayerForwardBackward() {
     layerForwardBackward_t *layerBackward = calloc(1, sizeof(layerForward_t));
     layerBackward->type = SOFTMAX;
-    layerBackward->config = initSoftmaxConfig(size);
+    layerBackward->config = initSoftmaxConfig(0);
     return layerBackward;
 }
 
 
-float *softmaxForward(void *config, float *input, size_t inputSize) {
-    softmaxConfig_t *softmaxConfig = config;
+tensor_t *softmaxForward(void *config, tensor_t *inputTensor) {
+    size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputTensor);
 
-    float *output = calloc(inputSize, sizeof(float));
+    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+    outputTensor->data = calloc(totalInputSize, sizeof(float));
+    outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
+    outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
+    memcpy(outputTensor->dimensions, inputTensor->dimensions, outputTensor->numberOfDimensions * sizeof(size_t));
 
     float sum = 0;
-    for (size_t i = 0; i < inputSize; i++) {
-        sum += expf(input[i]);
+    for (size_t i = 0; i < totalInputSize; i++) {
+        sum += expf(inputTensor->data[i]);
     }
 
-    for (size_t i = 0; i < inputSize; i++) {
-        output[i] = expf(input[i]) / sum;
+    for (size_t i = 0; i < totalInputSize; i++) {
+        outputTensor->data[i] = expf(inputTensor->data[i]) / sum;
     }
 
-    return output;
+    return outputTensor;
 }
 
 float *softmaxBackward(void *config, float *grad, float *input, size_t inputSize) {

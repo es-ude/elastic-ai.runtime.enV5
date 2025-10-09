@@ -7,16 +7,16 @@ typedef struct softmaxConfig {
     size_t size;
 }softmaxConfig_t;
 
-softmaxConfig_t *initSoftmaxConfig(size_t size);
+softmaxConfig_t *initSoftmaxConfig();
 
-layerForward_t *initSoftmaxLayerForward(size_t size);
+layerForward_t *initSoftmaxLayerForward();
 
-layerForwardBackward_t *initSoftmaxLayerForwardBackward(size_t size);
+layerForwardBackward_t *initSoftmaxLayerForwardBackward();
 
 void freeSoftmaxLayerForward(layerForward_t *layer);
 void freeSoftmaxLayerBackward(layerForwardBackward_t *layer);
 
-float *softmaxForward(void *config, float *input, size_t inputSize);
+tensor_t *softmaxForward(void *config, tensor_t *inputTensor);
 
 float *softmaxBackward(void *config, float *grad, float *input, size_t inputSize);
 

@@ -7,7 +7,6 @@
 #include "ReLU.h"
 #include "CrossEntropy.h"
 #include "MSE.h"
-#include "../../hal/spi/include/SpiTypedefs.h"
 
 #include <string.h>
 
@@ -15,7 +14,8 @@ const layerFunctionEntry_t layerFunctions[] = {
     [LINEAR] = {linearForward, linearBackward},
     [RELU] = {ReLUForward, ReLUBackward},
     [CONV1D] = {conv1dForward, conv1dBackward},
-    [SOFTMAX] = {softmaxForward, softmaxBackward}
+    [SOFTMAX] = {softmaxForward, softmaxBackward},
+    [FLATTEN] = {flattenForward, NULL}
 };
 
 const lossFunctionEntry_t lossFuntions[] = {
@@ -41,11 +41,11 @@ size_t calcTotalNumberOfElementsByTensor(tensor_t *tensor) {
 }
 
 tensor_t *initTensor(float *data, size_t numberOfDimensions, size_t *dimensions) {
-    tensor_t *tensor = malloc(sizeof(tensor_t));
+    tensor_t *tensor = calloc(1, sizeof(tensor_t));
 
     size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
 
-    tensor->data = malloc(dataSize * sizeof(float));
+    tensor->data = calloc(dataSize, sizeof(float));
     memcpy(tensor->data, data, dataSize * sizeof(float));
 
     tensor->numberOfDimensions = numberOfDimensions;
@@ -68,19 +68,10 @@ parameterTensor_t *initParameterTensor(float *data, size_t numberOfDimensions, s
 }
 
 
-float *sequentialForward(layerForward_t **network, size_t sizeNetwork, float *input,
-                         size_t inputSize) {
-    for (size_t i = 0; i < sizeNetwork; i++) {
-        layerType_t type = network[i]->type;
-        forward *fwd = layerFunctions[type].forwardFunc;
-        input = fwd(network[i]->config, input, inputSize);
-    }
-    return input;
-}
 
-tensor_t *initInputTensorForNextLayer(layerForwardBackward_t *currentLayer,
+tensor_t *initInputTensorForNextLayer(layerForward_t *currentLayer,
                                          tensor_t *currentInputTensor) {
-    tensor_t *inputTensorNextLayer = malloc(sizeof(tensor_t));
+    tensor_t *inputTensorNextLayer = calloc(1, sizeof(tensor_t));
     switch (currentLayer->type) {
     case LINEAR:
         inputTensorNextLayer = initLinearOutputTensor(currentLayer->config, currentInputTensor);
@@ -109,8 +100,20 @@ tensor_t *initInputTensorForNextLayer(layerForwardBackward_t *currentLayer,
     return inputTensorNextLayer;
 }
 
+tensor_t *sequentialForward(layerForward_t **network, size_t sizeNetwork, tensor_t *inputTensor) {
+    for (size_t i = 0; i < sizeNetwork; i++) {
+
+
+        layerType_t type = network[i]->type;
+        forward *fwd = layerFunctions[type].forwardFunc;
+        inputTensor = fwd(network[i]->config, inputTensor);
+
+    }
+    return inputTensor;
+}
+
 loss *getLossFunctionByType(lossFunctionType_t lossType) {
-    loss *lossFunction = malloc(sizeof(loss));
+    loss *lossFunction = calloc(1, sizeof(loss));
     switch (lossType) {
     case MSE:
         lossFunction = MSELossBackward;
@@ -125,44 +128,71 @@ loss *getLossFunctionByType(lossFunctionType_t lossType) {
     return lossFunction;
 }
 
-// TODO
-/*
+
+flattenConfig_t *initFlattenConfig(size_t size) {
+    flattenConfig_t *config = calloc(1, sizeof(flattenConfig_t));
+    config->size = size;
+    return config;
+}
+
+layerForward_t *initFlattenLayerForward(tensor_t *inputTensor) {
+    layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
+    layerForward->type = FLATTEN;
+    size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputTensor);
+    layerForward->config = initReLUConfig(totalInputSize);
+    return layerForward;
+}
+
+tensor_t *flattenForward(void *config, tensor_t *inputTensor) {
+    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+
+    // Calculate total size
+    size_t totalSize = 1;
+    for (size_t i = 0; i < inputTensor->numberOfDimensions; i++) {
+        totalSize *= inputTensor->dimensions[i];
+    }
+
+    outputTensor->numberOfDimensions = 1;
+    outputTensor->dimensions = calloc(1, sizeof(size_t));
+    outputTensor->dimensions[0] = totalSize;
+
+    // Copy data (or just reuse pointer if you manage memory differently)
+    outputTensor->data = calloc(totalSize, sizeof(float));
+    memcpy(outputTensor->data, inputTensor->data, totalSize * sizeof(float));
+
+    return outputTensor;
+}
+
 /*! IMPORTANT: We assume, that if you use Cross Entropy as your loss function,
  * you also use Softmax with it. We introduce Softmax as a dedicated Layer,
  * but in the backward pass it is ignored. We do this, because the Cross Entropy Backward
  * already takes the Softmax Backward into account.
- #1#
+ */
 trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           size_t sizeNetwork,
                                           lossFunctionType_t lossFunctionType,
-                                          float *input,
-                                          size_t inputSize,
-                                          float *label) {
+                                          tensor_t *inputTensor,
+                                          tensor_t *labelTensor) {
 
-    float **layerOutputs = malloc((sizeNetwork + 1) * sizeof(float *));
-    layerOutputs[0] = input;
 
-    size_t *layerInputSizes = malloc((sizeNetwork + 1) * sizeof(size_t));
-    layerInputSizes[0] = inputSize;
+
+    tensor_t **layerOutputs = calloc((sizeNetwork + 1), sizeof(tensor_t *));
+    layerOutputs[0] = inputTensor;
+
 
     // Forward Pass
     for (size_t i = 0; i < sizeNetwork; i++) {
         layerForwardBackward_t *currentLayer = network[i];
 
         forward *fwd = layerFunctions[currentLayer->type].forwardFunc;
-        layerOutputs[i + 1] = fwd(currentLayer->config, layerOutputs[i], layerInputSizes[i]);
-
-        layerInputSizes[i + 1] = calculateInputSizeForNextLayer(currentLayer, layerInputSizes[i]);
+        layerOutputs[i + 1] = fwd(currentLayer->config, layerOutputs[i]);
     }
-
-    layerInputSizes[sizeNetwork] = calculateInputSizeForNextLayer(
-        network[sizeNetwork - 1], layerInputSizes[sizeNetwork - 1]);
 
     // Loss
     loss *lossFunction = getLossFunctionByType(lossFunctionType);
-    float *grad = lossFunction(layerOutputs[sizeNetwork], label, layerInputSizes[sizeNetwork]);
+    tensor_t *grad = lossFunction(layerOutputs[sizeNetwork], labelTensor);
     trainingStats_t *trainingStats = calloc(1, sizeof(trainingStats_t));
-    trainingStats->loss = grad;
+    trainingStats->loss = grad->data;
 
     size_t backwardIndex = sizeNetwork - 1;
     if (lossFunctionType == CROSS_ENTROPY) {
@@ -170,13 +200,11 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
     }
     // Backward Pass
     for (int i = (int)(backwardIndex); i >= 0; i--) {
-
         backward *bwd = layerFunctions[network[i]->type].backwardFunc;
-        grad = bwd(network[i]->config, grad, layerOutputs[i], layerInputSizes[i]);
+        grad = bwd(network[i]->config, grad, layerOutputs[i]);
     }
 
-    trainingStats->output = grad;
+    trainingStats->output = grad->data;
 
     return trainingStats;
 }
-*/

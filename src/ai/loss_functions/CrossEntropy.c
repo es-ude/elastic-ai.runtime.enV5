@@ -15,12 +15,19 @@ float crossEntropyForward(const float *softmaxOutput, const float *distribution,
     return loss;
 }
 
-float *crossEntropySoftmaxBackward(const float *softmaxOutput, const float *distribution, const size_t inputSize) {
-    float *result = calloc(inputSize, sizeof(float));
+tensor_t *crossEntropySoftmaxBackward(tensor_t *softmaxOutput, tensor_t *distribution) {
 
-    for (size_t i = 0; i < inputSize; i++) {
-        result[i] = softmaxOutput[i] - distribution[i];
+    size_t totalInputSize = calcTotalNumberOfElementsByTensor(softmaxOutput);
+
+    tensor_t *lossTensor = calloc(1, sizeof(tensor_t));
+    lossTensor->numberOfDimensions = softmaxOutput->numberOfDimensions;
+    lossTensor->dimensions = calloc(lossTensor->numberOfDimensions, sizeof(size_t));
+    memcpy(lossTensor->dimensions, softmaxOutput->dimensions, lossTensor->numberOfDimensions * sizeof(size_t));
+    lossTensor->data = calloc(totalInputSize, sizeof(float));
+
+    for (size_t i = 0; i < totalInputSize; i++) {
+        lossTensor->data[i] = softmaxOutput->data[i] - distribution->data[i];
     }
 
-    return result;
+    return lossTensor;
 }

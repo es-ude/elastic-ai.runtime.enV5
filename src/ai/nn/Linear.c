@@ -6,23 +6,16 @@
 #include <string.h>
 
 tensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTensor) {
-    size_t outputSize = linearConfig->weight->tensor->dimensions[0];
-    tensor_t *outputTensor = malloc(sizeof(size_t));
-    if (inputTensor->numberOfDimensions == 1) {
-        outputTensor->numberOfDimensions = 1;
-        outputTensor->dimensions = malloc(sizeof(size_t));
-        outputTensor->dimensions[0] = outputSize;
-        outputTensor->data = calloc(outputSize, sizeof(float));
-    }
-    if (inputTensor->numberOfDimensions == 2) {
-        outputTensor->numberOfDimensions = 2;
-        outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
-        outputTensor->dimensions[0] = inputTensor->dimensions[0];
-        outputTensor->dimensions[1] = outputSize;
-        size_t totalOutputSize = calcTensorDataSize(outputTensor->numberOfDimensions,
-                                                    outputTensor->dimensions);
-        outputTensor->data = calloc(totalOutputSize, sizeof(float));
-    }
+    size_t totalOutputSize = linearConfig->weight->tensor->dimensions[0];
+    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+
+    outputTensor->numberOfDimensions = 2;
+    outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
+    // Needs to change for batch processing
+    outputTensor->dimensions[0] = 1;
+    outputTensor->dimensions[1] = totalOutputSize;
+
+    outputTensor->data = calloc(totalOutputSize, sizeof(float));
     return outputTensor;
 }
 
@@ -34,19 +27,8 @@ tensor_t *linearForward(void *config, tensor_t *inputTensor) {
     size_t inputSize = 0;
     size_t outputSize = 0;
 
-    if (linearConfig->weight->tensor->numberOfDimensions == 2) {
-        outputSize = linearConfig->weight->tensor->dimensions[0];
-        inputSize = linearConfig->weight->tensor->dimensions[1];
-    }
-    else if (linearConfig->weight->tensor->numberOfDimensions == 1) {
-        outputSize = linearConfig->bias->tensor->
-                     dimensions[0];
-        inputSize = linearConfig->weight->tensor->dimensions[0] / linearConfig->bias->tensor->dimensions[0];
-    }
-    else {
-        printf("Weight dimensions not supported");
-        return NULL;
-    }
+    outputSize = linearConfig->weight->tensor->dimensions[0];
+    inputSize = linearConfig->weight->tensor->dimensions[1];
 
 
     for (size_t i = 0; i < outputSize; i++) {
@@ -63,31 +45,18 @@ tensor_t *linearForward(void *config, tensor_t *inputTensor) {
 
 tensor_t *linearBackward(void *config, tensor_t *gradTensor, tensor_t *inputTensor) {
     linearConfig_t *linearConfig = config;
-    size_t inputSize = 0;
-    size_t outputSize = 0;
 
-    if (linearConfig->weight->tensor->numberOfDimensions == 2) {
-        outputSize = linearConfig->weight->tensor->dimensions[0];
-        inputSize = linearConfig->weight->tensor->dimensions[1];
-    }
-    else if (linearConfig->weight->tensor->numberOfDimensions == 1) {
-        outputSize = linearConfig->bias->tensor->
-                     dimensions[0];
-        inputSize = linearConfig->weight->tensor->dimensions[0] / linearConfig->bias->tensor->dimensions[0];
-    }
-    else {
-        printf("Weight dimensions not supported");
-        return NULL;
-    }
+    size_t outputSize = linearConfig->weight->tensor->dimensions[0];
+    size_t inputSize = linearConfig->weight->tensor->dimensions[1];
 
-    tensor_t *propagatedLoss = malloc(sizeof(tensor_t));
+    tensor_t *propagatedLoss = calloc(1, sizeof(tensor_t));
     size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputTensor);
     propagatedLoss->data = calloc(totalInputSize, sizeof(float));
 
     propagatedLoss->numberOfDimensions = inputTensor->numberOfDimensions;
-
     propagatedLoss->dimensions = calloc(propagatedLoss->numberOfDimensions, sizeof(size_t));
-    memcpy(propagatedLoss->dimensions, inputTensor->dimensions, propagatedLoss->numberOfDimensions * sizeof(size_t));
+    memcpy(propagatedLoss->dimensions, inputTensor->dimensions,
+           propagatedLoss->numberOfDimensions * sizeof(size_t));
 
     size_t weightIndex = 0;
     for (size_t lossIndex = 0; lossIndex < outputSize; lossIndex++) {
@@ -96,8 +65,9 @@ tensor_t *linearBackward(void *config, tensor_t *gradTensor, tensor_t *inputTens
 
             linearConfig->weight->grad[weightIndex] += gradTensor->data[lossIndex] * inputTensor->
                 data[inputIndex];
-            propagatedLoss->data[inputIndex] += linearConfig->weight->tensor->data[weightIndex] * gradTensor->data[
-                lossIndex];
+            propagatedLoss->data[inputIndex] += linearConfig->weight->tensor->data[weightIndex] *
+                gradTensor->data[
+                    lossIndex];
         }
         linearConfig->bias->grad[lossIndex] += gradTensor->data[lossIndex];
     }
@@ -121,6 +91,12 @@ linearConfig_t *initLinearConfigWithInputOutputSize(size_t inputSize, size_t out
 
 layerForward_t *initLinearLayerForwardWithWeightBias(parameterTensor_t *weightTensor,
                                                      parameterTensor_t *biasTensor) {
+
+    if (weightTensor->tensor->numberOfDimensions != 2) {
+        printf("Error: linear layer weights must be 2D (outputsize, inputsize)\n");
+        return NULL;
+    }
+
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->config = initLinearConfigWithWeightBias(weightTensor, biasTensor);
     layerForward->type = LINEAR;
@@ -133,11 +109,18 @@ layerForward_t *initLinearLayerWithInputOutputSize(size_t inputSize, size_t outp
 }
 
 layerForwardBackward_t *initLinearLayerForwardBackwardWithWeightBias(
-    tensor_t *weightTensor, tensor_t *biasTensor) {
+    parameterTensor_t *weightTensor, parameterTensor_t *biasTensor) {
+
+    if (weightTensor->tensor->numberOfDimensions != 2) {
+        printf("Error: linear layer weights must be 2D (outputsize, inputsize)\n");
+        return NULL;
+    }
+
     layerForwardBackward_t *layerForwardBackward = calloc(1, sizeof(layerForwardBackward_t));
     layerForwardBackward->config =
         initLinearConfigWithWeightBias(weightTensor, biasTensor);
     layerForwardBackward->type = LINEAR;
+
     return layerForwardBackward;
 }
 

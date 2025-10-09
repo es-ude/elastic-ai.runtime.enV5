@@ -4,5 +4,6 @@ add_elastic_ai_unit_test(
         MORE_LIBS
         AiHelpers
         Linear
+        Conv1d
         ReLU
 )

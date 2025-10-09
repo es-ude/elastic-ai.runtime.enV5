@@ -2,23 +2,26 @@
 
 #include "ReLU.h"
 
+#include <stdio.h>
+#include <string.h>
+
 ReLUConfig_t *initReLUConfig(size_t size) {
     ReLUConfig_t *config = calloc(1, sizeof(ReLUConfig_t));
     config->size = size;
     return config;
 }
 
-layerForward_t *initReLULayerForward(size_t size) {
+layerForward_t *initReLULayerForward() {
     layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
     layerForward->type = RELU;
-    layerForward->config = initReLUConfig(size);
+    layerForward->config = initReLUConfig(0);
     return layerForward;
 }
 
-layerForwardBackward_t *initReLULayerForwardBackward(size_t size) {
-    layerForwardBackward_t *layerForwardBackward = calloc(1, sizeof(layerForward_t));
+layerForwardBackward_t *initReLULayerForwardBackward() {
+    layerForwardBackward_t *layerForwardBackward = calloc(1, sizeof(layerForwardBackward_t));
     layerForwardBackward->type = RELU;
-    layerForwardBackward->config = initReLUConfig(size);
+    layerForwardBackward->config = initReLUConfig(0);
     return layerForwardBackward;
 }
 
@@ -27,31 +30,43 @@ void freeReLUForward(layerForward_t *layer) {}
 void freeReLUBackward(layerForwardBackward_t *layer) {}
 
 
-float *ReLUForward(void *config, float *input) {
-    ReLUConfig_t *reluConfig = config;
+tensor_t *ReLUForward(void *config, tensor_t *inputTensor) {
+    size_t numberOfDims = inputTensor->numberOfDimensions;
+    size_t *dims = calloc(numberOfDims, sizeof(size_t));
+    memcpy(dims, inputTensor->dimensions, numberOfDims * sizeof(size_t)); // WICHTIG: * sizeof(size_t)
 
-    float *output = calloc(reluConfig->size, sizeof(float));
-    for (size_t index = 0; index < reluConfig->size; index++) {
-        if (input[index] < 0.0f) {
-            output[index] = 0.f;
+    size_t totalOutputSize = calcTotalNumberOfElementsByTensor(inputTensor);
+
+    float *data = calloc(totalOutputSize, sizeof(float));
+
+    for (size_t index = 0; index < totalOutputSize; index++) {
+        if (inputTensor->data[index] < 0.0f) {
+            data[index] = 0.f;
         } else {
-            output[index] = input[index];
+            data[index] = inputTensor->data[index];
         }
     }
-    return output;
+
+    tensor_t *outputTensor = initTensor(data, numberOfDims, dims);
+
+    return outputTensor;
 }
 
-float *ReLUBackward(void *config, float *grad, float *input) {
-    ReLUConfig_t *reluConfig = config;
+tensor_t *ReLUBackward(void *config, tensor_t *gradTensor, tensor_t *inputTensor) {
+    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+    outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
+    outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
+    memcpy(outputTensor->dimensions, inputTensor->dimensions, outputTensor->numberOfDimensions * sizeof(size_t));
 
-    float *outputGrad = calloc(reluConfig->size, sizeof(float));
+    size_t size = calcTotalNumberOfElementsByTensor(inputTensor);
+    outputTensor->data = calloc(size, sizeof(float));
 
-    for (size_t i = 0; i < reluConfig->size; i++) {
-        if (input[i] <= 0.0f) {
-            outputGrad[i] = 0.0f;
+    for (size_t i = 0; i < size; i++) {
+        if (inputTensor->data[i] <= 0.0f) {
+            outputTensor->data[i] = 0.0f;
         } else {
-            outputGrad[i] = grad[i];
+            outputTensor->data[i] = gradTensor->data[i];
         }
     }
-    return outputGrad;
+    return outputTensor;
 }
