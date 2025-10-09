@@ -4,7 +4,7 @@
 
 // Momentum is same Size as Parameter struct
 typedef struct momentumBuffer {
-    parameter_t *parameter; // Pointer to ONE parameter struct: Bin mir gerade nicht sicher, ob das so mit dem * so muss
+    parameterTensor_t *parameter; // Pointer to ONE parameter struct: Bin mir gerade nicht sicher, ob das so mit dem * so muss
     float *momentums; // Pointer to array of momentums of size of parameter
 } momentumBuffer_t;
 
@@ -21,7 +21,7 @@ typedef struct SGDConfig {
  * @parameter parameter: pointer to parameter
  * @return : Pointer to momentumBuffer
  */
-momentumBuffer_t *initMomentumBuffer(parameter_t *parameter);
+momentumBuffer_t *initMomentumBuffer(parameterTensor_t *parameter);
 
 /*! @brief Initializes the SGDConfig for a given array of layerForwardBackward with lr, momentum &
  * weightDecay

@@ -42,18 +42,18 @@ conv1dConfig_t *initConv1dConfigWithWeightAndBias(parameterTensor_t *weightTenso
 
 conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, size_t kernelSize, size_t stride, size_t dilation, bool useBias, paddingType_t paddingType, size_t paddingSize);
 
-float *conv1dForward(void *config, tensor_t *inputTensor);
+tensor_t *conv1dForward(void *config, tensor_t *inputTensor);
 
 tensor_t *conv1dBackward(void *config, tensor_t *gradTensor, tensor_t *inputTensor);
 
 layerForward_t *initConv1dLayerForward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor, size_t inputChannels,
                                       size_t outputChannels, size_t kernelSize, size_t stride,
                                       size_t dilation, paddingType_t paddingType,
-                                      size_t paddingSize, size_t inputSize);
+                                      size_t paddingSize);
 
 layerForwardBackward_t *initConv1dLayerForwardBackward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor, size_t inputChannels,
                                        size_t outputChannels, size_t kernelSize, size_t stride,
                                        size_t dilation, paddingType_t paddingType,
-                                       size_t paddingSize, size_t inputSize);
+                                       size_t paddingSize);
 
 #endif // ENV5_RUNTIME_CONV1D_H

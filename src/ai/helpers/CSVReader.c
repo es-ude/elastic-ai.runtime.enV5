@@ -30,12 +30,12 @@ char **csvReadEntireFile(char *filePath) {
 
     fclose(fp);
 
-    char **csvData = malloc(rowCounter * sizeof(char *));
+    char **csvData = calloc(rowCounter, sizeof(char *));
     fp = fopen(filePath, "r");
 
     for (size_t i = 0; i < rowCounter; i++) {
         fgets(row, MAX_ROW_SIZE, fp);
-        csvData[i] = malloc(strlen(row) + 1);
+        csvData[i] = calloc(1, strlen(row) + 1);
         strcpy(csvData[i], row);
     }
 

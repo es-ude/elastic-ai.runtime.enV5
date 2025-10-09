@@ -20,7 +20,7 @@ conv1dConfig_t *InitConv1dConfigSimple() {
         -1.f, 0.f, 1.f, -1.f, 2.f, 3.f, //output channel 0
         0.f, 0.f, 0.f, 1.f, -1.f, -2.f, //output channel 1
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
-    size_t weightDims[] = {3, 6};
+    size_t weightDims[] = {outputChannels, inputChannels, kernelSize};
     size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
     parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
 
@@ -43,7 +43,7 @@ conv1dConfig_t *initConv1dConfigComplex() {
         -1.f, 0.f, 1.f, -1.f, 2.f, 3.f, //output channel 0
         0.f, 0.f, 0.f, 1.f, -1.f, -2.f, //output channel 1
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
-    size_t weightDims[] = {3, 6};
+    size_t weightDims[] = {outputChannels, inputChannels, kernelSize};
     size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
     parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
 
@@ -160,7 +160,7 @@ void unitTestConv1dForward() {
         .dimensions = (size_t[]){2, 6}
     };
 
-    float *output = conv1dForward(config, &inputTensor);
+    tensor_t *output = conv1dForward(config, &inputTensor);
 
     size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(
         sizeof(input) / sizeof(input[0]), config);
@@ -170,7 +170,7 @@ void unitTestConv1dForward() {
         8.f, 10.f, 12.f, 14.f, // outputChannel 1
         -3.f, -4.f, -5.f, -6.f // outputChannel 2
     };
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOutput, output, outputSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOutput, output->data, outputSize);
 }
 
 void unitTestConv1dForwardComplex(void) {
@@ -184,7 +184,7 @@ void unitTestConv1dForwardComplex(void) {
         .numberOfDimensions = 2,
         .dimensions = (size_t[]){2, 6}
     };
-    float *output = conv1dForward(config, &inputTensor);
+    tensor_t *output = conv1dForward(config, &inputTensor);
     size_t outputSize = calcOutputSizeForInputSizeAndConv1dConfig(
         sizeof(input) / sizeof(input[0]), config);
 
@@ -194,7 +194,7 @@ void unitTestConv1dForwardComplex(void) {
         -6.f, 5.f // outputChannel 2
     };
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOutput, output, outputSize);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedOutput, output->data, outputSize);
 }
 
 void unitTestConv1dBackward() {
