@@ -4,6 +4,7 @@
 #include "AiHelpers.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 float crossEntropyForward(const float *softmaxOutput, const float *distribution, const size_t inputSize) {
@@ -15,11 +16,11 @@ float crossEntropyForward(const float *softmaxOutput, const float *distribution,
     return loss;
 }
 
-tensor_t *crossEntropySoftmaxBackward(tensor_t *softmaxOutput, tensor_t *distribution) {
+qTensor_t *crossEntropySoftmaxBackward(qTensor_t *softmaxOutput, qTensor_t *distribution) {
 
     size_t totalInputSize = calcTotalNumberOfElementsByTensor(softmaxOutput);
 
-    tensor_t *lossTensor = calloc(1, sizeof(tensor_t));
+    qTensor_t *lossTensor = calloc(1, sizeof(qTensor_t));
     lossTensor->numberOfDimensions = softmaxOutput->numberOfDimensions;
     lossTensor->dimensions = calloc(lossTensor->numberOfDimensions, sizeof(size_t));
     memcpy(lossTensor->dimensions, softmaxOutput->dimensions, lossTensor->numberOfDimensions * sizeof(size_t));

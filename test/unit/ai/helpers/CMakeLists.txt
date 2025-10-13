@@ -17,3 +17,11 @@ add_elastic_ai_unit_test(
         MORE_LIBS
         Common
 )
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+        Quantization
+        MORE_LIBS
+        Common
+        AiHelpers
+)

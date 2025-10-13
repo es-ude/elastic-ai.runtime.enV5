@@ -1,13 +1,17 @@
 #define SOURCE_FILE "AI_NN_RELU"
 
 #include "ReLU.h"
+#include "Quantization.h"
 
+#include <Float16.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-ReLUConfig_t *initReLUConfig(size_t size) {
+uint64_t zero = 0;
+
+ReLUConfig_t *initReLUConfig() {
     ReLUConfig_t *config = calloc(1, sizeof(ReLUConfig_t));
-    config->size = size;
     return config;
 }
 
@@ -25,48 +29,118 @@ layerForwardBackward_t *initReLULayerForwardBackward() {
     return layerForwardBackward;
 }
 
+void reluForwardFloat32(uint8_t *rawBytes, size_t byteIndex, uint8_t *outputData,
+                        size_t bytesPerElement) {
+    float32_t currentElement = readBytesAsFloat32(
+        &rawBytes[byteIndex]);
+    if (currentElement < 0.f) {
+        memcpy(&outputData[byteIndex], &zero, bytesPerElement);
+    } else {
+        memcpy(&outputData[byteIndex], &rawBytes[byteIndex], bytesPerElement);
+    }
+}
+
+void reluForwardFloat64(uint8_t *rawBytes, size_t byteIndex, uint8_t *outputData,
+                        size_t bytesPerElement) {
+    float64_t currentElement = readBytesAsFloat64(
+        &rawBytes[byteIndex]);
+    if (currentElement < 0.f) {
+        memcpy(&outputData[byteIndex], &zero, bytesPerElement);
+    } else {
+        memcpy(&outputData[byteIndex], &rawBytes[byteIndex], bytesPerElement);
+    }
+}
+
+reluForward_t reluForwardTable[] = {
+    [FLOAT32_Q] = reluForwardFloat32,
+    [FLOAT64_Q] = reluForwardFloat64
+};
+
+void reluBackwardFloat32(uint8_t *rawBytes, uint8_t *gradBytes, size_t byteIndex,
+                         uint8_t *outputData,
+                         size_t bytesPerElement) {
+    float32_t currentElement = readBytesAsFloat32(&rawBytes[byteIndex]);
+    if (currentElement <= 0.0f) {
+        memcpy(&outputData[byteIndex], &zero, bytesPerElement);
+    } else {
+        memcpy(&outputData[byteIndex], &gradBytes[byteIndex], bytesPerElement);
+    }
+}
+
+void reluBackwardFloat64(uint8_t *rawBytes, uint8_t *gradBytes, size_t byteIndex,
+                         uint8_t *outputData,
+                         size_t bytesPerElement) {
+    float64_t currentElement = readBytesAsFloat64(&rawBytes[byteIndex]);
+    if (currentElement <= 0.0f) {
+        memcpy(&outputData[byteIndex], &zero, bytesPerElement);
+    } else {
+        memcpy(&outputData[byteIndex], &gradBytes[byteIndex], bytesPerElement);
+    }
+}
+
+reluBackward_t reluBackwardTable[] = {
+    [FLOAT32_Q] = reluBackwardFloat32,
+    [FLOAT64_Q] = reluBackwardFloat64
+};
+
 void freeReLUForward(layerForward_t *layer) {}
 
 void freeReLUBackward(layerForwardBackward_t *layer) {}
 
-
-tensor_t *ReLUForward(void *config, tensor_t *inputTensor) {
-    size_t numberOfDims = inputTensor->numberOfDimensions;
+qTensor_t *ReLUForward(void *config, qTensor_t *inputQTensor, quantization_t *outputQuantization) {
+    size_t numberOfDims = inputQTensor->numberOfDimensions;
     size_t *dims = calloc(numberOfDims, sizeof(size_t));
-    memcpy(dims, inputTensor->dimensions, numberOfDims * sizeof(size_t)); // WICHTIG: * sizeof(size_t)
+    memcpy(dims, inputQTensor->dimensions, numberOfDims * sizeof(size_t));
 
-    size_t totalOutputSize = calcTotalNumberOfElementsByTensor(inputTensor);
+    size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(inputQTensor);
+    size_t bytesPerElement = calcBytesPerElement(inputQTensor->quantization);
 
-    float *data = calloc(totalOutputSize, sizeof(float));
+    uint8_t *outputData = calloc(totalNumberOfElements, bytesPerElement);
 
-    for (size_t index = 0; index < totalOutputSize; index++) {
-        if (inputTensor->data[index] < 0.0f) {
-            data[index] = 0.f;
-        } else {
-            data[index] = inputTensor->data[index];
+    if (inputQTensor->quantization->type == outputQuantization->type) {
+        reluForward_t reluForward = reluForwardTable[inputQTensor->quantization->type];
+
+        for (size_t elementIndex = 0; elementIndex < totalNumberOfElements; elementIndex++) {
+            size_t byteIndex = elementIndex * bytesPerElement;
+            reluForward(inputQTensor->data, byteIndex, outputData, bytesPerElement);
         }
+    } else {
+        printf("Error: Mismatched Quantization not implemented yet");
+        return NULL;
     }
 
-    tensor_t *outputTensor = initTensor(data, numberOfDims, dims);
+    qTensor_t *outputQTensor = initQTensor(outputData, numberOfDims, dims, outputQuantization);
 
-    return outputTensor;
+    free(dims);
+    free(outputData);
+
+    return outputQTensor;
 }
 
-tensor_t *ReLUBackward(void *config, tensor_t *gradTensor, tensor_t *inputTensor) {
-    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
-    outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
-    outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
-    memcpy(outputTensor->dimensions, inputTensor->dimensions, outputTensor->numberOfDimensions * sizeof(size_t));
+qTensor_t *ReLUBackward(void *config, qTensor_t *gradQTensor, qTensor_t *inputQTensor) {
+    size_t numberOfDims = inputQTensor->numberOfDimensions;
+    size_t *dims = calloc(numberOfDims, sizeof(size_t));
+    memcpy(dims, inputQTensor->dimensions, numberOfDims);
 
-    size_t size = calcTotalNumberOfElementsByTensor(inputTensor);
-    outputTensor->data = calloc(size, sizeof(float));
+    size_t bytesPerElement = calcBytesPerElement(inputQTensor->quantization);
+    size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(inputQTensor);
+    uint8_t *outputData = calloc(totalNumberOfElements, bytesPerElement);
 
-    for (size_t i = 0; i < size; i++) {
-        if (inputTensor->data[i] <= 0.0f) {
-            outputTensor->data[i] = 0.0f;
-        } else {
-            outputTensor->data[i] = gradTensor->data[i];
+    if (inputQTensor->quantization->type == gradQTensor->quantization->type) {
+        reluBackward_t reluBackward = reluBackwardTable[inputQTensor->quantization->type];
+        for (size_t i = 0; i < totalNumberOfElements; i++) {
+            size_t byteIndex = i * bytesPerElement;
+            reluBackward(inputQTensor->data, gradQTensor->data, byteIndex, outputData,
+                         bytesPerElement);
         }
+    } else {
+        printf("Error: Mismatched Quantization not implemented yet");
+        return NULL;
     }
-    return outputTensor;
+
+    qTensor_t *outputQTensor = initQTensor(outputData, numberOfDims, dims,
+                                           inputQTensor->quantization);
+    free(dims);
+    free(outputData);
+    return outputQTensor;
 }
