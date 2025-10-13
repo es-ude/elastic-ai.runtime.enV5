@@ -5,6 +5,6 @@
 
 float crossEntropyForward(const float *softmaxOutput, const float *distribution, const size_t inputSize);
 
-tensor_t *crossEntropySoftmaxBackward(tensor_t *softmaxOutput, tensor_t *distribution);
+qTensor_t *crossEntropySoftmaxBackward(qTensor_t *softmaxOutput, qTensor_t *distribution);
 
 #endif //CROSSENTROPY_H

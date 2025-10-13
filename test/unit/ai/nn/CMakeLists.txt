@@ -10,6 +10,7 @@ add_elastic_ai_unit_test(
         ReLU
         MORE_LIBS
         AiHelpers
+        Quantization
 )
 
 add_elastic_ai_unit_test(

@@ -22,12 +22,12 @@ conv1dConfig_t *InitConv1dConfigSimple() {
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
     size_t weightDims[] = {outputChannels, inputChannels, kernelSize};
     size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
-    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[] = {0.f, 1.f, 2.f};
     size_t biasDims[] = {3};
     size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, biasNumberOfDims, biasDims);
 
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation, NONE,
@@ -45,12 +45,12 @@ conv1dConfig_t *initConv1dConfigComplex() {
         -2.f, -1.f, -2.f, -3.f, -1.f, 0.f}; //output channel 2
     size_t weightDims[] = {outputChannels, inputChannels, kernelSize};
     size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
-    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[] = {0.f, 1.f, 2.f};
     size_t biasDims[] = {3};
     size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, biasNumberOfDims, biasDims);
 
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
@@ -78,12 +78,12 @@ void unitTestInitConv1Config() {
     }
     size_t weightDims[] = {3, 8};
     size_t weightNumberOfDims = sizeof(weightDims) / sizeof(weightDims[0]);
-    parameterTensor_t *weightTensor = initParameterTensor(weight, weightNumberOfDims, weightDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weight, weightNumberOfDims, weightDims);
 
     float bias[3] = {0.f, 0.f, 0.f};
     size_t biasDims[] = {3};
     size_t biasNumberOfDims = sizeof(biasDims) / sizeof(biasDims[0]);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, biasNumberOfDims, biasDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, biasNumberOfDims, biasDims);
 
     conv1dConfig_t *config = initConv1dConfigWithWeightAndBias(
         weightTensor, biasTensor, inputChannels, outputChannels, kernelSize, stride, dilation,
@@ -137,7 +137,7 @@ void unitTestInitConv1dOutputTensor() {
     size_t inputDims[] = {2, 6};
     size_t inputNumberOfDims = sizeof(inputDims) / sizeof(inputDims[0]);
 
-    tensor_t *inputTensor = initTensor(input, inputNumberOfDims, inputDims);
+    tensor_t *inputTensor = initQTensor(input, inputNumberOfDims, inputDims);
 
     tensor_t *outputTensor = initConv1dOutputTensor(conv1dConfig, inputTensor);
 
@@ -204,13 +204,13 @@ void unitTestConv1dBackward() {
         -1.f, -2.f, -3.f, -4.f, -5.f, -6.f
     };
     size_t inputDims[] = {2, 6};
-    tensor_t *inputTensor = initTensor(input, 2, inputDims);
+    tensor_t *inputTensor = initQTensor(input, 2, inputDims);
 
     float delta[] = {-1.f, 0.f, -2.f, -1.f,
                      1.f, 0.f, -2.f, -4.f,
                      -2.f, -1.f, 0.f, -1.f};
     size_t deltaDims[] = {3, 4};
-    tensor_t *deltaTensor = initTensor(delta, 2, deltaDims);
+    tensor_t *deltaTensor = initQTensor(delta, 2, deltaDims);
 
     float conv1dForwardOutput[] = {
         -10.f, -14.f, -18.f, -22.f, // outputChannel 0
@@ -218,14 +218,14 @@ void unitTestConv1dBackward() {
         -3.f, -4.f, -5.f, -6.f // outputChannel 2
     };
     size_t conv1dOutputDims[] = {3, 4};
-    tensor_t *conv1dOutputTensor = initTensor(conv1dForwardOutput, 2, conv1dOutputDims);
+    tensor_t *conv1dOutputTensor = initQTensor(conv1dForwardOutput, 2, conv1dOutputDims);
 
     float target[12];
     for (size_t i = 0; i < 12; i++) {
         target[i] = conv1dForwardOutput[i] + deltaTensor->data[i];
     }
     size_t targetDims[] = {3, 4};
-    tensor_t *targetTensor = initTensor(target, 2, targetDims);
+    tensor_t *targetTensor = initQTensor(target, 2, targetDims);
 
     tensor_t *gradOut = MSELossBackward(conv1dOutputTensor, targetTensor);
 
@@ -289,7 +289,7 @@ void unitTestConv1dBackwardComplex(void) {
     size_t inputDims[] = {2, 6};
     size_t inputNumberOfDims = sizeof(inputDims) / sizeof(inputDims[0]);
 
-    tensor_t *inputTensor = initTensor(input, inputNumberOfDims, inputDims);
+    tensor_t *inputTensor = initQTensor(input, inputNumberOfDims, inputDims);
 
     float conv1dForwardComplexOutput[6] = {
         -12.f, -10.f, // outputChannel 0
@@ -297,7 +297,7 @@ void unitTestConv1dBackwardComplex(void) {
         -6.f, 5.f // outputChannel 2
     };
     size_t conv1dOutputDims[] = {3, 2};
-    tensor_t *conv1dOutputTensor = initTensor(conv1dForwardComplexOutput, 2, conv1dOutputDims);
+    tensor_t *conv1dOutputTensor = initQTensor(conv1dForwardComplexOutput, 2, conv1dOutputDims);
 
     float delta[6] = {
         -1.f, 0.f, // oc0
@@ -305,13 +305,13 @@ void unitTestConv1dBackwardComplex(void) {
         1.f, 0.f // oc2
     };
     size_t deltaDims[] = {3, 2};
-    tensor_t *deltaTensor = initTensor(delta, 2, deltaDims);
+    tensor_t *deltaTensor = initQTensor(delta, 2, deltaDims);
 
     float target[6];
     for (size_t i = 0; i < 6; i++) {
         target[i] = conv1dOutputTensor->data[i] + deltaTensor->data[i];
     }
-    tensor_t *targetTensor = initTensor(target, conv1dOutputTensor->numberOfDimensions,
+    tensor_t *targetTensor = initQTensor(target, conv1dOutputTensor->numberOfDimensions,
                                         conv1dOutputTensor->dimensions);
 
     tensor_t *gradOut = MSELossBackward(conv1dOutputTensor, targetTensor);

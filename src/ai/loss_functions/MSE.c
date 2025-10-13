@@ -3,12 +3,13 @@
 #include "MSE.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-tensor_t *MSELossBackward(tensor_t *output, tensor_t *label) {
+qTensor_t *MSELossBackward(qTensor_t *output, qTensor_t *label) {
     size_t totalSize = calcTotalNumberOfElementsByTensor(output);
 
-    tensor_t *result = calloc(1, sizeof(tensor_t));
+    qTensor_t *result = calloc(1, sizeof(qTensor_t));
     result->data = calloc(totalSize, sizeof(float));
     result->dimensions = calloc(output->numberOfDimensions,  sizeof(size_t));
 

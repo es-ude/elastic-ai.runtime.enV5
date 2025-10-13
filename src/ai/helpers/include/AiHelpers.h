@@ -1,80 +1,11 @@
 #ifndef AIHELPERS_H
 #define AIHELPERS_H
+#include "Quantization.h"
 
-#include <stdint.h>
-#include <stdlib.h>
+typedef qTensor_t*(forward)(void*, qTensor_t*);
+typedef qTensor_t*(backward)(void*, qTensor_t*, qTensor_t*);
 
-/*! Generally every layer will have something like this
- *
- *
- * // Forward call for the layer that calculates the output of the layer for a given input
- * float *forward(layerConfig_t *config, float *input);
- *
- * //Backward call for the layer that calculates the gradients in respect to the inputs and in
- * respect to the parameters float *backward(layerConfig_t *config, float *grad, float *input);
- */
-// qtype enum= FIXEDPOINT, FLOAT64, FLOAT32, FLOAT16,
-
-//Arithmetic formats
-//float, double, int8_t, int16_t, int32_t, int64_t;
-
-/*! @brief Enum of possible quantization types
- */
-typedef enum qtype
-{
-    FIXEDPOINT,
-    FLOAT16,
-    FLOAT32,
-    FLOAT64
-} qtype_t;
-
-typedef struct fixedPointQ
-{
-    size_t int_bits;
-    size_t frac_bits;
-} fixedPointQ_t;
-
-typedef struct floatQ
-{
-    size_t mantissa_bits;
-    size_t exponent_bits;
-} floatQ_t;
-
-typedef struct quantization
-{
-    qtype_t type;
-    void* qConfig;
-} quantization_t;
-
-typedef struct qTensor
-{
-    uint8_t* data;
-    quantization_t* quantization;
-    size_t* numberOfDimensions;
-    size_t dimensions;
-} qTensor_t;
-
-typedef struct tensor
-{
-    float* data;
-    size_t numberOfDimensions;
-    size_t* dimensions;
-} tensor_t;
-
-/*! @brief Describes a parameter tensor
- * @param tensor = base tensor, containing data, numberOfDimensions and dimensions
- * @param grad = array of same size as data array in base tensor, in which the corresponding gradients can be summed up
- */
-typedef struct parameterTensor
-{
-    struct tensor* tensor;
-    float* grad;
-} parameterTensor_t;
-
-typedef tensor_t*(forward)(void*, tensor_t*);
-typedef tensor_t*(backward)(void*, tensor_t*, tensor_t*);
-
-typedef tensor_t*(loss)(tensor_t*, tensor_t*);
+typedef qTensor_t*(loss)(qTensor_t*, qTensor_t*);
 
 /*! @brief Enum of possible layer types
  */
@@ -83,8 +14,7 @@ typedef enum layerType
     LINEAR,
     RELU,
     CONV1D,
-    SOFTMAX,
-    FLATTEN
+    SOFTMAX
 } layerType_t;
 
 typedef enum lossFunctionType
@@ -113,28 +43,12 @@ extern const layerFunctionEntry_t layerFunctions[];
 
 /*! @brief Calculate total number of elements of given tensor
  *
- * @param tensor
+ * @param qTensor
  * @return : total number of elements
  */
-size_t calcTotalNumberOfElementsByTensor(tensor_t* tensor);
+size_t calcTotalNumberOfElementsByTensor(qTensor_t* qTensor);
 
 size_t calcTensorDataSize(size_t numberOfDimensions, size_t* dimensions);
-
-/*! @brief Init tensor
- * @param data : array of data
- * @param numberOfDimensions : number of dimensions
- * @param dimensions : array of dimensions
- * @return : tensor
- */
-tensor_t* initTensor(float* data, size_t numberOfDimensions, size_t* dimensions);
-
-/*! @brief Init tensor with grads
- * @param data : array of data
- * @param numberOfDimensions : number of dimensions
- * @param dimensions : array of dimensions
- * @return : parameter tensor
- */
-parameterTensor_t* initParameterTensor(float* data, size_t numberOfDimensions, size_t* dimensions);
 
 /*! @brief Describes how you can generally construct layers
  *
@@ -152,10 +66,10 @@ typedef struct flattenConfig {
     size_t size;
 }flattenConfig_t;
 
-layerForward_t *initFlattenLayerForward(tensor_t *inputTensor);
+layerForward_t *initFlattenLayerForward(qTensor_t *inputTensor);
 
 
-    tensor_t *flattenForward(void *config, tensor_t *inputTensor);
+    qTensor_t *flattenForward(void *config, qTensor_t *inputTensor);
 
 /*! @brief Computes Forward output for a given input and sequential network
  *
@@ -163,7 +77,7 @@ layerForward_t *initFlattenLayerForward(tensor_t *inputTensor);
  * @param input: input for the neural network
  * @return : pointer to array of results
  */
-tensor_t* sequentialForward(layerForward_t** network, size_t sizeNetwork, tensor_t* input);
+qTensor_t* sequentialForward(layerForward_t** network, size_t sizeNetwork, qTensor_t* input);
 
 /*! @brief Describes how you can generally construct layers for Forward & Backward
  * layerForward = pointer to forward function of the layer
@@ -187,16 +101,17 @@ typedef struct trainingStats
 
 /*! @brief Computes Forward & Backward to calculate gradients for a given input & loss function
  *
- * @param network : Array of layerForwardBackward_t structs
- * @param lossFunction: Pointer to loss function that looks like lossFunction(float *output, float
- * *label, size_t size);
- * @param input : Array of inputs
+ * @param network: Array of layerForwardBackward_t structs
+ * @param sizeNetwork: Total number of layers
+ * @param lossFunctionType: Enum type of loss function to be used
+ * @param input: Tensor of inputs
+ * @param label: Tensor of target
  * @return returns result from trainingStats_t forward pass
  */
 trainingStats_t* sequentialCalculateGrads(layerForwardBackward_t** network,
                                           size_t sizeNetwork,
                                           lossFunctionType_t lossFunctionType,
-                                          tensor_t* input,
-                                          tensor_t* label);
+                                          qTensor_t* input,
+                                          qTensor_t* label);
 
 #endif // AIHELPERS_H

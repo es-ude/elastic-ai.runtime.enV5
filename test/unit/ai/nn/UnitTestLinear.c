@@ -15,8 +15,8 @@ linearConfig_t *initLinearConfig() {
     float bias[] = {-1.f, 3.f};
     size_t biasDims[] = {2};
 
-    parameterTensor_t *weightTensor = initParameterTensor(weights, 1, weightDims);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, 1, biasDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weights, 1, weightDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, 1, biasDims);
 
     linearConfig_t *config = initLinearConfigWithWeightBias(weightTensor, biasTensor);
 
@@ -29,9 +29,9 @@ void unitTestInitLinearConfigWithWeightBias() {
     float bias[] = {-1.f, -2.f};
     size_t biasDims[] = {2};
 
-    parameterTensor_t *weightTensor = initParameterTensor(weights, 1, weightDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weights, 1, weightDims);
 
-    parameterTensor_t *biasTensor = initParameterTensor(bias, 1, biasDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, 1, biasDims);
     linearConfig_t *linearConfig =
         initLinearConfigWithWeightBias(weightTensor, biasTensor);
 
@@ -55,8 +55,8 @@ void unitTestInitLinearForwardWithWeightBias() {
     float bias[] = {-1.f, -2.f};
     size_t biasDims[] = {2};
 
-    parameterTensor_t *weightTensor = initParameterTensor(weights, 1, weightDims);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, 1, biasDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weights, 1, weightDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, 1, biasDims);
 
     layerForward_t *linearLayerForward =
         initLinearLayerForwardWithWeightBias(weightTensor, biasTensor);
@@ -85,8 +85,8 @@ void unitTestInitLinearForwardBackwardWithWeightBias() {
     float bias[] = {-1.f, -2.f};
     size_t biasDims[] = {2};
 
-    parameterTensor_t *weightTensor = initParameterTensor(weights, 1, weightDims);
-    parameterTensor_t *biasTensor = initParameterTensor(bias, 1, biasDims);
+    parameterTensor_t *weightTensor = initParameterQTensor(weights, 1, weightDims);
+    parameterTensor_t *biasTensor = initParameterQTensor(bias, 1, biasDims);
 
     layerForwardBackward_t *linearLayerForwardBackward =
         initLinearLayerForwardBackwardWithWeightBias(weightTensor, biasTensor);
@@ -116,7 +116,7 @@ void unitTestLinearForward() {
     float input[] = {0.f, 1.f, 2.f};
     size_t inputDims[] = {3};
 
-    tensor_t *inputTensor = initTensor(input, 1, inputDims);
+    tensor_t *inputTensor = initQTensor(input, 1, inputDims);
 
     tensor_t *output = linearForward(linearConfig, inputTensor);
     float expected_result[] = {-5.f, -4.f};
@@ -130,11 +130,11 @@ void unitTestLinearBackward() {
 
     float input[] = {0.f, 1.f, 2.f};
     size_t inputDims[] = {3};
-    tensor_t *inputTensor = initTensor(input, 1, inputDims);
+    tensor_t *inputTensor = initQTensor(input, 1, inputDims);
 
     float loss[] = {-4.f, -3.f};
     size_t lossDims[] = {2};
-    tensor_t *lossTensor = initTensor(loss, 1, lossDims);
+    tensor_t *lossTensor = initQTensor(loss, 1, lossDims);
 
     tensor_t *propagated_loss = linearBackward(linearConfig, lossTensor, inputTensor);
 

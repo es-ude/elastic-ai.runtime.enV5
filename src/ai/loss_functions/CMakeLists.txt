@@ -5,6 +5,7 @@ target_include_directories(MSE PUBLIC include)
 target_link_libraries(MSE PRIVATE
         Common
         AiHelpers
+        Quantization
 )
 
 
@@ -16,5 +17,6 @@ target_link_libraries(CrossEntropy PRIVATE
         Common
         AiHelpers
         Softmax
+        Quantization
         m
 )

@@ -16,7 +16,7 @@ void unitTestInitMomentumBuffer() {
     float p[] = {0.f, 1.f, 2.f};
     size_t pDims[] = {3};
     size_t pNumberOfDims = 1;
-    parameterTensor_t *param = initParameterTensor(p, pNumberOfDims, pDims);
+    parameterTensor_t *param = initParameterQTensor(p, pNumberOfDims, pDims);
     momentumBuffer_t *momentumBuffer= initMomentumBuffer(param);
 
     float expectedMomentumBuffer[] = {0.f, 0.f, 0.f};
@@ -29,12 +29,12 @@ void unitTestInitSGDConfig() {
     float w0[] = {0.f, 1.f, 2.f};
     size_t w0Dims[] = {1,3};
     size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
+    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
 
     float b0[] = {0.f, 1.f, -1.f};
     size_t b0Dims[] = {3};
     size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0Dims);
+    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0Dims);
 
     layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
     layerForwardBackward_t *relu0 = initReLULayerForwardBackward();
@@ -71,14 +71,14 @@ void unitTestSGDStep() {
     float w0[] = {1.f, 2.f, -3.f};
     size_t w0Dims[] = {1, 3};
     size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
+    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
     float w0Grad[] = {1.f, -1.f, 2.f};
     memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
 
     float b0[] = {-1.f, 3.f};
     size_t b0Dims[] = {3};
     size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0Dims);
+    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0Dims);
     float b0Grad[] = {1.f, 3.f};
     memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
 
@@ -115,14 +115,14 @@ void unitTestSGDZeroGrad() {
     float w0[] = {1.f, 2.f, -3.f};
     size_t w0Dims[] = {1, 3};
     size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterTensor(w0, w0NumberOfDims, w0Dims);
+    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
     float w0Grad[] = {1.f, -1.f, 2.f};
     memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
 
     float b0[] = {-1.f, 3.f};
     size_t b0dims[] = {2};
     size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterTensor(b0, b0NumberOfDims, b0dims);
+    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0dims);
     float b0Grad[] = {1.f, 3.f};
     memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
 

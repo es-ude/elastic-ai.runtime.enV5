@@ -5,11 +5,11 @@
 
 typedef struct linearConfig
 {
-    parameterTensor_t* weight;
-    parameterTensor_t* bias;
+    parameterQTensor_t* weight;
+    parameterQTensor_t* bias;
 } linearConfig_t;
 
-tensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTensor);
+qTensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, qTensor_t *inputQTensor);
 
 /*! @brief Gets linearConfig_t for a given weight & bias
  *
@@ -17,7 +17,7 @@ tensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, tensor_t *inputTe
  * @param biasTensor : Pointer to Tensor containing bias
  * @return: pointer to linearConfig_t
  */
-linearConfig_t* initLinearConfigWithWeightBias(parameterTensor_t* weightTensor, parameterTensor_t* biasTensor);
+linearConfig_t* initLinearConfigWithWeightBias(parameterQTensor_t* weightQTensor, parameterQTensor_t* biasQTensor);
 
 /*! @brief Return pointer to linearConfig_t with automatic weight and bias instantiation, likely glorot
  *
@@ -34,8 +34,8 @@ linearConfig_t* initLinearConfigWithInputOutputSize(size_t inputSize, size_t out
  * @param biasTensor : pointer to tensor of bias of the linear layer
  * @return : pointer to layerForward_t
  */
-layerForward_t* initLinearLayerForwardWithWeightBias(parameterTensor_t* weightTensor,
-                                                     parameterTensor_t* biasTensor);
+layerForward_t* initLinearLayerForwardWithWeightBias(parameterQTensor_t* weightQTensor,
+                                                     parameterQTensor_t* biasQTensor);
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init
  * Low Prio
@@ -52,7 +52,7 @@ layerForward_t* initLinearLayerWithInputOutputSize(size_t inputSize, size_t outp
  * @param biasTensor : pointer to tensor of bias of the linear layer
  * @return : pointer to layerForwardBackward_t
  */
-layerForwardBackward_t* initLinearLayerForwardBackwardWithWeightBias(parameterTensor_t* weightTensor, parameterTensor_t* biasTensor);
+layerForwardBackward_t* initLinearLayerForwardBackwardWithWeightBias(parameterQTensor_t* weightQTensor, parameterQTensor_t* biasQTensor);
 
 /*! @brief Return point to layerForward_t for linear layer
  * linearConfig_t with automatic weight and bias instatiation, likely glorot init
@@ -70,7 +70,7 @@ layerForwardBackward_t* initLinearLayerBackwardWithInputOutputSize(size_t inputS
  * @param inputTensor : Tensor with inputs for the linear layer
  * @return : output of the linear layer
  */
-tensor_t* linearForward(void* config, tensor_t* inputTensor);
+qTensor_t* linearForward(void* config, qTensor_t* inputQTensor);
 
 /*! @brief Backward call for the linear layer that calculates the gradients in respect to the inputs
  * and in respect to the parameters
@@ -80,6 +80,6 @@ tensor_t* linearForward(void* config, tensor_t* inputTensor);
  * @param inputTensor : input that was put into the layer
  * @return : partial gradients of loss function for the previous layers
  */
-tensor_t* linearBackward(void* config, tensor_t* gradTensor, tensor_t* inputTensor);
+qTensor_t* linearBackward(void* config, qTensor_t* gradQTensor, qTensor_t* inputQTensor);
 
 #endif //LINEAR_H

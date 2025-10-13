@@ -8,6 +8,7 @@
 #include "CrossEntropy.h"
 #include "MSE.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 const layerFunctionEntry_t layerFunctions[] = {
@@ -15,7 +16,6 @@ const layerFunctionEntry_t layerFunctions[] = {
     [RELU] = {ReLUForward, ReLUBackward},
     [CONV1D] = {conv1dForward, conv1dBackward},
     [SOFTMAX] = {softmaxForward, softmaxBackward},
-    [FLATTEN] = {flattenForward, NULL}
 };
 
 const lossFunctionEntry_t lossFuntions[] = {
@@ -32,84 +32,28 @@ size_t calcTensorDataSize(size_t numberOfDimensions, size_t *dimensions) {
     return dataSize;
 }
 
-size_t calcTotalNumberOfElementsByTensor(tensor_t *tensor) {
+size_t calcTotalNumberOfElementsByTensor(qTensor_t *qTensor) {
     size_t totalSize = 1;
-    for (size_t i = 0; i < tensor->numberOfDimensions; i++) {
-        totalSize *= tensor->dimensions[i];
+    for (size_t i = 0; i < qTensor->numberOfDimensions; i++) {
+        totalSize *= qTensor->dimensions[i];
     }
     return totalSize;
 }
 
-tensor_t *initTensor(float *data, size_t numberOfDimensions, size_t *dimensions) {
-    tensor_t *tensor = calloc(1, sizeof(tensor_t));
-
-    size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
-
-    tensor->data = calloc(dataSize, sizeof(float));
-    memcpy(tensor->data, data, dataSize * sizeof(float));
-
-    tensor->numberOfDimensions = numberOfDimensions;
-
-    tensor->dimensions = calloc(numberOfDimensions, sizeof(size_t));
-    memcpy(tensor->dimensions, dimensions, numberOfDimensions * sizeof(size_t));
-
-    return tensor;
-}
-
-parameterTensor_t *initParameterTensor(float *data, size_t numberOfDimensions, size_t *dimensions) {
-    parameterTensor_t *parameterTensor = calloc(1, sizeof(parameterTensor_t));
-
-    parameterTensor->tensor = initTensor(data, numberOfDimensions, dimensions);
-    size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
-
-    parameterTensor->grad = calloc(dataSize, sizeof(float));
-
-    return parameterTensor;
-}
 
 
 
-tensor_t *initInputTensorForNextLayer(layerForward_t *currentLayer,
-                                         tensor_t *currentInputTensor) {
-    tensor_t *inputTensorNextLayer = calloc(1, sizeof(tensor_t));
-    switch (currentLayer->type) {
-    case LINEAR:
-        inputTensorNextLayer = initLinearOutputTensor(currentLayer->config, currentInputTensor);
-        break;
-    case RELU:
-        inputTensorNextLayer->numberOfDimensions = currentInputTensor->numberOfDimensions;
-        inputTensorNextLayer->dimensions = calloc(inputTensorNextLayer->numberOfDimensions,
-                                                  sizeof(size_t));
-        memcpy(inputTensorNextLayer->dimensions, currentInputTensor->dimensions,
-               inputTensorNextLayer->numberOfDimensions * sizeof(size_t));
-        break;
-    case CONV1D:
-        inputTensorNextLayer = initConv1dOutputTensor(currentLayer->config, currentInputTensor);
-        break;
-    case SOFTMAX:
-        inputTensorNextLayer->numberOfDimensions = currentInputTensor->numberOfDimensions;
-        inputTensorNextLayer->dimensions = calloc(inputTensorNextLayer->numberOfDimensions,
-                                                  sizeof(size_t));
-        memcpy(inputTensorNextLayer->dimensions, currentInputTensor->dimensions,
-               inputTensorNextLayer->numberOfDimensions * sizeof(size_t));
-        break;
-    default:
-        printf("SWITCH CASE NOT FOUND\n");
-        break;
-    }
-    return inputTensorNextLayer;
-}
 
-tensor_t *sequentialForward(layerForward_t **network, size_t sizeNetwork, tensor_t *inputTensor) {
+
+qTensor_t *sequentialForward(layerForward_t **network, size_t sizeNetwork, qTensor_t *inputQTensor) {
     for (size_t i = 0; i < sizeNetwork; i++) {
-
 
         layerType_t type = network[i]->type;
         forward *fwd = layerFunctions[type].forwardFunc;
-        inputTensor = fwd(network[i]->config, inputTensor);
+        inputQTensor = fwd(network[i]->config, inputQTensor);
 
     }
-    return inputTensor;
+    return inputQTensor;
 }
 
 loss *getLossFunctionByType(lossFunctionType_t lossType) {
@@ -128,41 +72,6 @@ loss *getLossFunctionByType(lossFunctionType_t lossType) {
     return lossFunction;
 }
 
-
-flattenConfig_t *initFlattenConfig(size_t size) {
-    flattenConfig_t *config = calloc(1, sizeof(flattenConfig_t));
-    config->size = size;
-    return config;
-}
-
-layerForward_t *initFlattenLayerForward(tensor_t *inputTensor) {
-    layerForward_t *layerForward = calloc(1, sizeof(layerForward_t));
-    layerForward->type = FLATTEN;
-    size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputTensor);
-    layerForward->config = initReLUConfig(totalInputSize);
-    return layerForward;
-}
-
-tensor_t *flattenForward(void *config, tensor_t *inputTensor) {
-    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
-
-    // Calculate total size
-    size_t totalSize = 1;
-    for (size_t i = 0; i < inputTensor->numberOfDimensions; i++) {
-        totalSize *= inputTensor->dimensions[i];
-    }
-
-    outputTensor->numberOfDimensions = 1;
-    outputTensor->dimensions = calloc(1, sizeof(size_t));
-    outputTensor->dimensions[0] = totalSize;
-
-    // Copy data (or just reuse pointer if you manage memory differently)
-    outputTensor->data = calloc(totalSize, sizeof(float));
-    memcpy(outputTensor->data, inputTensor->data, totalSize * sizeof(float));
-
-    return outputTensor;
-}
-
 /*! IMPORTANT: We assume, that if you use Cross Entropy as your loss function,
  * you also use Softmax with it. We introduce Softmax as a dedicated Layer,
  * but in the backward pass it is ignored. We do this, because the Cross Entropy Backward
@@ -171,14 +80,11 @@ tensor_t *flattenForward(void *config, tensor_t *inputTensor) {
 trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
                                           size_t sizeNetwork,
                                           lossFunctionType_t lossFunctionType,
-                                          tensor_t *inputTensor,
-                                          tensor_t *labelTensor) {
+                                          qTensor_t *inputQTensor,
+                                          qTensor_t *labelQTensor) {
 
-
-
-    tensor_t **layerOutputs = calloc((sizeNetwork + 1), sizeof(tensor_t *));
-    layerOutputs[0] = inputTensor;
-
+    qTensor_t **layerOutputs = calloc((sizeNetwork + 1), sizeof(qTensor_t *));
+    layerOutputs[0] = inputQTensor;
 
     // Forward Pass
     for (size_t i = 0; i < sizeNetwork; i++) {
@@ -190,9 +96,11 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
 
     // Loss
     loss *lossFunction = getLossFunctionByType(lossFunctionType);
-    tensor_t *grad = lossFunction(layerOutputs[sizeNetwork], labelTensor);
+    // TODO adapt loss functions
+    qTensor_t *gradQTensor = lossFunction(layerOutputs[sizeNetwork], labelQTensor);
     trainingStats_t *trainingStats = calloc(1, sizeof(trainingStats_t));
-    trainingStats->loss = grad->data;
+    // TODO adapt trainingStats_t
+    trainingStats->loss = gradQTensor->data;
 
     size_t backwardIndex = sizeNetwork - 1;
     if (lossFunctionType == CROSS_ENTROPY) {
@@ -201,10 +109,11 @@ trainingStats_t *sequentialCalculateGrads(layerForwardBackward_t **network,
     // Backward Pass
     for (int i = (int)(backwardIndex); i >= 0; i--) {
         backward *bwd = layerFunctions[network[i]->type].backwardFunc;
-        grad = bwd(network[i]->config, grad, layerOutputs[i]);
+        gradQTensor = bwd(network[i]->config, gradQTensor, layerOutputs[i]);
     }
 
-    trainingStats->output = grad->data;
+
+    trainingStats->output = gradQTensor->data;
 
     return trainingStats;
 }

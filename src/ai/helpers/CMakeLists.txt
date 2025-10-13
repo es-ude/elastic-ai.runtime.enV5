@@ -4,6 +4,7 @@ add_library(AiHelpers
 target_include_directories(AiHelpers PUBLIC include)
 target_link_libraries(AiHelpers PRIVATE
         Common
+        Quantization
         Linear
         ReLU
         Conv1d
@@ -11,6 +12,7 @@ target_link_libraries(AiHelpers PRIVATE
         CSVReader
         MSE
         CrossEntropy
+
 )
 
 
@@ -21,3 +23,4 @@ target_include_directories(CSVReader PUBLIC include)
 target_link_libraries(CSVReader PRIVATE
         Common
 )
+

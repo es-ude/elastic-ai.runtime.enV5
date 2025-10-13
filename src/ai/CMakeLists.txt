@@ -2,6 +2,7 @@ add_subdirectory(helpers)
 add_subdirectory(nn)
 add_subdirectory(optim)
 add_subdirectory(loss_functions)
+add_subdirectory(quantization)
 
 add_library(ai
         ai.c

@@ -17,7 +17,7 @@ typedef struct padding {
 }padding_t;
 
 typedef struct kernels {
-    parameterTensor_t *kernels;
+    parameterQTensor_t *kernels;
 }kernel_t;
 
 typedef struct conv1dConfig {
@@ -25,8 +25,8 @@ typedef struct conv1dConfig {
     size_t outputChannels;
     size_t outputSize;
     size_t kernelSize;
-    parameterTensor_t *weight; // [channelIn][channelOut][kernelSize]
-    parameterTensor_t *bias;
+    parameterQTensor_t *weight; // [channelIn][channelOut][kernelSize]
+    parameterQTensor_t *bias;
     bool useBias;
     size_t stride; // Wie viel verschieben wir den Kernel
     size_t dilation; // Abstand der Inputdaten für KernelMultiplikation
@@ -35,23 +35,23 @@ typedef struct conv1dConfig {
 
 size_t calcOutputSizeForInputSizeAndConv1dConfig(size_t inputSize, conv1dConfig_t *conv1dConfig);
 
-tensor_t *initConv1dOutputTensor(conv1dConfig_t *conv1dConfig, tensor_t *inputTensor);
+qTensor_t *initConv1dOutputTensor(conv1dConfig_t *conv1dConfig, qTensor_t *inputQTensor);
 
 
-conv1dConfig_t *initConv1dConfigWithWeightAndBias(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor, size_t inputChannels, size_t outputChannels, size_t kernelSize, size_t stride, size_t dilation, paddingType_t paddingType, size_t paddingSize);
+conv1dConfig_t *initConv1dConfigWithWeightAndBias(parameterQTensor_t *weightQTensor, parameterQTensor_t *biasQTensor, size_t inputChannels, size_t outputChannels, size_t kernelSize, size_t stride, size_t dilation, paddingType_t paddingType, size_t paddingSize);
 
 conv1dConfig_t *initConv1dConfig(size_t inputChannels, size_t outputChannels, size_t kernelSize, size_t stride, size_t dilation, bool useBias, paddingType_t paddingType, size_t paddingSize);
 
-tensor_t *conv1dForward(void *config, tensor_t *inputTensor);
+qTensor_t *conv1dForward(void *config, qTensor_t *inputQTensor);
 
-tensor_t *conv1dBackward(void *config, tensor_t *gradTensor, tensor_t *inputTensor);
+qTensor_t *conv1dBackward(void *config, qTensor_t *gradQTensor, qTensor_t *inputQTensor);
 
-layerForward_t *initConv1dLayerForward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor, size_t inputChannels,
+layerForward_t *initConv1dLayerForward(parameterQTensor_t *weightQTensor, parameterQTensor_t *biasQTensor, size_t inputChannels,
                                       size_t outputChannels, size_t kernelSize, size_t stride,
                                       size_t dilation, paddingType_t paddingType,
                                       size_t paddingSize);
 
-layerForwardBackward_t *initConv1dLayerForwardBackward(parameterTensor_t *weightTensor, parameterTensor_t *biasTensor, size_t inputChannels,
+layerForwardBackward_t *initConv1dLayerForwardBackward(parameterQTensor_t *weightQTensor, parameterQTensor_t *biasQTensor, size_t inputChannels,
                                        size_t outputChannels, size_t kernelSize, size_t stride,
                                        size_t dilation, paddingType_t paddingType,
                                        size_t paddingSize);

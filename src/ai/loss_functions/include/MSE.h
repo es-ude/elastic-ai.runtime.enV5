@@ -8,7 +8,7 @@
  * @param label : tensor of labels
  * @return : derivative of MSE in respect to the output
  */
-tensor_t *MSELossBackward(tensor_t *output, tensor_t *label);
+qTensor_t *MSELossBackward(qTensor_t *output, qTensor_t *label);
 
 
 #endif // MSELOSSDOUTPUT_H

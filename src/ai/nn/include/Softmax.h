@@ -16,7 +16,7 @@ layerForwardBackward_t *initSoftmaxLayerForwardBackward();
 void freeSoftmaxLayerForward(layerForward_t *layer);
 void freeSoftmaxLayerBackward(layerForwardBackward_t *layer);
 
-tensor_t *softmaxForward(void *config, tensor_t *inputTensor);
+qTensor_t *softmaxForward(void *config, qTensor_t *inputTensor);
 
 float *softmaxBackward(void *config, float *grad, float *input, size_t inputSize);
 

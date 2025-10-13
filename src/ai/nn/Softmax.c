@@ -1,6 +1,7 @@
 #include "Softmax.h"
 
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define EULER_APPROX = 2.71828
@@ -25,10 +26,10 @@ layerForwardBackward_t *initSoftmaxLayerForwardBackward() {
 }
 
 
-tensor_t *softmaxForward(void *config, tensor_t *inputTensor) {
+qTensor_t *softmaxForward(void *config, qTensor_t *inputTensor) {
     size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputTensor);
 
-    tensor_t *outputTensor = calloc(1, sizeof(tensor_t));
+    qTensor_t *outputTensor = calloc(1, sizeof(qTensor_t));
     outputTensor->data = calloc(totalInputSize, sizeof(float));
     outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
     outputTensor->dimensions = calloc(outputTensor->numberOfDimensions, sizeof(size_t));
