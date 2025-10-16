@@ -5,6 +5,7 @@
 #include "ReLU.h"
 #include "unity.h"
 
+#include <float.h>
 #include <string.h>
 
 void unitTestReLUForwardFloat32() {
@@ -69,7 +70,7 @@ void unitTestReLUBackwardFloat32() {
 
     qTensor_t *actualQTensor = ReLUBackward(config, gradQTensor, inputQTensor);
 
-    float expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
+    float32_t expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
 
     /*size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(inputQTensor);
     size_t bytesPerElement = calcBytesPerElement(inputQ);
@@ -100,7 +101,7 @@ void unitTestReLUBackwardFloat64() {
 
     qTensor_t *actualQTensor = ReLUBackward(config, gradQTensor, inputQTensor);
 
-    double expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
+    float64_t expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
     size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(inputQTensor);
     size_t bytesPerElement = calcBytesPerElement(inputQ);
     uint8_t *expectedRaw = calloc(totalNumberOfElements, bytesPerElement);

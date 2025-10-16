@@ -8,27 +8,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-float16_t readBytesAsFloat16(uint8_t *startIndex) {
-    float16_t dataType = (uint16_t)startIndex[0] | (uint16_t)startIndex[1] << 8;
-    return dataType;
-}
-
-float32_t readBytesAsFloat32(uint8_t *startIndex) {
-    uint32_t rawOutput = startIndex[0] | (uint32_t)startIndex[1] << 8 | (uint32_t)startIndex[2] <<
-                         16 | (uint32_t)startIndex[3] << 24;
+float32_t readBytesAsFloat32(uint8_t *bytes) {
     float32_t f;
-    memcpy(&f, &rawOutput, 4);
+    memcpy(&f, bytes, 4);
     return f;
 }
 
-float64_t readBytesAsFloat64(uint8_t *startIndex) {
-    uint64_t rawOutput = startIndex[0] | (uint64_t)startIndex[1] << 8 | (uint64_t)startIndex[2] <<
-                         16 | (uint64_t)startIndex[3] << 24
-                         | (uint64_t)startIndex[4] << 32 | (uint64_t)startIndex[5] << 40 | (
-                             uint64_t)startIndex[6] << 48 | (uint64_t)startIndex[7] << 56;
+float64_t readBytesAsFloat64(uint8_t *bytes) {
     float64_t f;
-    memcpy(&f, &rawOutput, 8);
+    memcpy(&f, bytes, 8);
     return f;
+}
+
+void writeFloat32ToByteArray(float32_t value, uint8_t *bytes) {
+    memcpy(bytes, &value, 4);
 }
 
 quantization_t *initQuantizationByType(const qtype_t type) {
@@ -105,11 +98,15 @@ qTensor_t *initQTensor(uint8_t *data, size_t numberOfDimensions, size_t *dimensi
                        quantization_t *quantization) {
     qTensor_t *qTensor = calloc(1, sizeof(qTensor_t));
 
-    size_t dataSize = calcTensorDataSize(numberOfDimensions, dimensions);
-
+    size_t totalNumberOfElements = calcTensorDataSize(numberOfDimensions, dimensions);
     size_t bytesPerElement = calcBytesPerElement(quantization);
-    qTensor->data = calloc(dataSize, bytesPerElement);
-    memcpy(qTensor->data, data, dataSize * bytesPerElement);
+
+    float x;
+    memcpy(&x, &data[32], 4);
+    printf("x: %f\n", x);
+
+    qTensor->data = calloc(totalNumberOfElements, bytesPerElement);
+    memcpy(qTensor->data, data, totalNumberOfElements * bytesPerElement);
 
     qTensor->numberOfDimensions = numberOfDimensions;
 
@@ -129,8 +126,13 @@ parameterQTensor_t *initParameterQTensor(uint8_t *data, size_t numberOfDimension
     parameterQTensor->dataTensor = initQTensor(data, numberOfDimensions, dimensions,
                                                dataQuantization);
 
-    size_t dataSize = calcTotalNumberOfElementsByTensor(parameterQTensor->dataTensor);
-    float *gradData = calloc(dataSize, sizeof(uint8_t));
+
+    size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(parameterQTensor->dataTensor);
+    size_t bytesPerElement = calcBytesPerElement(gradQuantization);
+
+
+
+    uint8_t *gradData = calloc(totalNumberOfElements, bytesPerElement);
     parameterQTensor->gradTensor = initQTensor(gradData, numberOfDimensions, dimensions,
                                                gradQuantization);
 

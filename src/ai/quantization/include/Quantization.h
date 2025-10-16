@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 // todo find implementation for 16 bit data types
-typedef uint16_t fixedPoint_t;
+typedef int16_t fixedPoint_t;
 typedef uint16_t float16_t;
 typedef float float32_t;
 typedef double float64_t;
@@ -80,8 +80,10 @@ typedef struct parameterQTensor
 } parameterQTensor_t;
 
 uint16_t read16Bits(uint8_t* startIndex);
-float32_t readBytesAsFloat32(uint8_t* startIndex);
+float32_t readBytesAsFloat32(uint8_t* bytes);
 float64_t readBytesAsFloat64(uint8_t* startIndex);
+
+void writeFloat32ToByteArray(float32_t value, uint8_t *bytes);
 
 quantization_t* initQuantizationByType(const qtype_t type);
 size_t calcBytesPerElement(quantization_t* quantization);

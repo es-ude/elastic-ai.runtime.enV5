@@ -2,6 +2,7 @@
 #define LINEAR_H
 
 #include "AiHelpers.h"
+#include "Quantization.h"
 
 typedef struct linearConfig
 {
@@ -9,7 +10,10 @@ typedef struct linearConfig
     parameterQTensor_t* bias;
 } linearConfig_t;
 
-qTensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, qTensor_t *inputQTensor);
+typedef void(*linearForward_t)(linearConfig_t *linearConfig, qTensor_t *inputQTensor,  qTensor_t *outputQTensor, size_t i, size_t inputSize, size_t inputBytesPerElement);
+typedef void(*linearBackward_t)(linearConfig_t *linearConfig, qTensor_t *inputQTensor, qTensor_t *gradTensor, qTensor_t *outputQTensor, size_t lossIndex, size_t inputSize);
+
+qTensor_t *initLinearOutputQTensor(linearConfig_t *linearConfig, qTensor_t *inputQTensor, quantization_t *outputQuantization);
 
 /*! @brief Gets linearConfig_t for a given weight & bias
  *
@@ -70,7 +74,7 @@ layerForwardBackward_t* initLinearLayerBackwardWithInputOutputSize(size_t inputS
  * @param inputTensor : Tensor with inputs for the linear layer
  * @return : output of the linear layer
  */
-qTensor_t* linearForward(void* config, qTensor_t* inputQTensor);
+qTensor_t *linearForward(void *config, qTensor_t *inputQTensor, quantization_t *outputQuantization);
 
 /*! @brief Backward call for the linear layer that calculates the gradients in respect to the inputs
  * and in respect to the parameters
@@ -80,6 +84,7 @@ qTensor_t* linearForward(void* config, qTensor_t* inputQTensor);
  * @param inputTensor : input that was put into the layer
  * @return : partial gradients of loss function for the previous layers
  */
-qTensor_t* linearBackward(void* config, qTensor_t* gradQTensor, qTensor_t* inputQTensor);
+qTensor_t *linearBackward(void *config, qTensor_t *lossQTensor, qTensor_t *outputQTensor,
+                          quantization_t *outputQuantization);
 
 #endif //LINEAR_H

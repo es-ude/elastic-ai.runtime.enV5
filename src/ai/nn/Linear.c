@@ -1,79 +1,199 @@
 #define SOURCE_FILE "AI_NN_LINEAR"
 
 #include "Linear.h"
+#include "Quantization.h"
 
 #include <Common.h>
 #include <stdlib.h>
 #include <string.h>
 
-qTensor_t *initLinearOutputTensor(linearConfig_t *linearConfig, qTensor_t *inputQTensor) {
+qTensor_t *initLinearOutputQTensor(linearConfig_t *linearConfig, qTensor_t *inputQTensor,
+                                   quantization_t *outputQuantization) {
     size_t totalOutputSize = linearConfig->weight->dataTensor->dimensions[0];
-    qTensor_t *outputQTensor = calloc(1, sizeof(qTensor_t));
 
-    outputQTensor->numberOfDimensions = 2;
-    outputQTensor->dimensions = calloc(outputQTensor->numberOfDimensions, sizeof(size_t));
+    size_t numberOfDimensions = 2;
     // Needs to change for batch processing
-    outputQTensor->dimensions[0] = 1;
-    outputQTensor->dimensions[1] = totalOutputSize;
+    size_t dimensions[] = {1, totalOutputSize};
 
-    outputQTensor->data = calloc(totalOutputSize, sizeof(float));
+    size_t bytesPerElement = calcBytesPerElement(outputQuantization);
+    uint8_t *data = calloc(totalOutputSize, bytesPerElement);
+
+    qTensor_t *outputQTensor =
+        initQTensor(data, numberOfDimensions, dimensions, outputQuantization);
     return outputQTensor;
 }
 
-qTensor_t *linearForward(void *config, qTensor_t *inputQTensor) {
-    linearConfig_t *linearConfig = config;
-    size_t weightIndex = 0;
+void linearForwardFloat32(linearConfig_t *linearConfig, qTensor_t *inputQTensor,
+                          qTensor_t *outputQTensor, size_t i, size_t inputSize,
+                          size_t inputBytesPerElement) {
+    float32_t result = 0;
+    for (size_t j = 0; j < inputSize; j++) {
+        size_t inputByteIndex = j * inputBytesPerElement;
 
-    qTensor_t *outputTensor = initLinearOutputTensor(linearConfig, inputQTensor);
-    size_t inputSize = 0;
-    size_t outputSize = 0;
+        size_t weightIndex = i * inputSize + j;
+        size_t weightBytesPerElement = calcBytesPerElement(
+            linearConfig->weight->dataTensor->quantization);
+        size_t weightByteIndex = weightIndex * weightBytesPerElement;
 
-    outputSize = linearConfig->weight->dataTensor->dimensions[0];
-    inputSize = linearConfig->weight->dataTensor->dimensions[1];
-
-
-    for (size_t i = 0; i < outputSize; i++) {
-        float result = 0;
-        for (size_t j = 0; j < inputSize; j++) {
-            weightIndex = i * inputSize + j;
-            result += inputQTensor->data[j] * linearConfig->weight->dataTensor->data[weightIndex];
-        }
-        outputTensor->data[i] = result + linearConfig->bias->dataTensor->data[i];
+        float32_t currentInput = readBytesAsFloat32(&inputQTensor->data[inputByteIndex]);
+        float32_t currentWeight = readBytesAsFloat32(
+            &linearConfig->weight->dataTensor->data[weightByteIndex]);
+        result += currentInput * currentWeight;
     }
-
-    return outputTensor;
+    size_t outputBytesPerElement = calcBytesPerElement(outputQTensor->quantization);
+    size_t outputByteIndex = i * outputBytesPerElement;
+    result += readBytesAsFloat32(&linearConfig->bias->dataTensor->data[outputByteIndex]);
+    memcpy(&outputQTensor->data[outputByteIndex], &result, outputBytesPerElement);
 }
 
-qTensor_t *linearBackward(void *config, qTensor_t *gradQTensor, qTensor_t *inputQTensor) {
+void linearForwardFloat64(linearConfig_t *linearConfig, qTensor_t *inputQTensor,
+                          qTensor_t *outputQTensor, size_t i, size_t inputSize,
+                          size_t inputBytesPerElement) {
+    float64_t result = 0;
+    for (size_t j = 0; j < inputSize; j++) {
+        size_t inputByteIndex = j * inputBytesPerElement;
+
+        size_t weightIndex = i * inputSize + j;
+        size_t weightBytesPerElement = calcBytesPerElement(
+            linearConfig->weight->dataTensor->quantization);
+        size_t weightByteIndex = weightIndex * weightBytesPerElement;
+
+        float64_t currentInput = readBytesAsFloat64(&inputQTensor->data[inputByteIndex]);
+        float64_t currentWeight = readBytesAsFloat64(
+            &linearConfig->weight->dataTensor->data[weightByteIndex]);
+        result += currentInput * currentWeight;
+    }
+    size_t outputBytesPerElement = calcBytesPerElement(outputQTensor->quantization);
+    size_t outputByteIndex = i * outputBytesPerElement;
+    result += readBytesAsFloat64(&linearConfig->bias->dataTensor->data[outputByteIndex]);
+    memcpy(&outputQTensor->data[outputByteIndex], &result, outputBytesPerElement);
+}
+
+linearForward_t linearForwardTable[] = {
+    [FLOAT32_Q] = linearForwardFloat32,
+    [FLOAT64_Q] = linearForwardFloat64
+};
+
+qTensor_t *linearForward(void *config, qTensor_t *inputQTensor,
+                         quantization_t *outputQuantization) {
+    linearConfig_t *linearConfig = config;
+
+    qTensor_t *outputQTensor = initLinearOutputQTensor(linearConfig, inputQTensor,
+                                                       outputQuantization);
+
+    size_t outputSize = linearConfig->weight->dataTensor->dimensions[0];
+    size_t inputSize = linearConfig->weight->dataTensor->dimensions[1];
+
+    size_t inputBytesPerElement = calcBytesPerElement(inputQTensor->quantization);
+
+    linearForward_t linearForward = linearForwardTable[outputQuantization->type];
+
+    for (size_t i = 0; i < outputSize; i++) {
+        linearForward(linearConfig, inputQTensor, outputQTensor, i, inputSize,
+                      inputBytesPerElement);
+    }
+
+    return outputQTensor;
+}
+
+void linearBackwardFloat32() {}
+
+void linearBackwardFloat64() {}
+
+linearBackward_t linearBackwardTable[] = {
+    [FLOAT32_Q] = linearBackwardFloat32,
+    [FLOAT64_Q] = linearBackwardFloat64
+};
+
+qTensor_t *linearBackward(void *config, qTensor_t *lossQTensor, qTensor_t *outputQTensor,
+                          quantization_t *outputQuantization) {
     linearConfig_t *linearConfig = config;
 
     size_t outputSize = linearConfig->weight->dataTensor->dimensions[0];
     size_t inputSize = linearConfig->weight->dataTensor->dimensions[1];
 
-    qTensor_t *propagatedLoss = calloc(1, sizeof(qTensor_t));
-    size_t totalInputSize = calcTotalNumberOfElementsByTensor(inputQTensor);
-    propagatedLoss->data = calloc(totalInputSize, sizeof(float));
+    size_t numberOfDimensions = outputQTensor->numberOfDimensions;
+    size_t *dimensions = calloc(numberOfDimensions, sizeof(size_t));
+    memcpy(dimensions, outputQTensor->dimensions,
+           numberOfDimensions * sizeof(size_t));
 
-    propagatedLoss->numberOfDimensions = inputQTensor->numberOfDimensions;
-    propagatedLoss->dimensions = calloc(propagatedLoss->numberOfDimensions, sizeof(size_t));
-    memcpy(propagatedLoss->dimensions, inputQTensor->dimensions,
-           propagatedLoss->numberOfDimensions * sizeof(size_t));
+    size_t bytesPerElement = calcBytesPerElement(outputQuantization);
+    size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(outputQTensor);
+    uint8_t *propagatedLoss = calloc(totalNumberOfElements, bytesPerElement);
 
-    size_t weightIndex = 0;
-    for (size_t lossIndex = 0; lossIndex < outputSize; lossIndex++) {
-        for (size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
-            weightIndex = lossIndex * inputSize + inputIndex;
+    size_t base = bytesPerElement * 8;
 
-            linearConfig->weight->gradTensor->data[weightIndex] += gradQTensor->data[lossIndex] * inputQTensor->
-                data[inputIndex];
-            propagatedLoss->data[inputIndex] += linearConfig->weight->dataTensor->data[weightIndex] *
-                gradQTensor->data[
-                    lossIndex];
+    switch (outputQuantization->type) {
+    case FLOAT32_Q:
+        for (size_t lossIndex = 0; lossIndex < outputSize; lossIndex++) {
+            size_t lossByteIndex = lossIndex * base;
+            size_t biasByteIndex = lossIndex * base;
+
+            uint8_t *lossAddress = &lossQTensor->data[lossByteIndex];
+            float32_t loss = readBytesAsFloat32(lossAddress);
+
+            for (size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
+
+                size_t weightIndex = lossIndex * inputSize + inputIndex;
+                size_t weightByteIndex = weightIndex * base;
+
+                size_t dataByteIndex = inputIndex * base;
+                size_t outputByteIndex = inputIndex * base;
+
+                uint8_t *weightAddress = &linearConfig->weight->dataTensor->data[weightByteIndex];
+                float32_t weight = readBytesAsFloat32(weightAddress);
+
+                uint8_t *weightGradAddress = &linearConfig->weight->gradTensor->data[weightByteIndex];
+                float32_t weightGrad = readBytesAsFloat32(weightGradAddress);
+
+                uint8_t *propLossAddress = &propagatedLoss[dataByteIndex];
+                float32_t propLoss = readBytesAsFloat32(propLossAddress);
+
+                uint8_t *outputAddress = &outputQTensor->data[outputByteIndex];
+                float32_t output = readBytesAsFloat32(outputAddress);
+
+                weightGrad += loss * output;
+                writeFloat32ToByteArray(weightGrad, weightGradAddress);
+
+                /*linearConfig->weight->gradTensor->data[weightIndex] += lossQTensor->data[lossIndex] *
+                    outputQTensor->
+                    data[inputIndex];*/
+
+                propLoss += weight * loss;
+                writeFloat32ToByteArray(propLoss, &propagatedLoss[dataByteIndex]);
+
+                /*propagatedLoss->data[inputIndex] += linearConfig->weight->dataTensor->data[weightIndex]
+                    *
+                    lossQTensor->data[
+                        lossIndex];*/
+
+                /*printf("WeightGrad: %f\n", weightGrad);
+                printf("PropLoss: %f\n", propLoss);*/
+
+            }
+
+            uint8_t *biasGradAddress = &linearConfig->bias->gradTensor->data[biasByteIndex];
+            float32_t biasGrad = readBytesAsFloat32(biasGradAddress);
+            biasGrad += loss;
+            writeFloat32ToByteArray(biasGrad, biasGradAddress);
+            //printf("BiasGrad: %f\n", biasGrad);
+
+            /*linearConfig->bias->gradTensor->data[lossIndex] += lossQTensor->data[lossIndex];*/
         }
-        linearConfig->bias->gradTensor->data[lossIndex] += gradQTensor->data[lossIndex];
+
+        break;
+    case FLOAT64_Q:
+        break;
+    default:
+        break;
     }
 
-    return propagatedLoss;
+    qTensor_t *propLossQTensor = initQTensor(propagatedLoss, numberOfDimensions, dimensions, outputQuantization);
+
+    free(propagatedLoss);
+    free(dimensions);
+
+    return propLossQTensor;
 }
 
 linearConfig_t *initLinearConfigWithWeightBias(parameterQTensor_t *weightQTensor,

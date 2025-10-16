@@ -3,6 +3,7 @@ add_elastic_ai_unit_test(
         Linear
         MORE_LIBS
         AiHelpers
+        Quantization
 )
 
 add_elastic_ai_unit_test(
