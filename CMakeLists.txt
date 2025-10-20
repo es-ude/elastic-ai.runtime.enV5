@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20...3.24)
 
 if(NOT TARGET _eai_runtime_inclusion_marker)
+
   add_library(_eai_runtime_inclusion_marker INTERFACE)
 
   include(eai_runtime_init.cmake)
@@ -41,7 +42,7 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
     add_subdirectory(src/rtos)
     add_subdirectory(src/sensor)
     add_subdirectory(src/usb_protocol)
-    add_subdirectory(src/ai)
+    add_subdirectory(src/ai2)
 
     if(EAI_RUNTIME_TOP_LEVEL_PROJECT)
       add_subdirectory(test/unit)

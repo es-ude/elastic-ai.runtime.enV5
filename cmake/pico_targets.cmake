@@ -77,7 +77,7 @@ foreach(arg
   pico_standard_binary_info
   pico_standard_link
 
-  __add_pico_lib(${arg})
+  __add_pico_lib(${arg}))
 endforeach()
 
 if(${PICO_PLATFORM} STREQUAL rp2040)
