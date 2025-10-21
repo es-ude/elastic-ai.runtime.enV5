@@ -13,6 +13,15 @@ target_link_libraries(DataStorage PRIVATE
         Common
 )
 
+add_library(Quantization
+        Quantization.c
+)
+target_include_directories(Quantization PUBLIC include)
+target_link_libraries(Quantization PRIVATE
+        Common
+        m
+)
+
 add_library(Tensor
         Tensor.c
 )

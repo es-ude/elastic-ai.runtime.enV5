@@ -10,5 +10,6 @@ target_link_libraries(ai2 PRIVATE
         Common
         DTypes
         Tensor
-        TensorMath
+        Arithmetic
+        Quantization
 )
