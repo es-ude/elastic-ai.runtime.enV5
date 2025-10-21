@@ -1,6 +1,6 @@
 add_subdirectory(dtypes)
 add_subdirectory(tensor)
-add_subdirectory(tensor_math)
+add_subdirectory(arithmetic)
 
 add_library(ai2
         ai.c
