@@ -64,6 +64,14 @@ target_link_libraries(Mul PRIVATE
         DTypes
 )
 
+add_library(Rounding
+        Rounding.c
+)
+target_include_directories(Rounding PUBLIC include)
+target_link_libraries(Rounding PRIVATE
+        Common
+)
+
 add_library(Square
         Square.c
 )

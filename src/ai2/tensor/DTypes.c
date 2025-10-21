@@ -40,25 +40,28 @@ float findMinFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerEleme
     return min;
 }
 
-quantization_t *initQuantization(dtype_t type) {
-    quantization_t *quantization = calloc(1, sizeof(quantization_t));
-
-    switch (type) {
-    case FLOAT32:
-        quantization->type = FLOAT32;
-        return quantization;
-    case INT32:
-        quantization->type = INT32;
-        return quantization;
-    case LINEAR:
-        quantization->type = LINEAR;
-        quantization->qConfig = calloc(1, sizeof(linearQ_t));
-        linearQ_t *linearConfig = quantization->qConfig;
-        linearConfig->qMax = 256;
-        return quantization;
-    default:
-        return NULL;
+int32_t findMaxInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement) {
+    int32_t max = readBytesAsInt32(&bytes[0]);
+    for (size_t i = 1; i < numberOfElements; i++) {
+        size_t byteIndex = i * bytesPerElement;
+        int32_t current = readBytesAsInt32(&bytes[byteIndex]);
+        if (current > max) {
+            max = current;
+        }
     }
+    return max;
+}
+
+int32_t findMinInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement) {
+    int32_t min = readBytesAsInt32(&bytes[0]);
+    for (size_t i = 1; i < numberOfElements; i++) {
+        size_t byteIndex = i * bytesPerElement;
+        int32_t current = readBytesAsInt32(&bytes[byteIndex]);
+        if (current < min) {
+            min = current;
+        }
+    }
+    return min;
 }
 
 float convertInt32ToFloat(int32_t value) {

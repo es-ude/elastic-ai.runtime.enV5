@@ -3,6 +3,7 @@
 add_subdirectory(dummies)
 include(unit_test.cmake)
 add_subdirectory(ai)
+add_subdirectory(ai2)
 
 add_library(UnitTestCommon INTERFACE)
 target_link_libraries(UnitTestCommon INTERFACE

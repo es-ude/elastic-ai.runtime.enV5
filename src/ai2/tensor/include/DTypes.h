@@ -1,7 +1,7 @@
 #ifndef ELASTIC_AI_RUNTIME_ENV5_DTYPES_H
 #define ELASTIC_AI_RUNTIME_ENV5_DTYPES_H
 
-#include <stdbool.h>
+#include "Rounding.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -18,15 +18,6 @@ typedef enum dtype
  * @param qMin:
  * @param qMax:
  */
-
-/*! @brief Describes rounding
- * HTE = Half to Even
- * SRHTE = Stochastic Rounding Half to Even
- */
-typedef enum roundingMode {
-    HTE,
-    SRHTE
-} roundingMode_t;
 
 typedef struct linearQ
 {
@@ -45,7 +36,13 @@ typedef struct quantization
 
 quantization_t *initQuantization(dtype_t type);
 
+int32_t readBytesAsInt32(uint8_t *bytes);
+float readBytesAsFloat(uint8_t *bytes);
+
 float findMaxFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
 float findMinFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
+
+int32_t findMaxInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
+int32_t findMinInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
 
 #endif // ELASTIC_AI_RUNTIME_ENV5_DTYPES_H

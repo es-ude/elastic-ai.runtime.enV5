@@ -16,7 +16,21 @@ typedef struct Tensor
     uint8_t* sparsityBitmask;
     size_t numberOfDimensions;
     size_t* dimensions;
+    size_t* orderOfDimensions;
 } tensor_t;
+
+#include <stdint.h>
+
+
+typedef struct int32Tensor
+{
+    uint8_t* data;
+    quantization_t* quantization = initQuantization(INT32);
+    uint8_t* sparsityBitmask;
+    size_t numberOfDimensions;
+    size_t* dimensions;
+    size_t* orderOfDimensions;
+} int32Tensor_t;
 
 typedef struct Parameter
 {
@@ -29,26 +43,21 @@ typedef struct Parameter
     size_t* dimensions;
 } parameter_t;
 
+typedef void(*conversionFunction_t)(tensor_t *inputTensor, tensor_t *outputTensor);
+
 tensor_t* initTensor(uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask, size_t numberOfDims,
                      size_t* dims);
 parameter_t* initParameter(uint8_t* data, quantization_t* dataQuantization, uint8_t* sparsityBitmask, uint8_t* grad,
                            quantization_t* gradQuantization, size_t numberOfDims, size_t* dims);
 
-typedef tensor_t float32Tensor_t = {
-    .quantization = initQuantization(FLOAT32)
-};
+size_t calcBytesPerElement(quantization_t *quantization);
 
-typedef tensor_t int32Tensor_t = {
-    .quantization = initQuantization(INT32)
-};
+void transposeTensor(const tensor_t* tensor, size_t dim0, size_t dim1);
 
-typedef tensor_t linearTensor_t = {
-    .quantization = initQuantization(LINEAR)
-};
-
-void convertTensorToInt32(tensor_t* tensor, int32Tensor_t* outputTensor);
-void convertTensorToFloat32(tensor_t* tensor, float32Tensor_t* outputTensor);
-void convertTensorToLinearQ(tensor_t* tensor, linearTensor_t* outputTensor);
-
+/*! @brief Converts given input tensor into given output tensor
+ * @param inputTensor: input tensor
+ * @param outputTensor: output tensor with wanted quantization
+ */
+void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor);
 
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "Tensor.h"
 
+// b als void pointer, tensor oder overload der Funktion
 void GTE_int32(const int32Tensor_t* a, int32_t b, int32_t altNumber, int32Tensor_t* result); // A>=B für alle die das Falsch ist, wird altNumber genommen - Hierrüber sollten wir nochmal reden, wenn du soweit bist
 
 void GTE_float32(const float32Tensor_t* a, float b, float altNumber, float32Tensor_t* result); //siehe oben
