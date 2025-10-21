@@ -1,4 +1,3 @@
-add_subdirectory(dtypes)
 add_subdirectory(tensor)
 add_subdirectory(arithmetic)
 
