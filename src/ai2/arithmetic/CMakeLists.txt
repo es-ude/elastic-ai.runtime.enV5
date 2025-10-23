@@ -64,6 +64,16 @@ target_link_libraries(Mul PRIVATE
         DTypes
 )
 
+add_library(MinMax
+        MinMax.c
+)
+target_include_directories(MinMax PUBLIC include)
+target_link_libraries(MinMax PRIVATE
+        Common
+        Tensor
+        DTypes
+)
+
 add_library(Rounding
         Rounding.c
 )

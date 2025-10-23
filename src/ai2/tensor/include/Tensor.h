@@ -1,13 +1,12 @@
 #ifndef ELASTIC_AI_RUNTIME_ENV5_TENSOR_H
 #define ELASTIC_AI_RUNTIME_ENV5_TENSOR_H
 
-#include "DTypes.h"
+#include "Quantization.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
-
 typedef void* tensorStorageId;
-
 
 typedef struct Tensor
 {
@@ -18,19 +17,6 @@ typedef struct Tensor
     size_t* dimensions;
     size_t* orderOfDimensions;
 } tensor_t;
-
-#include <stdint.h>
-
-
-typedef struct int32Tensor
-{
-    uint8_t* data;
-    quantization_t* quantization = initQuantization(INT32);
-    uint8_t* sparsityBitmask;
-    size_t numberOfDimensions;
-    size_t* dimensions;
-    size_t* orderOfDimensions;
-} int32Tensor_t;
 
 typedef struct Parameter
 {
@@ -52,6 +38,8 @@ parameter_t* initParameter(uint8_t* data, quantization_t* dataQuantization, uint
 
 size_t calcBytesPerElement(quantization_t *quantization);
 
+size_t calcNumberOfElementsByTensor(tensor_t *qTensor);
+
 void transposeTensor(const tensor_t* tensor, size_t dim0, size_t dim1);
 
 /*! @brief Converts given input tensor into given output tensor
@@ -59,5 +47,7 @@ void transposeTensor(const tensor_t* tensor, size_t dim0, size_t dim1);
  * @param outputTensor: output tensor with wanted quantization
  */
 void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor);
+
+float readTensorElementAsFloat(tensor_t *inputTensor, size_t elementByteIndex);
 
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

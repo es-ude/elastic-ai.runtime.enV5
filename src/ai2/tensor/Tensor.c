@@ -1,10 +1,12 @@
 #include "Tensor.h"
 #include "Rounding.h"
+#include "Quantization.h"
+#include "MinMax.h"
+#include "DTypes.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <tgmath.h>
-
 
 size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions) {
     size_t numElem = 1;
@@ -36,22 +38,17 @@ size_t calcBytesPerElement(quantization_t *quantization) {
     }
 }
 
-tensor_t *initTensor(tensor_t *tensor, uint8_t *data, quantization_t *quantization,
+void initTensor(tensor_t *tensor, uint8_t *data, quantization_t *quantization,
                      uint8_t *sparsityBitmask,
-                     size_t numberOfDims, size_t *dims) {
+                     size_t numberOfDims, size_t *dims, size_t *orderOfDimensions) {
 
     tensor->data = data;
     tensor->quantization = quantization;
     tensor->sparsityBitmask = sparsityBitmask;
     tensor->numberOfDimensions = numberOfDims;
     tensor->dimensions = dims;
-    // TODO remove calloc
-    tensor->orderOfDimensions = calloc(numberOfDims, sizeof(size_t));
-    for (size_t i = 0; i < numberOfDims; i++) {
-        tensor->orderOfDimensions[i] = i;
-    }
+    tensor->orderOfDimensions = orderOfDimensions;
 
-    return tensor;
 }
 
 parameter_t *initParameter(tensor_t *tensor, uint8_t *data, quantization_t *dataQuantization,
@@ -75,10 +72,10 @@ void zeroTensorData(tensor_t *tensor) {
     memset(tensor->data, 0, numberOfElements * bytesPerElement);
 }
 
-// TODO auf orderOfDimensions ändern
-void transposeTensor(const tensor_t *tensor, const size_t dim0, const size_t dim1) {
-    tensor->dimensions[dim0] = dim1;
-    tensor->dimensions[dim1] = dim0;
+void transposeTensor(const tensor_t *tensor, const size_t dim0Index, const size_t dim1Index) {
+    size_t temp = tensor->orderOfDimensions[dim0Index];
+    tensor->orderOfDimensions[dim0Index] = tensor->orderOfDimensions[dim1Index];
+    tensor->orderOfDimensions[dim1Index] = temp;
 }
 
 void convertFloatTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTensor) {
@@ -214,10 +211,74 @@ conversionFunction_t conversionMatrix[3][3] = {
 
 
 void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    dtype_t inputDType = inputTensor->quantization->type;
-    dtype_t outputDType = outputTensor->quantization->type;
+    qtype_t inputDType = inputTensor->quantization->type;
+    qtype_t outputDType = outputTensor->quantization->type;
     conversionFunction_t conversionFn = conversionMatrix[inputDType][outputDType];
     conversionFn(inputTensor, outputTensor);
+}
+
+
+// should not be needed anymore
+
+float interpretLinearAsFloat(linearQ_t *linearQConfig, uint8_t linearRaw) {
+    float scale = linearQConfig->scale;
+    uint16_t zeroPoint = linearQConfig->zeroPoint;
+    float linearElement = scale * (float)(linearRaw - zeroPoint);
+    return linearElement;
+}
+
+float readTensorElementAsFloat(tensor_t *inputTensor, size_t elementByteIndex) {
+    qtype_t type = inputTensor->quantization->type;
+    float f;
+
+    if (type == LINEAR) {
+        linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+        float scale = linearQConfig->scale;
+        int16_t zeroPoint = linearQConfig->zeroPoint;
+        uint8_t linearElementRaw = inputTensor->data[elementByteIndex];
+        f = scale * (float)(linearElementRaw - zeroPoint);
+        return f;
+    }
+
+    f = readBytesAsFloat(&inputTensor->data[elementByteIndex]);
+    return f;
+}
+
+float readTensorElementAsInt32(tensor_t *inputTensor, size_t elementByteIndex) {
+    qtype_t type = inputTensor->quantization->type;
+    int32_t f;
+
+    if (type == LINEAR) {
+        linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+        float scale = linearQConfig->scale;
+        int16_t zeroPoint = linearQConfig->zeroPoint;
+        uint8_t linearElementRaw = inputTensor->data[elementByteIndex];
+        f = scale * (float)(linearElementRaw - zeroPoint);
+        return f;
+    }
+
+    f = readBytesAsFloat(&inputTensor->data[elementByteIndex]);
+    return f;
+}
+
+// TODO rethink how to treat path to linear q
+
+void writeFloatElementToTensor(tensor_t *tensor, size_t byteIndex, float value) {
+    qtype_t type = tensor->quantization->type;
+
+    switch(type) {
+    case INT32:
+        int32_t intValue = (int32_t)roundf(value);
+        memcpy(&tensor->data[byteIndex], &intValue, sizeof(int32_t));
+    case FLOAT32:
+        memcpy(&tensor->data[byteIndex], &value, sizeof(float));
+    case LINEAR:
+        linearQ_t *linearQConfig = tensor->quantization->qConfig;
+        float scale = linearQConfig->scale;
+        int16_t zeroPoint = linearQConfig->zeroPoint;
+
+    }
+
 }
 
 // TODO convert sparse tensor to tensor

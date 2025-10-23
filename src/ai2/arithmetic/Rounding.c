@@ -1,4 +1,6 @@
 #include "Rounding.h"
+
+#include <stdlib.h>
 #include <tgmath.h>
 
 int32_t roundHTE(float input) {
@@ -9,12 +11,21 @@ int32_t roundHTE(float input) {
     return output - 1;
 }
 
-int32_t roundByMode(float input, roundingMode_t roundingMode) {
+float randfloat()
+{
+    return (float)rand()/((float)RAND_MAX+1);
+}
+
+int32_t roundSRHTE(const float input) {
+    return roundHTE(input+randfloat()-0.5f);
+}
+
+int32_t roundByMode(const float input, const roundingMode_t roundingMode) {
     switch (roundingMode) {
     case HTE:
         return roundHTE(input);
     case SRHTE:
-        return 0;
+        return roundSRHTE(input);
     }
     return 0;
 }
