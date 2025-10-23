@@ -8,6 +8,10 @@
 
 void add_int32(const int32Tensor_t* a, const int32Tensor_t* b, int32Tensor_t* result);
 
+void add_int32(const int32Tensor_t* a, int32_t b, int32Tensor_t* result);
+
 void add_float32(const float32Tensor_t* a, const float32Tensor_t* b, float32Tensor_t* result);
+
+void add_float32(const float32Tensor_t* a, float b, float32Tensor_t* result);
 
 #endif // ENV5_RUNTIME_ADD_H
