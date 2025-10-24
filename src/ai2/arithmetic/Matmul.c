@@ -24,24 +24,25 @@ void matmulInt32Tensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
     size_t aRows, aColumns;
     if (aNumberOfDims < 2) {
         aRows = 1;
-        aColumns = aTensor->dimensions[0];
+        aColumns = getDimensionsByIndex(aTensor, 0);
     } else {
-        aRows = aTensor->dimensions[0];
-        aColumns = aTensor->dimensions[1];
+        aRows = getDimensionsByIndex(aTensor, 0);
+        aColumns = getDimensionsByIndex(aTensor, 1);
     }
 
-    size_t bRows = bTensor->dimensions[0];
+    size_t bRows = getDimensionsByIndex(bTensor, 0);
     size_t bColumns = 0;
     if (bNumberOfDims < 2) {
         bColumns = 1;
     } else {
-        bColumns = bTensor->dimensions[1];
+        bColumns = getDimensionsByIndex(bTensor, 1);
     }
 
     size_t resultCounter = 0;
 
     if (aColumns != bRows) {
         printf("Error Matmul: Rows dont match Columns\n");
+        printf("bRows: %lu, bCols: %lu\n", bRows, bColumns);
         return;
     }
 

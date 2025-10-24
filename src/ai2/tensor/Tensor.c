@@ -254,9 +254,11 @@ void transposeTensor(tensor_t *tensor, size_t dim0Index, size_t dim1Index) {
 void copyDimsAndSparsityToTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
     outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
     memcpy(outputTensor->dimensions, inputTensor->dimensions, sizeof(size_t) * outputTensor->numberOfDimensions);
-    memcpy(outputTensor->sparsityBitmask,
-        inputTensor->sparsityBitmask,
-        (calcNumberOfElementsByDims(outputTensor->numberOfDimensions, outputTensor->dimensions)-1)/8+1);
+    if(inputTensor->sparsityBitmask) {
+        memcpy(outputTensor->sparsityBitmask,
+    inputTensor->sparsityBitmask,
+    (calcNumberOfElementsByDims(outputTensor->numberOfDimensions, outputTensor->dimensions)-1)/8+1);
+    }
     memcpy(outputTensor->orderOfDimensions, inputTensor->orderOfDimensions, sizeof(size_t) * outputTensor->numberOfDimensions);
 }
 
@@ -303,6 +305,7 @@ void convertFloatTensorToLinearTensor(tensor_t *inputTensor, tensor_t *outputTen
 
         outputElements[elementIndex] = roundByMode(clamp(inputElement / scale - (float)zeroPoint, 0.f, qMax-1), linearQConfig->roundingMode);
     }
+
     linearQConfig->scale = scale;
     linearQConfig->zeroPoint = zeroPoint;
     uint8_t outputElement[numberOfElements*sizeof(int32_t)];
@@ -439,8 +442,6 @@ float readTensorElementAsInt32(tensor_t *inputTensor, size_t elementByteIndex) {
     return f;
 }
 
-// TODO rethink how to treat path to linear q
-
 void writeFloatElementToTensor(tensor_t *tensor, size_t byteIndex, float value) {
     qtype_t type = tensor->quantization->type;
 
@@ -459,7 +460,15 @@ void writeFloatElementToTensor(tensor_t *tensor, size_t byteIndex, float value) 
 
 }
 
+tensor_t buildTensorForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor) {
+    tensor_t output = {
+        .data = data,
+        .dimensions = originalTensor->dimensions,
+        .quantization = q,
+        .sparsityBitmask = originalTensor->sparsityBitmask,
+        .numberOfDimensions = originalTensor->numberOfDimensions,
+        .orderOfDimensions = originalTensor->orderOfDimensions
+    };
+    return output;
+}
 
-// TODO convert sparse tensor to tensor
-// data wird größer (mit 0 auffüllen)
-// Input tensor und bereits gecalloced data

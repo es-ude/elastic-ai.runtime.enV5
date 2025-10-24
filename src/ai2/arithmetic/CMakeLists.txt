@@ -6,6 +6,7 @@ target_link_libraries(Add PRIVATE
         Common
         Tensor
         DTypes
+        Arithmetic
 )
 
 add_library(Arithmetic
@@ -42,6 +43,7 @@ target_link_libraries(Div PRIVATE
         Common
         Tensor
         DTypes
+        Arithmetic
 )
 
 add_library(Matmul
@@ -62,6 +64,7 @@ target_link_libraries(Mul PRIVATE
         Common
         Tensor
         DTypes
+        Arithmetic
 )
 
 add_library(MinMax
@@ -100,6 +103,7 @@ target_link_libraries(Sub PRIVATE
         Common
         Tensor
         DTypes
+        Arithmetic
 )
 
 

@@ -71,4 +71,6 @@ float readTensorElementAsFloatByByteIndex(tensor_t *inputTensor, size_t elementB
 
 float readTensorElementAsFloatByIndex(tensor_t *inputTensor, size_t Index);
 
+tensor_t buildTensorForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor);
+
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

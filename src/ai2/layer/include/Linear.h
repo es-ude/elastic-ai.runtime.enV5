@@ -16,6 +16,6 @@ typedef struct linearConfig
 
 void linearForward(void *config, tensor_t *input, tensor_t *output);
 
-void linearBackwardFloat(void *config, tensor_t* loss, tensor_t* output, tensor_t* propLossTensor);
+void linearBackward(void *config, tensor_t* loss, tensor_t* output, tensor_t* propLossTensor);
 
 #endif // ENV5_RUNTIME_LINEAR_H
