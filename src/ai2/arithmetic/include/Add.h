@@ -12,6 +12,7 @@ void addInt32TensorsInplace(tensor_t *a, tensor_t *b);
 void addInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor);
 void addInt32ElementWithTensorInplace(tensor_t *a, int32_t b);
 
+
 void addFloatTensors(tensor_t *a, tensor_t *b, tensor_t *outputTensor);
 void addFloatTensorsInplace(tensor_t *a, tensor_t *b);
 

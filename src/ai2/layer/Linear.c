@@ -1,15 +1,17 @@
-//
-// Created by Leo Buron on 21.10.25.
-//
+#include "Tensor.h"
 #include "Linear.h"
-
+#include "Arithmetic.h"
 #include "Add.h"
 #include "Matmul.h"
 #include "Mul.h"
-#include "Tensor.h"
+
+#include <DTypes.h>
+#include <stdio.h>
+#include <string.h>
+
 
 void linearForwardFloat(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
-    matmul_float32(w, input, output);
+    matmulFloatTensors(w, input, output);
     addFloatTensorsInplace(output, b);
 }
 
@@ -49,9 +51,10 @@ void linearForwardLinearQ(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *o
         tensor_t input_int = {.data = input_int_data, .quantization = &input_int_quantization,};
         convertTensor(input, &input_int);
 
-        matmul_int32(&w_int, &input_int, &intermediate_int);
+        matmulInt32Tensors(&w_int, &input_int, &intermediate_int);
     }
-    addInt32TensorsInplace(&intermediate_int, b);
+    int32ElementArithmeticFunc_t add = addInt32s;
+    int32PointWiseArithmeticInplace(&intermediate_int, b, add);
 
     linearQConfig_t *linearQWConfig = (linearQConfig_t *)w->quantization->qConfig;
     linearQConfig_t *linearQInputConfig = (linearQConfig_t *)input->quantization->qConfig;
@@ -63,7 +66,9 @@ void linearForwardLinearQ(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *o
         tensor_t intermediate_float = {.data = intermediate_float_data,
                                        .quantization = &intermediate_float_quantization,};
         convertTensor(&intermediate_int, output);
-        mul_float32Inplace(output, linearQWConfig->scale * linearQInputConfig->scale);
+        floatElementArithmeticFunc_t mul = mulFloats;
+        float totalScale = linearQWConfig->scale * linearQInputConfig->scale;
+        floatElementWithTensorArithmeticInplace(output, totalScale, mul);
     } else if (output->quantization->type == LINEAR) {
         convertTensor(&intermediate_int, output);
         linearQConfig_t *linearQOutConfig = (linearQConfig_t *)output->quantization->qConfig;
@@ -78,13 +83,16 @@ void linearForward(void *config, tensor_t *input, tensor_t *output) {
      *if lConfig is a type FLOATLayer go there
      *else go to linearlayer
      */
-    linearConfig_t *lConfig = (linearConfig_t *)&config;
+    linearConfig_t *lConfig = (linearConfig_t *)config;
+
     tensor_t weights;
     size_t orderOfDimensionsWeights[lConfig->weight->numberOfDimensions];
     getTensorFromParameter(lConfig->weight, &weights, orderOfDimensionsWeights);
+
     tensor_t bias;
     size_t orderOfDimensionsBias[lConfig->bias->numberOfDimensions];
     getTensorFromParameter(lConfig->bias, &bias, orderOfDimensionsBias);
+
     if (lConfig->type == FLOATLAYER) {
         linearForwardFloat(&weights, &bias, input, output);
 
@@ -92,5 +100,55 @@ void linearForward(void *config, tensor_t *input, tensor_t *output) {
         linearForwardLinearQ(&weights, &bias, input, output);
 
     }
+}
 
+void linearBackwardFloat(void *config, tensor_t* loss, tensor_t* output, tensor_t* propLossTensor) {
+    linearConfig_t *linearConfig = config;
+    size_t bytesPerElement = sizeof(float);
+    size_t numberOfOutputValues = calcNumberOfElementsByTensor(output);
+
+    size_t outputSize = linearConfig->weight->dimensions[0];
+    size_t inputSize = linearConfig->weight->dimensions[1];
+
+    float propLoss[numberOfOutputValues];
+
+    for(size_t lossIndex = 0; lossIndex < outputSize; lossIndex++) {
+        size_t lossByteIndex = lossIndex * bytesPerElement;
+        size_t biasByteIndex = lossIndex * bytesPerElement;
+
+        uint8_t *lossAddress = &loss->data[lossByteIndex];
+        float lossValue = readBytesAsFloat(lossAddress);
+
+
+
+        for(size_t inputIndex = 0; inputIndex < inputSize; inputIndex++) {
+            size_t weightIndex = lossIndex * inputSize + inputIndex;
+            size_t weightByteIndex = weightIndex * bytesPerElement;
+
+            size_t dataByteIndex = inputIndex * bytesPerElement;
+            size_t outputByteIndex = inputIndex * bytesPerElement;
+
+            uint8_t *weightAddress = &linearConfig->weight->data[weightByteIndex];
+            float weightValue = readBytesAsFloat(weightAddress);
+
+            uint8_t *weightGradAddress = &linearConfig->weight->grad[weightByteIndex];
+            float weightGrad = readBytesAsFloat(weightGradAddress);
+
+            float propLossValue = propLoss[inputIndex];
+
+            uint8_t *outputAddress = &output->data[outputByteIndex];
+            float outputValue = readBytesAsFloat(outputAddress);
+
+            weightGrad += lossValue * outputValue;
+            writeFloatToByteArray(weightGrad, weightGradAddress);
+
+            propLossValue += weightValue * lossValue;
+        }
+
+        uint8_t *biasGradAddress = &linearConfig->bias->grad[biasByteIndex];
+        float biasGrad = readBytesAsFloat(biasGradAddress);
+        biasGrad += lossValue;
+        writeFloatToByteArray(biasGrad, biasGradAddress);
+    }
+    memcpy(propLossTensor->data, propLoss, numberOfOutputValues);
 }

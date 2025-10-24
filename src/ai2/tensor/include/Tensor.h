@@ -42,6 +42,9 @@ void getGradTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t
 
 size_t calcBytesPerElement(quantization_t *quantization);
 
+size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions);
+
+
 size_t calcNumberOfElementsByTensor(tensor_t *qTensor);
 
 void transposeTensor(const tensor_t* tensor, size_t dim0Index, size_t dim1Index);
