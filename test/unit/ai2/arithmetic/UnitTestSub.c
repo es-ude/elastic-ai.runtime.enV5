@@ -1,14 +1,12 @@
-#include "Add.h"
+#include "Sub.h"
 #include "Tensor.h"
 #include "Arithmetic.h"
 #include "unity.h"
 
-#include <DTypes.h>
-
 void setUp(){}
 void tearDown(){}
 
-void testAddInt32Tensors() {
+void testSubInt32Tensors() {
     size_t numberOfElements = 24;
 
     int32_t aData[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
@@ -49,15 +47,15 @@ void testAddInt32Tensors() {
 
     transposeTensor(&bTensor, 0, 1);
 
-    int32ElementArithmeticFunc_t add = addInt32s;
-    int32PointWiseArithmeticInplace(&aTensor, &bTensor, add);
+    int32ElementArithmeticFunc_t sub = subInt32s;
+    int32PointWiseArithmeticInplace(&aTensor, &bTensor, sub);
 
-    int32_t expected[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46};
+    int32_t expected[24] = {0};
 
     TEST_ASSERT_EQUAL_INT32_ARRAY(expected, aTensor.data, numberOfElements);
 }
 
-void testAddInt32ElementWithTensor() {
+void testSubInt32ElementWithTensor() {
     size_t numberOfElements = 6;
 
     int32_t aData[] = {1, 2, 3, 4, 5, 6};
@@ -80,10 +78,10 @@ void testAddInt32ElementWithTensor() {
 
     int32_t x = 5;
 
-    int32ElementArithmeticFunc_t add = addInt32s;
-    int32ElementWithTensorArithmeticInplace(&aTensor, x, add);
+    int32ElementArithmeticFunc_t sub = subInt32s;
+    int32ElementWithTensorArithmeticInplace(&aTensor, x, sub);
 
-    int32_t expected[] = {6, 7, 8, 9, 10, 11};
+    int32_t expected[] = {-4, -3, -2, -1, 0, 1};
 
 
 
@@ -93,7 +91,7 @@ void testAddInt32ElementWithTensor() {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(testAddInt32Tensors);
-    RUN_TEST(testAddInt32ElementWithTensor);
+    RUN_TEST(testSubInt32Tensors);
+    RUN_TEST(testSubInt32ElementWithTensor);
     UNITY_END();
 }

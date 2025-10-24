@@ -279,6 +279,19 @@ void writeFloatElementToTensor(tensor_t *tensor, size_t byteIndex, float value) 
 
 }
 
+void getTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDims) {
+    tensor->data = parameter->data;
+    tensor->dimensions = parameter->dimensions;
+    tensor->numberOfDimensions = parameter->numberOfDimensions;
+    tensor->quantization = parameter->dataQuantization;
+    tensor->orderOfDimensions = orderOfDims;
+    tensor->sparsityBitmask = parameter->sparsityBitmask;
+
+    for(size_t i = 0; i < tensor->numberOfDimensions; i++) {
+        tensor->orderOfDimensions[i] = i;
+    }
+}
+
 // TODO convert sparse tensor to tensor
 // data wird größer (mit 0 auffüllen)
 // Input tensor und bereits gecalloced data

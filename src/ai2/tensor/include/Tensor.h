@@ -44,7 +44,7 @@ size_t calcBytesPerElement(quantization_t *quantization);
 
 size_t calcNumberOfElementsByTensor(tensor_t *qTensor);
 
-void transposeTensor(const tensor_t* tensor, size_t dim0, size_t dim1);
+void transposeTensor(const tensor_t* tensor, size_t dim0Index, size_t dim1Index);
 
 /*! @brief Converts given input tensor into given output tensor
  * @param inputTensor: input tensor

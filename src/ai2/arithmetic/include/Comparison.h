@@ -1,15 +1,13 @@
-//
-// Created by Leo Buron on 21.10.25.
-//
-
 #ifndef ENV5_RUNTIME_COMPARISONS_H
 #define ENV5_RUNTIME_COMPARISONS_H
 #include <stdint.h>
 #include "Tensor.h"
 
-// b als void pointer, tensor oder overload der Funktion
-void GTE_int32(const int32Tensor_t* a, int32_t b, int32_t altNumber, int32Tensor_t* result); // A>=B für alle die das Falsch ist, wird altNumber genommen - Hierrüber sollten wir nochmal reden, wenn du soweit bist
+void GTE_int32Value(tensor_t* a, int32_t b, int32_t altNumber, tensor_t* result);
+void GTE_int32Tensor(tensor_t* a, tensor_t* b, int32_t altNumber, tensor_t* result);
 
-void GTE_float32(const float32Tensor_t* a, float b, float altNumber, float32Tensor_t* result); //siehe oben
+void GTE_floatValue(tensor_t* a, float b, float altNumber, tensor_t* result);
+void GTE_floatTensor(tensor_t* a, tensor_t* b, float altNumber, tensor_t* result);
+
 
 #endif // ENV5_RUNTIME_COMPARISONS_H

@@ -11,7 +11,8 @@ int32_t readBytesAsInt32(uint8_t *bytes) {
 
 void readBytesAsInt32Array(size_t numberOfValues, uint8_t *bytes, int32_t *outputArray) {
     for (size_t i = 0; i < numberOfValues; i++) {
-        int32_t value = readBytesAsInt32(&bytes[i]);
+        size_t byteIndex = i * sizeof(int32_t);
+        int32_t value = readBytesAsInt32(&bytes[byteIndex]);
         outputArray[i] = value;
     }
 }
@@ -24,7 +25,8 @@ float readBytesAsFloat(uint8_t *bytes) {
 
 void readBytesAsFloatArray(size_t numberOfValues, uint8_t *bytes, float *outputArray) {
     for (size_t i = 0; i < numberOfValues; i++) {
-        float value = readBytesAsFloat(&bytes[i]);
+        size_t byteIndex = i * sizeof(float);
+        float value = readBytesAsFloat(&bytes[byteIndex]);
         outputArray[i] = value;
     }
 }
