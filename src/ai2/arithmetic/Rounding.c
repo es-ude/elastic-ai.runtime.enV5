@@ -1,14 +1,11 @@
 #include "Rounding.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <tgmath.h>
 
 int32_t roundHTE(float input) {
-    int32_t output = ceil(input);
-    if (output % 2 == 0) {
-        return output;
-    }
-    return output - 1;
+    return round(input);
 }
 
 float randfloat()
@@ -28,4 +25,14 @@ int32_t roundByMode(const float input, const roundingMode_t roundingMode) {
         return roundSRHTE(input);
     }
     return 0;
+}
+
+float clamp(float input, float min, float max) {
+    if (input < min) {
+        return min;
+    }else if (input > max) {
+        return max;
+    }else {
+        return input;
+    }
 }

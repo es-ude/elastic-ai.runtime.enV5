@@ -13,4 +13,6 @@ typedef enum roundingMode {
 
 int32_t roundByMode(float input, roundingMode_t roundingMode);
 
+float clamp(float input, float min, float max);
+
 #endif //ROUNDING_H

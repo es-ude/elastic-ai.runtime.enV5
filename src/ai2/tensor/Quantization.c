@@ -1,10 +1,10 @@
 #include "Quantization.h"
 #include <stdio.h>
 
-void initLinearQConfig(uint8_t qMax, roundingMode_t roundingMode, linearQConfig_t* linear_q) {
-    linear_q->qMax = qMax;
+void initLinearQConfig(uint8_t qBits, roundingMode_t roundingMode, linearQConfig_t* linear_q) {
+    linear_q->qBits = qBits;
     linear_q->roundingMode = roundingMode;
-    linear_q->scale=1.f;
+    linear_q->scale=0.f;
     linear_q->zeroPoint=(uint16_t)0;
 }
 

@@ -55,7 +55,8 @@ void matmulInt32Tensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                     aByteIndex = i * sizeof(int32_t);
                 } else {
                     size_t aIndices[] = {rowIndex, i};
-                    size_t aValueIndex = calcElementIndexByIndices(aNumberOfDims, aDims, aIndices);
+                    size_t aValueIndex = calcElementIndexByIndices(
+                        aNumberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(int32_t);
                 }
 
@@ -66,7 +67,8 @@ void matmulInt32Tensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                     bByteIndex = i * sizeof(int32_t);
                 } else {
                     size_t bIndices[] = {i, columnIndex};
-                    size_t bValueIndex = calcElementIndexByIndices(bNumberOfDims, bDims, bIndices);
+                    size_t bValueIndex = calcElementIndexByIndices(
+                        bNumberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(int32_t);
                 }
 
@@ -101,22 +103,25 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
     size_t aRows, aColumns = 0;
     if (aNumberOfDims < 2) {
         aRows = 1;
-        aColumns = aTensor->dimensions[0];
+        aColumns = getDimensionsByIndex(aTensor, 0);
     } else {
-        aRows = aTensor->dimensions[0];
-        aColumns = aTensor->dimensions[1];
+        aRows = getDimensionsByIndex(aTensor, 0);
+        aColumns = getDimensionsByIndex(aTensor, 1);
     }
 
     size_t bRows, bColumns = 0;
     if (bNumberOfDims < 2) {
-        bRows = bTensor->dimensions[0];
+        bRows = getDimensionsByIndex(bTensor, 0);
         bColumns = 1;
     } else {
-        bRows = bTensor->dimensions[0];
-        bColumns = bTensor->dimensions[1];
+        bRows = getDimensionsByIndex(bTensor, 0);
+        bColumns = getDimensionsByIndex(bTensor, 1);
+
     }
 
     size_t resultCounter = 0;
+
+    //printf("aCol: %lu, bRows: %lu\n", aColumns, bRows);
 
     if (aColumns != bRows) {
         printf("Error Matmul: Rows dont match Columns\n");
@@ -134,7 +139,8 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                     aByteIndex = i * sizeof(float);
                 } else {
                     size_t aIndices[] = {rowIndex, i};
-                    size_t aValueIndex = calcElementIndexByIndices(aNumberOfDims, aDims, aIndices);
+                    size_t aValueIndex = calcElementIndexByIndices(
+                        aNumberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(float);
                 }
 
@@ -145,16 +151,16 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                     bByteIndex = i * sizeof(float);
                 } else {
                     size_t bIndices[] = {i, columnIndex};
-                    size_t bValueIndex = calcElementIndexByIndices(bNumberOfDims, bDims, bIndices);
+
+                    size_t bValueIndex = calcElementIndexByIndices(
+                        bNumberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(float);
                 }
 
                 float bValue = readBytesAsFloat(&bTensor->data[bByteIndex]);
-
                 result += mulFloats(aValue, bValue);
 
             }
-            //printf("result: %i\n", result);
 
             size_t outputByteIndex = resultCounter * sizeof(float);
             memcpy(&outputTensor->data[outputByteIndex], &result, sizeof(float));

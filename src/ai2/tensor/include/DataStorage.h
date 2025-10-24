@@ -4,9 +4,8 @@
 
 #ifndef ENV5_RUNTIME_DATASTORAGE_H
 #define ENV5_RUNTIME_DATASTORAGE_H
-#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
 
 typedef struct Entry {
     uint8_t* dataPTR; // PTR for starting address in uint8_t array

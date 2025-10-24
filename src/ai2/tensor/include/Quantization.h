@@ -20,7 +20,7 @@ typedef struct linearQ
 {
     float scale;
     int16_t zeroPoint;
-    uint8_t qMax;
+    uint8_t qBits;
     roundingMode_t roundingMode;
 } linearQConfig_t;
 

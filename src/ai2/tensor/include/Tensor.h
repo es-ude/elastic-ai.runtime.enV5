@@ -29,6 +29,14 @@ typedef struct Parameter
     size_t* dimensions;
 } parameter_t;
 
+uint32_t getBitmask(uint32_t startbit, uint32_t endbit);
+
+uint8_t writeByte(uint8_t existingData, uint8_t data, uint8_t startbit, uint8_t endbit);
+
+uint8_t readByte(uint8_t data, uint8_t startbit, uint8_t endbit);
+
+void byteConversion(uint8_t *dataIn, size_t dataInBits, uint8_t *dataOut, size_t dataOutBits, size_t numValues);
+
 typedef void(*conversionFunction_t)(tensor_t *inputTensor, tensor_t *outputTensor);
 
 void initTensor(tensor_t *tensor, uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask, size_t numberOfDims,
@@ -42,12 +50,16 @@ void getGradTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t
 
 size_t calcBytesPerElement(quantization_t *quantization);
 
+
 size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions);
 
+size_t calcBitsPerElement(quantization_t *quantization);
+
+size_t calcBytesPerTensor(tensor_t *tensor);
 
 size_t calcNumberOfElementsByTensor(tensor_t *qTensor);
 
-void transposeTensor(const tensor_t* tensor, size_t dim0Index, size_t dim1Index);
+void transposeTensor(tensor_t* tensor, size_t dim0Index, size_t dim1Index);
 
 /*! @brief Converts given input tensor into given output tensor
  * @param inputTensor: input tensor
@@ -55,6 +67,8 @@ void transposeTensor(const tensor_t* tensor, size_t dim0Index, size_t dim1Index)
  */
 void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor);
 
-float readTensorElementAsFloat(tensor_t *inputTensor, size_t elementByteIndex);
+float readTensorElementAsFloatByByteIndex(tensor_t *inputTensor, size_t elementByteIndex);
+
+float readTensorElementAsFloatByIndex(tensor_t *inputTensor, size_t Index);
 
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

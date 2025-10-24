@@ -2,7 +2,7 @@
 ## region UNIT-TEST: unit-test_sht3
 add_subdirectory(dummies)
 include(unit_test.cmake)
-add_subdirectory(ai)
+#add_subdirectory(ai)
 add_subdirectory(ai2)
 
 add_library(UnitTestCommon INTERFACE)

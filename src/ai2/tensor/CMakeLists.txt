@@ -12,6 +12,7 @@ add_library(DataStorage DataStorage.c)
 target_include_directories(DataStorage PUBLIC include)
 target_link_libraries(DataStorage PRIVATE
         Common
+        Tensor
 )
 
 add_library(Quantization
@@ -20,6 +21,18 @@ add_library(Quantization
 target_include_directories(Quantization PUBLIC include)
 target_link_libraries(Quantization PRIVATE
         Common
+        Rounding
+        m
+)
+
+add_library(TensorConversion
+        TensorConversion.c
+)
+target_include_directories(TensorConversion PUBLIC include)
+target_link_libraries(TensorConversion PRIVATE
+        Common
+        Tensor
+        Quantization
         Rounding
         m
 )
@@ -35,5 +48,6 @@ target_link_libraries(Tensor PRIVATE
         Rounding
         MinMax
         m
+        Quantization
 )
 

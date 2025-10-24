@@ -23,7 +23,7 @@ size_t calcTensorIndexByIndices(size_t numberOfDimensions, size_t *dimensions, s
 
 void calcIndicesByRawIndex(size_t numberOfDims, size_t *dims, size_t rawIndex, size_t *indices);
 
-size_t calcElementIndexByIndices(size_t numberOfDims, size_t *dims, size_t *indices);
+size_t calcElementIndexByIndices(size_t numberOfDims, size_t *dims, size_t *indices, size_t *orderOfDimensions);
 
 void int32PointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor, int32ElementArithmeticFunc_t arithmeticFunc, tensor_t *outputTensor);
 void floatPointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor, floatElementArithmeticFunc_t arithmeticFunc, tensor_t *outputTensor);
