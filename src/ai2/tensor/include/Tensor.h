@@ -31,10 +31,14 @@ typedef struct Parameter
 
 typedef void(*conversionFunction_t)(tensor_t *inputTensor, tensor_t *outputTensor);
 
-tensor_t* initTensor(uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask, size_t numberOfDims,
-                     size_t* dims);
-parameter_t* initParameter(uint8_t* data, quantization_t* dataQuantization, uint8_t* sparsityBitmask, uint8_t* grad,
+void initTensor(tensor_t *tensor, uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask, size_t numberOfDims,
+                     size_t* dims, size_t *orderOfDimensions);
+void initParameter(parameter_t *parameter, uint8_t* data, quantization_t* dataQuantization, uint8_t* sparsityBitmask, uint8_t* grad,
                            quantization_t* gradQuantization, size_t numberOfDims, size_t* dims);
+
+void getTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDimensions);
+
+void getGradTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDimensions);
 
 size_t calcBytesPerElement(quantization_t *quantization);
 

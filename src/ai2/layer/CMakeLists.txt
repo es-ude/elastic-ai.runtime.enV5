@@ -40,6 +40,7 @@ target_link_libraries(Linear PRIVATE
         DTypes
         Tensor
         Arithmetic
+        Quantization
 )
 
 add_library(Relu

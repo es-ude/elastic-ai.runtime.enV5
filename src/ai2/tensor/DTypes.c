@@ -9,8 +9,44 @@ int32_t readBytesAsInt32(uint8_t *bytes) {
     return x;
 }
 
+void readBytesAsInt32Array(size_t numberOfValues, uint8_t *bytes, int32_t *outputArray) {
+    for (size_t i = 0; i < numberOfValues; i++) {
+        int32_t value = readBytesAsInt32(&bytes[i]);
+        outputArray[i] = value;
+    }
+}
+
 float readBytesAsFloat(uint8_t *bytes) {
     float x;
     memcpy(&x, bytes, sizeof(float));
     return x;
+}
+
+void readBytesAsFloatArray(size_t numberOfValues, uint8_t *bytes, float *outputArray) {
+    for (size_t i = 0; i < numberOfValues; i++) {
+        float value = readBytesAsFloat(&bytes[i]);
+        outputArray[i] = value;
+    }
+}
+
+void writeInt32ToByteArray(int32_t value, uint8_t *bytes) {
+    memcpy(bytes, &value, sizeof(int32_t));
+}
+
+void writeInt32ArrayToByteArray(size_t numberOfValues, int32_t *valueArray, uint8_t *bytes) {
+    for (size_t i = 0; i < numberOfValues; i++) {
+        size_t byteIndex = i * sizeof(int32_t);
+        memcpy(&bytes[byteIndex], &valueArray[i], sizeof(int32_t));
+    }
+}
+
+void writeFloatToByteArray(float value, uint8_t *bytes) {
+    memcpy(bytes, &value, sizeof(float));
+}
+
+void writeFloatArrayToByteArray(size_t numberOfValues, float *valueArray, uint8_t *bytes) {
+    for (size_t i = 0; i < numberOfValues; i++) {
+        size_t byteIndex = i * sizeof(float);
+        memcpy(&bytes[byteIndex], &valueArray[i], sizeof(float));
+    }
 }

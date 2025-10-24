@@ -1,5 +1,6 @@
 add_subdirectory(tensor)
 add_subdirectory(arithmetic)
+add_subdirectory(layer)
 
 add_library(ai2
         ai.c
@@ -12,4 +13,5 @@ target_link_libraries(ai2 PRIVATE
         Tensor
         Arithmetic
         Quantization
+        Layer
 )

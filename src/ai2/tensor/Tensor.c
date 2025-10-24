@@ -51,10 +51,9 @@ void initTensor(tensor_t *tensor, uint8_t *data, quantization_t *quantization,
 
 }
 
-parameter_t *initParameter(tensor_t *tensor, uint8_t *data, quantization_t *dataQuantization,
+void initParameter(parameter_t *parameter, uint8_t *data, quantization_t *dataQuantization,
                            uint8_t *sparsityBitmask, uint8_t *grad,
                            quantization_t *gradQuantization, size_t numberOfDims, size_t *dims) {
-    parameter_t *parameter = calloc(1, sizeof(parameter_t));
 
     parameter->data = data;
     parameter->dataQuantization = dataQuantization;
@@ -63,7 +62,6 @@ parameter_t *initParameter(tensor_t *tensor, uint8_t *data, quantization_t *data
     parameter->gradQuantization = gradQuantization;
     parameter->numberOfDimensions = numberOfDims;
     parameter->dimensions = dims;
-    return parameter;
 }
 
 void zeroTensorData(tensor_t *tensor) {
@@ -249,7 +247,7 @@ float readTensorElementAsInt32(tensor_t *inputTensor, size_t elementByteIndex) {
     int32_t f;
 
     if (type == LINEAR) {
-        linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+        linearQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
         float scale = linearQConfig->scale;
         int16_t zeroPoint = linearQConfig->zeroPoint;
         uint8_t linearElementRaw = inputTensor->data[elementByteIndex];

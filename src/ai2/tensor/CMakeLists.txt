@@ -33,5 +33,7 @@ target_link_libraries(Tensor PRIVATE
         DTypes
         DataStorage
         Rounding
+        MinMax
+        m
 )
 
