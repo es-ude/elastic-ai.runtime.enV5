@@ -31,7 +31,7 @@ size_t calcBytesPerElement(quantization_t *quantization) {
     case FLOAT32:
         return sizeof(float);
     case LINEAR:
-        linearQ_t *linearQConfig = quantization->qConfig;
+        linearQConfig_t *linearQConfig = quantization->qConfig;
         return sizeof(linearQConfig->qMax);
     default:
         return 0;
@@ -107,7 +107,7 @@ void convertFloatTensorToLinearTensor(tensor_t *inputTensor, tensor_t *outputTen
     float max = findMaxFloat(inputTensor->data, numberOfElements, inputBytesPerElement);
     float min = findMinFloat(inputTensor->data, numberOfElements, inputBytesPerElement);
 
-    linearQ_t *linearQConfig = outputTensor->quantization->qConfig;
+    linearQConfig_t *linearQConfig = outputTensor->quantization->qConfig;
 
     float scale = (max - min) / (float)linearQConfig->qMax;
     int16_t zeroPoint = roundByMode(-min / scale, linearQConfig->roundingMode);
@@ -151,7 +151,7 @@ void convertInt32TensorToLinearTensor(tensor_t *inputTensor, tensor_t *outputTen
     int32_t min = findMinInt32(inputTensor->data, numberOfElements, inputBytesPerElement);
     int32_t max = findMaxInt32(inputTensor->data, numberOfElements, inputBytesPerElement);
 
-    linearQ_t *linearQConfig = outputTensor->quantization->qConfig;
+    linearQConfig_t *linearQConfig = outputTensor->quantization->qConfig;
     float scale = (float)(max - min) / (float)linearQConfig->qMax;
     int16_t zeroPoint = roundByMode(min / scale, linearQConfig->roundingMode);
 
@@ -166,7 +166,7 @@ void convertInt32TensorToLinearTensor(tensor_t *inputTensor, tensor_t *outputTen
 }
 
 void convertLinearTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+    linearQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
     size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
     size_t inputBytesPerElement = calcBytesPerElement(inputTensor->quantization);
     size_t outputBytesPerElement = calcBytesPerElement(outputTensor->quantization);
@@ -185,7 +185,7 @@ void convertLinearTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTen
 }
 
 void convertLinearTensorToFloatTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+    linearQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
     size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
     size_t inputBytesPerElement = calcBytesPerElement(inputTensor->quantization);
     size_t outputBytesPerElement = calcBytesPerElement(outputTensor->quantization);
@@ -220,7 +220,7 @@ void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
 
 // should not be needed anymore
 
-float interpretLinearAsFloat(linearQ_t *linearQConfig, uint8_t linearRaw) {
+float interpretLinearAsFloat(linearQConfig_t *linearQConfig, uint8_t linearRaw) {
     float scale = linearQConfig->scale;
     uint16_t zeroPoint = linearQConfig->zeroPoint;
     float linearElement = scale * (float)(linearRaw - zeroPoint);
@@ -232,7 +232,7 @@ float readTensorElementAsFloat(tensor_t *inputTensor, size_t elementByteIndex) {
     float f;
 
     if (type == LINEAR) {
-        linearQ_t *linearQConfig = inputTensor->quantization->qConfig;
+        linearQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
         float scale = linearQConfig->scale;
         int16_t zeroPoint = linearQConfig->zeroPoint;
         uint8_t linearElementRaw = inputTensor->data[elementByteIndex];
@@ -273,7 +273,7 @@ void writeFloatElementToTensor(tensor_t *tensor, size_t byteIndex, float value) 
     case FLOAT32:
         memcpy(&tensor->data[byteIndex], &value, sizeof(float));
     case LINEAR:
-        linearQ_t *linearQConfig = tensor->quantization->qConfig;
+        linearQConfig_t *linearQConfig = tensor->quantization->qConfig;
         float scale = linearQConfig->scale;
         int16_t zeroPoint = linearQConfig->zeroPoint;
 

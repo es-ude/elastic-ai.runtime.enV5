@@ -59,7 +59,7 @@ void testConversionLinearFloat() {
     uint8_t linearData[] = {1, 2, 3};
     size_t linearDims[] = {3};
     quantization_t *linearQ = initQuantization(LINEAR);
-    linearQ_t *linearQConfig = linearQ->qConfig;
+    linearQConfig_t *linearQConfig = linearQ->qConfig;
     linearQConfig->scale = 1;
     linearQConfig->roundingMode = HTE;
     linearQConfig->zeroPoint = 12;

@@ -22,7 +22,7 @@ typedef struct linearQ
     int16_t zeroPoint;
     uint8_t qMax;
     roundingMode_t roundingMode;
-} linearQ_t;
+} linearQConfig_t;
 
 typedef struct quantization
 {
@@ -30,6 +30,11 @@ typedef struct quantization
     void* qConfig;
 } quantization_t;
 
-void initQuantization(qtype_t type, quantization_t *quantization);
+void initLinearQConfig(uint8_t qMax, roundingMode_t roundingMode, linearQConfig_t* linear_q);
+
+void initInt32Quantization(quantization_t *quantization);
+void initFloat32Quantization(quantization_t *quantization);
+void initLinearQuantization(linearQConfig_t * linear_q,quantization_t *quantization);
+
 
 #endif // ENV5_RUNTIME_QUANTIZATION_H
