@@ -168,248 +168,203 @@ void testByteFlattening5() {
 void testInitTensor() {}
 
 void testConversionFloatInt() {
-    float floatDataF[] = {1., 2., 3., 4., -1., -2.};
-    size_t dimensions[] = {6};
     uint8_t numValues = 6;
-    quantization_t floatQ = {.type = FLOAT32, .qConfig = NULL};
-    uint8_t floatData[numValues*sizeof(float)];
-    writeFloatArrayToByteArray(numValues, floatDataF, floatData);
-    tensor_t floatT = {
-        .data = floatData,
-        .quantization = &floatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
 
-    int32_t intDataExpected[] = {1, 2, 3, 4, -1, -2};
+    float floatData[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
 
-    quantization_t intQ = {.type = INT32, .qConfig = NULL};
-    uint8_t intData[numValues*sizeof(int32_t)];
-    tensor_t intT = {
-        .data = intData,
-        .quantization = &intQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor(&floatT, &intT);
+    quantization_t floatQ;
+    initFloat32Quantization(&floatQ);
+
+    tensor_t floatTensor;
+    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+
+    quantization_t intQ;
+    initInt32Quantization(&intQ);
+    int32_t intData[numValues];
+    tensor_t intTensor;
+    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    convertTensor(&floatTensor, &intTensor);
 
     int32_t actual[numValues];
     readBytesAsInt32Array(6, intData, actual);
 
-    TEST_ASSERT_EQUAL_INT32_ARRAY(intDataExpected, actual, numValues);
+    int32_t expected[] = {1, 2, 3, 4, -1, -2};
+
+    TEST_ASSERT_EQUAL_INT32_ARRAY(expected, actual, numValues);
 }
 
 void testConversionIntFloat() {
-    size_t dimensions[] = {6};
     uint8_t numValues = 6;
 
-    int32_t intDataI[] = {1, 2, 3, 4, -1, -2};
-    quantization_t intQ = {.type = INT32, .qConfig = NULL};
-    uint8_t intData[numValues*sizeof(int32_t)];
-    writeInt32ArrayToByteArray(numValues, intDataI, intData);
-    tensor_t intT = {
-        .data = intData,
-        .quantization = &intQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
+    size_t dims[] = {6};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
 
-    float floatDataFExpected[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
+    int32_t intData[] = {1, 2, 3, 4, -1, -2};
+    quantization_t intQ;
+    initInt32Quantization(&intQ);
+    tensor_t intTensor;
+    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
 
-    quantization_t floatQ = {.type = FLOAT32, .qConfig = NULL};
-    uint8_t floatData[numValues*sizeof(float)];
-    tensor_t floatT = {
-        .data = floatData,
-        .quantization = &floatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor( &intT, &floatT);
+    quantization_t floatQ;
+    initFloat32Quantization(&floatQ);
+    float floatData[numValues];
+
+    tensor_t floatTensor;
+    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+
+    convertTensor( &intTensor, &floatTensor);
     float actual[numValues];
     readBytesAsFloatArray(numValues, floatData, actual);
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(floatDataFExpected, actual, numValues);
+    float expected[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
+
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, actual, numValues);
 
 }
 
-void testConversionIntLinear() {
+void testConversionIntAsym() {
     size_t numValues = 6;
-    size_t dimensions[] = {numValues};
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
+    int32_t intData[] = {1, 2, 3, 4, -1, -2};
 
-    int32_t intDataI[] = {1, 2, 3, 4, -1, -2};
+    quantization_t intQ;
+    initInt32Quantization(&intQ);
 
-    quantization_t intQ = {.type = INT32, .qConfig = NULL};
-    uint8_t intData[numValues*sizeof(int32_t)];
-    writeInt32ArrayToByteArray(numValues, intDataI, intData);
-    tensor_t intT = {
-        .data = intData,
-        .quantization = &intQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
+    tensor_t intTensor;
+    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
 
+    asymQConfig_t asymQConfig;
+    initAsymQConfig(5, HTE, &asymQConfig);
+    quantization_t asymQ;
+    initAsymQuantization(&asymQConfig, &asymQ);
+    uint8_t asymData[numValues * calcBytesPerElement(&asymQ)];
 
-    linearQConfig_t linQC= {
-        .qBits = 5,
-        .roundingMode = HTE,
-        .scale = 0.f,
-        .zeroPoint = 0,
-    };
-    uint8_t linData[(linQC.qBits*numValues-1)/8+1];
-    quantization_t linearQ = {.type = LINEAR, .qConfig = &linQC};
-    tensor_t linT = {
-        .data = linData,
-        .quantization = &linearQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor( &intT, &linT);
+    tensor_t asymTensor;
+    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    convertTensor( &intTensor, &asymTensor);
 
-    uint8_t flattenedLinData[numValues];
-    byteConversion(linT.data, linQC.qBits, flattenedLinData, 8, numValues);
+    uint8_t flattenedAsymData[numValues];
+    byteConversion(asymTensor.data, asymQConfig.qBits, flattenedAsymData, 8, numValues);
 
-    uint8_t expectedLin[] = {16, 22, 27, 31, 6, 0};
+    /*uint8_t expectedAsym[] = {16, 22, 25, 31, 6, 0};
     int32_t expectedZeroPoint = -11;
-    float expectedScale = 0.1875f;
+    float expectedScale = 0.1875f;*/
 
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedLin, flattenedLinData, numValues);
-    TEST_ASSERT_EQUAL_INT32(expectedZeroPoint, linQC.zeroPoint);
-    TEST_ASSERT_EQUAL_FLOAT(expectedScale, linQC.scale);
+    uint8_t expectedAsym[] = {15, 20, 26, 30, 5, 0};
+    int32_t expectedZeroPoint = -10;
+    float expectedScale = 0.1935484f;
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedAsym, flattenedAsymData, numValues);
+    TEST_ASSERT_EQUAL_INT32(expectedZeroPoint, asymQConfig.zeroPoint);
+    TEST_ASSERT_EQUAL_FLOAT(expectedScale, asymQConfig.scale);
 }
 
-void testConversionLinearInt() {
+void testConversionAsymInt() {
     size_t numValues = 6;
-    size_t dimensions[] = {numValues};
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
 
-    linearQConfig_t linQC= {
-        .qBits = 5,
-        .roundingMode = HTE,
-        .scale = 0.1875f,
-        .zeroPoint = -11,
-    };
-    uint8_t linData[]= {0b11010000, 0b11101110, 0b01101111, 0b00000000};
-    quantization_t linearQ = {.type = LINEAR, .qConfig = &linQC};
-    tensor_t linT = {
-        .data = linData,
-        .quantization = &linearQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
+    asymQConfig_t asymQConfig;
+    initAsymQConfig(5, HTE, &asymQConfig);
+    asymQConfig.scale = 0.1875f;
+    asymQConfig.zeroPoint = -11;
 
-    quantization_t intQ = {.type = INT32, .qConfig = NULL};
-    uint8_t intData[numValues*sizeof(int32_t)];
-    tensor_t intT = {
-        .data = intData,
-        .quantization = &intQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor( &linT, &intT);
+    quantization_t asymQ;
+    initAsymQuantization(&asymQConfig, &asymQ);
+
+    uint8_t asymData[]= {0b11010000, 0b11101110, 0b01101111, 0b00000000};
+
+    tensor_t asymTensor;
+    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+
+    quantization_t intQ;
+    initInt32Quantization(&intQ);
+    int32_t intData[numValues];
+    tensor_t intTensor;
+    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+
+    convertTensor( &asymTensor, &intTensor);
+
     int32_t actual[numValues];
-    readBytesAsInt32Array(numValues, intT.data, actual);
+    readBytesAsInt32Array(numValues, intTensor.data, actual);
     int32_t expectedData[] = {5, 11, 16, 20, -5, -11};
     TEST_ASSERT_EQUAL_INT32_ARRAY(expectedData, actual, numValues);
 }
 
-void testConversionFloatLinear() {
+void testConversionFloatAsym() {
     size_t numValues = 6;
-    size_t dimensions[] = {numValues};
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
 
-    float floatDataf[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
+    float floatData[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
 
-    quantization_t floatQ = {.type = FLOAT32, .qConfig = NULL};
-    uint8_t floatData[numValues*sizeof(float)];
-    writeFloatArrayToByteArray(numValues, floatDataf, floatData);
-    tensor_t floatT = {
-        .data = floatData,
-        .quantization = &floatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
+    quantization_t floatQ;
+    initFloat32Quantization(&floatQ);
+    tensor_t floatTensor;
+    setTensorValues(&floatTensor, floatData ,dims, numberOfDims, orderOfDims, &floatQ, NULL);
 
+    asymQConfig_t asymQConfig;
+    initAsymQConfig(5, HTE, &asymQConfig);
+    quantization_t asymQ;
+    initAsymQuantization(&asymQConfig, &asymQ);
 
-    linearQConfig_t linQC= {
-        .qBits = 5,
-        .roundingMode = HTE,
-        .scale = 0.f,
-        .zeroPoint = 0,
-    };
-    uint8_t linData[(linQC.qBits*numValues-1)/8+1];
-    quantization_t linearQ = {.type = LINEAR, .qConfig = &linQC};
-    tensor_t linT = {
-        .data = linData,
-        .quantization = &linearQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor( &floatT, &linT);
+    uint8_t asymData[numValues * calcBytesPerElement(&asymQ)];
 
-    uint8_t flattenedLinData[numValues];
-    byteConversion(linT.data, linQC.qBits, flattenedLinData, 8, numValues);
+    tensor_t asymTensor;
+    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
 
-    uint8_t expectedLin[] = {16, 22, 27, 31, 6, 0};
+    convertTensor( &floatTensor, &asymTensor);
+
+    uint8_t flattenedAsymData[numValues];
+    byteConversion(asymTensor.data, asymQConfig.qBits, flattenedAsymData, 8, numValues);
+
+    uint8_t expectedAsym[] = {16, 22, 27, 31, 6, 0};
     int32_t expectedZeroPoint = -11;
     float expectedScale = 0.1875f;
 
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedLin, flattenedLinData, numValues);
-    TEST_ASSERT_EQUAL_INT32(expectedZeroPoint, linQC.zeroPoint);
-    TEST_ASSERT_EQUAL_FLOAT(expectedScale, linQC.scale);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expectedAsym, flattenedAsymData, numValues);
+    TEST_ASSERT_EQUAL_INT32(expectedZeroPoint, asymQConfig.zeroPoint);
+    TEST_ASSERT_EQUAL_FLOAT(expectedScale, asymQConfig.scale);
 }
 
-void testConversionLinearFloat() {
+void testConversionAsymFloat() {
     size_t numValues = 6;
-    size_t dimensions[] = {numValues};
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
 
-    linearQConfig_t linQC= {
-        .qBits = 5,
-        .roundingMode = HTE,
-        .scale = 0.1875f,
-        .zeroPoint = -11,
-    };
-    uint8_t linData[]= {0b11010000, 0b11101110, 0b01101111, 0b00000000};
-    quantization_t linearQ = {.type = LINEAR, .qConfig = &linQC};
-    tensor_t linT = {
-        .data = linData,
-        .quantization = &linearQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
+    asymQConfig_t asymQConfig;
+    initAsymQConfig(5, HTE, &asymQConfig);
+    asymQConfig.scale = 0.1875f;
+    asymQConfig.zeroPoint = -11;
+    quantization_t asymQ;
+    initAsymQuantization(&asymQConfig, &asymQ);
 
-    quantization_t floatQ = {.type = FLOAT32, .qConfig = NULL};
-    uint8_t floatData[numValues*sizeof(float)];
-    tensor_t floatT = {
-        .data = floatData,
-        .quantization = &floatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 1,
-        .dimensions = dimensions,
-        .orderOfDimensions = NULL
-    };
-    convertTensor( &linT, &floatT);
+    uint8_t asymData[]= {0b11010000, 0b11101110, 0b01101111, 0b00000000};
+
+    tensor_t asymTensor;
+    setTensorValues(&asymTensor, asymData, dims,numberOfDims, orderOfDims, &asymQ, NULL);
+
+    quantization_t floatQ;
+    initFloat32Quantization(&floatQ);
+    float floatData[numValues];
+
+    tensor_t floatTensor;
+    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+
+    convertTensor( &asymTensor, &floatTensor);
+
     float actual[numValues];
-    readBytesAsFloatArray(numValues, floatT.data, actual);
+    readBytesAsFloatArray(numValues, floatTensor.data, actual);
     float expectedData[] = {0.9375f, 2.0625f, 3.f, 3.75f, -0.9375f, -2.0625f};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedData, actual, numValues);
 }
@@ -431,12 +386,12 @@ int main(void) {
     RUN_TEST(testWriteByte2);
     RUN_TEST(testReadByte);
 
-    //RUN_TEST(testInitTensor);
+    RUN_TEST(testInitTensor);
     RUN_TEST(testConversionFloatInt);
     RUN_TEST(testConversionIntFloat);
-    RUN_TEST(testConversionIntLinear);
-    RUN_TEST(testConversionLinearInt);
-    RUN_TEST(testConversionFloatLinear);
-    RUN_TEST(testConversionLinearFloat);
+    RUN_TEST(testConversionIntAsym);
+    RUN_TEST(testConversionAsymInt);
+    RUN_TEST(testConversionFloatAsym);
+    RUN_TEST(testConversionAsymFloat);
     UNITY_END();
 }

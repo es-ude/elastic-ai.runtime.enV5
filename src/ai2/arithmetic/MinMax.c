@@ -1,6 +1,8 @@
 #include "MinMax.h"
 #include "DTypes.h"
 
+#include <stdio.h>
+
 float findMaxFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement) {
     float max = readBytesAsFloat(&bytes[0]);
     for (size_t i = 1; i < numberOfElements; i++) {

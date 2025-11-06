@@ -6,3 +6,12 @@ add_elastic_ai_unit_test(
         Tensor
         Arithmetic
 )
+
+add_elastic_ai_unit_test(
+        LIB_UNDER_TEST
+        Relu
+        MORE_LIBS
+        Common
+        Tensor
+        Rounding
+)

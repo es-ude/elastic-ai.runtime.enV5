@@ -4,7 +4,7 @@
 
 typedef enum linearType {
     FLOATLAYER,
-    LINEARLAYER
+    ASYMLAYER
 }linearType_t;
 
 typedef struct linearConfig

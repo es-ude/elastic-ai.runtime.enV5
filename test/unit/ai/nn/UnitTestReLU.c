@@ -70,7 +70,7 @@ void unitTestReLUBackwardFloat32() {
 
     qTensor_t *actualQTensor = ReLUBackward(config, gradQTensor, inputQTensor);
 
-    float32_t expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
+
 
     /*size_t totalNumberOfElements = calcTotalNumberOfElementsByTensor(inputQTensor);
     size_t bytesPerElement = calcBytesPerElement(inputQ);

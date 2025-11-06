@@ -1,11 +1,11 @@
 #include "Quantization.h"
 #include <stdio.h>
 
-void initLinearQConfig(uint8_t qBits, roundingMode_t roundingMode, linearQConfig_t* linear_q) {
-    linear_q->qBits = qBits;
-    linear_q->roundingMode = roundingMode;
-    linear_q->scale=0.f;
-    linear_q->zeroPoint=(uint16_t)0;
+void initAsymQConfig(uint8_t qBits, roundingMode_t roundingMode, asymQConfig_t *asymQConfig) {
+    asymQConfig->qBits = qBits;
+    asymQConfig->roundingMode = roundingMode;
+    asymQConfig->scale = 0.f;
+    asymQConfig->zeroPoint = (uint16_t)0;
 }
 
 void initInt32Quantization(quantization_t *quantization) {
@@ -18,7 +18,7 @@ void initFloat32Quantization(quantization_t *quantization) {
     quantization->qConfig = NULL;
 }
 
-void initLinearQuantization(linearQConfig_t * linear_q,quantization_t *quantization) {
-    quantization->type = LINEAR;
-    quantization->qConfig = linear_q;
+void initAsymQuantization(asymQConfig_t *asymQConfig, quantization_t *quantization) {
+    quantization->type = ASYM;
+    quantization->qConfig = asymQConfig;
 }

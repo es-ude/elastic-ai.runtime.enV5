@@ -35,29 +35,30 @@ uint8_t writeByte(uint8_t existingData, uint8_t data, uint8_t startbit, uint8_t 
 
 uint8_t readByte(uint8_t data, uint8_t startbit, uint8_t endbit);
 
-void byteConversion(uint8_t *dataIn, size_t dataInBits, uint8_t *dataOut, size_t dataOutBits, size_t numValues);
+void byteConversion(uint8_t* dataIn, size_t dataInBits, uint8_t* dataOut, size_t dataOutBits, size_t numValues);
 
-typedef void(*conversionFunction_t)(tensor_t *inputTensor, tensor_t *outputTensor);
+typedef void (*conversionFunction_t)(tensor_t* inputTensor, tensor_t* outputTensor);
 
-void initTensor(tensor_t *tensor, uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask, size_t numberOfDims,
-                     size_t* dims, size_t *orderOfDimensions);
-void initParameter(parameter_t *parameter, uint8_t* data, quantization_t* dataQuantization, uint8_t* sparsityBitmask, uint8_t* grad,
-                           quantization_t* gradQuantization, size_t numberOfDims, size_t* dims);
+void initTensor(tensor_t* tensor, uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask,
+                size_t numberOfDims,
+                size_t* dims, size_t* orderOfDimensions);
+void initParameter(parameter_t* parameter, uint8_t* data, quantization_t* dataQuantization, uint8_t* sparsityBitmask,
+                   uint8_t* grad,
+                   quantization_t* gradQuantization, size_t numberOfDims, size_t* dims);
 
-void getTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDimensions);
+void getTensorFromParameter(parameter_t* parameter, tensor_t* tensor, size_t* orderOfDimensions);
 
-void getGradTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDimensions);
+void getGradTensorFromParameter(parameter_t* parameter, tensor_t* tensor, size_t* orderOfDimensions);
 
-size_t calcBytesPerElement(quantization_t *quantization);
+size_t calcBytesPerElement(quantization_t* quantization);
 
+size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t* dimensions);
 
-size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions);
+size_t calcBitsPerElement(quantization_t* quantization);
 
-size_t calcBitsPerElement(quantization_t *quantization);
+size_t calcBytesPerTensor(tensor_t* tensor);
 
-size_t calcBytesPerTensor(tensor_t *tensor);
-
-size_t calcNumberOfElementsByTensor(tensor_t *qTensor);
+size_t calcNumberOfElementsByTensor(tensor_t* qTensor);
 
 void transposeTensor(tensor_t* tensor, size_t dim0Index, size_t dim1Index);
 
@@ -65,12 +66,11 @@ void transposeTensor(tensor_t* tensor, size_t dim0Index, size_t dim1Index);
  * @param inputTensor: input tensor
  * @param outputTensor: output tensor with wanted quantization
  */
-void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor);
+void convertTensor(tensor_t* inputTensor, tensor_t* outputTensor);
 
-float readTensorElementAsFloatByByteIndex(tensor_t *inputTensor, size_t elementByteIndex);
+void setTensorValuesForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor, tensor_t *outputTensor);
 
-float readTensorElementAsFloatByIndex(tensor_t *inputTensor, size_t Index);
-
-tensor_t buildTensorForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor);
-
+void setTensorValues(tensor_t* tensor, uint8_t* data, size_t* dims, size_t numberOfDims,
+                 size_t* orderOfDims,
+                 quantization_t* quantization, uint8_t* sparsityBitmask);
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H
