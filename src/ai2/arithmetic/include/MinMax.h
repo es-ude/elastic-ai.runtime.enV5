@@ -4,10 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-float findMaxFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
-float findMinFloat(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
+float findMaxFloat(uint8_t *bytes, size_t numberOfElements);
+float findMinFloat(uint8_t *bytes, size_t numberOfElements);
 
-int32_t findMaxInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
-int32_t findMinInt32(uint8_t *bytes, size_t numberOfElements, size_t bytesPerElement);
+int32_t findMaxInt32(uint8_t *bytes, size_t numberOfElements);
+int32_t findMinInt32(uint8_t *bytes, size_t numberOfElements);
 
 #endif //MINMAX_H

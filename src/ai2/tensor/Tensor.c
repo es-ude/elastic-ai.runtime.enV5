@@ -30,7 +30,7 @@ size_t calcBytesPerElement(quantization_t *quantization) {
     case ASYM:
         asymQConfig_t *asymQConfig = quantization->qConfig;
         uint32_t qBits = asymQConfig->qBits;
-        return qBits / 8;
+        return ceil((float)qBits / (float)8);
     default:
         return 0;
     }
@@ -240,11 +240,6 @@ void initParameter(parameter_t *parameter, uint8_t *data, quantization_t *dataQu
     parameter->dimensions = dims;
 }
 
-void zeroTensorData(tensor_t *tensor) {
-    size_t numberOfElements = calcNumberOfElementsByTensor(tensor);
-    size_t bytesPerElement = calcBytesPerElement(tensor->quantization);
-    memset(tensor->data, 0, numberOfElements * bytesPerElement);
-}
 
 void transposeTensor(tensor_t *tensor, size_t dim0Index, size_t dim1Index) {
     if (tensor->numberOfDimensions < 2) {
@@ -256,188 +251,20 @@ void transposeTensor(tensor_t *tensor, size_t dim0Index, size_t dim1Index) {
     tensor->orderOfDimensions[dim1Index] = temp;
 }
 
-void copyDimsAndSparsityToTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
-    memcpy(outputTensor->dimensions, inputTensor->dimensions,
-           sizeof(size_t) * outputTensor->numberOfDimensions);
-    if (inputTensor->sparsityBitmask) {
-        memcpy(outputTensor->sparsityBitmask,
-               inputTensor->sparsityBitmask,
-               (calcNumberOfElementsByDims(outputTensor->numberOfDimensions,
-                                           outputTensor->dimensions) - 1) / 8 + 1);
-    }
-    memcpy(outputTensor->orderOfDimensions, inputTensor->orderOfDimensions,
-           sizeof(size_t) * outputTensor->numberOfDimensions);
-}
 
-void convertFloatTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    float inputData[numberOfElements];
-    int32_t outputData[numberOfElements];
-    readBytesAsFloatArray(numberOfElements, inputTensor->data, inputData);
-    zeroTensorData(outputTensor);
-    for (size_t i = 0; i < numberOfElements; i++) {
-        outputData[i] = (int32_t)inputData[i];
-    }
-    writeInt32ArrayToByteArray(numberOfElements, outputData, outputTensor->data);
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-}
-
-void convertInt32TensorToFloatTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    int32_t inputData[numberOfElements];
-    float outputData[numberOfElements];
-    readBytesAsInt32Array(numberOfElements, inputTensor->data, inputData);
-    zeroTensorData(outputTensor);
-    for (size_t i = 0; i < numberOfElements; i++) {
-        outputData[i] = (float)inputData[i];
-    }
-    writeFloatArrayToByteArray(numberOfElements, outputData, outputTensor->data);
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-}
-
-
-void convertFloatTensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    size_t inputBytesPerElement = calcBytesPerElement(inputTensor->quantization);
-    float min = findMinFloat(inputTensor->data, numberOfElements, inputBytesPerElement);
-    float max = findMaxFloat(inputTensor->data, numberOfElements, inputBytesPerElement);
-    asymQConfig_t *asymQConfig = outputTensor->quantization->qConfig;
-    float qMax = pow(2, asymQConfig->qBits);
-    float scale = (max - min) / qMax;
-
-    int16_t zeroPoint = (int16_t)roundByMode(min / scale, asymQConfig->roundingMode);
-    int32_t outputElements[numberOfElements];
-
-    for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        float inputElement = readBytesAsFloat(&inputTensor->data[elementIndex * sizeof(float)]);
-
-        outputElements[elementIndex] = roundByMode(
-            clamp(inputElement / scale - (float)zeroPoint, 0.f, qMax - 1),
-            asymQConfig->roundingMode);
-    }
-
-    asymQConfig->scale = scale;
-    asymQConfig->zeroPoint = zeroPoint;
-    uint8_t outputElement[numberOfElements * sizeof(int32_t)];
-    writeInt32ArrayToByteArray(numberOfElements, outputElements, outputElement);
-
-    byteConversion(outputElement, 32, outputTensor->data, asymQConfig->qBits, numberOfElements);
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-}
-
-void convertInt32TensorToLinearTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    size_t inputBytesPerElement = sizeof(int32_t);
-    int32_t min = findMinInt32(inputTensor->data, numberOfElements, inputBytesPerElement);
-    int32_t max = findMaxInt32(inputTensor->data, numberOfElements, inputBytesPerElement);
-    asymQConfig_t *linearQConfig = outputTensor->quantization->qConfig;
-    int32_t qMax = pow(2, linearQConfig->qBits)-1;
-
-    //float scale = (float) qMax / (float)(max - min);
-    float scale = (float)(max - min) / (float)qMax;
-    //printf("scale: %f\n", scale);
-
-    //int16_t zeroPoint = (int16_t)roundByMode((float)-min / scale, linearQConfig->roundingMode);
-    int16_t zeroPoint = (int16_t)roundByMode((float)min / scale, linearQConfig->roundingMode);
-    //printf("zeroPoint: %i\n", zeroPoint);
-    int32_t outputElements[numberOfElements];
-
-    for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        int32_t inputElement = readBytesAsInt32(&inputTensor->data[elementIndex * sizeof(int32_t)]);
-
-        outputElements[elementIndex] = roundByMode(
-            clamp((float)inputElement / scale - (float)zeroPoint, 0.f, qMax - 1),
-            linearQConfig->roundingMode);
-    }
-    linearQConfig->scale = scale;
-    linearQConfig->zeroPoint = zeroPoint;
-    uint8_t outputElement[numberOfElements * sizeof(int32_t)];
-    writeInt32ArrayToByteArray(numberOfElements, outputElements, outputElement);
-
-    byteConversion(outputElement, 32, outputTensor->data, linearQConfig->qBits, numberOfElements);
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-}
-
-void convertLinearTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    asymQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-
-    int16_t zeroPoint = linearQConfig->zeroPoint;
-    uint8_t dataOut[numberOfElements * sizeof(int32_t)];
-    memset(dataOut, 0, numberOfElements * sizeof(int32_t));
-    byteConversion(inputTensor->data, linearQConfig->qBits, dataOut, 32, numberOfElements);
-    int32_t outputElements[numberOfElements];
-    readBytesAsInt32Array(numberOfElements, dataOut, outputElements);
-
-    for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        outputElements[elementIndex] = outputElements[elementIndex] + zeroPoint;
-    }
-    writeInt32ArrayToByteArray(numberOfElements, outputElements, outputTensor->data);
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-}
-
-void convertLinearTensorToFloatTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-
-    zeroTensorData(outputTensor);
-    asymQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    int16_t zeroPoint = linearQConfig->zeroPoint;
-    uint8_t dataOut[numberOfElements * sizeof(int32_t)];
-
-    memset(dataOut, 0, numberOfElements * sizeof(int32_t));
-
-    byteConversion(inputTensor->data, linearQConfig->qBits, dataOut, 32, numberOfElements);
-
-    int32_t intElements[numberOfElements];
-    float outputElements[numberOfElements];
-    readBytesAsInt32Array(numberOfElements, dataOut, intElements);
-
-    for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        outputElements[elementIndex] = ((float)intElements[elementIndex] + (float)zeroPoint) *
-                                       linearQConfig->scale;
-    }
-
-    writeFloatArrayToByteArray(numberOfElements, outputElements, outputTensor->data);
-
-    copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-
-}
-
-conversionFunction_t conversionMatrix[3][3] = {
-    [INT32] = {NULL, convertInt32TensorToFloatTensor, convertInt32TensorToLinearTensor},
-    [FLOAT32] = {convertFloatTensorToInt32Tensor, NULL, convertFloatTensorToAsymTensor},
-    [ASYM] = {convertLinearTensorToInt32Tensor, convertLinearTensorToFloatTensor, NULL}
-};
-
-
-void convertTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    qtype_t inputDType = inputTensor->quantization->type;
-    qtype_t outputDType = outputTensor->quantization->type;
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    size_t bytesPerElement = calcBytesPerElement(inputTensor->quantization);
-    if(inputDType == outputDType) {
-        memcpy(outputTensor->data, inputTensor->data, numberOfElements * bytesPerElement);
-    }
-    else {
-        conversionFunction_t conversionFn = conversionMatrix[inputDType][outputDType];
-        conversionFn(inputTensor, outputTensor);
-    }
-
-}
-
-void setTensorValuesForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor, tensor_t *outputTensor) {
-        outputTensor->data = data;
-        outputTensor->dimensions = originalTensor->dimensions;
-        outputTensor->quantization = q;
-        outputTensor->sparsityBitmask = originalTensor->sparsityBitmask;
-        outputTensor->numberOfDimensions = originalTensor->numberOfDimensions;
-        outputTensor->orderOfDimensions = originalTensor->orderOfDimensions;
+void setTensorValuesForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor,
+                                  tensor_t *outputTensor) {
+    outputTensor->data = data;
+    outputTensor->dimensions = originalTensor->dimensions;
+    outputTensor->quantization = q;
+    outputTensor->sparsityBitmask = originalTensor->sparsityBitmask;
+    outputTensor->numberOfDimensions = originalTensor->numberOfDimensions;
+    outputTensor->orderOfDimensions = originalTensor->orderOfDimensions;
 }
 
 void setTensorValues(tensor_t *tensor, uint8_t *data, size_t *dims, size_t numberOfDims,
-                 size_t *orderOfDims,
-                 quantization_t *quantization, uint8_t *sparsityBitmask) {
+                     size_t *orderOfDims,
+                     quantization_t *quantization, uint8_t *sparsityBitmask) {
     tensor->data = data;
     tensor->dimensions = dims;
     tensor->quantization = quantization;

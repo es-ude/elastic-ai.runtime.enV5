@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 int32_t readBytesAsInt32(uint8_t *bytes);
+int32_t readNumberOfBytesAsInt32(uint8_t *data, size_t numberOfBytes);
 void readBytesAsInt32Array(size_t numberOfValues, uint8_t *bytes, int32_t *outputArray);
 
 float readBytesAsFloat(uint8_t *bytes);

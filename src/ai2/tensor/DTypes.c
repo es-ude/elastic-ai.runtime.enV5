@@ -1,5 +1,7 @@
 #include "DTypes.h"
 
+#include <Tensor.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,6 +9,13 @@ int32_t readBytesAsInt32(uint8_t *bytes) {
     int32_t x;
     memcpy(&x, bytes, sizeof(int32_t));
     return x;
+}
+
+int32_t readNumberOfBytesAsInt32(uint8_t *data, size_t numberOfBytes) {
+    int32_t output = 0;
+    memcpy(&output, data, numberOfBytes);
+
+    return output;
 }
 
 void readBytesAsInt32Array(size_t numberOfValues, uint8_t *bytes, int32_t *outputArray) {

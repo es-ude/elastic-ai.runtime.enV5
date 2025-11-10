@@ -37,7 +37,6 @@ uint8_t readByte(uint8_t data, uint8_t startbit, uint8_t endbit);
 
 void byteConversion(uint8_t* dataIn, size_t dataInBits, uint8_t* dataOut, size_t dataOutBits, size_t numValues);
 
-typedef void (*conversionFunction_t)(tensor_t* inputTensor, tensor_t* outputTensor);
 
 void initTensor(tensor_t* tensor, uint8_t* data, quantization_t* quantization, uint8_t* sparsityBitmask,
                 size_t numberOfDims,
@@ -62,15 +61,10 @@ size_t calcNumberOfElementsByTensor(tensor_t* qTensor);
 
 void transposeTensor(tensor_t* tensor, size_t dim0Index, size_t dim1Index);
 
-/*! @brief Converts given input tensor into given output tensor
- * @param inputTensor: input tensor
- * @param outputTensor: output tensor with wanted quantization
- */
-void convertTensor(tensor_t* inputTensor, tensor_t* outputTensor);
 
-void setTensorValuesForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor, tensor_t *outputTensor);
+void setTensorValuesForConversion(uint8_t* data, quantization_t* q, tensor_t* originalTensor, tensor_t* outputTensor);
 
 void setTensorValues(tensor_t* tensor, uint8_t* data, size_t* dims, size_t numberOfDims,
-                 size_t* orderOfDims,
-                 quantization_t* quantization, uint8_t* sparsityBitmask);
+                     size_t* orderOfDims,
+                     quantization_t* quantization, uint8_t* sparsityBitmask);
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H
