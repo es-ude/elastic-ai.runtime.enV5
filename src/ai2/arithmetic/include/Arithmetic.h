@@ -1,7 +1,3 @@
-//
-// Created by Leo Buron on 20.10.25.
-//
-
 #ifndef ENV5_RUNTIME_TENSOR_MATH_H
 #define ENV5_RUNTIME_TENSOR_MATH_H
 #include "Tensor.h"
@@ -9,10 +5,8 @@
 #include <stdbool.h>
 
 
-
 typedef int32_t(*int32ElementArithmeticFunc_t)(int32_t a, int32_t b);
 typedef float(*floatElementArithmeticFunc_t)(float a, float b);
-
 
 bool doDimensionsMatch(tensor_t* a, tensor_t* b);
 
@@ -37,6 +31,6 @@ void floatElementWithTensorArithmetic(tensor_t *aTensor, float x, floatElementAr
 void int32ElementWithTensorArithmeticInplace(tensor_t *aTensor, int32_t x, int32ElementArithmeticFunc_t arithmeticFunc);
 void floatElementWithTensorArithmeticInplace(tensor_t *aTensor, float x, floatElementArithmeticFunc_t arithmeticFunc);
 
-
+void matMulTensors(tensor_t *a, tensor_t *b, tensor_t *output);
 
 #endif // ENV5_RUNTIME_TENSOR_MATH_H

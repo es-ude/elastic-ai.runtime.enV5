@@ -43,7 +43,7 @@ void testMulFloatTensors() {
 
     transposeTensor(&bTensor, 0, 1);
 
-    floatElementArithmeticFunc_t mul = mulFloats;
+    floatElementArithmeticFunc_t mul = mulFloat32s;
     floatPointWiseArithmeticInplace(&aTensor, &bTensor, mul);
 
     float expected[] = {3.3f, 11.55f, 33.62f, 1.04f, 37.4f, 6.57f};
@@ -73,7 +73,7 @@ void testMulFloatElementWithTensor() {
 
     float x = 0.5;
 
-    floatElementArithmeticFunc_t mul = mulFloats;
+    floatElementArithmeticFunc_t mul = mulFloat32s;
     floatElementWithTensorArithmeticInplace(&aTensor, x, mul);
 
     float expected[] = {1.1f, 1.75f, 2.05f, 2.6f, 3.4f, 3.65f};

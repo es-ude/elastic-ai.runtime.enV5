@@ -1,8 +1,8 @@
 #include "Arithmetic.h"
 
 #include <DTypes.h>
+#include <Matmul.h>
 #include <stdio.h>
-#include <string.h>
 
 size_t getDimensionsByIndex(tensor_t *tensor, size_t index) {
     size_t numberOfDims = tensor->numberOfDimensions;
@@ -123,10 +123,12 @@ void int32PointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
         int32_t result = arithmeticFunc(aValue, bValue);
 
         size_t outputByteIndex = i * bytesPerElement;
-        memcpy(&outputTensor->data[outputByteIndex], &result, bytesPerElement);
+
+        writeInt32ToByteArray(result, &outputTensor->data[outputByteIndex]);
     }
 }
 
+// Important: result will be written into aTensor datafield
 void int32PointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
                                      int32ElementArithmeticFunc_t arithmeticFunc) {
     if (!doDimensionsMatch(aTensor, bTensor)) {
@@ -164,7 +166,8 @@ void int32PointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
         int32_t result = arithmeticFunc(aValue, bValue);
 
         size_t outputByteIndex = i * bytesPerElement;
-        memcpy(&aTensor->data[outputByteIndex], &result, bytesPerElement);
+
+        writeInt32ToByteArray(result, &aTensor->data[outputByteIndex]);
     }
 }
 
@@ -179,7 +182,7 @@ void int32ElementWithTensorArithmeticInplace(tensor_t *tensor, int32_t x,
         int32_t currentElement = readBytesAsInt32(&tensor->data[byteIndex]);
         int32_t result = arithmeticFunc(currentElement, x);
 
-        memcpy(&tensor->data[byteIndex], &result, bytesPerElement);
+        writeInt32ToByteArray(result, &tensor->data[byteIndex]);
     }
 }
 
@@ -195,7 +198,7 @@ void int32ElementWithTensorArithmetic(tensor_t *tensor, int32_t x,
         int32_t currentElement = readBytesAsInt32(&tensor->data[byteIndex]);
         int32_t result = arithmeticFunc(currentElement, x);
 
-        memcpy(&outputTensor->data[byteIndex], &result, bytesPerElement);
+        writeInt32ToByteArray(result, &outputTensor->data[byteIndex]);
     }
 }
 
@@ -238,7 +241,8 @@ void floatPointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
         float result = arithmeticFunc(aValue, bValue);
 
         size_t outputByteIndex = i * bytesPerElement;
-        memcpy(&outputTensor->data[outputByteIndex], &result, bytesPerElement);
+
+        writeFloatToByteArray(result, &outputTensor->data[outputByteIndex]);
     }
 }
 
@@ -279,7 +283,8 @@ void floatPointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
         float result = arithmeticFunc(aValue, bValue);
 
         size_t outputByteIndex = i * bytesPerElement;
-        memcpy(&aTensor->data[outputByteIndex], &result, bytesPerElement);
+
+        writeFloatToByteArray(result, &aTensor->data[outputByteIndex]);
     }
 }
 
@@ -294,7 +299,8 @@ void floatElementWithTensorArithmetic(tensor_t *tensor, float x,
         size_t byteIndex = i * bytesPerElement;
         float currentValue = readBytesAsFloat(&tensor->data[byteIndex]);
         float result = arithmeticFunc(currentValue, x);
-        memcpy(&outputTensor->data[byteIndex], &result, bytesPerElement);
+
+        writeFloatToByteArray(result, &outputTensor->data[byteIndex]);
     }
 }
 
@@ -304,12 +310,17 @@ void floatElementWithTensorArithmeticInplace(tensor_t *tensor, float x,
     size_t numberOfElements = calcNumberOfElementsByTensor(tensor);
     size_t bytesPerElement = sizeof(float);
 
+
     for (size_t i = 0; i < numberOfElements; i++) {
         size_t byteIndex = i * bytesPerElement;
         float currentValue = readBytesAsFloat(&tensor->data[byteIndex]);
+
         float result = arithmeticFunc(currentValue, x);
-        memcpy(&tensor->data[byteIndex], &result, bytesPerElement);
+
+        writeFloatToByteArray(result, &tensor->data[byteIndex]);
     }
 }
+
+
 
 

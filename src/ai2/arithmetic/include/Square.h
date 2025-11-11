@@ -5,6 +5,6 @@
 
 int32_t squareInt32(int32_t a);
 
-float squareFloat(float a);
+float squareFloat32(float a);
 
 #endif // ENV5_RUNTIME_SQUARE_H

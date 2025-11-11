@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-void GTE_int32Value(tensor_t *a, int32_t b, int32_t altNumber, tensor_t *result) {
+void gteInt32Value(tensor_t *a, int32_t b, int32_t altNumber, tensor_t *result) {
     size_t numberOfValues = calcNumberOfElementsByTensor(a);
     int32_t values[numberOfValues];
     readBytesAsInt32Array(numberOfValues, a->data, values);
@@ -17,11 +17,11 @@ void GTE_int32Value(tensor_t *a, int32_t b, int32_t altNumber, tensor_t *result)
     writeInt32ArrayToByteArray(numberOfValues, values, result->data);
 }
 
-void GTE_int32Tensor(tensor_t *a, tensor_t *b, int32_t altNumber, tensor_t *result) {
+void gteInt32Tensor(tensor_t *a, tensor_t *b, int32_t altNumber, tensor_t *result) {
     size_t aNumberOfValues = calcNumberOfElementsByTensor(a);
     size_t bNumberOfValues = calcNumberOfElementsByTensor(b);
     if (aNumberOfValues != bNumberOfValues) {
-        printf("Error in Comparison of int32 tensors: mismatched number of values");
+        printf("Error in Comparison of int32 tensors: mismatched number of values\n");
     }
 
     int32_t aValues[aNumberOfValues];
@@ -37,7 +37,7 @@ void GTE_int32Tensor(tensor_t *a, tensor_t *b, int32_t altNumber, tensor_t *resu
     writeInt32ArrayToByteArray(aNumberOfValues, aValues, result->data);
 }
 
-void GTE_floatValue(tensor_t *a, float b, float altNumber, tensor_t *result) {
+void gteFloatValue(tensor_t *a, float b, float altNumber, tensor_t *result) {
     size_t numberOfValues = calcNumberOfElementsByTensor(a);
     float values[numberOfValues];
     readBytesAsFloatArray(numberOfValues, a->data, values);
@@ -50,11 +50,63 @@ void GTE_floatValue(tensor_t *a, float b, float altNumber, tensor_t *result) {
     writeFloatArrayToByteArray(numberOfValues, values, result->data);
 }
 
-void GTE_floatTensor(tensor_t *a, tensor_t *b, float altNumber, tensor_t *result) {
+void gteFloatTensor(tensor_t *a, tensor_t *b, float altNumber, tensor_t *result) {
     size_t aNumberOfValues = calcNumberOfElementsByTensor(a);
     size_t bNumberOfValues = calcNumberOfElementsByTensor(b);
     if (aNumberOfValues != bNumberOfValues) {
-        printf("Error in Comparison of float tensors: mismatched number of values");
+        printf("Error in Comparison of float tensors: mismatched number of values\n");
+    }
+
+    float aValues[aNumberOfValues];
+    float bValues[bNumberOfValues];
+    readBytesAsFloatArray(aNumberOfValues, a->data, aValues);
+    readBytesAsFloatArray(bNumberOfValues, b->data, bValues);
+
+    for (size_t i = 0; i < aNumberOfValues; i++) {
+        if (aValues[i] < bValues[i]) {
+            aValues[i] = altNumber;
+        }
+    }
+    writeFloatArrayToByteArray(aNumberOfValues, aValues, result->data);
+}
+
+void gteSymInt32Zero(tensor_t *a, int32_t altNumber, tensor_t *result) {
+    size_t numberOfValues = calcNumberOfElementsByTensor(a);
+
+    int32_t *values = (int32_t *)a->data;
+    for (size_t i = 0; i < numberOfValues; i++) {
+        if (values[i] < 0) {
+            values[i] = altNumber;
+        }
+    }
+
+    writeInt32ArrayToByteArray(numberOfValues, values, result->data);
+}
+
+// TODO
+void gteSymInt32Value(tensor_t *a, int32_t b, int32_t altNumber, tensor_t *result) {
+    size_t numberOfValues = calcNumberOfElementsByTensor(a);
+    int32_t values[numberOfValues];
+    readBytesAsInt32Array(numberOfValues, a->data, values);
+
+    symInt32QConfig_t *aSymInt32QC = a->quantization->qConfig;
+    float scale = aSymInt32QC->scale;
+    float scaledB = (float)b / scale;
+
+    for (size_t i = 0; i < numberOfValues; i++) {
+        if ((float)values[i] < scaledB) {
+            values[i] = altNumber;
+        }
+    }
+
+    writeInt32ArrayToByteArray(numberOfValues, values, result->data);
+}
+
+void gteSymInt32Tensor(tensor_t *a, tensor_t *b, int32_t altNumber, tensor_t *result) {
+    size_t aNumberOfValues = calcNumberOfElementsByTensor(a);
+    size_t bNumberOfValues = calcNumberOfElementsByTensor(b);
+    if (aNumberOfValues != bNumberOfValues) {
+        printf("Error in Comparison of float tensors: mismatched number of values\n");
     }
 
     float aValues[aNumberOfValues];

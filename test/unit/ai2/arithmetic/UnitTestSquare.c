@@ -14,7 +14,7 @@ void testSquareInt32() {
 
 void testSquareFloat() {
     float a = 0.5f;
-    float actual = squareFloat(a);
+    float actual = squareFloat32(a);
     float expected = 0.25f;
 
     TEST_ASSERT_EQUAL_INT32(expected, actual);

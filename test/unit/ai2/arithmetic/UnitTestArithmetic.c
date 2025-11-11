@@ -1,10 +1,11 @@
 #include "Tensor.h"
 #include "unity.h"
 #include "Quantization.h"
+#include "Arithmetic.h"
+#include "Add.h"
+#include "Mul.h"
+#include "DTypes.h"
 
-#include <Add.h>
-#include <Arithmetic.h>
-#include <DTypes.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -64,11 +65,6 @@ void testInt32PointWiseArithmetic() {
     size_t bytesPerElement = sizeof(int32_t);
     size_t numberOfElements = 8;
 
-    uint8_t aData[numberOfElements * bytesPerElement];
-    int32_t aValues[] = {-1, 2, 3, 4, 5, 6, -7, 8};
-    writeInt32ArrayToByteArray(numberOfElements, aValues, aData);
-
-    size_t aNumberOfDims = 3;
     /*
     [ [ [-1, 2, 3, 4], [5, 6, -7, 8] ] ]
 
@@ -80,90 +76,72 @@ void testInt32PointWiseArithmetic() {
   [ [3], [-7] ],
   [ [4],  [8] ] ]
     */
-
+    int32_t aData[] = {-1, 2, 3, 4, 5, 6, -7, 8};
 
     size_t aDims[] = {1, 2, 4};
-
     size_t aOrderDims[] = {0, 1, 2};
+    size_t aNumberOfDims = 3;
 
     quantization_t aQuantization;
     initInt32Quantization(&aQuantization);
 
+    tensor_t aTensor;
+    setTensorValues(&aTensor, aData, aDims, aNumberOfDims, aOrderDims, &aQuantization, NULL);
 
-    tensor_t aTensor = {
-        .data = aData,
-        .dimensions = aDims,
-        .numberOfDimensions = aNumberOfDims,
-        .orderOfDimensions = aOrderDims,
-        .quantization = &aQuantization
-    };
-
-    uint8_t bData[numberOfElements * bytesPerElement];
-    int32_t bValues[] = {-1, 2, 3, 4, 5, 6, -7, 8};
-    writeInt32ArrayToByteArray(numberOfElements, bValues, bData);
+    int32_t bData[] = {-1, 2, 3, 4, 5, 6, -7, 8};
 
     size_t bNumberOfDims = 3;
     size_t bDims[] = {2, 1, 4};
-
     size_t bOrderDims[] = {1, 0, 2};
 
     quantization_t bQuantization;
     initInt32Quantization(&bQuantization);
 
+    tensor_t bTensor;
+    setTensorValues(&bTensor, bData, bDims, bNumberOfDims, bOrderDims, &bQuantization, NULL);
 
-    tensor_t bTensor = {
-        .data = bData,
-        .dimensions = bDims,
-        .numberOfDimensions = bNumberOfDims,
-        .orderOfDimensions = bOrderDims,
-        .quantization = &bQuantization
-    };
-
-    uint8_t outputData[numberOfElements * bytesPerElement];
-    int32_t outputValues[numberOfElements];
+    uint32_t outputData[numberOfElements];
 
     size_t outputNumberOfDims = 3;
     size_t outputDims[] = {4, 2, 1};
-
     size_t outputOrderDims[] = {2, 1, 0};
 
     quantization_t outputQuantization;
     initInt32Quantization(&outputQuantization);
 
+    tensor_t outputTensor;
+    setTensorValues(&outputTensor, outputData, outputDims, outputNumberOfDims, outputOrderDims, &outputQuantization, NULL);
 
-    tensor_t outputTensor = {
-        .data = outputData,
-        .dimensions = outputDims,
-        .numberOfDimensions = outputNumberOfDims,
-        .orderOfDimensions = outputOrderDims,
-        .quantization = &outputQuantization
-    };
+    int32_t expectedValues[] = {-2, 4, 6, 8, 10, 12, -14, 16};
 
-    uint8_t expectedData[numberOfElements * bytesPerElement];
-    int32_t expectedValues[] = {-2, 10, 4, 12, 6, -14, 8, 16};
-    writeInt32ArrayToByteArray(numberOfElements, expectedValues, expectedData);
-
-    size_t expectedNumberOfDims = 3;
-    size_t expectedDims[] = {4, 2, 1};
-
-    size_t expectedOrderDims[] = {2, 1, 0};
-
-    quantization_t expectedQuantization;
-    initInt32Quantization(&expectedQuantization);
-
-
-    tensor_t expectedTensor = {
-        .data = expectedData,
-        .dimensions = expectedDims,
-        .numberOfDimensions = expectedNumberOfDims,
-        .orderOfDimensions = expectedOrderDims,
-        .quantization = &expectedQuantization
-    };
 
     int32PointWiseArithmetic(&aTensor, &bTensor, addInt32s, &outputTensor);
+
     int32_t actual[numberOfElements];
     readBytesAsInt32Array(numberOfElements, outputTensor.data, actual);
+
     TEST_ASSERT_EQUAL_INT32_ARRAY(expectedValues, actual, numberOfElements);
+}
+
+void testFloat32ElementWithTensorArithmetic() {
+    float x = 2.f;
+
+    quantization_t aQ;
+    initFloat32Quantization(&aQ);
+    float aData[] = {1.f, 2.f, 3.f, 4.f};
+    size_t aDims[] = {4};
+    size_t aNumberOfDims = 1;
+    size_t aOrderOfDims[] = {0};
+
+    tensor_t aTensor;
+    setTensorValues(&aTensor, aData, aDims, aNumberOfDims, aOrderOfDims, &aQ, NULL);
+
+    floatElementWithTensorArithmeticInplace(&aTensor, x, mulFloat32s);
+
+    float expected[] = {2.f, 4.f, 6.f, 8.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, aData, 4);
+
 }
 
 void setUp(){}
@@ -172,7 +150,8 @@ int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testOrderDims);
     RUN_TEST(testCalcTensorIndex);
-    RUN_TEST(testInt32PointWiseArithmetic);
     RUN_TEST(testCalcIndexByRawIndex);
+    RUN_TEST(testInt32PointWiseArithmetic);
+    RUN_TEST(testFloat32ElementWithTensorArithmetic);
     UNITY_END();
 }
