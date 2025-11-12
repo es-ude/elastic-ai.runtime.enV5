@@ -10,15 +10,14 @@ int32_t addInt32s(int32_t a, int32_t b);
 void addInt32Tensors(tensor_t *a, tensor_t *b, tensor_t *outputTensor);
 void addInt32TensorsInplace(tensor_t *a, tensor_t *b);
 
-void addInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor);
-void addInt32ElementWithTensorInplace(tensor_t *a, int32_t b);
-
+void addInt32ElementWithInt32Tensor(tensor_t *a, int32_t b, tensor_t *outputTensor);
+void addInt32ElementWithInt32TensorInplace(tensor_t *a, int32_t b);
 
 void addFloat32Tensors(tensor_t *a, tensor_t *b, tensor_t *outputTensor);
 void addFloat32TensorsInplace(tensor_t *a, tensor_t *b);
 
-void addFloat32ElementWithTensor(tensor_t *a, float b, tensor_t *outputTensor);
-void addFloat32ElementWithTensorInplace(tensor_t *a, float b);
+void addFloat32ElementWithFloat32Tensor(tensor_t *a, float b, tensor_t *outputTensor);
+void addFloat32ElementWithFloat32TensorInplace(tensor_t *a, float b);
 
 void addInt32TensorToSymInt32TensorInplace(tensor_t* symInt32Tensor, tensor_t* int32Tensor);
 void addFloat32TensorToSymInt32TensorInplace(tensor_t* symInt32Tensor, tensor_t* int32Tensor);

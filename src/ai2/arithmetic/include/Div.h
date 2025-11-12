@@ -11,14 +11,14 @@ float divFloat32s(float a, float b);
 void divInt32Tensors(tensor_t* a, tensor_t* b, tensor_t* outputTensor);
 void divInt32TensorsInplace(tensor_t* a, tensor_t* b);
 
-void divInt32ElementWithTensor(tensor_t* a, int32_t b, tensor_t* outputTensor);
-void divInt32ElementWithTensorInplace(tensor_t* a, int32_t b);
+void divInt32ElementWithInt32Tensor(tensor_t* a, int32_t b, tensor_t* outputTensor);
+void divInt32ElementWithInt32TensorInplace(tensor_t* a, int32_t b);
 
 void divFloat32Tensors(tensor_t* a, tensor_t* b, tensor_t* outputTensor);
 void divFloat32TensorsInplace(tensor_t* a, tensor_t* b);
 
-void divFloat32ElementWithTensor(tensor_t* a, float b, tensor_t* outputTensor);
-void divFloat32ElementWithTensorInplace(tensor_t* a, float b);
+void divFloat32ElementWithFloat32Tensor(tensor_t* a, float b, tensor_t* outputTensor);
+void divFloat32ElementWithFloat32TensorInplace(tensor_t* a, float b);
 
 void divSymInt32Tensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTensor);
 

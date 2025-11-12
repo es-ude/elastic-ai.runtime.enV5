@@ -31,6 +31,4 @@ void floatElementWithTensorArithmetic(tensor_t *aTensor, float x, floatElementAr
 void int32ElementWithTensorArithmeticInplace(tensor_t *aTensor, int32_t x, int32ElementArithmeticFunc_t arithmeticFunc);
 void floatElementWithTensorArithmeticInplace(tensor_t *aTensor, float x, floatElementArithmeticFunc_t arithmeticFunc);
 
-void matMulTensors(tensor_t *a, tensor_t *b, tensor_t *output);
-
 #endif // ENV5_RUNTIME_TENSOR_MATH_H

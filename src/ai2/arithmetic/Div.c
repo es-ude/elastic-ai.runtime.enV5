@@ -48,11 +48,11 @@ void divInt32TensorsInplace(tensor_t *a, tensor_t *b) {
     int32PointWiseArithmeticInplace(a, b, DIV_FUNC_INT);
 }
 
-void divInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
+void divInt32ElementWithInt32Tensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
     int32ElementWithTensorArithmetic(a, b, DIV_FUNC_INT, outputTensor);
 }
 
-void divInt32ElementWithTensorInplace(tensor_t *a, int32_t b) {
+void divInt32ElementWithInt32TensorInplace(tensor_t *a, int32_t b) {
     int32ElementWithTensorArithmeticInplace(a, b, DIV_FUNC_INT);
 }
 
@@ -64,11 +64,11 @@ void divFloat32TensorsInplace(tensor_t *a, tensor_t *b) {
     floatPointWiseArithmeticInplace(a, b, DIV_FUNC_FLOAT);
 }
 
-void divFloat32ElementWithTensor(tensor_t *a, float b, tensor_t *outputTensor) {
+void divFloat32ElementWithFloat32Tensor(tensor_t *a, float b, tensor_t *outputTensor) {
     floatElementWithTensorArithmetic(a, b, DIV_FUNC_FLOAT, outputTensor);
 }
 
-void divFloat32ElementWithTensorInplace(tensor_t *a, float b) {
+void divFloat32ElementWithFloat32TensorInplace(tensor_t *a, float b) {
     floatElementWithTensorArithmeticInplace(a, b, DIV_FUNC_FLOAT);
 }
 

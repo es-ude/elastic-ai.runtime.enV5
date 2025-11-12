@@ -272,3 +272,59 @@ void setTensorValues(tensor_t *tensor, uint8_t *data, size_t *dims, size_t numbe
     tensor->numberOfDimensions = numberOfDims;
     tensor->orderOfDimensions = orderOfDims;
 }
+
+void printTensor(tensor_t *t) {
+    quantization_t *q = t->quantization;
+    printf("TENSOR BEGIN \n");
+    size_t numValues = calcNumberOfElementsByTensor(t);
+    int32_t data[numValues];
+    switch (q->type) {
+    case INT32:
+        printf("INT32Q \n");
+        readBytesAsInt32Array(numValues, t->data, data);
+        for (size_t i = 0; i < numValues; i++) {
+            printf("%i\n", data[i]);
+        }
+        break;
+    case FLOAT32:
+        printf("FLOAT32Q \n");
+        for (size_t i = 0; i < numValues; i++) {
+            size_t byteIndex = i * sizeof(float);
+            float currentElement = readBytesAsFloat(&t->data[byteIndex]);
+            printf("%f\n", currentElement);
+        }
+        break;
+    case SYM_INT32:
+        symInt32QConfig_t *symQC = q->qConfig;
+        printf("SYM_INT32 \n");
+        printf("scale=%f\n", symQC->scale);
+        printf("Data \n");
+        for (size_t i = 0; i < numValues; i++) {
+            size_t byteIndex = i * sizeof(int32_t);
+            int32_t currentElement = readBytesAsInt32(&t->data[byteIndex]);
+            printf("%i\n", currentElement);
+        }
+        break;
+    case ASYM:
+        asymQConfig_t *lq = q->qConfig;
+        printf("ASYM\n");
+        printf("scale=%f\n", lq->scale);
+        printf("offset=%i\n", lq->zeroPoint);
+        printf("Data \n");
+        for (size_t i = 0; i < numValues; i++) {
+            printf("%i\n", t->data[i]);
+        }
+        break;
+    default:
+        printf("WTF");
+    }
+
+    printf("TENSOR END \n");
+    printf("\n");
+}
+
+void initOrderOfDimensions(size_t *orderOfDims, size_t numberOfDims) {
+    for (size_t i = 0; i < numberOfDims; i++) {
+        orderOfDims[i] = i;
+    }
+}

@@ -421,7 +421,42 @@ void testConversionAsymFloat() {
     float expectedData[] = {0.9375f, 2.0625f, 3.f, 3.75f, -0.9375f, -2.0625f};
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedData, actual, numValues);
 }
-void testConversionAsymSymInt32(){}
+void testConversionAsymSymInt32() {
+    size_t numValues = 6;
+    size_t dims[] = {numValues};
+    size_t numberOfDims = 1;
+    size_t orderOfDims[] = {0};
+
+    asymQConfig_t asymQConfig;
+    initAsymQConfig(5, HTE, &asymQConfig);
+    asymQConfig.scale = 0.1875f;
+    asymQConfig.zeroPoint = -11;
+    quantization_t asymQ;
+    initAsymQuantization(&asymQConfig, &asymQ);
+
+    uint8_t asymData[] = {0b11010000, 0b11101110, 0b01101111, 0b00000000};
+
+    tensor_t asymTensor;
+    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+
+    symInt32QConfig_t symInt32QConfig;
+    initSymInt32QConfig(HTE, &symInt32QConfig);
+    quantization_t symInt32Q;
+    initSymInt32Quantization(&symInt32QConfig, &symInt32Q);
+    int32_t symInt32Data[numValues];
+
+    tensor_t symInt32Tensor;
+    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+
+    convertTensor(&asymTensor, &symInt32Tensor);
+
+    int32_t actual[numValues];
+    readBytesAsInt32Array(numValues, symInt32Tensor.data, actual);
+
+    int32_t expectedData[] = {5, 11, 16, 20, -5, -11};
+
+    TEST_ASSERT_EQUAL_INT32_ARRAY(expectedData, actual, numValues);
+}
 
 
 void setUp() {}
@@ -448,6 +483,7 @@ int main(void) {
 
     RUN_TEST(testConversionAsymInt);
     RUN_TEST(testConversionAsymFloat);
+    RUN_TEST(testConversionAsymSymInt32);
 
     UNITY_END();
 }

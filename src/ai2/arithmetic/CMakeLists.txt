@@ -7,6 +7,7 @@ target_link_libraries(Add PRIVATE
         Tensor
         DTypes
         Arithmetic
+        TensorConversion
 )
 
 add_library(Arithmetic
@@ -54,6 +55,7 @@ target_link_libraries(Matmul PRIVATE
         Common
         Tensor
         DTypes
+        Mul
 )
 
 add_library(Mul

@@ -54,5 +54,4 @@ void initSymInt32Quantization(symInt32QConfig_t* symInt32QConfig, quantization_t
 void initSymQuantization(symQConfig_t* symQConfig, quantization_t* quantization);
 void initAsymQuantization(asymQConfig_t* asymQConfig, quantization_t* quantization);
 
-
 #endif // ENV5_RUNTIME_QUANTIZATION_H

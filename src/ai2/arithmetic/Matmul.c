@@ -252,7 +252,7 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                 }
 
                 float bValue = readBytesAsFloat(&bTensor->data[bByteIndex]);
-                result += mulFloats(aValue, bValue);
+                result += mulFloat32s(aValue, bValue);
 
             }
 
@@ -334,7 +334,7 @@ void matmulFloatTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTens
                 }
 
                 float bValue = readBytesAsFloat(&bTensor->data[bByteIndex]);
-                result += mulFloats(aValue, bValue);
+                result += mulFloat32s(aValue, bValue);
 
             }
 

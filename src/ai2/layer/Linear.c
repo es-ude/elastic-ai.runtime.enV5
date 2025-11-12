@@ -2,97 +2,58 @@
 #include "Linear.h"
 #include "Add.h"
 #include "Matmul.h"
-#include "Mul.h"
+#include "TensorConversion.h"
 
 
 #include <DTypes.h>
 #include <stdio.h>
 #include <string.h>
 
-void printTensor(tensor_t *t) {
-    quantization_t *q = t->quantization;
-    printf("TENSOR BEGINN \n");
-    size_t numValues = calcNumberOfElementsByTensor(t);
-    int32_t data[numValues];
-    switch (q->type) {
-    case ASYM:
-        asymQConfig_t *lq = q->qConfig;
-        printf("linearQ \n");
-        printf("scale=%f\n", lq->scale);
-        printf("offset=%i\n", lq->zeroPoint);
-        printf("Data \n");
-        for (size_t i=0; i<numValues;i++) {
-            printf("%i\n", t->data[i]);
-        }
-        break;
-    case FLOAT32:
-        printf("float32Q \n");
-        break;
-    case INT32:
-        printf("INT32Q \n");
-
-
-        readBytesAsInt32Array(numValues, t->data, data);
-        for (size_t i=0; i<numValues; i++) {
-            printf("%i\n", data[i]);
-        }
-        break;
-    default:
-        printf("WTF");
-    }
-
-    printf("TENSOR END \n");
-    printf("\n");
+void linearForwardFloat32(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
+    matmulFloat32Tensors(w, input, output);
+    addFloat32TensorsInplace(output, b);
 }
-void linearForwardFloat(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
-    matmulFloatTensors(w, input, output);
-    addFloatTensorsInplace(output, b);
-}
+
+
 
 void linearForwardAsym(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
-    quantization_t intermediateOutputIntQ;
-    initInt32Quantization(&intermediateOutputIntQ);
-    size_t numberOfOutputs = calcNumberOfElementsByTensor(output);
-    uint8_t intermediateOutputIntData[
-        numberOfOutputs * calcBytesPerElement(&intermediateOutputIntQ)];
-    tensor_t intermediateOutputInt;
-    setTensorValuesForConversion(intermediateOutputIntData, &intermediateOutputIntQ,
-                                 output, &intermediateOutputInt);
 
-    quantization_t weightsIntQ;
-    initInt32Quantization(&weightsIntQ);
     size_t numberOfWeights = calcNumberOfElementsByTensor(w);
-    uint8_t weightsIntData[numberOfWeights * calcBytesPerElement(&weightsIntQ)];
-    tensor_t weightsInt;
-    setTensorValuesForConversion(weightsIntData, &weightsIntQ, w, &weightsInt);
-    convertTensor(w, &weightsInt);
-
-    quantization_t inputIntQ;
-    initInt32Quantization(&inputIntQ);
+    size_t numberOfOutputs = calcNumberOfElementsByTensor(output);
     size_t numberOfInputs = calcNumberOfElementsByTensor(input);
-    uint8_t inputIntData[numberOfInputs * calcBytesPerElement(&inputIntQ)];
-    tensor_t inputInt;
-    setTensorValuesForConversion(inputIntData, &inputIntQ, input, &inputInt);
-    convertTensor(input, &inputInt);
 
-    matmulInt32Tensors(&weightsInt, &inputInt, &intermediateOutputInt);
-    addInt32TensorsInplace(&intermediateOutputInt, b);
+    symInt32QConfig_t weightsSymInt32QConfig;
+    initSymInt32QConfig(HTE, &weightsSymInt32QConfig);
+    quantization_t weightsSymInt32Q;
+    initSymInt32Quantization(&weightsSymInt32QConfig, &weightsSymInt32Q);
+    int32_t weightsSymInt32Data[numberOfWeights];
+    tensor_t weightsSymInt32;
+    setTensorValuesForConversion(weightsSymInt32Data, &weightsSymInt32Q, w, &weightsSymInt32);
+    convertTensor(w, &weightsSymInt32);
 
-    asymQConfig_t *asymQWeightConfig = w->quantization->qConfig;
-    asymQConfig_t *asymQInputConfig = input->quantization->qConfig;
+    symInt32QConfig_t inputSymInt32QConfig;
+    initSymInt32QConfig(HTE, &inputSymInt32QConfig);
+    quantization_t inputsSymInt32Q;
+    initSymInt32Quantization(&inputSymInt32QConfig, &inputsSymInt32Q);
+    int32_t inputSymInt32Data[numberOfInputs];
+    tensor_t inputSymInt32;
+    setTensorValuesForConversion(inputSymInt32Data, &inputsSymInt32Q, input, &inputSymInt32);
+    convertTensor(input, &inputSymInt32);
 
-    if (output->quantization->type == FLOAT32) {
-        convertTensor(&intermediateOutputInt, output);
-        float totalScale = asymQWeightConfig->scale * asymQInputConfig->scale;
-        float zeroPoint = asymQWeightConfig->zeroPoint;
-        addFloatElementWithTensorInplace(output, zeroPoint);
+    symInt32QConfig_t outputSymInt32QConfig;
+    initSymInt32QConfig(HTE, &outputSymInt32QConfig);
+    quantization_t outputSymInt32Q;
+    initSymInt32Quantization(&outputSymInt32QConfig, &outputSymInt32Q);
+    int32_t outputSymInt32Data[numberOfOutputs];
+    tensor_t outputSymInt32;
+    setTensorValuesForConversion(outputSymInt32Data, &outputSymInt32Q,
+                                 output, &outputSymInt32);
 
-        mulFloatElementWithTensorInplace(output, totalScale);
-    } else if (output->quantization->type == ASYM) {
-        convertTensor(&intermediateOutputInt, output);
-        asymQConfig_t *asymQOutConfig = output->quantization->qConfig;
-        asymQOutConfig->scale *= asymQWeightConfig->scale * asymQInputConfig->scale;
-    }
+    matmulSymInt32Tensors(&weightsSymInt32, &inputSymInt32, &outputSymInt32);
+
+    addInt32TensorToSymInt32TensorInplace(&outputSymInt32, b);
+
+    convertTensor(&outputSymInt32, output);
 }
 
 
@@ -101,14 +62,16 @@ void linearForward(void *config, tensor_t *input, tensor_t *output) {
 
     tensor_t weights;
     size_t orderOfDimensionsWeights[lConfig->weight->numberOfDimensions];
+    initOrderOfDimensions(orderOfDimensionsWeights, lConfig->weight->numberOfDimensions);
     getTensorFromParameter(lConfig->weight, &weights, orderOfDimensionsWeights);
 
     tensor_t bias;
     size_t orderOfDimensionsBias[lConfig->bias->numberOfDimensions];
+    initOrderOfDimensions(orderOfDimensionsBias, lConfig->bias->numberOfDimensions);
     getTensorFromParameter(lConfig->bias, &bias, orderOfDimensionsBias);
 
     if (lConfig->type == FLOATLAYER) {
-        linearForwardFloat(&weights, &bias, input, output);
+        linearForwardFloat32(&weights, &bias, input, output);
 
     } else if (lConfig->type == ASYMLAYER) {
         linearForwardAsym(&weights, &bias, input, output);
@@ -116,19 +79,19 @@ void linearForward(void *config, tensor_t *input, tensor_t *output) {
     }
 }
 
-void calcWeightGrads(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads) {
+void calcWeightGradsFloat32(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads) {
     transposeTensor(forwardInput, 0, 1);
-    matMulTensors(loss, forwardInput, weightGrads);
+    matmulFloat32Tensors(loss, forwardInput, weightGrads);
     transposeTensor(forwardInput, 0, 1);
 }
 
-void calcBiasGrads(tensor_t *biasGrads, tensor_t *loss) {
-    addTensorsInplace(biasGrads, loss);
+void calcBiasGradsFloat32(tensor_t *biasGrads, tensor_t *loss) {
+    addFloat32TensorsInplace(biasGrads, loss);
 }
 
-void calcPropLoss(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) {
+void calcPropLossFloat32(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) {
     transposeTensor(weights, 0, 1);
-    matMulTensors(weights, loss, propLoss);
+    matmulFloat32Tensors(weights, loss, propLoss);
     transposeTensor(weights, 0, 01);
 }
 
@@ -157,7 +120,7 @@ void linearBackwardFloat(void *config, tensor_t *loss, tensor_t *output, tensor_
         .orderOfDimensions = weightGradOrderOfDims
     };
 
-    calcWeightGrads(loss, output, &weightGrad);
+    calcWeightGradsFloat32(loss, output, &weightGrad);
     memcpy(linearConfig->weight->grad, weightGrad.data, numberOfWeights * sizeof(float));
 
     // biasGrads
@@ -174,7 +137,7 @@ void linearBackwardFloat(void *config, tensor_t *loss, tensor_t *output, tensor_
         .orderOfDimensions = biasGradOrderOfDims
     };
 
-    calcBiasGrads(&biasGrad, loss);
+    calcBiasGradsFloat32(&biasGrad, loss);
     memcpy(linearConfig->bias->grad, biasGrad.data, numberOfBiases * sizeof(float));
 
     // propLoss
@@ -182,11 +145,27 @@ void linearBackwardFloat(void *config, tensor_t *loss, tensor_t *output, tensor_
     size_t weightDataOrderOfDims[linearConfig->weight->numberOfDimensions];
     getTensorFromParameter(linearConfig->weight, &weightData, weightDataOrderOfDims);
 
-    calcPropLoss(&weightData, loss, propLossTensor);
+    calcPropLossFloat32(&weightData, loss, propLossTensor);
+}
+
+void calcWeightGradsAsym(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads) {
+    transposeTensor(forwardInput, 0, 1);
+    matmulSymInt32Tensors(loss, forwardInput, weightGrads);
+    transposeTensor(forwardInput, 0, 1);
+}
+
+void calcBiasGradsAsym(tensor_t *biasGrads, tensor_t *loss) {
+    addSymInt32TensorsInplace(biasGrads, loss);
+}
+
+void calcPropLossAsym(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) {
+    transposeTensor(weights, 0, 1);
+    matmulSymInt32Tensors(weights, loss, propLoss);
+    transposeTensor(weights, 0, 1);
 }
 
 void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
-                           tensor_t *propLossTensor) {
+                        tensor_t *propLossTensor) {
     linearConfig_t *linearConfig = config;
 
     size_t outputSize = linearConfig->weight->dimensions[0];
@@ -195,6 +174,7 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
                                                         linearConfig->weight->dimensions);
     size_t numberOfBiases = calcNumberOfElementsByDims(linearConfig->bias->numberOfDimensions,
                                                        linearConfig->bias->dimensions);
+    size_t numberOfLosses = calcNumberOfElementsByTensor(loss);
 
     // Get data and grad tensors from parameters
     tensor_t weightsAsym;
@@ -224,90 +204,110 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
     for (size_t i = 0; i < linearConfig->bias->numberOfDimensions; i++) {
         biasGradsAsymOrderOfDims[i] = i;
     }
-    getTensorFromParameter(linearConfig->bias, &biasGradsAsym, biasGradsAsymOrderOfDims);
+    getGradTensorFromParameter(linearConfig->bias, &biasGradsAsym, biasGradsAsymOrderOfDims);
+
     // ___________________________________________________________________________________
 
-    // Get everything as int32 tensors
-    quantization_t weightsIntQ;
-    initInt32Quantization(&weightsIntQ);
-    uint8_t weightsIntData[numberOfWeights * sizeof(int32_t)];
-    tensor_t weightsInt;
-    setTensorValuesForConversion(weightsIntData, &weightsIntQ, &weightsAsym, &weightsInt);
-    convertTensor(&weightsAsym, &weightsInt);
+    // Get everything as SymInt32 tensors
+    asymQConfig_t *weightsAsymQC = linearConfig->weight->dataQuantization->qConfig;
+    symInt32QConfig_t weightsSymInt32QC;
+    initSymInt32QConfig(weightsAsymQC->roundingMode, &weightsSymInt32QC);
 
-    quantization_t forwardInputIntQ;
-    initInt32Quantization(&forwardInputIntQ);
-    uint8_t forwardInputIntData[outputSize * sizeof(int32_t)];
-    tensor_t forwardInputInt;
-    setTensorValuesForConversion(forwardInputIntData, &forwardInputIntQ, forwardInput,
-                                 &forwardInputInt);
-    convertTensor(forwardInput, &forwardInputInt);
+    quantization_t weightsSymInt32Q;
+    initSymInt32Quantization(&weightsSymInt32QC, &weightsSymInt32Q);
+    int32_t weightsIntData[numberOfWeights];
+    tensor_t weightsSymInt32;
+    setTensorValuesForConversion(weightsIntData, &weightsSymInt32Q, &weightsAsym, &weightsSymInt32);
+    convertTensor(&weightsAsym, &weightsSymInt32);
 
-    quantization_t lossIntQ;
-    initInt32Quantization(&lossIntQ);
-    uint8_t lossIntData[calcNumberOfElementsByTensor(loss) * sizeof(int32_t)];
-    tensor_t lossInt;
-    setTensorValuesForConversion(lossIntData, &lossIntQ, loss, &lossInt);
-    convertTensor(loss, &lossInt);
+    asymQConfig_t *forwardInputAsymQC = forwardInput->quantization->qConfig;
+    symInt32QConfig_t forwardInputSymInt32QC;
+    initSymInt32QConfig(forwardInputAsymQC->roundingMode, &forwardInputSymInt32QC);
+    quantization_t forwardInputSymInt32Q;
+    initSymInt32Quantization(&forwardInputSymInt32QC, &forwardInputSymInt32Q);
 
-    quantization_t intermediateWeightGradsQ;
-    initInt32Quantization(&intermediateWeightGradsQ);
-    uint8_t intermediateWeightGradsData[numberOfWeights * sizeof(int32_t)];
-    tensor_t intermediateWeightGradsInt;
+    int32_t forwardInputIntData[outputSize];
+    tensor_t forwardInputSymInt32;
+    setTensorValuesForConversion(forwardInputIntData, &forwardInputSymInt32Q, forwardInput,
+                                 &forwardInputSymInt32);
+    convertTensor(forwardInput, &forwardInputSymInt32);
+
+
+    asymQConfig_t *lossAsymQC = loss->quantization->qConfig;
+    symInt32QConfig_t lossSymInt32QC;
+    initSymInt32QConfig(lossAsymQC->roundingMode, &lossSymInt32QC);
+    quantization_t lossSymInt32Q;
+    initSymInt32Quantization(&lossSymInt32QC, &lossSymInt32Q);
+
+    int32_t lossSymInt32Data[numberOfLosses];
+    tensor_t lossSymInt32;
+    setTensorValuesForConversion(lossSymInt32Data, &lossSymInt32Q, loss, &lossSymInt32);
+    convertTensor(loss, &lossSymInt32);
+
+
+    asymQConfig_t *weightGradsAsymQC = linearConfig->weight->gradQuantization->qConfig;
+    symInt32QConfig_t weightGradsSymInt32QC;
+    initSymInt32QConfig(weightGradsAsymQC->roundingMode, &weightGradsSymInt32QC);
+    quantization_t weightGradsSymInt32Q;
+    initSymInt32Quantization(&weightGradsSymInt32QC, &weightGradsSymInt32Q);
+
+    int32_t weightGradsSymInt32Data[numberOfWeights];
+    tensor_t weightGradsSymInt32;
     setTensorValuesForConversion(
-        intermediateWeightGradsData, &intermediateWeightGradsQ, &weightGradsAsym,
-        &intermediateWeightGradsInt);
-    convertTensor(&weightGradsAsym, &intermediateWeightGradsInt);
+        weightGradsSymInt32Data, &weightGradsSymInt32Q, &weightGradsAsym,
+        &weightGradsSymInt32);
+    convertTensor(&weightGradsAsym, &weightGradsSymInt32);
 
-    quantization_t intermediateBiasGradsQ;
-    initInt32Quantization(&intermediateBiasGradsQ);
-    uint8_t intermediateBiasGradsData[numberOfBiases * sizeof(int32_t)];
-    tensor_t intermediateBiasGradsInt;
-    setTensorValuesForConversion(intermediateBiasGradsData, &intermediateBiasGradsQ,
-                                 &biasGradsAsym, &intermediateBiasGradsInt);
-    convertTensor(&biasGradsAsym, &intermediateBiasGradsInt);
 
-    quantization_t intermediatePropLossIntQ;
-    initInt32Quantization(&intermediatePropLossIntQ);
-    uint8_t intermediatePropLossIntData[inputSize * sizeof(int32_t)];
-    tensor_t intermediatePropLossInt;
-    setTensorValuesForConversion(intermediatePropLossIntData, &intermediatePropLossIntQ,
-                                 propLossTensor, &intermediatePropLossInt);
-    convertTensor(propLossTensor, &intermediatePropLossInt);
+    asymQConfig_t *biasGradsAsymQC = linearConfig->bias->gradQuantization->qConfig;
+    symInt32QConfig_t biasGradsSymInt32QC;
+    initSymInt32QConfig(biasGradsAsymQC->roundingMode, &biasGradsSymInt32QC);
+    quantization_t biasGradsSymInt32Q;
+    initSymInt32Quantization(&biasGradsSymInt32QC, &biasGradsSymInt32Q);
+
+    int32_t biasGradsSymInt32Data[numberOfBiases];
+    tensor_t biasGradsSymInt32;
+    setTensorValuesForConversion(biasGradsSymInt32Data, &biasGradsSymInt32Q,
+                                 &biasGradsAsym, &biasGradsSymInt32);
+    convertTensor(&biasGradsAsym, &biasGradsSymInt32);
+
+    asymQConfig_t *propLossAsymQC = propLossTensor->quantization->qConfig;
+    symInt32QConfig_t propLossSymInt32QC;
+    initSymInt32QConfig(propLossAsymQC->roundingMode, &propLossSymInt32QC);
+    quantization_t propLossSymInt32Q;
+    initSymInt32Quantization(&propLossSymInt32QC, &propLossSymInt32Q);
+
+    int32_t propLossSymInt32Data[inputSize];
+    tensor_t propLossSymInt32;
+    setTensorValuesForConversion(propLossSymInt32Data, &propLossSymInt32Q,
+                                 propLossTensor, &propLossSymInt32);
+    convertTensor(propLossTensor, &propLossSymInt32);
     // ______________________________________________________________-
 
     // Weight gradients
-    calcWeightGrads(&lossInt, &forwardInputInt, &intermediateWeightGradsInt);
-    convertTensor(&intermediateWeightGradsInt, &weightGradsAsym);
+    calcWeightGradsAsym(&lossSymInt32, &forwardInputSymInt32, &weightGradsSymInt32);
+    convertTensor(&weightGradsSymInt32, &weightGradsAsym);
 
-    asymQConfig_t *linearWeightGradQConfig = linearConfig->weight->gradQuantization->qConfig;
-    asymQConfig_t *linearWeightQConfig = linearConfig->weight->dataQuantization->qConfig;
-    asymQConfig_t *linearForwardInputQConfig = forwardInput->quantization->qConfig;
-
-    printf("weight scale: %f, input scale: %f\n", linearWeightQConfig->scale, linearForwardInputQConfig->scale);
-    linearWeightGradQConfig->scale = linearWeightQConfig->scale * linearForwardInputQConfig->scale;
+    weightGradsAsymQC->scale = weightsAsymQC->scale;
 
 
-    //linearWeightGradQConfig->zeroPoint = -255;
     memcpy(linearConfig->weight->grad, weightGradsAsym.data,
            numberOfWeights * calcBytesPerElement(linearConfig->weight->gradQuantization));
-    // Bias gradients
 
-    addInt32TensorsInplace(&intermediateBiasGradsInt, &lossInt);
-    convertTensor(&intermediateBiasGradsInt, &biasGradsAsym);
+    // Bias gradients
+    calcBiasGradsAsym(&biasGradsSymInt32, &lossSymInt32);
+
+    // set scale to weight scale, because bias is int32 and the only remaining scale is weight scale
+    biasGradsSymInt32QC.scale = weightsAsymQC->scale;
+
+    convertTensor(&biasGradsSymInt32, &biasGradsAsym);
+
     memcpy(linearConfig->bias->grad, biasGradsAsym.data,
            numberOfBiases * calcBytesPerElement(linearConfig->bias->gradQuantization));
 
-    asymQConfig_t *linearBiasGradQConfig = linearConfig->bias->gradQuantization->qConfig;
-    asymQConfig_t *lossQConfig = loss->quantization->qConfig;
-
-    linearBiasGradQConfig->scale = linearWeightQConfig->scale;
-
     // Propagated loss
-    calcPropLoss(&weightsInt, &lossInt, &intermediatePropLossInt);
-    convertTensor(&intermediatePropLossInt, propLossTensor);
-    asymQConfig_t *linearPropLossQConfig = propLossTensor->quantization->qConfig;
-    linearPropLossQConfig->scale = linearWeightQConfig->scale * linearForwardInputQConfig->scale;
+    calcPropLossAsym(&weightsSymInt32, &lossSymInt32, &propLossSymInt32);
+    convertTensor(&propLossSymInt32, propLossTensor);
 }
 
 

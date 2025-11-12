@@ -51,12 +51,12 @@ void subInt32TensorsInplace(tensor_t *a, tensor_t *b) {
     int32PointWiseArithmeticInplace(a, b, sub);
 }
 
-void subInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
+void subInt32ElementWithInt32Tensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
     int32ElementArithmeticFunc_t sub = subInt32s;
     int32ElementWithTensorArithmetic(a, b, sub, outputTensor);
 }
 
-void subInt32ElementWithTensorInplace(tensor_t *a, int32_t b) {
+void subInt32ElementWithInt32TensorInplace(tensor_t *a, int32_t b) {
     int32ElementArithmeticFunc_t sub = subInt32s;
     int32ElementWithTensorArithmeticInplace(a, b, sub);
 }
@@ -71,12 +71,12 @@ void subFloat32TensorsInplace(tensor_t *a, tensor_t *b) {
     floatPointWiseArithmeticInplace(a, b, sub);
 }
 
-void subFloat32ElementWithTensor(tensor_t *a, float b, tensor_t *outputTensor) {
+void subFloat32ElementWithFloat32Tensor(tensor_t *a, float b, tensor_t *outputTensor) {
     floatElementArithmeticFunc_t sub = subFloats;
     floatElementWithTensorArithmetic(a, b, sub, outputTensor);
 }
 
-void subFloat32ElementWithTensorInplace(tensor_t *a, float b) {
+void subFloat32ElementWithFloat32TensorInplace(tensor_t *a, float b) {
     floatElementArithmeticFunc_t sub = subFloats;
     floatElementWithTensorArithmeticInplace(a, b, sub);
 }
@@ -124,7 +124,7 @@ void subSymInt32Tensors(tensor_t* aTensor, tensor_t* bTensor, tensor_t* outputTe
         setTensorValuesForConversion(bFloatData, &floatQ, bTensor, &bFloat);
         convertTensor(bTensor, &bFloat);
 
-        subFloatTensorsInplace(&aFloat, &bFloat);
+        subFloat32TensorsInplace(&aFloat, &bFloat);
 
         convertTensor(&aFloat, outputTensor);
     }
@@ -170,7 +170,7 @@ void subSymInt32TensorsInplace(tensor_t* aTensor, tensor_t* bTensor) {
         setTensorValuesForConversion(bFloatData, &floatQ, bTensor, &bFloat);
         convertTensor(bTensor, &bFloat);
 
-        subFloatTensorsInplace(&aFloat, &bFloat);
+        subFloat32TensorsInplace(&aFloat, &bFloat);
 
         convertTensor(&aFloat, aTensor);
     }

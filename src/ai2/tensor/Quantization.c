@@ -3,19 +3,19 @@
 
 void initSymInt32QConfig(roundingMode_t roundingMode, symInt32QConfig_t *symInt32QConfig) {
     symInt32QConfig->roundingMode = roundingMode;
-    symInt32QConfig->scale = 0.f;
+    symInt32QConfig->scale = 1.f;
 }
 
 void initSymQConfig(uint8_t qBits, roundingMode_t roundingMode, symQConfig_t *symQConfig) {
     symQConfig->qBits = qBits;
     symQConfig->roundingMode = roundingMode;
-    symQConfig->scale = 0.f;
+    symQConfig->scale = 1.f;
 }
 
 void initAsymQConfig(uint8_t qBits, roundingMode_t roundingMode, asymQConfig_t *asymQConfig) {
     asymQConfig->qBits = qBits;
     asymQConfig->roundingMode = roundingMode;
-    asymQConfig->scale = 0.f;
+    asymQConfig->scale = 1.f;
     asymQConfig->zeroPoint = (uint16_t)0;
 }
 
@@ -44,3 +44,4 @@ void initAsymQuantization(asymQConfig_t *asymQConfig, quantization_t *quantizati
     quantization->type = ASYM;
     quantization->qConfig = asymQConfig;
 }
+

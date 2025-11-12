@@ -41,6 +41,7 @@ target_link_libraries(Linear PRIVATE
         Tensor
         Arithmetic
         Quantization
+        TensorConversion
 )
 
 add_library(Relu

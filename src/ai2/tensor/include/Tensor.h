@@ -67,4 +67,9 @@ void setTensorValuesForConversion(uint8_t* data, quantization_t* q, tensor_t* or
 void setTensorValues(tensor_t* tensor, uint8_t* data, size_t* dims, size_t numberOfDims,
                      size_t* orderOfDims,
                      quantization_t* quantization, uint8_t* sparsityBitmask);
+
+void printTensor(tensor_t *t);
+
+void initOrderOfDimensions(size_t *orderOfDims, size_t numberOfDims);
+
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

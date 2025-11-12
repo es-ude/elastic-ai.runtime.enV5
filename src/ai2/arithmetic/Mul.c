@@ -50,12 +50,12 @@ void mulInt32TensorsInplace(tensor_t *a, tensor_t *b) {
     int32PointWiseArithmeticInplace(a, b, mul);
 }
 
-void mulInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
+void mulInt32ElementWithInt32Tensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
     int32ElementArithmeticFunc_t mul = MUL_FUNC_INT;
     int32ElementWithTensorArithmetic(a, b, mul, outputTensor);
 }
 
-void mulInt32ElementWithTensorInplace(tensor_t *a, int32_t b) {
+void mulInt32ElementWithInt32TensorInplace(tensor_t *a, int32_t b) {
     int32ElementArithmeticFunc_t mul = MUL_FUNC_INT;
     int32ElementWithTensorArithmeticInplace(a, b, mul);
 }
@@ -70,12 +70,12 @@ void mulFloat32TensorsInplace(tensor_t *a, tensor_t *b) {
     floatPointWiseArithmeticInplace(a, b, mul);
 }
 
-void mulFloat32ElementWithTensor(tensor_t *a, float b, tensor_t *outputTensor) {
+void mulFloat32ElementWithFloat32Tensor(tensor_t *a, float b, tensor_t *outputTensor) {
     floatElementArithmeticFunc_t mul = MUL_FUNC_FLOAT;
     floatElementWithTensorArithmetic(a, b, mul, outputTensor);
 }
 
-void mulFloat32ElementWithTensorInplace(tensor_t *a, float b) {
+void mulFloat32ElementWithFloat32TensorInplace(tensor_t *a, float b) {
     floatElementArithmeticFunc_t mul = MUL_FUNC_FLOAT;
     floatElementWithTensorArithmeticInplace(a, b, mul);
 }

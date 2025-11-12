@@ -12,8 +12,8 @@ float mulFloat32s(float a, float b);
 void mulInt32Tensors(tensor_t* a, tensor_t* b, tensor_t* outputTensor);
 void mulInt32TensorsInplace(tensor_t* a, tensor_t* b);
 
-void mulInt32ElementWithTensor(tensor_t* a, int32_t b, tensor_t* outputTensor);
-void mulInt32ElementWithTensorInplace(tensor_t* a, int32_t b);
+void mulInt32ElementWithInt32Tensor(tensor_t* a, int32_t b, tensor_t* outputTensor);
+void mulInt32ElementWithInt32TensorInplace(tensor_t* a, int32_t b);
 
 void mulFloat32Tensors(tensor_t* a, tensor_t* b, tensor_t* outputTensor);
 void mulFloat32TensorsInplace(tensor_t* a, tensor_t* b);

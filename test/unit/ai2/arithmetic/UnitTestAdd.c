@@ -55,8 +55,6 @@ void testAddInt32TensorsInplace() {
     TEST_ASSERT_EQUAL_INT32_ARRAY(expected, aTensor.data, numberOfElements);
 }
 
-
-
 void testAddInt32ElementWithInt32TensorInplace() {
     size_t numberOfElements = 6;
 
@@ -80,11 +78,9 @@ void testAddInt32ElementWithInt32TensorInplace() {
 
     int32_t x = 5;
 
-    addInt32ElementWithTensorInplace(&aTensor, x);
+    addInt32ElementWithInt32TensorInplace(&aTensor, x);
 
     int32_t expected[] = {6, 7, 8, 9, 10, 11};
-
-
 
     TEST_ASSERT_EQUAL_INT32_ARRAY(expected, aTensor.data, numberOfElements);
 }
@@ -249,8 +245,11 @@ void testAddFloat32TensorToSymInt32TensorInplace() {
     TEST_ASSERT_EQUAL_INT32_ARRAY(expected, aData, numberOfValues);
 }
 
+
+
 int main(void) {
     UNITY_BEGIN();
+
     RUN_TEST(testAddInt32TensorsInplace);
     RUN_TEST(testAddInt32ElementWithInt32TensorInplace);
 
@@ -260,5 +259,6 @@ int main(void) {
     RUN_TEST(testAddSymInt32TensorsInplaceWithDifferentScale);
     RUN_TEST(testAddInt32TensorWithSymInt32TensorInplace);
     RUN_TEST(testAddFloat32TensorToSymInt32TensorInplace);
+
     UNITY_END();
 }

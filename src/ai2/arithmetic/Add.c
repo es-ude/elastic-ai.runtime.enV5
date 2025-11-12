@@ -51,11 +51,11 @@ void addInt32TensorsInplace(tensor_t *a, tensor_t *b) {
     int32PointWiseArithmeticInplace(a, b, ADD_FUNC_INT);
 }
 
-void addInt32ElementWithTensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
+void addInt32ElementWithInt32Tensor(tensor_t *a, int32_t b, tensor_t *outputTensor) {
     int32ElementWithTensorArithmetic(a, b, ADD_FUNC_INT, outputTensor);
 }
 
-void addInt32ElementWithTensorInplace(tensor_t *a, int32_t b) {
+void addInt32ElementWithInt32TensorInplace(tensor_t *a, int32_t b) {
     int32ElementWithTensorArithmeticInplace(a, b, ADD_FUNC_INT);
 }
 
@@ -67,7 +67,7 @@ void addFloat32TensorsInplace(tensor_t *a, tensor_t *b) {
     floatPointWiseArithmeticInplace(a, b, ADD_FUNC_FLOAT);
 }
 
-void addFloat32ElementWithTensor(tensor_t *a, float b, tensor_t *outputTensor) {
+void addFloat32ElementWithFloat32Tensor(tensor_t *a, float b, tensor_t *outputTensor) {
     floatElementWithTensorArithmetic(a, b, ADD_FUNC_FLOAT, outputTensor);
 }
 
