@@ -23,6 +23,7 @@ add_elastic_ai_unit_test(
         Common
         Arithmetic
         Tensor
+        m
 )
 
 add_elastic_ai_unit_test(

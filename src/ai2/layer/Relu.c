@@ -5,6 +5,7 @@
 #include "DTypes.h"
 #include "TensorConversion.h"
 #include <stdio.h>
+#include <string.h>
 
 void reluForwardFloat32(tensor_t *input, tensor_t *output) {
     gteFloatValue(input, 0, 0, output);
@@ -138,4 +139,17 @@ void reluBackward(void *config, tensor_t *input, tensor_t *gradOutputFromPreviou
     default:
         break;
     }
+}
+
+void calcOutputShapeRelu(shape_t *inputShape, shape_t *outputShape) {
+    memcpy(outputShape->dimensions, inputShape->dimensions, inputShape->numberOfDimensions);
+    memcpy(outputShape->orderOfDimensions, inputShape->orderOfDimensions, inputShape->numberOfDimensions);
+    outputShape->numberOfDimensions = inputShape->numberOfDimensions;
+}
+
+void initReluLayer(layer_t *layer) {
+    layer->type = RELU;
+    layer->forward = reluForward;
+    layer->backward = reluBackward;
+    layer->calcOutputShape = calcOutputShapeRelu;
 }

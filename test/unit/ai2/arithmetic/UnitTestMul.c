@@ -17,11 +17,11 @@ void testMulFloatTensors() {
 
     tensor_t aTensor = {
         .data = aData,
-        .numberOfDimensions = aNumberOfDims,
-        .dimensions = aDims,
+        .shape.numberOfDimensions = aNumberOfDims,
+        .shape.dimensions = aDims,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions = aOrderOfDims
+        .shape.orderOfDimensions = aOrderOfDims
     };
 
     float bData[] = {1.5f, 3.3f, 8.2f, 0.2f, 5.5f, 0.9f};
@@ -34,11 +34,11 @@ void testMulFloatTensors() {
     };
     tensor_t bTensor = {
         .data = bData,
-        .numberOfDimensions = bNumberOfDims,
-        .dimensions = bDims,
+        .shape.numberOfDimensions = bNumberOfDims,
+        .shape.dimensions = bDims,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions = bOrderOfDims
+        .shape.orderOfDimensions = bOrderOfDims
     };
 
     transposeTensor(&bTensor, 0, 1);
@@ -64,11 +64,11 @@ void testMulFloatElementWithTensor() {
 
     tensor_t aTensor = {
         .data = aData,
-        .numberOfDimensions = aNumberOfDims,
-        .dimensions = aDims,
+        .shape.numberOfDimensions = aNumberOfDims,
+        .shape.dimensions = aDims,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions = aOrderOfDims
+        .shape.orderOfDimensions = aOrderOfDims
     };
 
     float x = 0.5;

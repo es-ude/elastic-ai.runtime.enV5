@@ -5,27 +5,23 @@
 #include <stdio.h>
 
 size_t getDimensionsByIndex(tensor_t *tensor, size_t index) {
-    size_t numberOfDims = tensor->numberOfDimensions;
+    size_t numberOfDims = tensor->shape.numberOfDimensions;
     for (size_t i = 0; i < numberOfDims; i++) {
-        if (tensor->orderOfDimensions[i] == index) {
-            return tensor->dimensions[i];
+        if (tensor->shape.orderOfDimensions[i] == index) {
+            return tensor->shape.dimensions[i];
         }
     }
 }
 
 void orderDims(tensor_t *tensor, size_t *orderedDims) {
-    for (size_t i = 0; i < tensor->numberOfDimensions; i++) {
+    for (size_t i = 0; i < tensor->shape.numberOfDimensions; i++) {
         orderedDims[i] = getDimensionsByIndex(tensor, i);
     }
 }
 
 bool doDimensionsMatch(tensor_t *a, tensor_t *b) {
-    size_t aNumberOfDims = a->numberOfDimensions;
-    size_t bNumberOfDims = b->numberOfDimensions;
-
-    if (aNumberOfDims != bNumberOfDims) {
-        return false;
-    }
+    size_t aNumberOfDims = a->shape.numberOfDimensions;
+    size_t bNumberOfDims = b->shape.numberOfDimensions;
 
     size_t aOrderedDims[aNumberOfDims];
     size_t bOrderedDims[bNumberOfDims];
@@ -95,9 +91,9 @@ void int32PointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
 
     size_t numberOfElements = calcNumberOfElementsByTensor(aTensor);
     size_t bytesPerElement = sizeof(int32_t);
-    size_t numberOfDims = aTensor->numberOfDimensions;
-    size_t *aDims = aTensor->dimensions;
-    size_t *bDims = bTensor->dimensions;
+    size_t numberOfDims = aTensor->shape.numberOfDimensions;
+    size_t *aDims = aTensor->shape.dimensions;
+    size_t *bDims = bTensor->shape.dimensions;
 
     size_t aOrderedDims[numberOfDims];
     size_t bOrderedDims[numberOfDims];
@@ -108,11 +104,11 @@ void int32PointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
     for (size_t i = 0; i < numberOfElements; i++) {
         size_t *aIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, aDims, i, aIndices);
-        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
+        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
 
         size_t *bIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, bDims, i, bIndices);
-        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
+        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
 
         size_t aByteIndex = aElementIndex * bytesPerElement;
         size_t bByteIndex = bElementIndex * bytesPerElement;
@@ -138,9 +134,9 @@ void int32PointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
 
     size_t numberOfElements = calcNumberOfElementsByTensor(aTensor);
     size_t bytesPerElement = sizeof(int32_t);
-    size_t numberOfDims = aTensor->numberOfDimensions;
-    size_t *aDims = aTensor->dimensions;
-    size_t *bDims = bTensor->dimensions;
+    size_t numberOfDims = aTensor->shape.numberOfDimensions;
+    size_t *aDims = aTensor->shape.dimensions;
+    size_t *bDims = bTensor->shape.dimensions;
 
     size_t aOrderedDims[numberOfDims];
     size_t bOrderedDims[numberOfDims];
@@ -151,11 +147,11 @@ void int32PointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
     for (size_t i = 0; i < numberOfElements; i++) {
         size_t *aIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, aDims, i, aIndices);
-        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
+        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
 
         size_t *bIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, bDims, i, bIndices);
-        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
+        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
 
         size_t aByteIndex = aElementIndex * bytesPerElement;
         size_t bByteIndex = bElementIndex * bytesPerElement;
@@ -213,9 +209,9 @@ void floatPointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
 
     size_t numberOfElements = calcNumberOfElementsByTensor(aTensor);
     size_t bytesPerElement = sizeof(float);
-    size_t numberOfDims = aTensor->numberOfDimensions;
-    size_t *aDims = aTensor->dimensions;
-    size_t *bDims = bTensor->dimensions;
+    size_t numberOfDims = aTensor->shape.numberOfDimensions;
+    size_t *aDims = aTensor->shape.dimensions;
+    size_t *bDims = bTensor->shape.dimensions;
 
     size_t aOrderedDims[numberOfDims];
     size_t bOrderedDims[numberOfDims];
@@ -226,11 +222,11 @@ void floatPointWiseArithmetic(tensor_t *aTensor, tensor_t *bTensor,
     for (size_t i = 0; i < numberOfElements; i++) {
         size_t *aIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, aDims, i, aIndices);
-        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
+        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
 
         size_t *bIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, bDims, i, bIndices);
-        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
+        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
 
         size_t aByteIndex = aElementIndex * bytesPerElement;
         size_t bByteIndex = bElementIndex * bytesPerElement;
@@ -255,9 +251,9 @@ void floatPointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
 
     size_t numberOfElements = calcNumberOfElementsByTensor(aTensor);
     size_t bytesPerElement = sizeof(float);
-    size_t numberOfDims = aTensor->numberOfDimensions;
-    size_t *aDims = aTensor->dimensions;
-    size_t *bDims = bTensor->dimensions;
+    size_t numberOfDims = aTensor->shape.numberOfDimensions;
+    size_t *aDims = aTensor->shape.dimensions;
+    size_t *bDims = bTensor->shape.dimensions;
 
     size_t aOrderedDims[numberOfDims];
     size_t bOrderedDims[numberOfDims];
@@ -268,11 +264,11 @@ void floatPointWiseArithmeticInplace(tensor_t *aTensor, tensor_t *bTensor,
     for (size_t i = 0; i < numberOfElements; i++) {
         size_t *aIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, aDims, i, aIndices);
-        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->orderOfDimensions);
+        size_t aElementIndex = calcElementIndexByIndices(numberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
 
         size_t *bIndices[numberOfDims];
         calcIndicesByRawIndex(numberOfDims, bDims, i, bIndices);
-        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->orderOfDimensions);
+        size_t bElementIndex = calcElementIndexByIndices(numberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
 
         size_t aByteIndex = aElementIndex * bytesPerElement;
         size_t bByteIndex = bElementIndex * bytesPerElement;

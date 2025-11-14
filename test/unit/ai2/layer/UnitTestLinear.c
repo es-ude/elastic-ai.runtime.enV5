@@ -2,8 +2,9 @@
 #include "Tensor.h"
 #include "TensorConversion.h"
 #include "unity.h"
+#include "Rounding.h"
+#include "DTypes.h"
 
-#include <DTypes.h>
 #include <string.h>
 
 void setUp() {}
@@ -14,84 +15,53 @@ void testLinearForwardFloat() {
     float weightGrads[] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
     size_t weightDims[] = {2, 3};
     size_t weightNumberOfDims = 2;
+    size_t weightOrderOfDims[] = {0, 1};
 
-    quantization_t weightQ = {
-        .type = FLOAT32
-    };
-    quantization_t weightGradQ = {
-        .type = FLOAT32
-    };
+    quantization_t weightQ;
+    initFloat32Quantization(&weightQ);
+    quantization_t weightGradQ;
+    initFloat32Quantization(&weightGradQ);
 
-    parameter_t weights = {
-        .data = weightData,
-        .dimensions = weightDims,
-        .grad = weightGrads,
-        .dataQuantization = &weightQ,
-        .gradQuantization = &weightGradQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = weightNumberOfDims
-    };
+    parameter_t weights;
+    setParameterValues(&weights, weightData, &weightQ, weightGrads, &weightGradQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
+
 
     float biasData[] = {-1.f, 3.f};
     float biasGrads[] = {0.f, 0.f};
     size_t biasDims[] = {2};
     size_t biasNumberOfDims = 1;
+    size_t biasOrderOfDims[] = {0};
 
-    quantization_t biasQ = {
-        .type = FLOAT32
-    };
-    quantization_t biasGradQ = {
-        .type = FLOAT32
-    };
+    quantization_t biasQ;
+    initFloat32Quantization(&biasQ);
+    quantization_t biasGradQ;
+    initFloat32Quantization(&biasGradQ);
 
-    parameter_t bias = {
-        .data = biasData,
-        .dimensions = biasDims,
-        .grad = biasGrads,
-        .dataQuantization = &biasQ,
-        .gradQuantization = &biasGradQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = biasNumberOfDims
-    };
+    parameter_t bias;
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
 
     linearConfig_t linearConfig;
-    linearConfig.bias = &bias;
-    linearConfig.weight = &weights;
-    linearConfig.type = FLOATLAYER;
+    initLinearConfig(&linearConfig, FLOATLAYER, &weights, &bias);
 
     float inputData[] = {0.f, 1.f, 2.f};
     size_t inputDims[] = {3};
     size_t inputNumberOfDims = 1;
-    size_t inputOrderOfDims = {0};
-    quantization_t inputQ = {
-        .type = FLOAT32
-    };
+    size_t inputOrderOfDims[] = {0};
+    quantization_t inputQ;
+    initFloat32Quantization(&inputQ);
 
-    tensor_t input = {
-        .data = inputData,
-        .dimensions = inputDims,
-        .numberOfDimensions = inputNumberOfDims,
-        .sparsityBitmask = NULL,
-        .quantization = &inputQ,
-        .orderOfDimensions = &inputOrderOfDims
-    };
+    tensor_t input;
+    setTensorValues(&input, inputData, inputDims, inputNumberOfDims, inputOrderOfDims, &inputQ, NULL);
 
     float outputData[2] = {0, 0};
     size_t outputDims[] = {2};
     size_t outputNumberOfDims = 1;
-    size_t outputOrderOfDims = {0};
-    quantization_t outputQ = {
-        .type = FLOAT32
-    };
+    size_t outputOrderOfDims[] = {0};
+    quantization_t outputQ;
+    initFloat32Quantization(&outputQ);
 
-    tensor_t output = {
-        .data = outputData,
-        .dimensions = outputDims,
-        .numberOfDimensions = outputNumberOfDims,
-        .sparsityBitmask = NULL,
-        .quantization = &outputQ,
-        .orderOfDimensions = &outputOrderOfDims
-    };
+    tensor_t output;
+    setTensorValues(&output, outputData, outputDims, outputNumberOfDims, outputOrderOfDims, &outputQ, NULL);
 
     linearForward(&linearConfig, &input, &output);
 
@@ -135,15 +105,8 @@ void testLinearForwardAsym() {
     quantization_t weightGradsAsymQ;
     initAsymQuantization(&weightGradsAsymQConfig, &weightGradsAsymQ);
 
-    parameter_t weights = {
-        .data = weightAsymData,
-        .dimensions = weightDims,
-        .grad = weightGrads,
-        .dataQuantization = &weightAsymQ,
-        .gradQuantization = &weightGradsAsymQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = weightNumberOfDims
-    };
+    parameter_t weights;
+    setParameterValues(&weights, weightAsymData, &weightAsymQ, weightGrads, &weightGradsAsymQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
 
     int32_t biasIntData[] = {-1, 3};
     size_t biasDims[] = {2, 1};
@@ -161,20 +124,13 @@ void testLinearForwardAsym() {
     quantization_t biasGradsQ;
     initInt32Quantization(&biasGradsQ);
 
-    parameter_t bias = {
-        .data = biasIntData,
-        .dimensions = biasDims,
-        .grad = biasGrads,
-        .dataQuantization = &biasIntQ,
-        .gradQuantization = &biasGradsQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = biasNumberOfDims
-    };
+    parameter_t bias;
+    setParameterValues(&bias, biasIntData, &biasIntQ, biasGrads, &biasGradsQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
 
     linearConfig_t linearConfig;
     linearConfig.bias = &bias;
-    linearConfig.weight = &weights;
-    linearConfig.type = ASYMLAYER;
+    linearConfig.weights = &weights;
+    linearConfig.qType = ASYMLAYER;
 
     float inputFloatData[] = {0.f, 1.f, 2.f};
     size_t inputDims[] = {3};
@@ -237,105 +193,70 @@ void testLinearBackwardFloat() {
     float weightGrads[] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
     size_t weightDims[] = {2, 3};
     size_t weightNumberOfDims = 2;
+    size_t weightOrderOfDims[] = {0, 1};
 
-    quantization_t weightQ = {
-        .type = FLOAT32
-    };
-    quantization_t weightGradQ = {
-        .type = FLOAT32
-    };
+    quantization_t weightQ;
+    initFloat32Quantization(&weightQ);
+    quantization_t weightGradQ;
+    initFloat32Quantization(&weightGradQ);
 
-    parameter_t weights = {
-        .data = weightData,
-        .dimensions = weightDims,
-        .grad = weightGrads,
-        .dataQuantization = &weightQ,
-        .gradQuantization = &weightGradQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = weightNumberOfDims
-    };
+    parameter_t weights;
+    setParameterValues(&weights, weightData, &weightQ, weightGrads, &weightGradQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
+
 
     float biasData[] = {-1.f, 3.f};
     float biasGrads[] = {0.f, 0.f};
     size_t biasDims[] = {2, 1};
     size_t biasNumberOfDims = 2;
+    size_t biasOrderOfDims[] = {0, 1};
 
-    quantization_t biasQ = {
-        .type = FLOAT32
-    };
-    quantization_t biasGradQ = {
-        .type = FLOAT32
-    };
+    quantization_t biasQ;
+    initFloat32Quantization(&biasQ);
+    quantization_t biasGradQ;
+    initFloat32Quantization(&biasGradQ);
 
-    parameter_t bias = {
-        .data = biasData,
-        .dimensions = biasDims,
-        .grad = biasGrads,
-        .dataQuantization = &biasQ,
-        .gradQuantization = &biasGradQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = biasNumberOfDims
-    };
+    parameter_t bias;
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
 
     linearConfig_t linearConfig;
-    linearConfig.bias = &bias;
-    linearConfig.weight = &weights;
-    linearConfig.type = FLOATLAYER;
+    initLinearConfig(&linearConfig, FLOATLAYER, &weights, &bias);
 
-    float output[] = {0.f, 1.f, 2.f};
+    float outputData[] = {0.f, 1.f, 2.f};
     size_t outputDims[] = {3, 1};
     size_t outputNumberOfDims = 2;
     size_t outputOrderOfDims[] = {0, 1};
 
-    quantization_t outputQ = {
-        .type = FLOAT32
-    };
+    quantization_t outputQ;
+    initFloat32Quantization(&outputQ);
 
-    tensor_t outputTensor = {
-        .data = output,
-        .dimensions = outputDims,
-        .quantization = &outputQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = outputNumberOfDims,
-        .orderOfDimensions = outputOrderOfDims
-    };
+    tensor_t output;
+    setTensorValues(&output, outputData, outputDims, outputNumberOfDims, outputOrderOfDims, &outputQ, NULL);
 
-    float loss[] = {-4.f, -3.f};
+    float lossData[] = {-4.f, -3.f};
     size_t lossDims[] = {2, 1};
     size_t lossNumberOfDims = 2;
     size_t lossOrderOfDims[] = {0, 1};
 
-    quantization_t lossQ = {
-        .type = FLOAT32
-    };
+    quantization_t lossQ;
+    initFloat32Quantization(&lossQ);
 
-    tensor_t lossTensor = {
-        .data = loss,
-        .dimensions = lossDims,
-        .quantization = &lossQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = lossNumberOfDims,
-        .orderOfDimensions = lossOrderOfDims
-    };
+    tensor_t loss;
+    setTensorValues(&loss, lossData, lossDims, lossNumberOfDims, lossOrderOfDims, &lossQ, NULL);
 
-    float propLoss[3];
+
+    float propLossData[3];
     size_t propLossDims[] = {3};
     size_t propLossNumberOfDims = 1;
     size_t propLossOrderOfDims[] = {0};
 
-    quantization_t propLossQ = {
-        .type = FLOAT32
-    };
+    quantization_t propLossQ;
+    initFloat32Quantization(&propLossQ);
 
-    tensor_t propLossTensor = {
-        .data = propLoss,
-        .dimensions = propLossDims,
-        .quantization = &propLossQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = propLossNumberOfDims,
-        .orderOfDimensions = propLossOrderOfDims
-    };
-    linearBackward(&linearConfig, &lossTensor, &outputTensor, &propLossTensor);
+    tensor_t propLoss;
+    setTensorValues(&propLoss, propLossData, propLossDims, propLossNumberOfDims, propLossOrderOfDims, &propLossQ, NULL);
+
+
+    linearBackward(&linearConfig, &loss, &output, &propLoss);
 
     float expected_propagated_loss[] = {-8.f, -23.f, 30.f};
 
@@ -344,18 +265,18 @@ void testLinearBackwardFloat() {
     float expected_bias_grad[] = {-4.f, -3.f};
 
     float propLossOutput[3];
-    readBytesAsFloatArray(3, propLossTensor.data, propLossOutput);
+    readBytesAsFloatArray(3, propLoss.data, propLossOutput);
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig.weight->grad,
-                                  calcNumberOfElementsByDims(linearConfig.weight->numberOfDimensions
-                                      , linearConfig.weight->dimensions));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_weight_grad, linearConfig.weights->grad,
+                                  calcNumberOfElementsByDims(linearConfig.weights->tensor.shape.numberOfDimensions
+                                      , linearConfig.weights->tensor.shape.dimensions));
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propLossTensor.data,
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_propagated_loss, propLoss.data,
                                   sizeof(expected_propagated_loss) / sizeof(float));
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected_bias_grad, linearConfig.bias->grad,
-                                  calcNumberOfElementsByDims(linearConfig.bias->numberOfDimensions,
-                                      linearConfig.bias->dimensions));
+                                  calcNumberOfElementsByDims(linearConfig.bias->tensor.shape.numberOfDimensions,
+                                      linearConfig.bias->tensor.shape.dimensions));
 
 }
 
@@ -377,18 +298,12 @@ void testLinearBackwardAsym() {
     size_t weightNumberOfDims = 2;
     size_t weightOrderOfDims[] = {0, 1};
 
-    quantization_t weightFloatQ = {
-        .type = FLOAT32
-    };
+    quantization_t weightFloatQ;
+    initFloat32Quantization(&weightFloatQ);
 
-    tensor_t weightsFloat = {
-        .data = weightFloatData,
-        .dimensions = weightDims,
-        .quantization = &weightFloatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = weightNumberOfDims,
-        .orderOfDimensions = weightOrderOfDims
-    };
+    tensor_t weightsFloat;
+    setTensorValues(&weightsFloat, weightFloatData, weightDims, weightNumberOfDims, weightOrderOfDims, &weightFloatQ, NULL);
+
 
     asymQConfig_t weightsAsymQConfig;
     initAsymQConfig(8, HTE, &weightsAsymQConfig);
@@ -406,86 +321,43 @@ void testLinearBackwardAsym() {
     initAsymQuantization(&weightsAsymQConfig, &weightGradsAsymQ);
     uint8_t weightGrads[numberOfWeights * calcBytesPerElement(&weightGradsAsymQ)];
 
-    parameter_t weights = {
-        .data = weightsAsymData,
-        .dimensions = weightDims,
-        .grad = weightGrads,
-        .dataQuantization = &weightsAsymQ,
-        .gradQuantization = &weightGradsAsymQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = weightNumberOfDims
-    };
+    parameter_t weights;
+    setParameterValues(&weights, weightsAsymData, &weightsAsymQ, weightGrads, &weightGradsAsymQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
 
-    float biasFloatData[] = {-1.f, 3.f};
-    size_t biasDims[] = {2, 1};
-    size_t biasNumberOfDims = 2;
-    size_t biasOrderOfDims[] = {0, 1};
 
-    quantization_t biasFloatQ = {
-        .type = FLOAT32
-    };
+    parameter_t bias;
+    int32_t biasData[] = {-1, 3};
+    size_t biasDims[] = {2};
+    size_t biasNumberOfDims = 1;
+    size_t biasOrderOfDims[] = {0};
 
-    tensor_t biasFloat = {
-        .data = biasFloatData,
-        .dimensions = biasDims,
-        .quantization = &biasFloatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = biasNumberOfDims,
-        .orderOfDimensions = biasOrderOfDims
-    };
-
-    asymQConfig_t biasAsymQConfig;
-    initAsymQConfig(8, HTE, &biasAsymQConfig);
-    quantization_t biasAsymQ;
-    initAsymQuantization(&biasAsymQConfig, &biasAsymQ);
-    uint8_t biasAsymData[numberOfBiases * calcBytesPerElement(&biasAsymQ)];
-
-    tensor_t biasAsym;
-    setTensorValuesForConversion(biasAsymData, &biasAsymQ, &biasFloat, &biasAsym);
-    convertTensor(&biasFloat, &biasAsym);
+    quantization_t biasQ;
+    initInt32Quantization(&biasQ);
 
     asymQConfig_t biasGradsAsymQConfig;
     initAsymQConfig(8, HTE, &biasGradsAsymQConfig);
     quantization_t biasGradsAsymQ;
     initAsymQuantization(&biasGradsAsymQConfig, &biasGradsAsymQ);
-
     uint8_t biasGrads[numberOfBiases * calcBytesPerElement(&biasGradsAsymQ)];
 
     // IMPORTANT, OTHERWISE BIAS GRADS IS FILLED WITH RANDOM DATA
     memset(biasGrads, 0, numberOfBiases * calcBytesPerElement(&biasGradsAsymQ));
 
-    parameter_t bias = {
-        .data = biasAsymData,
-        .dimensions = biasDims,
-        .grad = biasGrads,
-        .dataQuantization = &biasAsymQ,
-        .gradQuantization = &biasGradsAsymQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = biasNumberOfDims
-    };
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradsAsymQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
 
     linearConfig_t linearConfig;
-    linearConfig.bias = &bias;
-    linearConfig.weight = &weights;
-    linearConfig.type = ASYMLAYER;
+    initLinearConfig(&linearConfig, ASYMLAYER, &weights, &bias);
 
     float forwardInputFloatData[] = {0.f, 1.f, 2.f};
     size_t forwardInputDims[] = {3, 1};
     size_t forwardInputNumberOfDims = 2;
     size_t forwardInputOrderOfDims[] = {0, 1};
 
-    quantization_t forwardInputFloatQ = {
-        .type = FLOAT32
-    };
+    quantization_t forwardInputFloatQ;
+    initFloat32Quantization(&forwardInputFloatQ);
 
-    tensor_t forwardInputFloat = {
-        .data = forwardInputFloatData,
-        .dimensions = forwardInputDims,
-        .quantization = &forwardInputFloatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = forwardInputNumberOfDims,
-        .orderOfDimensions = forwardInputOrderOfDims
-    };
+    tensor_t forwardInputFloat;
+    setTensorValues(&forwardInputFloat, forwardInputFloatData, forwardInputDims, forwardInputNumberOfDims, forwardInputOrderOfDims, &forwardInputFloatQ, NULL);
 
     asymQConfig_t forwardInputAsymQConfig;
     initAsymQConfig(8, HTE, &forwardInputAsymQConfig);
@@ -503,18 +375,11 @@ void testLinearBackwardAsym() {
     size_t lossNumberOfDims = 2;
     size_t lossOrderOfDims[] = {0, 1};
 
-    quantization_t lossFloatQ = {
-        .type = FLOAT32
-    };
+    quantization_t lossFloatQ;
+    initFloat32Quantization(&lossFloatQ);
 
-    tensor_t lossFloat = {
-        .data = lossFloatData,
-        .dimensions = lossDims,
-        .quantization = &lossFloatQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = lossNumberOfDims,
-        .orderOfDimensions = lossOrderOfDims
-    };
+    tensor_t lossFloat;
+    setTensorValues(&lossFloat, lossFloatData, lossDims, lossNumberOfDims, lossOrderOfDims, &lossFloatQ, NULL);
 
     asymQConfig_t lossAsymQConfig;
     initAsymQConfig(8, HTE, &lossAsymQConfig);
@@ -536,14 +401,8 @@ void testLinearBackwardAsym() {
     initAsymQuantization(&propLossAsymQConfig, &propLossAsymQ);
     uint8_t propLossAsymData[numberOfForwardInputs * calcBytesPerElement(&propLossAsymQ)];
 
-    tensor_t propLossAsym = {
-        .data = propLossAsymData,
-        .dimensions = propLossDims,
-        .quantization = &propLossAsymQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = propLossNumberOfDims,
-        .orderOfDimensions = propLossOrderOfDims
-    };
+    tensor_t propLossAsym;
+    setTensorValues(&propLossAsym, propLossAsymData, propLossDims, propLossNumberOfDims, propLossOrderOfDims, &propLossAsymQ, NULL);
 
     linearBackward(&linearConfig, &lossAsym, &forwardInputAsym, &propLossAsym);
 
@@ -552,7 +411,7 @@ void testLinearBackwardAsym() {
     tensor_t weightGradsAsym;
     setTensorValues(&weightGradsAsym, weightGradsAsymData, weightDims, weightNumberOfDims,
                     weightOrderOfDims, &weightGradsAsymQ, NULL);
-    getGradTensorFromParameter(linearConfig.weight, &weightGradsAsym,
+    getGradTensorFromParameter(linearConfig.weights, &weightGradsAsym,
                                weightGradsAsymOrderOfDimensions);
 
     float weightGradFloatData[numberOfWeights];
@@ -572,7 +431,7 @@ void testLinearBackwardAsym() {
         TEST_ASSERT_FLOAT_WITHIN(0.1f, expectedWeightGrads[i], actualWeightGrads[i]);
     }
 
-    uint8_t biasGradsAsymData[numberOfBiases * calcBytesPerElement(&biasAsymQ)];
+    uint8_t biasGradsAsymData[numberOfBiases * calcBytesPerElement(&biasQ)];
     size_t biasGradsAsymOrderOfDimensions[] = {0, 1};
     tensor_t biasGradsAsym;
     setTensorValues(&biasGradsAsym, biasGradsAsymData, biasDims, biasNumberOfDims, biasOrderOfDims,
@@ -589,6 +448,11 @@ void testLinearBackwardAsym() {
 
     convertTensor(&biasGradsAsym, &biasGradsFloat);
 
+    float *test = (float *)biasGradsFloat.data;
+
+    for(size_t i = 0; i < 2; i++) {
+        printf("%f\n", test[i]);
+    }
     float expectedBiasGrads[] = {-0.125f, -0.09375f};
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedBiasGrads, biasGradsFloat.data, numberOfBiases);

@@ -15,17 +15,17 @@ void zeroTensorData(tensor_t *tensor) {
 }
 
 void copyDimsAndSparsityToTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    outputTensor->numberOfDimensions = inputTensor->numberOfDimensions;
-    memcpy(outputTensor->dimensions, inputTensor->dimensions,
-           sizeof(size_t) * outputTensor->numberOfDimensions);
+    outputTensor->shape.numberOfDimensions = inputTensor->shape.numberOfDimensions;
+    memcpy(outputTensor->shape.dimensions, inputTensor->shape.dimensions,
+           sizeof(size_t) * outputTensor->shape.numberOfDimensions);
     if (inputTensor->sparsityBitmask) {
         memcpy(outputTensor->sparsityBitmask,
                inputTensor->sparsityBitmask,
-               (calcNumberOfElementsByDims(outputTensor->numberOfDimensions,
-                                           outputTensor->dimensions) - 1) / 8 + 1);
+               (calcNumberOfElementsByDims(outputTensor->shape.numberOfDimensions,
+                                           outputTensor->shape.dimensions) - 1) / 8 + 1);
     }
-    memcpy(outputTensor->orderOfDimensions, inputTensor->orderOfDimensions,
-           sizeof(size_t) * outputTensor->numberOfDimensions);
+    memcpy(outputTensor->shape.orderOfDimensions, inputTensor->shape.orderOfDimensions,
+           sizeof(size_t) * outputTensor->shape.numberOfDimensions);
 }
 
 

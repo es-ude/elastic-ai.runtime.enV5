@@ -3,18 +3,24 @@
 #include "Add.h"
 #include "Matmul.h"
 #include "TensorConversion.h"
+#include "Rounding.h";
+#include "DTypes.h"
+#include "Layer.h"
 
-
-#include <DTypes.h>
 #include <stdio.h>
 #include <string.h>
+
+void initLinearConfig(linearConfig_t* linearConfig, linearQType_t qType, parameter_t* weights, parameter_t* bias) {
+    linearConfig->qType = qType;
+    linearConfig->weights = weights;
+    linearConfig->bias = bias;
+}
+
 
 void linearForwardFloat32(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
     matmulFloat32Tensors(w, input, output);
     addFloat32TensorsInplace(output, b);
 }
-
-
 
 void linearForwardAsym(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
 
@@ -57,23 +63,23 @@ void linearForwardAsym(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *outp
 }
 
 
-void linearForward(void *config, tensor_t *input, tensor_t *output) {
-    linearConfig_t *lConfig = config;
+void linearForward(void *layerConfig, tensor_t *input, tensor_t *output) {
+    linearConfig_t *linearConfig = layerConfig;
 
     tensor_t weights;
-    size_t orderOfDimensionsWeights[lConfig->weight->numberOfDimensions];
-    initOrderOfDimensions(orderOfDimensionsWeights, lConfig->weight->numberOfDimensions);
-    getTensorFromParameter(lConfig->weight, &weights, orderOfDimensionsWeights);
+    size_t orderOfDimensionsWeights[linearConfig->weights->tensor.shape.numberOfDimensions];
+    initOrderOfDimensions(orderOfDimensionsWeights, linearConfig->weights->tensor.shape.numberOfDimensions);
+    getTensorFromParameter(linearConfig->weights, &weights, orderOfDimensionsWeights);
 
     tensor_t bias;
-    size_t orderOfDimensionsBias[lConfig->bias->numberOfDimensions];
-    initOrderOfDimensions(orderOfDimensionsBias, lConfig->bias->numberOfDimensions);
-    getTensorFromParameter(lConfig->bias, &bias, orderOfDimensionsBias);
+    size_t orderOfDimensionsBias[linearConfig->bias->tensor.shape.numberOfDimensions];
+    initOrderOfDimensions(orderOfDimensionsBias, linearConfig->bias->tensor.shape.numberOfDimensions);
+    getTensorFromParameter(linearConfig->bias, &bias, orderOfDimensionsBias);
 
-    if (lConfig->type == FLOATLAYER) {
+    if (linearConfig->qType == FLOATLAYER) {
         linearForwardFloat32(&weights, &bias, input, output);
 
-    } else if (lConfig->type == ASYMLAYER) {
+    } else if (linearConfig->qType == ASYMLAYER) {
         linearForwardAsym(&weights, &bias, input, output);
 
     }
@@ -98,53 +104,30 @@ void calcPropLossFloat32(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) 
 void linearBackwardFloat(void *config, tensor_t *loss, tensor_t *output, tensor_t *propLossTensor) {
     linearConfig_t *linearConfig = config;
 
-    size_t outputSize = linearConfig->weight->dimensions[0];
-    size_t numberOfWeights = calcNumberOfElementsByDims(linearConfig->weight->numberOfDimensions,
-                                                        linearConfig->weight->dimensions);
-    size_t numberOfBiases = calcNumberOfElementsByDims(linearConfig->bias->numberOfDimensions,
-                                                       linearConfig->bias->dimensions);
+    size_t outputSize = linearConfig->weights->tensor.shape.dimensions[0];
+    size_t numberOfWeights = calcNumberOfElementsByDims(linearConfig->weights->tensor.shape.numberOfDimensions,
+                                                        linearConfig->weights->tensor.shape.dimensions);
+    size_t numberOfBiases = calcNumberOfElementsByDims(linearConfig->bias->tensor.shape.numberOfDimensions,
+                                                       linearConfig->bias->tensor.shape.dimensions);
 
-    // weightGrads
-    float weightGradData[numberOfWeights];
-    size_t weightGradOrderOfDims[linearConfig->weight->numberOfDimensions];
-    for (size_t i = 0; i < linearConfig->weight->numberOfDimensions; i++) {
+    tensor_t weightGrad;
+    size_t weightGradOrderOfDims[linearConfig->weights->tensor.shape.numberOfDimensions];
+    for (size_t i = 0; i < linearConfig->weights->tensor.shape.numberOfDimensions; i++) {
         weightGradOrderOfDims[i] = i;
     }
-
-    tensor_t weightGrad = {
-        .data = weightGradData,
-        .dimensions = linearConfig->weight->dimensions,
-        .quantization = linearConfig->weight->gradQuantization,
-        .sparsityBitmask = linearConfig->weight->sparsityBitmask,
-        .numberOfDimensions = linearConfig->weight->numberOfDimensions,
-        .orderOfDimensions = weightGradOrderOfDims
-    };
-
+    getGradTensorFromParameter(linearConfig->weights, &weightGrad, weightGradOrderOfDims);
     calcWeightGradsFloat32(loss, output, &weightGrad);
-    memcpy(linearConfig->weight->grad, weightGrad.data, numberOfWeights * sizeof(float));
+    memcpy(linearConfig->weights->grad, weightGrad.data, numberOfWeights * sizeof(float));
 
-    // biasGrads
-    size_t biasGradDims[] = {outputSize, 1};
+    tensor_t biasGrad;
     size_t biasGradOrderOfDims[] = {0, 1};
-    quantization_t biasGradQ = {.type = FLOAT32};
-
-    tensor_t biasGrad = {
-        .data = linearConfig->bias->grad,
-        .dimensions = biasGradDims,
-        .quantization = &biasGradQ,
-        .sparsityBitmask = NULL,
-        .numberOfDimensions = 2,
-        .orderOfDimensions = biasGradOrderOfDims
-    };
-
+    getGradTensorFromParameter(linearConfig->bias, &biasGrad, biasGradOrderOfDims);
     calcBiasGradsFloat32(&biasGrad, loss);
     memcpy(linearConfig->bias->grad, biasGrad.data, numberOfBiases * sizeof(float));
 
-    // propLoss
     tensor_t weightData;
-    size_t weightDataOrderOfDims[linearConfig->weight->numberOfDimensions];
-    getTensorFromParameter(linearConfig->weight, &weightData, weightDataOrderOfDims);
-
+    size_t weightDataOrderOfDims[linearConfig->weights->tensor.shape.numberOfDimensions];
+    getTensorFromParameter(linearConfig->weights, &weightData, weightDataOrderOfDims);
     calcPropLossFloat32(&weightData, loss, propLossTensor);
 }
 
@@ -168,40 +151,40 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
                         tensor_t *propLossTensor) {
     linearConfig_t *linearConfig = config;
 
-    size_t outputSize = linearConfig->weight->dimensions[0];
-    size_t inputSize = linearConfig->weight->dimensions[1];
-    size_t numberOfWeights = calcNumberOfElementsByDims(linearConfig->weight->numberOfDimensions,
-                                                        linearConfig->weight->dimensions);
-    size_t numberOfBiases = calcNumberOfElementsByDims(linearConfig->bias->numberOfDimensions,
-                                                       linearConfig->bias->dimensions);
+    size_t outputSize = linearConfig->weights->tensor.shape.dimensions[0];
+    size_t inputSize = linearConfig->weights->tensor.shape.dimensions[1];
+    size_t numberOfWeights = calcNumberOfElementsByDims(linearConfig->weights->tensor.shape.numberOfDimensions,
+                                                        linearConfig->weights->tensor.shape.dimensions);
+    size_t numberOfBiases = calcNumberOfElementsByDims(linearConfig->bias->tensor.shape.numberOfDimensions,
+                                                       linearConfig->bias->tensor.shape.dimensions);
     size_t numberOfLosses = calcNumberOfElementsByTensor(loss);
 
     // Get data and grad tensors from parameters
     tensor_t weightsAsym;
-    size_t weightsAsymOrderOfDims[linearConfig->weight->numberOfDimensions];
-    for (size_t i = 0; i < linearConfig->weight->numberOfDimensions; i++) {
+    size_t weightsAsymOrderOfDims[linearConfig->weights->tensor.shape.numberOfDimensions];
+    for (size_t i = 0; i < linearConfig->weights->tensor.shape.numberOfDimensions; i++) {
         weightsAsymOrderOfDims[i] = i;
     }
-    getTensorFromParameter(linearConfig->weight, &weightsAsym, weightsAsymOrderOfDims);
+    getTensorFromParameter(linearConfig->weights, &weightsAsym, weightsAsymOrderOfDims);
 
     tensor_t weightGradsAsym;
-    size_t weightGradsAsymOrderOfDims[linearConfig->weight->numberOfDimensions];
-    for (size_t i = 0; i < linearConfig->weight->numberOfDimensions; i++) {
+    size_t weightGradsAsymOrderOfDims[linearConfig->weights->tensor.shape.numberOfDimensions];
+    for (size_t i = 0; i < linearConfig->weights->tensor.shape.numberOfDimensions; i++) {
         weightGradsAsymOrderOfDims[i] = i;
     }
-    getGradTensorFromParameter(linearConfig->weight, &weightGradsAsym,
+    getGradTensorFromParameter(linearConfig->weights, &weightGradsAsym,
                                weightGradsAsymOrderOfDims);
 
     tensor_t biasAsym;
-    size_t biasAsymOrderOfDims[linearConfig->bias->numberOfDimensions];
-    for (size_t i = 0; i < linearConfig->bias->numberOfDimensions; i++) {
+    size_t biasAsymOrderOfDims[linearConfig->bias->tensor.shape.numberOfDimensions];
+    for (size_t i = 0; i < linearConfig->bias->tensor.shape.numberOfDimensions; i++) {
         biasAsymOrderOfDims[i] = i;
     }
     getTensorFromParameter(linearConfig->bias, &biasAsym, biasAsymOrderOfDims);
 
     tensor_t biasGradsAsym;
-    size_t biasGradsAsymOrderOfDims[linearConfig->bias->numberOfDimensions];
-    for (size_t i = 0; i < linearConfig->bias->numberOfDimensions; i++) {
+    size_t biasGradsAsymOrderOfDims[linearConfig->bias->tensor.shape.numberOfDimensions];
+    for (size_t i = 0; i < linearConfig->bias->tensor.shape.numberOfDimensions; i++) {
         biasGradsAsymOrderOfDims[i] = i;
     }
     getGradTensorFromParameter(linearConfig->bias, &biasGradsAsym, biasGradsAsymOrderOfDims);
@@ -209,7 +192,7 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
     // ___________________________________________________________________________________
 
     // Get everything as SymInt32 tensors
-    asymQConfig_t *weightsAsymQC = linearConfig->weight->dataQuantization->qConfig;
+    asymQConfig_t *weightsAsymQC = linearConfig->weights->tensor.quantization->qConfig;
     symInt32QConfig_t weightsSymInt32QC;
     initSymInt32QConfig(weightsAsymQC->roundingMode, &weightsSymInt32QC);
 
@@ -245,7 +228,7 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
     convertTensor(loss, &lossSymInt32);
 
 
-    asymQConfig_t *weightGradsAsymQC = linearConfig->weight->gradQuantization->qConfig;
+    asymQConfig_t *weightGradsAsymQC = linearConfig->weights->gradQuantization->qConfig;
     symInt32QConfig_t weightGradsSymInt32QC;
     initSymInt32QConfig(weightGradsAsymQC->roundingMode, &weightGradsSymInt32QC);
     quantization_t weightGradsSymInt32Q;
@@ -291,8 +274,8 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
     weightGradsAsymQC->scale = weightsAsymQC->scale;
 
 
-    memcpy(linearConfig->weight->grad, weightGradsAsym.data,
-           numberOfWeights * calcBytesPerElement(linearConfig->weight->gradQuantization));
+    memcpy(linearConfig->weights->grad, weightGradsAsym.data,
+           numberOfWeights * calcBytesPerElement(linearConfig->weights->gradQuantization));
 
     // Bias gradients
     calcBiasGradsAsym(&biasGradsSymInt32, &lossSymInt32);
@@ -314,10 +297,28 @@ void linearBackwardAsym(void *config, tensor_t *loss, tensor_t *forwardInput,
 void linearBackward(void *config, tensor_t *loss, tensor_t *output, tensor_t *propLoss) {
     linearConfig_t *lConfig = config;
 
-    if (lConfig->type == FLOATLAYER) {
+    if (lConfig->qType == FLOATLAYER) {
         linearBackwardFloat(config, loss, output, propLoss);
 
-    } else if (lConfig->type == ASYMLAYER) {
+    } else if (lConfig->qType == ASYMLAYER) {
         linearBackwardAsym(config, loss, output, propLoss);
     }
+}
+
+void calcOutputShapeLinear(layer_t *linearLayer, shape_t inputShape, shape_t *outputShape) {
+    size_t numberOfDims = 2;
+    linearConfig_t *linearConfig = linearLayer->layerConfig;
+    parameter_t *bias = linearConfig->bias;
+    outputShape->dimensions[0] = inputShape.dimensions[0];
+    outputShape->dimensions[1] = bias->tensor.shape.dimensions[0];
+    outputShape->numberOfDimensions = numberOfDims;
+    setOrderOfDimsForNewTensor(numberOfDims, outputShape->orderOfDimensions);
+}
+
+void initLinearLayer(layer_t *layer, linearConfig_t *linearConfig) {
+    layer->type = LINEAR;
+    layer->layerConfig = linearConfig;
+    layer->forward = linearForward;
+    layer->backward = linearBackward;
+    layer->calcOutputShape = calcOutputShapeLinear;
 }

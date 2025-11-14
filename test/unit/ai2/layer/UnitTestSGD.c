@@ -1,10 +1,10 @@
 #define SOURCE_FILE "SGD-UTEST"
 
-#include "AiHelpers.h"
 #include "SGD.h"
 #include "Linear.h"
-#include "ReLU.h"
+#include "Relu.h"
 #include "unity.h"
+#include "Layer.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -13,136 +13,259 @@ void setUp() {}
 void tearDown() {}
 
 void unitTestInitMomentumBuffer() {
+    size_t numberOfValues = 3;
     float p[] = {0.f, 1.f, 2.f};
-    size_t pDims[] = {3};
+    size_t pDims[] = {numberOfValues};
     size_t pNumberOfDims = 1;
-    parameterTensor_t *param = initParameterQTensor(p, pNumberOfDims, pDims);
-    momentumBuffer_t *momentumBuffer= initMomentumBuffer(param);
+    size_t pOrderOfDims[] = {0};
+    quantization_t paramQ;
+    initFloat32Quantization(&paramQ);
+    float *pGrads[numberOfValues];
+    quantization_t pGradQ;
+    initFloat32Quantization(&pGradQ);
 
-    float expectedMomentumBuffer[] = {0.f, 0.f, 0.f};
+    parameter_t param;
+    setParameterValues(&param, p, &paramQ, pGrads, &pGradQ, pDims, pNumberOfDims, pOrderOfDims, NULL);
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedMomentumBuffer, momentumBuffer->momentums, 3);
-    TEST_ASSERT_EQUAL_PTR(param, momentumBuffer->parameter);
+    float momentums[] = {2.f, 1.f, 0.f};
+    momentumBuffer_t momentumBuffer;
+    initMomentumBuffer(&momentumBuffer, &param, momentums);
+
+    float expectedMomentumBuffer[] = {2.f, 1.f, 0.f};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedMomentumBuffer, momentumBuffer.momentums, 3);
+    TEST_ASSERT_EQUAL_PTR(p, momentumBuffer.parameter->tensor.data);
 }
 
 void unitTestInitSGDConfig() {
-    float w0[] = {0.f, 1.f, 2.f};
-    size_t w0Dims[] = {1,3};
-    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
+    parameter_t weights;
+    size_t numberOfWeights = 3;
+    float weightData[] = {0.f, 1.f, 2.f};
+    size_t weightDims[] = {numberOfWeights};
+    size_t weightNumberOfDims = 1;
+    size_t weightOrderOfDims[] = {0};
+    quantization_t weightQ;
+    initFloat32Quantization(&weightQ);
+    float weightGrads[] = {0.f, 0.f, 0.f};
+    quantization_t weightGradsQ;
+    initFloat32Quantization(&weightGradsQ);
+    setParameterValues(&weights, weightData, &weightQ, weightGrads, &weightGradsQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
 
-    float b0[] = {0.f, 1.f, -1.f};
-    size_t b0Dims[] = {3};
-    size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0Dims);
+    parameter_t bias;
+    size_t numberOfBiases = 3;
+    float biasData[] = {0.f, 1.f, -1.f};
+    size_t biasDims[] = {numberOfBiases};
+    size_t biasNumberOfDims = 1;
+    size_t biasOrderOfDims[] = {0};
+    quantization_t biasQ;
+    initFloat32Quantization(&biasQ);
+    quantization_t biasGradQ;
+    initFloat32Quantization(&biasGradQ);
+    float biasGrads[] = {0.f, 0.f, 0.f};
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
 
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
-    layerForwardBackward_t *relu0 = initReLULayerForwardBackward();
-    layerForwardBackward_t *linear1 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
-    layerForwardBackward_t *model[3] = {linear0, relu0, linear1};
-    size_t sizeModel = sizeof(model)/sizeof(model[0]);
+
+    layer_t linear0;
+    linearConfig_t linearConfig;
+    initLinearConfig(&linearConfig, FLOATLAYER, &weights, &bias);
+    initLinearLayer(&linear0, &linearConfig);
+
+    layer_t relu0;
+    initReluLayer(&relu0);
+
+    layer_t linear1;
+    initLinearLayer(&linear1, &linearConfig);
+
+    layer_t model[3] = {linear0, relu0, linear1};
+    size_t sizeModel = sizeof(model) / sizeof(model[0]);
     float lr = 0.1f;
-    float momentum = 0.9f;
+    float momentumFactor = 0.9f;
     float weightDecay = 0.5f;
-    SGDConfig_t *config = initSGDConfig(model, sizeModel, lr, momentum, weightDecay);
 
-    linearConfig_t *linear0Conf = linear0->config;
-    ReLUConfig_t *relu0Conf = relu0->config;
-    linearConfig_t *linear1Conf = linear1->config;
+    size_t sizeMomentumBuffers = calcTotalNumberOfMomentumBuffers(model, sizeModel);
 
-    TEST_ASSERT_EQUAL_FLOAT(lr, config->lr);
-    TEST_ASSERT_EQUAL_FLOAT(momentum, config->momentum);
-    TEST_ASSERT_EQUAL_FLOAT(weightDecay, config->weightDecay);
-    TEST_ASSERT_EQUAL_size_t(4, config->sizeMomentumBuffers);
+    float momentum[] = {0.f, 0.f, 0.f};
 
-    TEST_ASSERT_EQUAL_PTR(linear0Conf->weight, config->momentum_buffer[0]->parameter);
-    TEST_ASSERT_EQUAL_PTR(linear0Conf->bias, config->momentum_buffer[1]->parameter);
-    TEST_ASSERT_EQUAL_PTR(linear1Conf->weight, config->momentum_buffer[2]->parameter);
-    TEST_ASSERT_EQUAL_PTR(linear1Conf->bias, config->momentum_buffer[3]->parameter);
+    momentumBuffer_t momentumBuffers[sizeMomentumBuffers];
+    momentumBuffers[0].parameter = &weights;
+    momentumBuffers[0].momentums = momentum;
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->weight->grad, config->momentum_buffer[0]->momentums, calcTotalNumberOfElementsByTensor(w0Tensor->tensor));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->bias->grad, config->momentum_buffer[1]->momentums, calcTotalNumberOfElementsByTensor(b0Tensor->tensor));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->weight->grad, config->momentum_buffer[2]->momentums, calcTotalNumberOfElementsByTensor(w0Tensor->tensor));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->bias->grad, config->momentum_buffer[3]->momentums, calcTotalNumberOfElementsByTensor(b0Tensor->tensor));
+    momentumBuffers[1].parameter = &bias;
+    momentumBuffers[1].momentums = momentum;
+
+    momentumBuffers[2].parameter = &weights;
+    momentumBuffers[2].momentums = momentum;
+
+    momentumBuffers[3].parameter = &bias;
+    momentumBuffers[3].momentums = momentum;
+
+
+    SGDConfig_t sgdConfig;
+    initSGDConfig(&sgdConfig, lr, momentumFactor, weightDecay, momentumBuffers, sizeMomentumBuffers);
+
+    linearConfig_t *linear0Conf = linear0.layerConfig;
+    linearConfig_t *linear1Conf = linear1.layerConfig;
+
+
+
+    TEST_ASSERT_EQUAL_FLOAT(lr, sgdConfig.learningRate);
+    TEST_ASSERT_EQUAL_FLOAT(momentumFactor, sgdConfig.momentumFactor);
+    TEST_ASSERT_EQUAL_FLOAT(weightDecay, sgdConfig.weightDecay);
+    TEST_ASSERT_EQUAL_size_t(4, sgdConfig.sizeMomentumBuffers);
+
+    TEST_ASSERT_EQUAL_PTR(linear0Conf->weights, sgdConfig.momentumBuffers[0].parameter);
+    TEST_ASSERT_EQUAL_PTR(linear0Conf->bias, sgdConfig.momentumBuffers[1].parameter);
+    TEST_ASSERT_EQUAL_PTR(linear1Conf->weights, sgdConfig.momentumBuffers[2].parameter);
+    TEST_ASSERT_EQUAL_PTR(linear1Conf->bias, sgdConfig.momentumBuffers[3].parameter);
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->weights->grad, sgdConfig.momentumBuffers[0].momentums,
+                                  calcNumberOfElementsByParameter(linear0Conf->weights));
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear0Conf->bias->grad, sgdConfig.momentumBuffers[1].momentums,
+                                  calcNumberOfElementsByParameter(linear0Conf->bias));
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->weights->grad, sgdConfig.momentumBuffers[2].momentums,
+                              calcNumberOfElementsByParameter(linear1Conf->weights));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(linear1Conf->bias->grad, sgdConfig.momentumBuffers[3].momentums,
+                                  calcNumberOfElementsByParameter(linear1Conf->bias));
 }
 
 
 void unitTestSGDStep() {
-    float w0[] = {1.f, 2.f, -3.f};
-    size_t w0Dims[] = {1, 3};
-    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
-    float w0Grad[] = {1.f, -1.f, 2.f};
-    memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
 
-    float b0[] = {-1.f, 3.f};
-    size_t b0Dims[] = {3};
-    size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0Dims);
-    float b0Grad[] = {1.f, 3.f};
-    memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
+    parameter_t weights;
+    size_t numberOfWeights = 3;
+    float weightData[] = {1.f, 2.f, -3.f};
+    size_t weightDims[] = {numberOfWeights};
+    size_t weightNumberOfDims = 1;
+    size_t weightOrderOfDims[] = {0};
+    quantization_t weightQ;
+    initFloat32Quantization(&weightQ);
+    float weightGrads[] = {1.f, -1.f, 2.f};
+    quantization_t weightGradsQ;
+    initFloat32Quantization(&weightGradsQ);
+    setParameterValues(&weights, weightData, &weightQ, weightGrads, &weightGradsQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
 
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
-    linearConfig_t *linearConf = linear0->config;
-    linearConf->weight->grad = w0Grad;
-    linearConf->bias->grad = b0Grad;
-    layerForwardBackward_t *model[1] = {linear0};
+
+    parameter_t bias;
+    size_t numberOfBiases = 2;
+    float biasData[] = {-1.f, 3.f};
+    size_t biasDims[] = {numberOfBiases};
+    size_t biasNumberOfDims = 1;
+    size_t biasOrderOfDims[] = {0};
+    quantization_t biasQ;
+    initFloat32Quantization(&biasQ);
+    quantization_t biasGradQ;
+    initFloat32Quantization(&biasGradQ);
+    float biasGrads[] = {1.f, 3.f};
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
+
+    layer_t linear0;
+    linearConfig_t linearConfig;
+    initLinearConfig(&linearConfig, FLOATLAYER, &weights, &bias);
+    initLinearLayer(&linear0, &linearConfig);
+
+    layer_t model[] = {linear0};
     float lr = 0.1f;
-    float momentum = 0.9f;
+    float momentumFactor = 0.9f;
     float weightDecay = 0.01f;
 
-    SGDConfig_t *config = initSGDConfig(model, 1, lr, momentum, weightDecay);
+    size_t sizeMomentumBuffers = calcTotalNumberOfMomentumBuffers(model, 1);
+    float momentumWeights[] = {0.f, 0.f, 0.f};
+    float momentumBias[] = {0.f, 0.f, 0.f};
 
-    SGDStep(config);
+
+    momentumBuffer_t momentumBuffers[sizeMomentumBuffers];
+    momentumBuffers[0].parameter = &weights;
+    momentumBuffers[0].momentums = momentumWeights;
+
+    momentumBuffers[1].parameter = &bias;
+    momentumBuffers[1].momentums = momentumBias;
+
+    SGDConfig_t config;
+    initSGDConfig(&config, lr, momentumFactor, weightDecay, momentumBuffers, sizeMomentumBuffers);
+
+    SGDStepFloat(&config);
 
     float wPExpected[] = {0.899f, 2.098f, -3.197f};
     float bPExpected[] = {-1.099f, 2.697f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected, linearConf->weight->tensor->data, sizeof(wPExpected)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY( bPExpected, linearConf->bias->tensor->data, sizeof(bPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected, linearConfig.weights->tensor.data,
+                                  sizeof(wPExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bPExpected, linearConfig.bias->tensor.data,
+                                  sizeof(bPExpected)/sizeof(float));
 
     // Second Step with same grads but with momentum now
-    SGDStep(config);
+    SGDStepFloat(&config);
 
     float wPExpected2[] = {0.707201f, 2.284102f, -3.571103f};
     float bPExpected2[] = {-1.287001f, 2.121603f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected2, linearConf->weight->tensor->data,  sizeof(wPExpected2)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bPExpected2, linearConf->bias->tensor->data, sizeof(bPExpected2)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wPExpected2, linearConfig.weights->tensor.data,
+                                  sizeof(wPExpected2)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bPExpected2, linearConfig.bias->tensor.data,
+                                  sizeof(bPExpected2)/sizeof(float));
 }
 
 void unitTestSGDZeroGrad() {
-    float w0[] = {1.f, 2.f, -3.f};
-    size_t w0Dims[] = {1, 3};
-    size_t w0NumberOfDims = sizeof(w0Dims) / sizeof(size_t);
-    parameterTensor_t *w0Tensor = initParameterQTensor(w0, w0NumberOfDims, w0Dims);
-    float w0Grad[] = {1.f, -1.f, 2.f};
-    memcpy(w0Tensor->grad, w0Grad, 3 * sizeof(float));
+    parameter_t weights;
+    size_t numberOfWeights = 3;
+    float weightData[] = {1.f, 2.f, -3.f};
+    size_t weightDims[] = {numberOfWeights};
+    size_t weightNumberOfDims = 1;
+    size_t weightOrderOfDims[] = {0};
+    quantization_t weightQ;
+    initFloat32Quantization(&weightQ);
+    float weightGrads[] = {1.f, -1.f, 2.f};
+    quantization_t weightGradsQ;
+    initFloat32Quantization(&weightGradsQ);
+    setParameterValues(&weights, weightData, &weightQ, weightGrads, &weightGradsQ, weightDims, weightNumberOfDims, weightOrderOfDims, NULL);
 
-    float b0[] = {-1.f, 3.f};
-    size_t b0dims[] = {2};
-    size_t b0NumberOfDims = 1;
-    parameterTensor_t *b0Tensor = initParameterQTensor(b0, b0NumberOfDims, b0dims);
-    float b0Grad[] = {1.f, 3.f};
-    memcpy(b0Tensor->grad, b0Grad, 2 * sizeof(float));
 
-    layerForwardBackward_t *linear0 = initLinearLayerForwardBackwardWithWeightBias(w0Tensor, b0Tensor);
-    linearConfig_t *linearConf = linear0->config;
-    linearConf->weight->grad = w0Grad;
-    linearConf->bias->grad = b0Grad;
-    layerForwardBackward_t *model[1] = {linear0};
+    parameter_t bias;
+    size_t numberOfBiases = 2;
+    float biasData[] = {-1.f, 3.f};
+    size_t biasDims[] = {numberOfBiases};
+    size_t biasNumberOfDims = 1;
+    size_t biasOrderOfDims[] = {0};
+    quantization_t biasQ;
+    initFloat32Quantization(&biasQ);
+    quantization_t biasGradQ;
+    initFloat32Quantization(&biasGradQ);
+    float biasGrads[] = {1.f, 3.f};
+    setParameterValues(&bias, biasData, &biasQ, biasGrads, &biasGradQ, biasDims, biasNumberOfDims, biasOrderOfDims, NULL);
+
+
+    layer_t linear0;
+    linearConfig_t linearConfig;
+    initLinearConfig(&linearConfig, FLOATLAYER, &weights, &bias);
+    initLinearLayer(&linear0, &linearConfig);
+
+    layer_t model[] = {linear0};
     float lr = 0.1f;
-    float momentum = 0.9f;
+    float momentumFactor = 0.9f;
     float weightDecay = 0.01f;
 
-    SGDConfig_t *config = initSGDConfig(model, 1, lr, momentum, weightDecay);
+    size_t sizeMomentumBuffers = calcTotalNumberOfMomentumBuffers(model, 1);
+    float momentumWeights[] = {0.f, 0.f, 0.f};
+    float momentumBias[] = {0.f, 0.f, 0.f};
 
-    SGDZeroGrad(config);
+
+    momentumBuffer_t momentumBuffers[sizeMomentumBuffers];
+    momentumBuffers[0].parameter = &weights;
+    momentumBuffers[0].momentums = momentumWeights;
+
+    momentumBuffers[1].parameter = &bias;
+    momentumBuffers[1].momentums = momentumBias;
+
+    SGDConfig_t sgdConfig;
+    initSGDConfig(&sgdConfig, lr, momentumFactor, weightDecay, momentumBuffers, sizeMomentumBuffers);
+
+    SGDZeroGradFloat(&sgdConfig);
     float wGradExpected[] = {0.f, 0.f, 0.f};
     float bGradExpected[] = {0.f, 0.f};
 
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wGradExpected, w0Grad, sizeof(wGradExpected)/sizeof(float));
-    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bGradExpected, b0Grad, sizeof(bGradExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(wGradExpected, weights.grad, sizeof(wGradExpected)/sizeof(float));
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(bGradExpected, bias.grad, sizeof(bGradExpected)/sizeof(float));
 
 }
 

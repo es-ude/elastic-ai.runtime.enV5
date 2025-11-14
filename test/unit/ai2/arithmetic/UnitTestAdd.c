@@ -21,11 +21,11 @@ void testAddInt32TensorsInplace() {
 
     tensor_t aTensor = {
         .data = aData,
-        .numberOfDimensions = aNumberOfDims,
-        .dimensions = aDims,
+        .shape.numberOfDimensions = aNumberOfDims,
+        .shape.dimensions = aDims,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions = aOrderOfDims
+        .shape.orderOfDimensions = aOrderOfDims
     };
 
     int32_t bData[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
@@ -39,11 +39,11 @@ void testAddInt32TensorsInplace() {
     };
     tensor_t bTensor = {
         .data = bData,
-        .numberOfDimensions = bNumberOfDims,
-        .dimensions = bDims,
+        .shape.numberOfDimensions = bNumberOfDims,
+        .shape.dimensions = bDims,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions =  bOrderOfDims
+        .shape.orderOfDimensions =  bOrderOfDims
     };
 
     transposeTensor(&bTensor, 0, 1);
@@ -69,11 +69,11 @@ void testAddInt32ElementWithInt32TensorInplace() {
 
     tensor_t aTensor = {
         .data = aData,
-        .numberOfDimensions = aNumberOfDims,
-        .dimensions = aDims,
+        .shape.numberOfDimensions = aNumberOfDims,
+        .shape.dimensions = aDims,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .orderOfDimensions = aOrderOfDims
+        .shape.orderOfDimensions = aOrderOfDims
     };
 
     int32_t x = 5;

@@ -8,25 +8,27 @@
 
 typedef void* tensorStorageId;
 
-typedef struct Tensor
+typedef struct shape
 {
-    uint8_t* data;
-    quantization_t* quantization;
-    uint8_t* sparsityBitmask;
     size_t numberOfDimensions;
     size_t* dimensions;
     size_t* orderOfDimensions;
+} shape_t;
+
+typedef struct Tensor
+{
+    uint8_t* data;
+    shape_t shape;
+    quantization_t* quantization;
+    uint8_t* sparsityBitmask;
 } tensor_t;
 
 typedef struct Parameter
 {
-    uint8_t* data;
-    quantization_t* dataQuantization;
-    uint8_t* sparsityBitmask;
+    tensor_t tensor;
     uint8_t* grad;
     quantization_t* gradQuantization;
-    size_t numberOfDimensions;
-    size_t* dimensions;
+
 } parameter_t;
 
 uint32_t getBitmask(uint32_t startbit, uint32_t endbit);
@@ -57,9 +59,13 @@ size_t calcBitsPerElement(quantization_t* quantization);
 
 size_t calcBytesPerTensor(tensor_t* tensor);
 
-size_t calcNumberOfElementsByTensor(tensor_t* qTensor);
+size_t calcNumberOfElementsByTensor(tensor_t* tensor);
+
+size_t calcNumberOfElementsByParameter(parameter_t *parameter);
 
 void transposeTensor(tensor_t* tensor, size_t dim0Index, size_t dim1Index);
+
+void setOrderOfDimsForNewTensor(size_t numberOfDimensions, size_t *orderOfDimensions);
 
 
 void setTensorValuesForConversion(uint8_t* data, quantization_t* q, tensor_t* originalTensor, tensor_t* outputTensor);
@@ -67,6 +73,9 @@ void setTensorValuesForConversion(uint8_t* data, quantization_t* q, tensor_t* or
 void setTensorValues(tensor_t* tensor, uint8_t* data, size_t* dims, size_t numberOfDims,
                      size_t* orderOfDims,
                      quantization_t* quantization, uint8_t* sparsityBitmask);
+
+void setParameterValues(parameter_t* parameter, uint8_t* data, quantization_t* dataQuantization, uint8_t* grad, quantization_t* gradQuantization, size_t* dims, size_t numberOfDims,
+                     size_t* orderOfDims, uint8_t* sparsityBitmask);
 
 void printTensor(tensor_t *t);
 

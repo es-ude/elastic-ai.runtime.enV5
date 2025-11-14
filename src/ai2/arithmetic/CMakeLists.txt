@@ -84,7 +84,7 @@ add_library(Rounding
 )
 target_include_directories(Rounding PUBLIC include)
 target_link_libraries(Rounding PRIVATE
-        Common
+        m
 )
 
 add_library(Square

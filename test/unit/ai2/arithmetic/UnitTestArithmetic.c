@@ -15,9 +15,9 @@ void testOrderDims() {
     size_t orderOfDimensions[] = {1, 0, 2};
     size_t numberOfDims = 3;
     tensor_t tensor = {
-        .dimensions = dimensions,
-        .orderOfDimensions =  orderOfDimensions,
-        .numberOfDimensions =  numberOfDims
+        .shape.dimensions = dimensions,
+        .shape.orderOfDimensions =  orderOfDimensions,
+        .shape.numberOfDimensions =  numberOfDims
     };
 
     size_t expected[] = {3, 2, 4};

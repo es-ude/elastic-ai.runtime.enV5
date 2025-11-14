@@ -1,27 +1,35 @@
 #ifndef SGD_H
 #define SGD_H
+#include "Tensor.h"
+#include "Layer.h"
+
 #include <stddef.h>
 #include <stdint.h>
-#include <Tensor.h>
 
 typedef struct momentumBuffer
 {
-    tensor_t* dataTensor;
-    tensor_t* gradTensor;
-    float* momentums; // Pointer to array of momentums of size of data/gradData
+    parameter_t* parameter;
+    float* momentums;
 } momentumBuffer_t;
 
 typedef struct SGDConfig
 {
-    float lr; // factor for learning rate
-    float momentum; // factor for momentum
-    float weightDecay; // factor to decrease the weight
-    momentumBuffer_t** momentum_buffer; // array of momentum buffers
-    size_t sizeMomentumBuffers; //number of elements in momentum buffers
+    float learningRate;
+    float momentumFactor;
+    float weightDecay;
+    momentumBuffer_t* momentumBuffers;
+    size_t sizeMomentumBuffers;
 } SGDConfig_t;
 
-void initMomentumBuffer(momentumBuffer_t* momentumBuffer, tensor_t* dataTensor, tensor_t* gradTensor, float* momentums);
+void initMomentumBuffer(momentumBuffer_t* momentumBuffer, parameter_t* parameter, float* momentums);
 
+uint32_t calcTotalNumberOfMomentumBuffers(layer_t *model, size_t sizeModel);
 
+void initSGDConfig(SGDConfig_t *config, float learningRate, float momentumFactor, float weightDecay,
+                   momentumBuffer_t *momentumBuffers, size_t sizeMomentumBuffers);
 
-#endif //SGD_H
+void SGDStepFloat(SGDConfig_t *config);
+
+void SGDZeroGradFloat(SGDConfig_t *sgdConfig);
+
+#endif
