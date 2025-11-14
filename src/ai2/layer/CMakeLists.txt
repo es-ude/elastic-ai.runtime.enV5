@@ -3,7 +3,6 @@ add_library(Conv1d
 )
 target_include_directories(Conv1d PUBLIC include)
 target_link_libraries(Conv1d PRIVATE
-        Common
         DTypes
         Tensor
         Arithmetic
@@ -14,7 +13,6 @@ add_library(Conv1dTransposed
 )
 target_include_directories(Conv1dTransposed PUBLIC include)
 target_link_libraries(Conv1dTransposed PRIVATE
-        Common
         DTypes
         Tensor
         Arithmetic
@@ -25,7 +23,6 @@ add_library(Layer
 )
 target_include_directories(Layer PUBLIC include)
 target_link_libraries(Layer PRIVATE
-        Common
         DTypes
         Tensor
         Arithmetic
@@ -36,7 +33,6 @@ add_library(Linear
 )
 target_include_directories(Linear PUBLIC include)
 target_link_libraries(Linear PRIVATE
-        Common
         DTypes
         Tensor
         Arithmetic
@@ -44,12 +40,33 @@ target_link_libraries(Linear PRIVATE
         TensorConversion
 )
 
+add_library(MSE
+        MSE.c
+)
+target_include_directories(MSE PUBLIC include)
+target_link_libraries(MSE PRIVATE
+        Tensor
+        TensorConversion
+        Square
+        Sub
+)
+
 add_library(Relu
         Relu.c
 )
 target_include_directories(Relu PUBLIC include)
 target_link_libraries(Relu PRIVATE
-        Common
+        DTypes
+        Tensor
+        Arithmetic
+        Comparison
+)
+
+add_library(SGD
+        SGD.c
+)
+target_include_directories(SGD PUBLIC include)
+target_link_libraries(SGD PRIVATE
         DTypes
         Tensor
         Arithmetic
@@ -60,7 +77,6 @@ add_library(Softmax
 )
 target_include_directories(Softmax PUBLIC include)
 target_link_libraries(Softmax PRIVATE
-        Common
         DTypes
         Tensor
         Arithmetic

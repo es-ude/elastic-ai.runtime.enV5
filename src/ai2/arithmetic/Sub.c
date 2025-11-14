@@ -112,16 +112,18 @@ void subSymInt32Tensors(tensor_t* aTensor, tensor_t* bTensor, tensor_t* outputTe
     }
 
     else {
-        quantization_t floatQ;
-        initFloat32Quantization(&floatQ);
-        float aFloatData[aNumberOfValues];
         tensor_t aFloat;
-        setTensorValuesForConversion(aFloatData, &floatQ, &aFloat, aTensor);
+        quantization_t aFloatQ;
+        initFloat32Quantization(&aFloatQ);
+        float aFloatData[aNumberOfValues];
+        setTensorValuesForConversion(aFloatData, &aFloatQ, aTensor, &aFloat);
         convertTensor(aTensor, &aFloat);
 
-        float bFloatData[aNumberOfValues];
         tensor_t bFloat;
-        setTensorValuesForConversion(bFloatData, &floatQ, bTensor, &bFloat);
+        quantization_t bFloatQ;
+        initFloat32Quantization(&bFloatQ);
+        float bFloatData[aNumberOfValues];
+        setTensorValuesForConversion(bFloatData, &bFloatQ, bTensor, &bFloat);
         convertTensor(bTensor, &bFloat);
 
         subFloat32TensorsInplace(&aFloat, &bFloat);

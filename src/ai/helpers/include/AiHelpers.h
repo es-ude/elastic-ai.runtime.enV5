@@ -85,11 +85,7 @@ qTensor_t* sequentialForward(layerForward_t** network, size_t sizeNetwork, qTens
  * config = config needed to execute the layer
  * type = Type of layer
  */
-typedef struct layerForwardBackward
-{
-    void* config;
-    layerType_t type;
-} layerForwardBackward_t;
+
 
 /*! @brief Struct, that contains loss and output
  */

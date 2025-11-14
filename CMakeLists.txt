@@ -46,6 +46,7 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
 
     if(EAI_RUNTIME_TOP_LEVEL_PROJECT)
       add_subdirectory(test/unit)
+      add_subdirectory(test/integration)
     endif()
   endif()
 

@@ -260,30 +260,23 @@ void convertAsymTensorToInt32Tensor(tensor_t *inputTensor, tensor_t *outputTenso
 }
 
 void convertAsymTensorToFloatTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
+    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
 
     zeroTensorData(outputTensor);
-    asymQConfig_t *linearQConfig = inputTensor->quantization->qConfig;
-    size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
-    int16_t zeroPoint = linearQConfig->zeroPoint;
-    uint8_t dataOut[numberOfElements * sizeof(int32_t)];
+    asymQConfig_t *asymQConfig = inputTensor->quantization->qConfig;
+    int16_t zeroPoint = asymQConfig->zeroPoint;
+    int32_t inputInt[numberOfElements];
 
-    memset(dataOut, 0, numberOfElements * sizeof(int32_t));
+    byteConversion(inputTensor->data, asymQConfig->qBits, inputInt, 32, numberOfElements);
 
-    byteConversion(inputTensor->data, linearQConfig->qBits, dataOut, 32, numberOfElements);
-
-    int32_t intElements[numberOfElements];
-    float outputElements[numberOfElements];
-    readBytesAsInt32Array(numberOfElements, dataOut, intElements);
+    float *outputElements = (float *) outputTensor->data;
 
     for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        outputElements[elementIndex] = ((float)intElements[elementIndex] + (float)zeroPoint) *
-                                       linearQConfig->scale;
+        outputElements[elementIndex] = ((float)inputInt[elementIndex] + (float)zeroPoint) *
+                                       asymQConfig->scale;
     }
 
-    writeFloatArrayToByteArray(numberOfElements, outputElements, outputTensor->data);
-
     copyDimsAndSparsityToTensor(inputTensor, outputTensor);
-
 }
 
 void convertAsymTensorToSymInt32Tensor(tensor_t *inputTensor, tensor_t *outputTensor) {
