@@ -20,16 +20,16 @@
 size_t matmulInstructionCounter = 0;
 
 void matmulIntTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTensor) {
-    if (aTensor->shape.numberOfDimensions > 2 || bTensor->shape.numberOfDimensions > 2) {
+    if (aTensor->shape->numberOfDimensions > 2 || bTensor->shape->numberOfDimensions > 2) {
         printf("Error: Matmul only supports up to 2D Tensors\n");
         return;
     }
 
-    size_t aNumberOfDims = aTensor->shape.numberOfDimensions;
-    size_t *aDims = aTensor->shape.dimensions;
+    size_t aNumberOfDims = aTensor->shape->numberOfDimensions;
+    size_t *aDims = aTensor->shape->dimensions;
 
-    size_t bNumberOfDims = bTensor->shape.numberOfDimensions;
-    size_t *bDims = bTensor->shape.dimensions;
+    size_t bNumberOfDims = bTensor->shape->numberOfDimensions;
+    size_t *bDims = bTensor->shape->dimensions;
 
     size_t aRows, aColumns;
     if (aNumberOfDims < 2) {
@@ -52,7 +52,7 @@ void matmulIntTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTens
 
     if (aColumns != bRows) {
         printf("Error Matmul: Rows dont match Columns\n");
-        printf("bRows: %lu, bCols: %lu\n", bRows, bColumns);
+        //printf("bRows: %lu, bCols: %lu\n", bRows, bColumns);
         return;
     }
 
@@ -67,7 +67,7 @@ void matmulIntTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTens
                 } else {
                     size_t aIndices[] = {rowIndex, i};
                     size_t aValueIndex = calcElementIndexByIndices(
-                        aNumberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
+                        aNumberOfDims, aDims, aIndices, aTensor->shape->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(int32_t);
                 }
 
@@ -79,7 +79,7 @@ void matmulIntTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTens
                 } else {
                     size_t bIndices[] = {i, columnIndex};
                     size_t bValueIndex = calcElementIndexByIndices(
-                        bNumberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
+                        bNumberOfDims, bDims, bIndices, bTensor->shape->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(int32_t);
                 }
 
@@ -99,16 +99,16 @@ void matmulIntTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTens
 }
 
 void matmulIntTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTensor) {
-    if (aTensor->shape.numberOfDimensions > 2 || bTensor->shape.numberOfDimensions > 2) {
+    if (aTensor->shape->numberOfDimensions > 2 || bTensor->shape->numberOfDimensions > 2) {
         printf("Error: Matmul only supports up to 2D Tensors\n");
         return;
     }
 
-    size_t aNumberOfDims = aTensor->shape.numberOfDimensions;
-    size_t *aDims = aTensor->shape.dimensions;
+    size_t aNumberOfDims = aTensor->shape->numberOfDimensions;
+    size_t *aDims = aTensor->shape->dimensions;
 
-    size_t bNumberOfDims = bTensor->shape.numberOfDimensions;
-    size_t *bDims = bTensor->shape.dimensions;
+    size_t bNumberOfDims = bTensor->shape->numberOfDimensions;
+    size_t *bDims = bTensor->shape->dimensions;
 
     size_t aRows, aColumns;
     if (aNumberOfDims < 2) {
@@ -131,7 +131,7 @@ void matmulIntTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTensor
 
     if (aColumns != bRows) {
         printf("Error Matmul: Rows dont match Columns\n");
-        printf("bRows: %lu, bCols: %lu\n", bRows, bColumns);
+        //printf("bRows: %lu, bCols: %lu\n", bRows, bColumns);
         return;
     }
 
@@ -146,7 +146,7 @@ void matmulIntTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTensor
                 } else {
                     size_t aIndices[] = {rowIndex, i};
                     size_t aValueIndex = calcElementIndexByIndices(
-                        aNumberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
+                        aNumberOfDims, aDims, aIndices, aTensor->shape->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(int32_t);
                 }
 
@@ -158,7 +158,7 @@ void matmulIntTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTensor
                 } else {
                     size_t bIndices[] = {i, columnIndex};
                     size_t bValueIndex = calcElementIndexByIndices(
-                        bNumberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
+                        bNumberOfDims, bDims, bIndices, bTensor->shape->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(int32_t);
                 }
 
@@ -183,16 +183,16 @@ void matmulInt32Tensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
 }
 
 void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTensor) {
-    if (aTensor->shape.numberOfDimensions > 2 || bTensor->shape.numberOfDimensions > 2) {
+    if (aTensor->shape->numberOfDimensions > 2 || bTensor->shape->numberOfDimensions > 2) {
         printf("Error: Matmul only supports up to 2D Tensors\n");
         return;
     }
 
-    size_t aNumberOfDims = aTensor->shape.numberOfDimensions;
-    size_t *aDims = aTensor->shape.dimensions;
+    size_t aNumberOfDims = aTensor->shape->numberOfDimensions;
+    size_t *aDims = aTensor->shape->dimensions;
 
-    size_t bNumberOfDims = bTensor->shape.numberOfDimensions;
-    size_t *bDims = bTensor->shape.dimensions;
+    size_t bNumberOfDims = bTensor->shape->numberOfDimensions;
+    size_t *bDims = bTensor->shape->dimensions;
 
     size_t aRows, aColumns = 0;
     if (aNumberOfDims < 2) {
@@ -234,7 +234,7 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                 } else {
                     size_t aIndices[] = {rowIndex, i};
                     size_t aValueIndex = calcElementIndexByIndices(
-                        aNumberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
+                        aNumberOfDims, aDims, aIndices, aTensor->shape->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(float);
                 }
 
@@ -247,7 +247,7 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
                     size_t bIndices[] = {i, columnIndex};
 
                     size_t bValueIndex = calcElementIndexByIndices(
-                        bNumberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
+                        bNumberOfDims, bDims, bIndices, bTensor->shape->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(float);
                 }
 
@@ -265,16 +265,16 @@ void matmulFloatTensors(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTe
 }
 
 void matmulFloatTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTensor, tensor_t *outputTensor) {
-    if (aTensor->shape.numberOfDimensions > 2 || bTensor->shape.numberOfDimensions > 2) {
+    if (aTensor->shape->numberOfDimensions > 2 || bTensor->shape->numberOfDimensions > 2) {
         printf("Error: Matmul only supports up to 2D Tensors\n");
         return;
     }
 
-    size_t aNumberOfDims = aTensor->shape.numberOfDimensions;
-    size_t *aDims = aTensor->shape.dimensions;
+    size_t aNumberOfDims = aTensor->shape->numberOfDimensions;
+    size_t *aDims = aTensor->shape->dimensions;
 
-    size_t bNumberOfDims = bTensor->shape.numberOfDimensions;
-    size_t *bDims = bTensor->shape.dimensions;
+    size_t bNumberOfDims = bTensor->shape->numberOfDimensions;
+    size_t *bDims = bTensor->shape->dimensions;
 
     size_t aRows, aColumns = 0;
     if (aNumberOfDims < 2) {
@@ -316,7 +316,7 @@ void matmulFloatTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTens
                 } else {
                     size_t aIndices[] = {rowIndex, i};
                     size_t aValueIndex = calcElementIndexByIndices(
-                        aNumberOfDims, aDims, aIndices, aTensor->shape.orderOfDimensions);
+                        aNumberOfDims, aDims, aIndices, aTensor->shape->orderOfDimensions);
                     aByteIndex = aValueIndex * sizeof(float);
                 }
 
@@ -329,7 +329,7 @@ void matmulFloatTensorsWithInstructionCounter(tensor_t *aTensor, tensor_t *bTens
                     size_t bIndices[] = {i, columnIndex};
 
                     size_t bValueIndex = calcElementIndexByIndices(
-                        bNumberOfDims, bDims, bIndices, bTensor->shape.orderOfDimensions);
+                        bNumberOfDims, bDims, bIndices, bTensor->shape->orderOfDimensions);
                     bByteIndex = bValueIndex * sizeof(float);
                 }
 

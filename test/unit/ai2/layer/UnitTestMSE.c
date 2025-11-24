@@ -13,24 +13,29 @@ void testMSELossBackwardFloat() {
     size_t dims[] = {numberOfElements};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
     tensor_t modelOutput;
     quantization_t modelOutputQ;
     initFloat32Quantization(&modelOutputQ);
     float modelOutputData[] = {1.f, 2.f, -3.f};
-    setTensorValues(&modelOutput, modelOutputData, dims, numberOfDims, orderOfDims, &modelOutputQ, NULL);
+    setTensorValues(&modelOutput, modelOutputData, &shape, &modelOutputQ, NULL);
 
     tensor_t label;
     quantization_t labelQ;
     initFloat32Quantization(&labelQ);
     float labelData[] = {-5.f, -4.f, 2.f};
-    setTensorValues(&label, labelData, dims, numberOfDims, orderOfDims, &labelQ, NULL);
+    setTensorValues(&label, labelData, &shape, &labelQ, NULL);
 
     tensor_t result;
     quantization_t resultQ;
     initFloat32Quantization(&resultQ);
     float resultData[numberOfElements];
-    setTensorValues(&result, resultData, dims, numberOfDims, orderOfDims, &resultQ, NULL);
+    setTensorValues(&result, resultData, &shape, &resultQ, NULL);
 
     MSELossBackwardFloat(&modelOutput, &label, &result);
 
@@ -49,12 +54,17 @@ void testMSELossBackwardAsym() {
     size_t dims[] = {numberOfElements};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
     tensor_t modelOutput;
     quantization_t modelOutputQ;
     initFloat32Quantization(&modelOutputQ);
     float modelOutputData[] = {1.f, 2.f, -3.f};
-    setTensorValues(&modelOutput, modelOutputData, dims, numberOfDims, orderOfDims, &modelOutputQ, NULL);
+    setTensorValues(&modelOutput, modelOutputData, &shape, &modelOutputQ, NULL);
 
     tensor_t modelOutputAsym;
     asymQConfig_t modelOutputAsymQC;
@@ -69,7 +79,7 @@ void testMSELossBackwardAsym() {
     quantization_t labelQ;
     initFloat32Quantization(&labelQ);
     float labelData[] = {-5.f, -4.f, 2.f};
-    setTensorValues(&label, labelData, dims, numberOfDims, orderOfDims, &labelQ, NULL);
+    setTensorValues(&label, labelData, &shape, &labelQ, NULL);
 
     tensor_t labelAsym;
     asymQConfig_t labelAsymQC;
@@ -85,7 +95,7 @@ void testMSELossBackwardAsym() {
     quantization_t resultQ;
     initFloat32Quantization(&resultQ);
     float resultData[numberOfElements];
-    setTensorValues(&result, resultData, dims, numberOfDims, orderOfDims, &resultQ, NULL);
+    setTensorValues(&result, resultData, &shape, &resultQ, NULL);
 
     tensor_t resultAsym;
     asymQConfig_t resultAsymQC;

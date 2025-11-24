@@ -1,22 +1,11 @@
-
 #ifndef ENV5_RUNTIME_LAYER_H
 #define ENV5_RUNTIME_LAYER_H
 #include "Tensor.h"
+#include "Linear.h"
 
 #include <stddef.h>
 
-// TODO figure out how to do this, when forward func signatures aren't the same
-// All void pointers? Do we lose something?
-// Will have to cast everything
-
-/*typedef struct
-{
-    forward* forwardFunc;
-    backward* backwardFunc;
-} layerFunctionEntry_t;*/
-
-//extern const layerFunctionEntry_t layerFunctions[];
-
+typedef struct linearConfig linearConfig_t;
 
 typedef enum layerType
 {
@@ -32,23 +21,43 @@ typedef enum lossFunctionType
     CROSS_ENTROPY
 } lossFunctionType_t;
 
+typedef enum layerQType
+{
+    FLOAT_LAYER,
+    ASYM_LAYER
+} layerQType_t;
 
-typedef struct layer layer_t;
+typedef union layerConfig {
+    linearConfig_t* linear;
+} layerConfig_t;
 
-typedef void(*calcOutputShapeFn_t)(layer_t* self, shape_t* inputShape, shape_t* outputShape);
-typedef void(*forwardFn_t)(void* config, tensor_t* inputTensor, tensor_t* outputTensor);
-typedef void(*backwardFn_t)(void* config, tensor_t* inputTensor, tensor_t* outputTensor);
-
-struct layer
+typedef struct layer
 {
     layerType_t type;
-    calcOutputShapeFn_t calcOutputShape;
+    layerConfig_t* config;
+    layerQType_t qType;
+    // IMPORTANT: mismatched inputQ and layerQ is needed!
+
+    quantization_t* inputQ;
+    quantization_t* outputQ;
+}layer_t;
+
+typedef void (*forwardFn_t)(layer_t* layer, tensor_t* inputTensor, tensor_t* outputTensor);
+typedef void (*backwardFn_t)(layer_t* layer, tensor_t* forwardInput, tensor_t* loss, tensor_t* propLoss);
+typedef void (*calcOutputShapeFn_t)(layer_t* layer, shape_t* inputShape, shape_t* outputShape);
+typedef void (*lossFn_t)(tensor_t* modelOutput, tensor_t* label, tensor_t* result);
+
+typedef struct layerFunctions
+{
     forwardFn_t forward;
     backwardFn_t backward;
-    void* layerConfig;
-};
+    calcOutputShapeFn_t calcOutputShape;
+} layerFunctions_t;
 
-void calcOutputShape(layer_t* layer, shape_t* inputShape, shape_t* outputShape);
 
+extern layerFunctions_t layerFunctions[];
+
+void initLayer(layer_t* layer, layerType_t layerType, layerConfig_t* config, layerQType_t layerQType, quantization_t* inputQ,
+               quantization_t* outputQ);
 
 #endif

@@ -15,17 +15,12 @@ void zeroTensorData(tensor_t *tensor) {
 }
 
 void copyDimsAndSparsityToTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
-    outputTensor->shape.numberOfDimensions = inputTensor->shape.numberOfDimensions;
-    memcpy(outputTensor->shape.dimensions, inputTensor->shape.dimensions,
-           sizeof(size_t) * outputTensor->shape.numberOfDimensions);
+    outputTensor->shape = inputTensor->shape;
     if (inputTensor->sparsityBitmask) {
         memcpy(outputTensor->sparsityBitmask,
                inputTensor->sparsityBitmask,
-               (calcNumberOfElementsByDims(outputTensor->shape.numberOfDimensions,
-                                           outputTensor->shape.dimensions) - 1) / 8 + 1);
+               (calcNumberOfElementsByShape(outputTensor->shape) - 1) / 8 + 1);
     }
-    memcpy(outputTensor->shape.orderOfDimensions, inputTensor->shape.orderOfDimensions,
-           sizeof(size_t) * outputTensor->shape.numberOfDimensions);
 }
 
 
@@ -163,7 +158,9 @@ void convertFloatTensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTenso
     writeInt32ArrayToByteArray(numberOfElements, outputElements, outputElement);
 
     byteConversion(outputElement, 32, outputTensor->data, asymQConfig->qBits, numberOfElements);
+
     copyDimsAndSparsityToTensor(inputTensor, outputTensor);
+
 }
 
 // Important: Scale is ignored!
@@ -266,9 +263,7 @@ void convertAsymTensorToFloatTensor(tensor_t *inputTensor, tensor_t *outputTenso
     asymQConfig_t *asymQConfig = inputTensor->quantization->qConfig;
     int16_t zeroPoint = asymQConfig->zeroPoint;
     int32_t inputInt[numberOfElements];
-
     byteConversion(inputTensor->data, asymQConfig->qBits, inputInt, 32, numberOfElements);
-
     float *outputElements = (float *) outputTensor->data;
 
     for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {

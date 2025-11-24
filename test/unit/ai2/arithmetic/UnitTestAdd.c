@@ -18,14 +18,18 @@ void testAddInt32TensorsInplace() {
         .type = INT32
     };
 
+    shape_t aShape = {
+        .dimensions = aDims,
+        .numberOfDimensions = aNumberOfDims,
+        .orderOfDimensions = aOrderOfDims
+    };
+
 
     tensor_t aTensor = {
         .data = aData,
-        .shape.numberOfDimensions = aNumberOfDims,
-        .shape.dimensions = aDims,
+        .shape = &aShape,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = aOrderOfDims
     };
 
     int32_t bData[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
@@ -33,17 +37,20 @@ void testAddInt32TensorsInplace() {
     size_t bDims[] = {2, 3, 4};
     size_t bOrderOfDims[] = {1, 0, 2};
 
+    shape_t bShape = {
+        .dimensions = bDims,
+        .numberOfDimensions = bNumberOfDims,
+        .orderOfDimensions = bOrderOfDims
+    };
 
     quantization_t bQ = {
         .type = INT32
     };
     tensor_t bTensor = {
         .data = bData,
-        .shape.numberOfDimensions = bNumberOfDims,
-        .shape.dimensions = bDims,
+        .shape = &bShape,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions =  bOrderOfDims
     };
 
     transposeTensor(&bTensor, 0, 1);
@@ -67,13 +74,18 @@ void testAddInt32ElementWithInt32TensorInplace() {
     };
 
 
+    shape_t aShape = {
+        .dimensions = aDims,
+        .numberOfDimensions = aNumberOfDims,
+        .orderOfDimensions = aOrderOfDims
+    };
+
+
     tensor_t aTensor = {
         .data = aData,
-        .shape.numberOfDimensions = aNumberOfDims,
-        .shape.dimensions = aDims,
+        .shape = &aShape,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = aOrderOfDims
     };
 
     int32_t x = 5;
@@ -92,24 +104,34 @@ void testAddFloat32TensorsInplace() {
     size_t aNumberOfDims = 3;
     size_t aDims[] = {2, 3, 4};
     size_t aOrderOfDims[] = {0, 1, 2};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .numberOfDimensions = aNumberOfDims,
+        .orderOfDimensions = aOrderOfDims
+    };
+
     quantization_t aQ;
     initFloat32Quantization(&aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, aDims, aNumberOfDims, aOrderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &aShape, &aQ, NULL);
 
 
     float bData[] = {0.f, 1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f, 16.f, 17.f, 18.f, 19.f, 20.f, 21.f, 22.f, 23.f};
     size_t bNumberOfDims = 3;
     size_t bDims[] = {2, 3, 4};
     size_t bOrderOfDims[] = {1, 0, 2};
-
+    shape_t bShape = {
+        .dimensions = bDims,
+        .numberOfDimensions = bNumberOfDims,
+        .orderOfDimensions = bOrderOfDims
+    };
 
     quantization_t bQ;
     initFloat32Quantization(&bQ);
 
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, bDims, bNumberOfDims, bOrderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &bShape, &bQ, NULL);
 
     transposeTensor(&bTensor, 0, 1);
 
@@ -134,8 +156,13 @@ void testAddSymInt32TensorsInplaceWithSameScale() {
     size_t dims[] = {numberOfValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
 
     addSymInt32TensorsInplace(&aTensor, &aTensor);
@@ -163,8 +190,13 @@ void testAddSymInt32TensorsInplaceWithDifferentScale() {
     size_t dims[] = {numberOfValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
     symInt32QConfig_t bQC;
     initSymInt32QConfig(HTE, &bQC);
@@ -175,7 +207,7 @@ void testAddSymInt32TensorsInplaceWithDifferentScale() {
     int32_t bData[] = {1, 2, 3, 4, 5, 6};
     tensor_t bTensor;
 
-    setTensorValues(&bTensor, bData, dims, numberOfDims, orderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &shape, &bQ, NULL);
 
     addSymInt32TensorsInplace(&aTensor, &bTensor);
 
@@ -200,14 +232,19 @@ void testAddInt32TensorWithSymInt32TensorInplace() {
     size_t dims[] = {numberOfValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
 
     quantization_t bQ;
     initInt32Quantization(&bQ);
     int32_t bData[] = {1, -1, 3, -5, 9, 1};
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, dims, numberOfDims, orderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &shape, &bQ, NULL);
 
     addInt32TensorToSymInt32TensorInplace(&aTensor, &bTensor);
 
@@ -229,14 +266,19 @@ void testAddFloat32TensorToSymInt32TensorInplace() {
     size_t dims[] = {numberOfValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
 
     quantization_t bQ;
     initFloat32Quantization(&bQ);
     float bData[] = {1.1f, -1.1f, -5.9f, 9.3f, 1.9f, -4.4f};
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, dims, numberOfDims, orderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &shape, &bQ, NULL);
 
     addFloat32TensorToSymInt32TensorInplace(&aTensor, &bTensor);
 

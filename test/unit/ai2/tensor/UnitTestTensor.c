@@ -122,7 +122,47 @@ void testByteFlattening5() {
 
 }
 
-void testInitTensor() {}
+void testCopyTensor() {
+    size_t numberOfValues = 3;
+    tensor_t src;
+    float data[] = {1.f, 2.f, 3.f};
+    size_t dims[] = {1, numberOfValues};
+    size_t numberOfDims = 2;
+    size_t orderOfDims[] = {0, 1};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
+    quantization_t q;
+    initFloat32Quantization(&q);
+
+    setTensorValues(&src, data, &shape, &q, NULL);
+
+    tensor_t dest;
+    float destData[numberOfValues];
+    size_t destDims[2];
+    size_t destNumberOfDims;
+    size_t destOrderOfDims[2];
+    shape_t destShape = {
+        .dimensions = destDims,
+        .numberOfDimensions = destNumberOfDims,
+        .orderOfDimensions = destOrderOfDims
+    };
+    setTensorValues(&dest, destData, &destShape, &q, NULL);
+
+    copyTensor(&dest, &src);
+
+    float expectedData[] = {1.f, 2.f, 3.f};
+    size_t expectedDims[] = {1, numberOfValues};
+    size_t expectedNumberOfDims = 2;
+    size_t expectedOrderOfDims[] = {0, 1};
+
+    TEST_ASSERT_EQUAL_FLOAT_ARRAY(expectedData, dest.data, numberOfValues);
+    TEST_ASSERT_EQUAL_size_t_ARRAY(expectedDims, dest.shape->dimensions, 2);
+    TEST_ASSERT_EQUAL_size_t(expectedNumberOfDims, dest.shape->numberOfDimensions);
+    TEST_ASSERT_EQUAL_size_t_ARRAY(expectedOrderOfDims, dest.shape->orderOfDimensions, 2);
+}
 
 void setUp() {}
 void tearDown() {}
@@ -141,6 +181,6 @@ int main(void) {
     RUN_TEST(testWriteByte2);
     RUN_TEST(testReadByte);
 
-    RUN_TEST(testInitTensor);
+    RUN_TEST(testCopyTensor);
     UNITY_END();
 }

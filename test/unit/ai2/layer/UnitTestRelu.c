@@ -8,34 +8,44 @@
 void testReluForwardFloat() {
     size_t numberOfElements = 6;
 
+    tensor_t input;
     float inputData[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
     size_t inputDims[] = {2, 3};
     size_t inputNumberOfDims = 2;
     size_t inputOrderOfDims[] = {0, 1};
+    shape_t inputShape = {
+        .dimensions = inputDims,
+        .orderOfDimensions = inputOrderOfDims,
+        .numberOfDimensions = inputNumberOfDims
+    };
     quantization_t inputQ;
     initFloat32Quantization(&inputQ);
-
-    tensor_t inputTensor;
-    setTensorValues(&inputTensor, inputData, inputDims, inputNumberOfDims, inputOrderOfDims,
+    setTensorValues(&input, inputData, &inputShape,
                     &inputQ, NULL);
 
+    tensor_t output;
     float outputData[numberOfElements];
     size_t outputDims[] = {2, 3};
     size_t outputNumberOfDims = 2;
     size_t outputOrderOfDims[] = {0, 1};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
     quantization_t outputQ;
     initFloat32Quantization(&outputQ);
+    setTensorValues(&output, outputData, &outputShape, &outputQ, NULL);
 
-    tensor_t outputTensor;
-    setTensorValues(&outputTensor, outputData, outputDims, outputNumberOfDims, outputOrderOfDims,
-                    &outputQ, NULL);
+    layer_t reluLayer;
+    initLayer(&reluLayer, RELU, NULL, FLOAT_LAYER, &inputQ, &outputQ);
 
-    reluForward(NULL, &inputTensor, &outputTensor);
+    reluForward(&reluLayer, &input, &output);
 
     float expected[] = {0.f, 0.f, 1.f, 2.f, 5.f, 0.f};
 
     float actual[numberOfElements];
-    readBytesAsFloatArray(numberOfElements, outputTensor.data, actual);
+    readBytesAsFloatArray(numberOfElements, output.data, actual);
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, actual, numberOfElements);
 }
@@ -43,51 +53,59 @@ void testReluForwardFloat() {
 void testReluForwardAsym() {
     size_t numberOfElements = 6;
 
+    tensor_t inputFloat;
     float inputFloatData[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
     size_t inputDims[] = {2, 3};
     size_t inputNumberOfDims = 2;
     size_t inputOrderOfDims[] = {0, 1};
+    shape_t inputShape = {
+        .dimensions = inputDims,
+        .orderOfDimensions = inputOrderOfDims,
+        .numberOfDimensions = inputNumberOfDims
+    };
     quantization_t inputFloatQ;
     initFloat32Quantization(&inputFloatQ);
-    tensor_t inputFloatTensor;
-    setTensorValues(&inputFloatTensor, inputFloatData, inputDims, inputNumberOfDims,
-                    inputOrderOfDims, &inputFloatQ, NULL);
+    setTensorValues(&inputFloat, inputFloatData, &inputShape, &inputFloatQ, NULL);
 
-    tensor_t inputAsymTensor;
+    tensor_t inputAsym;
     uint8_t inputAsymData[numberOfElements];
     asymQConfig_t inputAsymQConfig;
     initAsymQConfig(8, HTE, &inputAsymQConfig);
     quantization_t inputAsymQ;
     initAsymQuantization(&inputAsymQConfig, &inputAsymQ);
-    setTensorValues(&inputAsymTensor, inputAsymData, inputDims, inputNumberOfDims,
-                    inputOrderOfDims, &inputAsymQ, NULL);
-    convertTensor(&inputFloatTensor, &inputAsymTensor);
+    setTensorValues(&inputAsym, inputAsymData, &inputShape, &inputAsymQ, NULL);
+    convertTensor(&inputFloat, &inputAsym);
 
+    tensor_t outputFloat;
     float outputFloatData[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
     size_t outputDims[] = {2, 3};
     size_t outputNumberOfDims = 2;
     size_t outputOrderOfDims[] = {0, 1};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
     quantization_t outputFloatQ;
     initFloat32Quantization(&outputFloatQ);
-    tensor_t outputFloatTensor;
-    setTensorValues(&outputFloatTensor, outputFloatData, outputDims, outputNumberOfDims,
-                    outputOrderOfDims, &outputFloatQ, NULL);
+    setTensorValues(&outputFloat, outputFloatData, &outputShape, &outputFloatQ, NULL);
 
+    tensor_t outputAsym;
     uint8_t outputAsymData[numberOfElements];
     asymQConfig_t outputAsymQConfig;
     initAsymQConfig(8, HTE, &outputAsymQConfig);
     quantization_t outputAsymQ;
     initAsymQuantization(&outputAsymQConfig, &outputAsymQ);
-    tensor_t outputAsymTensor;
-    setTensorValues(&outputAsymTensor, outputAsymData, outputDims, outputNumberOfDims,
-                    outputOrderOfDims, &outputAsymQ, NULL);
-    convertTensor(&outputFloatTensor, &outputAsymTensor);
+    setTensorValues(&outputAsym, outputAsymData, &outputShape, &outputAsymQ, NULL);
+    convertTensor(&outputFloat, &outputAsym);
 
-    reluForward(NULL, &inputAsymTensor, &outputAsymTensor);
+    layer_t reluLayer;
+    initLayer(&reluLayer, RELU, NULL, ASYM_LAYER, &inputAsymQ, &outputAsymQ);
+    reluForward(&reluLayer, &inputAsym, &outputAsym);
 
-    convertTensor(&outputAsymTensor, &outputFloatTensor);
+    convertTensor(&outputAsym, &outputFloat);
     float actual[numberOfElements];
-    readBytesAsFloatArray(numberOfElements, outputFloatTensor.data, actual);
+    readBytesAsFloatArray(numberOfElements, outputFloat.data, actual);
 
     float expected[] = {0.f, 0.f, 1.f, 2.f, 5.f, 0.f};
 
@@ -102,31 +120,39 @@ void testReluBackwardFloat() {
     size_t dims[] = {numberOfElements};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
-    float inputData[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
-    quantization_t inputQ;
-    initFloat32Quantization(&inputQ);
-    tensor_t input;
-    setTensorValues(&input, inputData, dims, numberOfDims, orderOfDims, &inputQ, NULL);
+    tensor_t forwardInput;
+    float forwardInputData[] = {-1.f, 0.f, 1.f, 2.f, 5.f, -6.f};
+    quantization_t forwardInputQ;
+    initFloat32Quantization(&forwardInputQ);
+    setTensorValues(&forwardInput, forwardInputData, &shape, &forwardInputQ, NULL);
 
-    tensor_t gradOutputFromPreviousLayer;
-    float gradOutputData[] = {0.f, 2.f, -4.f, 6.f, 3.f, 2.f};
-    quantization_t gradOutputQ;
-    initFloat32Quantization(&gradOutputQ);
-    setTensorValues(&gradOutputFromPreviousLayer, gradOutputData, dims, numberOfDims, orderOfDims, &gradOutputQ, NULL);
+    tensor_t loss;
+    float lossData[] = {0.f, 2.f, -4.f, 6.f, 3.f, 2.f};
+    quantization_t lossQ;
+    initFloat32Quantization(&lossQ);
+    setTensorValues(&loss, lossData, &shape, &lossQ, NULL);
 
-    tensor_t gradInputForNextLayer;
-    float gradInputData[numberOfElements];
-    quantization_t gradInputQ;
-    initFloat32Quantization(&gradInputQ);
-    setTensorValues(&gradInputForNextLayer, gradInputData, dims, numberOfDims, orderOfDims, &inputQ, NULL);
+    tensor_t propLoss;
+    float propLossData[numberOfElements];
+    quantization_t propLossQ;
+    initFloat32Quantization(&propLossQ);
+    setTensorValues(&propLoss, propLossData, &shape, &propLossQ, NULL);
 
-    reluBackward(NULL, &input, &gradOutputFromPreviousLayer, &gradInputForNextLayer);
+    layer_t reluLayer;
+    initLayer(&reluLayer, RELU, NULL, FLOAT_LAYER, &forwardInputQ, &propLossQ);
+
+    reluBackward(&reluLayer, &forwardInput, &loss, &propLoss);
 
     float expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
 
     float actual[numberOfElements];
-    readBytesAsFloatArray(numberOfElements, gradInputForNextLayer.data, actual);
+    readBytesAsFloatArray(numberOfElements, propLoss.data, actual);
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, actual, numberOfElements);
 }
@@ -137,58 +163,66 @@ void testReluBackwardAsym() {
     size_t dims[] = {numberOfElements};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
-    tensor_t inputFloat;
-    float inputData[] = {-1, 0, 1, 2, 5, -6};
-    quantization_t inputQ;
-    initFloat32Quantization(&inputQ);
-    setTensorValues(&inputFloat, inputData, dims, numberOfDims, orderOfDims, &inputQ, NULL);
+    tensor_t forwardInputFloat;
+    float forwardInputData[] = {-1, 0, 1, 2, 5, -6};
+    quantization_t forwardInputQ;
+    initFloat32Quantization(&forwardInputQ);
+    setTensorValues(&forwardInputFloat, forwardInputData, &shape, &forwardInputQ, NULL);
 
-    tensor_t gradOutputFromPreviousLayerFloat;
-    float gradOutputData[] = {0, 2, -4, 6, 3, 2};
-    quantization_t gradOutputQ;
-    initFloat32Quantization(&gradOutputQ);
-    setTensorValues(&gradOutputFromPreviousLayerFloat, gradOutputData, dims, numberOfDims, orderOfDims, &gradOutputQ, NULL);
+    tensor_t lossFloat;
+    float lossFloatData[] = {0, 2, -4, 6, 3, 2};
+    quantization_t lossFloatQ;
+    initFloat32Quantization(&lossFloatQ);
+    setTensorValues(&lossFloat, lossFloatData, &shape, &lossFloatQ, NULL);
 
-    tensor_t gradInputForNextLayerFloat;
-    float gradInputData[numberOfElements];
-    quantization_t gradInputQ;
-    initFloat32Quantization(&gradInputQ);
-    setTensorValues(&gradInputForNextLayerFloat, gradInputData, dims, numberOfDims, orderOfDims, &gradInputQ, NULL);
+    tensor_t propLossFloat;
+    float propLossData[numberOfElements];
+    quantization_t propLossQ;
+    initFloat32Quantization(&propLossQ);
+    setTensorValues(&propLossFloat, propLossData, &shape, &propLossQ, NULL);
 
-    tensor_t inputAsym;
-    asymQConfig_t inputAsymQConfig;
-    initAsymQConfig(8, HTE, &inputAsymQConfig);
-    quantization_t inputAsymQ;
-    initAsymQuantization(&inputAsymQConfig, &inputAsymQ);
-    uint8_t inputDataAsym[numberOfElements * calcBytesPerElement(&inputAsymQ)];
-    setTensorValuesForConversion(inputDataAsym, &inputAsymQ, &inputAsym, &inputAsym);
-    convertTensor(&inputFloat, &inputAsym);
+    tensor_t forwardInputAsym;
+    asymQConfig_t forwardInputAsymQConfig;
+    initAsymQConfig(8, HTE, &forwardInputAsymQConfig);
+    quantization_t forwardInputAsymQ;
+    initAsymQuantization(&forwardInputAsymQConfig, &forwardInputAsymQ);
+    uint8_t forwardInputDataAsym[numberOfElements * calcBytesPerElement(&forwardInputAsymQ)];
+    setTensorValuesForConversion(forwardInputDataAsym, &forwardInputAsymQ, &forwardInputFloat, &forwardInputAsym);
+    convertTensor(&forwardInputFloat, &forwardInputAsym);
 
-    tensor_t gradOutputFromPreviousLayerAsym;
-    asymQConfig_t gradOutputAsymQC;
-    initAsymQConfig(8, HTE, &gradOutputAsymQC);
-    quantization_t gradOutputAsymQ;
-    initAsymQuantization(&gradOutputAsymQC, &gradOutputAsymQ);
-    uint8_t gradOutputAsymData[numberOfElements * calcBytesPerElement(&gradOutputAsymQ)];
-    setTensorValuesForConversion(gradOutputAsymData, &gradOutputAsymQ, &gradOutputFromPreviousLayerFloat, &gradOutputFromPreviousLayerAsym);
-    convertTensor(&gradOutputFromPreviousLayerFloat, &gradOutputFromPreviousLayerAsym);
+    tensor_t lossAsym;
+    asymQConfig_t lossAsymQC;
+    initAsymQConfig(8, HTE, &lossAsymQC);
+    quantization_t lossAsymQ;
+    initAsymQuantization(&lossAsymQC, &lossAsymQ);
+    uint8_t lossAsymData[numberOfElements * calcBytesPerElement(&lossAsymQ)];
+    setTensorValuesForConversion(lossAsymData, &lossAsymQ, &lossFloat, &lossAsym);
+    convertTensor(&lossFloat, &lossAsym);
 
-    tensor_t gradInputForNextLayerAsym;
-    asymQConfig_t gradInputAsymQConfig;
-    initAsymQConfig(8, HTE, &gradInputAsymQConfig);
-    quantization_t gradInputAsymQ;
-    initAsymQuantization(&gradInputAsymQConfig, &gradInputAsymQ);
-    uint8_t gradInputDataAsym[numberOfElements*calcBytesPerElement(&gradInputAsymQ)];
-    setTensorValuesForConversion(gradInputDataAsym, &gradInputAsymQ, &gradInputForNextLayerFloat, &gradInputForNextLayerAsym);
-    convertTensor(&gradInputForNextLayerFloat, &gradInputForNextLayerAsym);
+    tensor_t propLossAsym;
+    asymQConfig_t propLossAsymQConfig;
+    initAsymQConfig(8, HTE, &propLossAsymQConfig);
+    quantization_t propLossAsymQ;
+    initAsymQuantization(&propLossAsymQConfig, &propLossAsymQ);
+    uint8_t propLossDataAsym[numberOfElements*calcBytesPerElement(&propLossAsymQ)];
+    setTensorValuesForConversion(propLossDataAsym, &propLossAsymQ, &propLossFloat, &propLossAsym);
+    convertTensor(&propLossFloat, &propLossAsym);
 
-    reluBackward(NULL, &inputAsym, &gradOutputFromPreviousLayerAsym, &gradInputForNextLayerAsym);
+    layer_t reluLayer;
+    initLayer(&reluLayer, RELU, NULL, ASYM_LAYER, &forwardInputQ, &propLossAsymQ);
 
-    convertTensor(&gradInputForNextLayerAsym, &gradInputForNextLayerFloat);
+    reluBackward(&reluLayer, &forwardInputAsym, &lossAsym, &propLossAsym);
+
+    convertTensor(&propLossAsym, &propLossFloat);
 
     float actual[numberOfElements];
-    readBytesAsFloatArray(numberOfElements, gradInputForNextLayerFloat.data, actual);
+    readBytesAsFloatArray(numberOfElements, propLossFloat.data, actual);
 
     float expected[] = {0.f, 0.f, -4.f, 6.f, 3.f, 0.f};
 

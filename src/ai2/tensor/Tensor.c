@@ -10,8 +10,10 @@
 #include <string.h>
 #include <tgmath.h>
 
-size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions) {
+size_t calcNumberOfElementsByShape(shape_t* shape) {
     size_t numElem = 1;
+    size_t numberOfDimensions = shape->numberOfDimensions;
+    size_t *dimensions = shape->dimensions;
     for (size_t i = 0; i < numberOfDimensions; i++) {
         numElem *= dimensions[i];
     }
@@ -19,12 +21,11 @@ size_t calcNumberOfElementsByDims(size_t numberOfDimensions, size_t *dimensions)
 }
 
 size_t calcNumberOfElementsByTensor(tensor_t *tensor) {
-    return calcNumberOfElementsByDims(tensor->shape.numberOfDimensions, tensor->shape.dimensions);
+    return calcNumberOfElementsByShape(tensor->shape);
 }
 
 size_t calcNumberOfElementsByParameter(parameter_t *parameter) {
-    return calcNumberOfElementsByDims(parameter->tensor.shape.numberOfDimensions,
-                                      parameter->tensor.shape.dimensions);
+    return calcNumberOfElementsByShape(parameter->param->shape);
 }
 
 size_t calcBytesPerElement(quantization_t *quantization) {
@@ -58,8 +59,7 @@ size_t calcBitsPerElement(quantization_t *quantization) {
 
 size_t calcBitsPerTensor(tensor_t *tensor) {
     size_t bitsPerElement = calcBitsPerElement(tensor->quantization);
-    size_t numElements = calcNumberOfElementsByDims(tensor->shape.numberOfDimensions,
-                                                    tensor->shape.dimensions);
+    size_t numElements = calcNumberOfElementsByShape(tensor->shape);
     return bitsPerElement * numElements;
 }
 
@@ -144,7 +144,6 @@ void byteConversion(uint8_t *dataIn, size_t dataInBits, uint8_t *dataOut, size_t
         printf("\n");
         printf("Value %i\n", i);*/
         while ((dataInStartbit < dataInEndbit) | (dataOutStartbit < dataOutEndbit)) {
-
             uint8_t data = readByte(dataIn[dataInIndex], dataInStartbit, dataInEndbit);
             dataOut[dataOutIndex] = writeByte(dataOut[dataOutIndex], data, dataOutStartbit,
                                               dataOutEndbit);
@@ -199,99 +198,48 @@ void byteConversion(uint8_t *dataIn, size_t dataInBits, uint8_t *dataOut, size_t
         dataInEndbit = dataInStartbit + dataInBits;
         dataOutStartbit = dataOutEndbit % 8;
         dataOutEndbit = dataOutStartbit + dataOutBits;
+
     }
 }
 
 
-void getTensorFromParameter(parameter_t *parameter, tensor_t *tensor, size_t *orderOfDimensions) {
-    setOrderOfDimsForNewTensor(parameter->tensor.shape.numberOfDimensions, orderOfDimensions);
-    tensor->data = parameter->tensor.data;
-    tensor->quantization = parameter->tensor.quantization;
-    tensor->sparsityBitmask = parameter->tensor.sparsityBitmask;
-    tensor->shape.dimensions = parameter->tensor.shape.dimensions;
-    tensor->shape.numberOfDimensions = parameter->tensor.shape.numberOfDimensions;
-    tensor->shape.orderOfDimensions = orderOfDimensions;
+tensor_t* getTensorFromParameter(parameter_t *parameter) {
+    return parameter->param;
 }
 
-void getGradTensorFromParameter(parameter_t *parameter, tensor_t *tensor,
-                                size_t *orderOfDimensions) {
-    setOrderOfDimsForNewTensor(parameter->tensor.shape.numberOfDimensions, orderOfDimensions);
-    tensor->data = parameter->grad;
-    tensor->quantization = parameter->gradQuantization;
-    tensor->sparsityBitmask = parameter->tensor.sparsityBitmask;
-    tensor->shape.dimensions = parameter->tensor.shape.dimensions;
-    tensor->shape.numberOfDimensions = parameter->tensor.shape.numberOfDimensions;
-    tensor->shape.orderOfDimensions = orderOfDimensions;
+tensor_t* getGradTensorFromParameter(parameter_t *parameter) {
+    return parameter->grad;
 }
-
-void initTensor(tensor_t *tensor, uint8_t *data, quantization_t *quantization,
-                uint8_t *sparsityBitmask,
-                size_t numberOfDims, size_t *dims, size_t *orderOfDimensions) {
-    tensor->data = data;
-    tensor->quantization = quantization;
-    tensor->sparsityBitmask = sparsityBitmask;
-    tensor->shape.numberOfDimensions = numberOfDims;
-    tensor->shape.dimensions = dims;
-    tensor->shape.orderOfDimensions = orderOfDimensions;
-}
-
-void initParameter(parameter_t *parameter, uint8_t *data, quantization_t *dataQuantization,
-                   uint8_t *sparsityBitmask, uint8_t *grad,
-                   quantization_t *gradQuantization, size_t numberOfDims, size_t *dims) {
-    parameter->tensor.data = data;
-    parameter->tensor.quantization = dataQuantization;
-    parameter->tensor.sparsityBitmask = sparsityBitmask;
-    parameter->grad = grad;
-    parameter->gradQuantization = gradQuantization;
-    parameter->tensor.shape.numberOfDimensions = numberOfDims;
-    parameter->tensor.shape.dimensions = dims;
-}
-
 
 void transposeTensor(tensor_t *tensor, size_t dim0Index, size_t dim1Index) {
-    if (tensor->shape.numberOfDimensions < 2) {
-        printf("Error in transpose: number of dims < 2\n");
+    if (tensor->shape->numberOfDimensions < 2) {
         return;
     }
-    size_t temp = tensor->shape.orderOfDimensions[dim0Index];
-    tensor->shape.orderOfDimensions[dim0Index] = tensor->shape.orderOfDimensions[dim1Index];
-    tensor->shape.orderOfDimensions[dim1Index] = temp;
+    size_t temp = tensor->shape->orderOfDimensions[dim0Index];
+    tensor->shape->orderOfDimensions[dim0Index] = tensor->shape->orderOfDimensions[dim1Index];
+    tensor->shape->orderOfDimensions[dim1Index] = temp;
 }
 
 
 void setTensorValuesForConversion(uint8_t *data, quantization_t *q, tensor_t *originalTensor,
                                   tensor_t *outputTensor) {
     outputTensor->data = data;
-    outputTensor->shape.dimensions = originalTensor->shape.dimensions;
+    outputTensor->shape = originalTensor->shape;
     outputTensor->quantization = q;
     outputTensor->sparsityBitmask = originalTensor->sparsityBitmask;
-    outputTensor->shape.numberOfDimensions = originalTensor->shape.numberOfDimensions;
-    outputTensor->shape.orderOfDimensions = originalTensor->shape.orderOfDimensions;
 }
 
-void setTensorValues(tensor_t *tensor, uint8_t *data, size_t *dims, size_t numberOfDims,
-                     size_t *orderOfDims,
+void setTensorValues(tensor_t *tensor, uint8_t *data, shape_t *shape,
                      quantization_t *quantization, uint8_t *sparsityBitmask) {
     tensor->data = data;
-    tensor->shape.dimensions = dims;
+    tensor->shape = shape;
     tensor->quantization = quantization;
     tensor->sparsityBitmask = sparsityBitmask;
-    tensor->shape.numberOfDimensions = numberOfDims;
-    tensor->shape.orderOfDimensions = orderOfDims;
 }
 
-void setParameterValues(parameter_t *parameter, uint8_t *data, quantization_t *dataQuantization,
-                        uint8_t *grad, quantization_t *gradQuantization, size_t *dims,
-                        size_t numberOfDims,
-                        size_t *orderOfDims, uint8_t *sparsityBitmask) {
-    parameter->tensor.data = data;
-    parameter->tensor.quantization = dataQuantization;
-    parameter->tensor.sparsityBitmask = sparsityBitmask;
-    parameter->tensor.shape.dimensions = dims;
-    parameter->tensor.shape.numberOfDimensions = numberOfDims;
-    parameter->tensor.shape.orderOfDimensions = orderOfDims;
+void setParameterValues(parameter_t *parameter, tensor_t* param, tensor_t* grad){
+    parameter->param = param;
     parameter->grad = grad;
-    parameter->gradQuantization = gradQuantization;
 }
 
 void printTensor(tensor_t *t) {
@@ -344,8 +292,39 @@ void printTensor(tensor_t *t) {
     printf("\n");
 }
 
+void printShape(shape_t *shape) {
+    size_t numberOfDims = shape->numberOfDimensions;
+
+    printf("NumberOfDims: %lu\n", numberOfDims);
+
+    printf("Dims: \n");
+    for (size_t i = 0; i < numberOfDims; i++) {
+        printf("%lu\n", shape->dimensions[i]);
+    }
+
+    printf("OrderOfDims: \n");
+    for (size_t i = 0; i < numberOfDims; i++) {
+        printf("%lu\n", shape->orderOfDimensions[i]);
+    }
+}
+
 void initOrderOfDimensions(size_t *orderOfDims, size_t numberOfDims) {
     for (size_t i = 0; i < numberOfDims; i++) {
         orderOfDims[i] = i;
     }
+}
+
+void copyShape(shape_t *dest, shape_t *src) {
+    memcpy(dest->dimensions, src->dimensions, src->numberOfDimensions * sizeof(size_t));
+    memcpy(dest->orderOfDimensions, src->orderOfDimensions,
+           src->numberOfDimensions * sizeof(size_t));
+    dest->numberOfDimensions = src->numberOfDimensions;
+}
+
+void copyTensor(tensor_t *dest, tensor_t *src) {
+    size_t numberOfValues = calcNumberOfElementsByShape(src->shape);
+    size_t bytesPerElement = calcBytesPerElement(src->quantization);
+
+    memcpy(dest->data, src->data, numberOfValues * bytesPerElement);
+    copyShape(dest->shape, src->shape);
 }

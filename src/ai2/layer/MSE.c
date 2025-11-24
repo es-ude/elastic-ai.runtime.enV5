@@ -64,7 +64,6 @@ void MSELossBackwardAsym(tensor_t *modelOutput, tensor_t *label, tensor_t *resul
     }
 
     float mean = 2.f / (float)numberOfElements;
-    // TODO Leo fragen, ob scale so sinnvoll ist
     resultSymInt32QC.scale = mean * labelAsymQC->scale;
 
     convertTensor(&resultSymInt32, result);

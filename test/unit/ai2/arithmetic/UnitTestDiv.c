@@ -12,23 +12,34 @@ void testDivFloatTensors() {
     size_t aNumberOfDims = 3;
     size_t aDims[] = {2, 3, 4};
     size_t aOrderOfDims[] = {0, 1, 2};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .orderOfDimensions = aOrderOfDims,
+        .numberOfDimensions = aNumberOfDims
+    };
+
     quantization_t aQ;
     initFloat32Quantization(&aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, aDims, aNumberOfDims, aOrderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &aShape, &aQ, NULL);
 
     float bData[] = {0.3f, 6, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
                      22, 23, 24};
     size_t bNumberOfDims = 3;
     size_t bDims[] = {2, 3, 4};
     size_t bOrderOfDims[] = {1, 0, 2};
+    shape_t bShape = {
+        .dimensions = bDims,
+        .orderOfDimensions = bOrderOfDims,
+        .numberOfDimensions = bNumberOfDims
+    };
 
     quantization_t bQ;
     initFloat32Quantization(&bQ);
 
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, bDims, bNumberOfDims, bOrderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &bShape, &bQ, NULL);
 
     transposeTensor(&bTensor, 0, 1);
 
@@ -48,6 +59,11 @@ void testDivSymInt32TensorsInplace() {
     size_t dims[] = {numberOfValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
     symInt32QConfig_t aSymInt32QC;
     initSymInt32QConfig(HTE, &aSymInt32QC);
@@ -55,7 +71,7 @@ void testDivSymInt32TensorsInplace() {
     initSymInt32Quantization(&aSymInt32QC, &aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
     int32_t bData[] = {1, 2, 3, 4, 5, 6};
 
@@ -65,7 +81,7 @@ void testDivSymInt32TensorsInplace() {
     initSymInt32Quantization(&bSymInt32QC, &bQ);
 
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, dims, numberOfDims, orderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &shape, &bQ, NULL);
 
     divSymInt32TensorsInplace(&aTensor, &bTensor);
 

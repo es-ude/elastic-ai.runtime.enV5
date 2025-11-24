@@ -48,7 +48,7 @@ uint32_t calcTotalNumberOfMomentumBuffers(layer_t *model, size_t sizeModel) {
 }
 
 void initSGDConfig(SGDConfig_t *config, float learningRate, float momentumFactor, float weightDecay,
-                   momentumBuffer_t *momentumBuffers, size_t sizeMomentumBuffers) {
+                   momentumBuffer_t **momentumBuffers, size_t sizeMomentumBuffers) {
     config->learningRate = learningRate;
     config->momentumFactor = momentumFactor;
     config->weightDecay = weightDecay;
@@ -60,12 +60,12 @@ void initSGDConfig(SGDConfig_t *config, float learningRate, float momentumFactor
 void SGDStepFloat(SGDConfig_t *config) {
 
     for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
-        parameter_t *param = config->momentumBuffers[i].parameter;
-        float *momentums = config->momentumBuffers[i].momentums;
+        parameter_t *param = config->momentumBuffers[i]->parameter;
+        float *momentums = config->momentumBuffers[i]->momentums;
 
         size_t paramSize = calcNumberOfElementsByParameter(param);
-        float *gradFloat = (float *)param->grad;
-        float *dataFloat = (float *)param->tensor.data;
+        float *gradFloat = (float *)param->grad->data;
+        float *dataFloat = (float *)param->param->data;
 
         for (size_t j = 0; j < paramSize; ++j) {
             float grad = gradFloat[j] + config->weightDecay * dataFloat[j];
@@ -77,10 +77,10 @@ void SGDStepFloat(SGDConfig_t *config) {
 
 void SGDZeroGradFloat(SGDConfig_t *config) {
     for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
-        parameter_t *param = config->momentumBuffers[i].parameter;
+        parameter_t *param = config->momentumBuffers[i]->parameter;
         size_t paramSize = calcNumberOfElementsByParameter(param);
 
-        float *gradFloat = (float *)param->grad;
+        float *gradFloat = (float *)param->grad->data;
 
         for (size_t j = 0; j < paramSize; ++j) {
             gradFloat[j] = 0.0f;

@@ -26,6 +26,7 @@ target_link_libraries(Layer PRIVATE
         DTypes
         Tensor
         Arithmetic
+        Relu
 )
 
 add_library(Linear
@@ -38,6 +39,7 @@ target_link_libraries(Linear PRIVATE
         Arithmetic
         Quantization
         TensorConversion
+        Layer
 )
 
 add_library(MSE
@@ -60,6 +62,7 @@ target_link_libraries(Relu PRIVATE
         Tensor
         Arithmetic
         Comparison
+        Layer
 )
 
 add_library(SGD
@@ -80,5 +83,16 @@ target_link_libraries(Softmax PRIVATE
         DTypes
         Tensor
         Arithmetic
+)
+
+add_library(CommonLayerLibs INTERFACE)
+target_link_libraries(CommonLayerLibs INTERFACE
+        Layer
+        Linear
+        Relu
+        Conv1d
+        Softmax
+        Rounding
+        Tensor
 )
 

@@ -1,6 +1,7 @@
 add_subdirectory(tensor)
 add_subdirectory(arithmetic)
 add_subdirectory(layer)
+add_subdirectory(models)
 
 add_library(ai2
         ai.c

@@ -1,32 +1,31 @@
 #ifndef ENV5_RUNTIME_LINEAR_H
 #define ENV5_RUNTIME_LINEAR_H
 #include "Tensor.h"
-#include "Layer.h"
 
-typedef enum linearType {
-    FLOATLAYER,
-    ASYMLAYER
-}linearQType_t;
+struct layer;
+typedef struct layer layer_t;
+
 
 typedef struct linearConfig
 {
     parameter_t* weights;
     parameter_t* bias;
-    linearQType_t qType;
 } linearConfig_t;
 
-void initLinearConfig(linearConfig_t* linearConfig, linearQType_t qType, parameter_t* weights, parameter_t* bias);
-void linearForward(void *config, tensor_t *input, tensor_t *output);
+void linearInitConfig(linearConfig_t* linearConfig, parameter_t* weights, parameter_t* bias);
 
-void linearBackward(void *config, tensor_t* loss, tensor_t* output, tensor_t* propLossTensor);
+void linearForward(layer_t *linearLayer, tensor_t* input, tensor_t* output);
 
-void calcWeightGradsFloat32(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads);
-void calcBiasGradsFloat32(tensor_t *biasGrads, tensor_t *loss);
-void calcPropLossFloat32(tensor_t *weights, tensor_t *loss, tensor_t *propLoss);
+void linearBackward(layer_t *linearLayer, tensor_t* forwardInput, tensor_t* loss, tensor_t* propLossTensor);
 
-void calcWeightGradsAsym(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads);
-void calcBiasGradsAsym(tensor_t *biasGrads, tensor_t *loss);
-void calcPropLossAsym(tensor_t *weights, tensor_t *loss, tensor_t *propLoss);
+void linearCalcWeightGradsFloat32(tensor_t* loss, tensor_t* forwardInput, tensor_t* weightGrads);
+void linearCalcBiasGradsFloat32(tensor_t* biasGrads, tensor_t* loss);
+void linearCalcPropLossFloat32(tensor_t* weights, tensor_t* loss, tensor_t* propLoss);
 
-void initLinearLayer(layer_t *layer, linearConfig_t *linearConfig);
+void linearCalcWeightGradsAsym(tensor_t* loss, tensor_t* forwardInput, tensor_t* weightGrads);
+void linearCalcBiasGradsAsym(tensor_t* biasGrads, tensor_t* loss);
+void linearCalcPropLossAsym(tensor_t* weights, tensor_t* loss, tensor_t* propLoss);
+
+void linearCalcOutputShape(layer_t *linearLayer, shape_t *inputShape, shape_t *outputShape);
+
 #endif // ENV5_RUNTIME_LINEAR_H

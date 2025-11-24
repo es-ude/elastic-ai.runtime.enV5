@@ -207,11 +207,11 @@ in
 
     run_ai_test = {
           exec = ''
-            flash_node "build/env5_rev2_release/test/hardware/Ai/$1.uf2"
+            flash_node "build/env5_rev2_release/test/hardware/ai2/$1/$2.uf2"
             echo "Running Test: $1"
             sleep 2
             while read -r line; do
-              if [[ -n "$2" ]]; then
+              if [[ -n "$3" ]]; then
                 echo "$line"
               fi
             done < /dev/ttyACM0
@@ -236,15 +236,35 @@ in
       description = "run AI hardware tests (memory usage) and print results";
     };
 
-    run_ai_unit_tests = {
-      exec = ''
-        cmake --preset unit_test
-        cmake --build --preset unit_test
-        ctest --preset unit_test -R "Ai"
-      '';
-      package = pkgs.bash;
-      description = "build and run only AI unit tests";
-    };
+  run_ai_unit_tests = {
+    exec = ''
+      TEST_DIR="build/unit_test/test/unit/ai2"
+
+      test_results=""
+
+      tests=$(find "$TEST_DIR" -maxdepth 2 -mindepth 2 -type f -executable)
+
+      for test in $tests; do
+        test_name=$(basename "$test")
+        echo "Running $test_name"
+
+        output=$("$test" 2>&1)
+        exitcode=$?
+
+        if [[ $exitcode -eq 0 ]]; then
+          test_results+="  \e[32mOK\e[0m    | $test_name"$'\n'
+        else
+          test_results+="  \e[31mFAIL\e[0m  | $test_name"$'\n'
+        fi
+      done
+
+      echo "----------------"
+      echo -e "Result:\n$test_results"
+    '';
+    package = pkgs.bash;
+    description = "Run all Unity unit tests and print their result";
+  };
+
 };
 
 

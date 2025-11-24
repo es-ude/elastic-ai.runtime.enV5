@@ -15,20 +15,25 @@ void testMatmulInt32() {
     4, 5, 6
     */
     int32_t aData[] = {1, 2, 3, 4, 5, 6};
+
     size_t aNumberOfDims = 2;
     size_t aDims[] = {2, 3};
     size_t aOrderOfDims[] = {0, 1};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .orderOfDimensions = aOrderOfDims,
+        .numberOfDimensions = aNumberOfDims
+    };
+
     quantization_t aQ = {
         .type = INT32
     };
 
     tensor_t aTensor = {
         .data = aData,
-        .shape.numberOfDimensions = aNumberOfDims,
-        .shape.dimensions = aDims,
+        .shape = &aShape,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = aOrderOfDims
     };
 
     /*
@@ -40,34 +45,42 @@ void testMatmulInt32() {
     size_t bNumberOfDims = 2;
     size_t bDims[] = {3, 2};
     size_t bOrderOfDims[] = {0, 1};
+    shape_t bShape = {
+        .dimensions = bDims,
+        .orderOfDimensions = bOrderOfDims,
+        .numberOfDimensions = bNumberOfDims
+    };
+
     quantization_t bQ = {
         .type = INT32
     };
 
     tensor_t bTensor = {
         .data = bData,
-        .shape.numberOfDimensions = bNumberOfDims,
-        .shape.dimensions = bDims,
+        .shape = &bShape,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = bOrderOfDims
     };
 
     int32_t outputData[] = {0, 0, 0, 0};
     size_t outputNumberOfDims = 2;
     size_t outputDims[] = {2, 2};
     size_t outputOrderOfDims[] = {0, 1};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
+
     quantization_t outputQ = {
         .type = INT32
     };
 
     tensor_t outputTensor = {
         .data = outputData,
-        .shape.numberOfDimensions = outputNumberOfDims,
-        .shape.dimensions = outputDims,
+        .shape = &outputShape,
         .quantization = &outputQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = outputOrderOfDims
     };
 
     matmulInt32Tensors(&aTensor, &bTensor, &outputTensor);
@@ -86,17 +99,21 @@ void testMatmulInt32WithVector() {
     size_t aNumberOfDims = 2;
     size_t aDims[] = {2, 3};
     size_t aOrderOfDims[] = {0, 1};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .orderOfDimensions = aOrderOfDims,
+        .numberOfDimensions = aNumberOfDims
+    };
+
     quantization_t aQ = {
         .type = INT32
     };
 
     tensor_t aTensor = {
         .data = aData,
-        .shape.numberOfDimensions = aNumberOfDims,
-        .shape.dimensions = aDims,
+        .shape = &aShape,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = aOrderOfDims
     };
 
     /*
@@ -108,34 +125,42 @@ void testMatmulInt32WithVector() {
     size_t bNumberOfDims = 1;
     size_t bDims[] = {3};
     size_t bOrderOfDims[] = {0};
+    shape_t bShape = {
+        .dimensions = bDims,
+        .orderOfDimensions = bOrderOfDims,
+        .numberOfDimensions = bNumberOfDims
+    };
+
     quantization_t bQ = {
         .type = INT32
     };
 
     tensor_t bTensor = {
         .data = bData,
-        .shape.numberOfDimensions = bNumberOfDims,
-        .shape.dimensions = bDims,
+        .shape = &bShape,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = bOrderOfDims
     };
 
     int32_t outputData[] = {0, 0};
     size_t outputNumberOfDims = 1;
     size_t outputDims[] = {2};
     size_t outputOrderOfDims[] = {0};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
+
     quantization_t outputQ = {
         .type = INT32
     };
 
     tensor_t outputTensor = {
         .data = outputData,
-        .shape.numberOfDimensions = outputNumberOfDims,
-        .shape.dimensions = outputDims,
+        .shape = &outputShape,
         .quantization = &outputQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = outputOrderOfDims
     };
 
     matmulInt32Tensors(&aTensor, &bTensor, &outputTensor);
@@ -153,17 +178,21 @@ void testMatmulFloatVectors() {
     size_t aNumberOfDims = 1;
     size_t aDims[] = {3};
     size_t aOrderOfDims[] = {0};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .orderOfDimensions = aOrderOfDims,
+        .numberOfDimensions = aNumberOfDims
+    };
+
     quantization_t aQ = {
         .type = FLOAT32
     };
 
     tensor_t aTensor = {
         .data = aData,
-        .shape.numberOfDimensions = aNumberOfDims,
-        .shape.dimensions = aDims,
+        .shape = &aShape,
         .quantization = &aQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = aOrderOfDims
     };
 
     /*
@@ -175,34 +204,42 @@ void testMatmulFloatVectors() {
     size_t bNumberOfDims = 1;
     size_t bDims[] = {3};
     size_t bOrderOfDims[] = {0};
+    shape_t bShape = {
+        .dimensions = bDims,
+        .orderOfDimensions = bOrderOfDims,
+        .numberOfDimensions = bNumberOfDims
+    };
+
     quantization_t bQ = {
         .type = FLOAT32
     };
 
     tensor_t bTensor = {
         .data = bData,
-        .shape.numberOfDimensions = bNumberOfDims,
-        .shape.dimensions = bDims,
+        .shape = &bShape,
         .quantization = &bQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = bOrderOfDims
     };
 
     float outputData[] = {0};
     size_t outputNumberOfDims = 1;
     size_t outputDims[] = {1};
     size_t outputOrderOfDims[] = {0};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
+
     quantization_t outputQ = {
         .type = FLOAT32
     };
 
     tensor_t outputTensor = {
         .data = outputData,
-        .shape.numberOfDimensions = outputNumberOfDims,
-        .shape.dimensions = outputDims,
+        .shape = &outputShape,
         .quantization = &outputQ,
         .sparsityBitmask = NULL,
-        .shape.orderOfDimensions = outputOrderOfDims
     };
 
     matmulFloat32Tensors(&aTensor, &bTensor, &outputTensor);
@@ -219,6 +256,11 @@ void testMatmulSymInt32Tensors() {
     size_t aNumberOfDims = 2;
     size_t aDims[] = {2, 3};
     size_t aOrderOfDims[] = {0, 1};
+    shape_t aShape = {
+        .dimensions = aDims,
+        .orderOfDimensions = aOrderOfDims,
+        .numberOfDimensions = aNumberOfDims
+    };
 
     symInt32QConfig_t aSymInt32QC;
     initSymInt32QConfig(HTE, &aSymInt32QC);
@@ -227,14 +269,18 @@ void testMatmulSymInt32Tensors() {
     initSymInt32Quantization(&aSymInt32QC, &aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, aDims, aNumberOfDims, aOrderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &aShape, &aQ, NULL);
 
     int32_t bData[] = {1, 4, 2, 5, 3, 6};
 
     size_t bNumberOfDims = 2;
     size_t bDims[] = {3, 2};
     size_t bOrderOfDims[] = {0, 1};
-
+    shape_t bShape = {
+        .dimensions = bDims,
+        .orderOfDimensions = bOrderOfDims,
+        .numberOfDimensions = bNumberOfDims
+    };
 
     symInt32QConfig_t bSymInt32QC;
     initSymInt32QConfig(HTE, &bSymInt32QC);
@@ -242,13 +288,18 @@ void testMatmulSymInt32Tensors() {
     initSymInt32Quantization(&bSymInt32QC, &bQ);
 
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, bDims, bNumberOfDims, bOrderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &bShape, &bQ, NULL);
 
     int32_t outputData[4];
 
     size_t outputNumberOfDims = 2;
     size_t outputDims[] = {2, 2};
     size_t outputOrderOfDims[] = {0, 1};
+    shape_t outputShape = {
+        .dimensions = outputDims,
+        .orderOfDimensions = outputOrderOfDims,
+        .numberOfDimensions = outputNumberOfDims
+    };
 
     symInt32QConfig_t outputSymInt32QC;
     initSymInt32QConfig(HTE, &outputSymInt32QC);
@@ -256,7 +307,7 @@ void testMatmulSymInt32Tensors() {
     initSymInt32Quantization(&outputSymInt32QC, &outputQ);
 
     tensor_t outputTensor;
-    setTensorValues(&outputTensor, outputData, outputDims, outputNumberOfDims, outputOrderOfDims, &outputQ, NULL);
+    setTensorValues(&outputTensor, outputData, &outputShape, &outputQ, NULL);
 
     matmulSymInt32Tensors(&aTensor, &bTensor, &outputTensor);
 
@@ -267,7 +318,7 @@ void testMatmulSymInt32Tensors() {
     initFloat32Quantization(&actualQ);
 
     tensor_t actual;
-    setTensorValues(&actual, actualData, outputDims, outputNumberOfDims, outputOrderOfDims, &actualQ, NULL);
+    setTensorValues(&actual, actualData, &outputShape, &actualQ, NULL);
     convertTensor(&outputTensor, &actual);
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, actual.data, 4);

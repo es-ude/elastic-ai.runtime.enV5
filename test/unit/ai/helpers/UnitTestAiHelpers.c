@@ -35,7 +35,7 @@ void unitTestInitParameterQTensor() {
 
 }
 
-/*void testSequentialForwardWithLinearAndCSV() {
+void testSequentialForwardWithLinearAndCSV() {
     size_t modelSize = 1;
     layerForward_t **model = calloc(modelSize, sizeof(layerForward_t *));
 
@@ -574,7 +574,7 @@ void test_Conv1d_ReLU_Linear_Softmax_CrossEntropy() {
         TEST_ASSERT_FLOAT_WITHIN(0.0001f, expected[i], actual->output[i]);
     }
 
-}*/
+}
 
 int main() {
     UNITY_BEGIN();

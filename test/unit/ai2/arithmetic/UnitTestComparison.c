@@ -15,12 +15,17 @@ void testGteInt32Value() {
     size_t numberOfDims = 1;
     size_t dims[] = {3};
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
     quantization_t aQ;
     initInt32Quantization(&aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
     int32_t b = 0;
     int32_t altNumber = 0;
@@ -31,7 +36,7 @@ void testGteInt32Value() {
     initInt32Quantization(&resultQ);
 
     tensor_t resultTensor;
-    setTensorValues(&resultTensor, resultData, dims, numberOfDims, orderOfDims, &resultQ, NULL);
+    setTensorValues(&resultTensor, resultData, &shape, &resultQ, NULL);
 
     gteInt32Value(&aTensor, b, altNumber, &resultTensor);
 
@@ -48,12 +53,17 @@ void testGteFloatTensors() {
     size_t numberOfDims = 1;
     size_t dims[] = {3};
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .orderOfDimensions = orderOfDims,
+        .numberOfDimensions = numberOfDims
+    };
 
     quantization_t aQ;
     initFloat32Quantization(&aQ);
 
     tensor_t aTensor;
-    setTensorValues(&aTensor, aData, dims, numberOfDims, orderOfDims, &aQ, NULL);
+    setTensorValues(&aTensor, aData, &shape, &aQ, NULL);
 
     float bData[] = {-2, -1, 0};
 
@@ -61,7 +71,7 @@ void testGteFloatTensors() {
     initFloat32Quantization(&bQ);
 
     tensor_t bTensor;
-    setTensorValues(&bTensor, bData, dims, numberOfDims, orderOfDims, &bQ, NULL);
+    setTensorValues(&bTensor, bData, &shape, &bQ, NULL);
 
     float altNumber = 0;
 
@@ -71,7 +81,7 @@ void testGteFloatTensors() {
     initFloat32Quantization(&resultQ);
 
     tensor_t resultTensor;
-    setTensorValues(&resultTensor, resultData, dims, numberOfDims, orderOfDims, &resultQ, NULL);
+    setTensorValues(&resultTensor, resultData, &shape, &resultQ, NULL);
 
     gteFloatTensor(&aTensor, &bTensor, altNumber, &resultTensor);
 

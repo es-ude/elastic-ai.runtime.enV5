@@ -62,19 +62,24 @@ void testConversionIntFloat() {
     size_t dims[] = {6};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     int32_t intData[] = {1, 2, 3, 4, -1, -2};
     quantization_t intQ;
     initInt32Quantization(&intQ);
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
     float floatData[numValues];
 
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     convertTensor(&intTensor, &floatTensor);
     float actual[numValues];
@@ -91,13 +96,18 @@ void testConversionIntSymInt32() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     int32_t intData[] = {1, 2, 3, 4, -1, -2};
 
     quantization_t intQ;
     initInt32Quantization(&intQ);
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -107,7 +117,7 @@ void testConversionIntSymInt32() {
     int32_t symInt32Data[numValues];
 
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
 
     convertTensor(&intTensor, &symInt32Tensor);
 
@@ -119,13 +129,18 @@ void testConversionIntAsym() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
     int32_t intData[] = {1, 2, 3, 4, -1, -2};
 
     quantization_t intQ;
     initInt32Quantization(&intQ);
 
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -134,7 +149,7 @@ void testConversionIntAsym() {
     uint8_t asymData[numValues * calcBytesPerElement(&asymQ)];
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
     convertTensor(&intTensor, &asymTensor);
 
     uint8_t flattenedAsymData[numValues];
@@ -161,18 +176,23 @@ void testConversionFloatInt() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
 
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     quantization_t intQ;
     initInt32Quantization(&intQ);
     int32_t intData[numValues];
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
     convertTensor(&floatTensor, &intTensor);
 
     int32_t actual[numValues];
@@ -189,12 +209,17 @@ void testConversionFloatSymInt32() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
 
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -203,7 +228,7 @@ void testConversionFloatSymInt32() {
 
     int32_t symInt32Data[numValues];
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
     convertTensor(&floatTensor, &symInt32Tensor);
 
     int32_t expected[] = {1, 2, 3, 4, -1, -2};
@@ -215,13 +240,18 @@ void testConversionFloatAsym() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     float floatData[] = {1.f, 2.f, 3.f, 4.f, -1.f, -2.f};
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -231,7 +261,7 @@ void testConversionFloatAsym() {
     uint8_t asymData[numValues * calcBytesPerElement(&asymQ)];
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
 
     convertTensor(&floatTensor, &asymTensor);
 
@@ -253,6 +283,11 @@ void testConversionSymInt32Int() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -261,14 +296,14 @@ void testConversionSymInt32Int() {
 
     int32_t symInt32Data[] = {1, 2, 3, 4, -1, -2};
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
 
 
     int32_t intData[numValues];
     quantization_t intQ;
     initInt32Quantization(&intQ);
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
 
     convertTensor(&symInt32Tensor, &intTensor);
 
@@ -282,6 +317,11 @@ void testConversionSymInt32Float() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -291,7 +331,7 @@ void testConversionSymInt32Float() {
 
     int32_t symInt32Data[] = {1, 2, 3, 4, -1, -2};
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
@@ -299,7 +339,7 @@ void testConversionSymInt32Float() {
     float floatData[numValues];
 
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     convertTensor(&symInt32Tensor, &floatTensor);
 
@@ -319,6 +359,11 @@ void testConversionSymInt32Asym() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -328,7 +373,7 @@ void testConversionSymInt32Asym() {
 
     int32_t symInt32Data[] = {1, 2, 3, 4, -1, -2};
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -341,7 +386,7 @@ void testConversionSymInt32Asym() {
     uint8_t asymData[numberOfRequiredBytes];
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
 
     convertTensor(&symInt32Tensor, &asymTensor);
 
@@ -362,6 +407,11 @@ void testConversionAsymInt() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -374,13 +424,13 @@ void testConversionAsymInt() {
     uint8_t asymData[] = {0b11010000, 0b11101110, 0b01101111, 0b00000000};
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
 
     quantization_t intQ;
     initInt32Quantization(&intQ);
     int32_t intData[numValues];
     tensor_t intTensor;
-    setTensorValues(&intTensor, intData, dims, numberOfDims, orderOfDims, &intQ, NULL);
+    setTensorValues(&intTensor, intData, &shape, &intQ, NULL);
 
     convertTensor(&asymTensor, &intTensor);
 
@@ -394,6 +444,11 @@ void testConversionAsymFloat() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -405,14 +460,14 @@ void testConversionAsymFloat() {
     uint8_t asymData[] = {0b11010000, 0b11101110, 0b01101111, 0b00000000};
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
 
     quantization_t floatQ;
     initFloat32Quantization(&floatQ);
     float floatData[numValues];
 
     tensor_t floatTensor;
-    setTensorValues(&floatTensor, floatData, dims, numberOfDims, orderOfDims, &floatQ, NULL);
+    setTensorValues(&floatTensor, floatData, &shape, &floatQ, NULL);
 
     convertTensor(&asymTensor, &floatTensor);
 
@@ -426,6 +481,11 @@ void testConversionAsymSymInt32() {
     size_t dims[] = {numValues};
     size_t numberOfDims = 1;
     size_t orderOfDims[] = {0};
+    shape_t shape = {
+        .dimensions = dims,
+        .numberOfDimensions = numberOfDims,
+        .orderOfDimensions = orderOfDims
+    };
 
     asymQConfig_t asymQConfig;
     initAsymQConfig(5, HTE, &asymQConfig);
@@ -437,7 +497,7 @@ void testConversionAsymSymInt32() {
     uint8_t asymData[] = {0b11010000, 0b11101110, 0b01101111, 0b00000000};
 
     tensor_t asymTensor;
-    setTensorValues(&asymTensor, asymData, dims, numberOfDims, orderOfDims, &asymQ, NULL);
+    setTensorValues(&asymTensor, asymData, &shape, &asymQ, NULL);
 
     symInt32QConfig_t symInt32QConfig;
     initSymInt32QConfig(HTE, &symInt32QConfig);
@@ -446,7 +506,7 @@ void testConversionAsymSymInt32() {
     int32_t symInt32Data[numValues];
 
     tensor_t symInt32Tensor;
-    setTensorValues(&symInt32Tensor, symInt32Data, dims, numberOfDims, orderOfDims, &symInt32Q, NULL);
+    setTensorValues(&symInt32Tensor, symInt32Data, &shape, &symInt32Q, NULL);
 
     convertTensor(&asymTensor, &symInt32Tensor);
 
