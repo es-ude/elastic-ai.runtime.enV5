@@ -35,7 +35,7 @@ static void forwardAsym(tensor_t *input, tensor_t *output) {
     convertTensor(output, &outputSymInt32);
 
     gteSymInt32Zero(&inputSymInt32, 0, &outputSymInt32);
-
+    outputSymInt32QC.scale = inputSymInt32QC.scale;
     convertTensor(&outputSymInt32, output);
 }
 

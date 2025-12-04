@@ -10,7 +10,7 @@
 #include <string.h>
 #include <tgmath.h>
 
-size_t calcNumberOfElementsByShape(shape_t* shape) {
+size_t calcNumberOfElementsByShape(shape_t *shape) {
     size_t numElem = 1;
     size_t numberOfDimensions = shape->numberOfDimensions;
     size_t *dimensions = shape->dimensions;
@@ -203,11 +203,11 @@ void byteConversion(uint8_t *dataIn, size_t dataInBits, uint8_t *dataOut, size_t
 }
 
 
-tensor_t* getTensorFromParameter(parameter_t *parameter) {
+tensor_t *getTensorFromParameter(parameter_t *parameter) {
     return parameter->param;
 }
 
-tensor_t* getGradTensorFromParameter(parameter_t *parameter) {
+tensor_t *getGradTensorFromParameter(parameter_t *parameter) {
     return parameter->grad;
 }
 
@@ -237,7 +237,7 @@ void setTensorValues(tensor_t *tensor, uint8_t *data, shape_t *shape,
     tensor->sparsityBitmask = sparsityBitmask;
 }
 
-void setParameterValues(parameter_t *parameter, tensor_t* param, tensor_t* grad){
+void setParameterValues(parameter_t *parameter, tensor_t *param, tensor_t *grad) {
     parameter->param = param;
     parameter->grad = grad;
 }
@@ -314,6 +314,16 @@ void initOrderOfDimensions(size_t *orderOfDims, size_t numberOfDims) {
     }
 }
 
+void copyData(tensor_t *dest, tensor_t *src) {
+    size_t numberOfValues = calcNumberOfElementsByShape(src->shape);
+    size_t bytesPerElement = calcBytesPerElement(src->quantization);
+    memcpy(dest->data, src->data, numberOfValues * bytesPerElement);
+
+    if (dest->sparsityBitmask != NULL) {
+        memcpy(dest->sparsityBitmask, src->sparsityBitmask, numberOfValues);
+    }
+}
+
 void copyShape(shape_t *dest, shape_t *src) {
     memcpy(dest->dimensions, src->dimensions, src->numberOfDimensions * sizeof(size_t));
     memcpy(dest->orderOfDimensions, src->orderOfDimensions,
@@ -321,10 +331,25 @@ void copyShape(shape_t *dest, shape_t *src) {
     dest->numberOfDimensions = src->numberOfDimensions;
 }
 
-void copyTensor(tensor_t *dest, tensor_t *src) {
-    size_t numberOfValues = calcNumberOfElementsByShape(src->shape);
-    size_t bytesPerElement = calcBytesPerElement(src->quantization);
+void copyQuantization(quantization_t *dest, quantization_t *src) {
+    switch (src->type) {
+    case FLOAT32:
+        dest->type = FLOAT32;
+        dest->qConfig = NULL;
+        break;
+    case ASYM:
+        dest->type = ASYM;
+        asymQConfig_t *destQC = dest->qConfig;
+        asymQConfig_t *srcQC = src->qConfig;
+        memcpy(destQC, srcQC, sizeof(asymQConfig_t));
+    default:
+        break;
+    }
+}
 
-    memcpy(dest->data, src->data, numberOfValues * bytesPerElement);
+void copyTensor(tensor_t *dest, tensor_t *src) {
+
     copyShape(dest->shape, src->shape);
+    copyQuantization(dest->quantization, src->quantization);
+    copyData(dest, src);
 }

@@ -376,12 +376,6 @@ void matmulSymIntTensors(tensor_t* aTensor, tensor_t* bTensor, tensor_t* outputT
     matmulInt32Tensors(&aInt, &bInt, &outputInt);
 
     convertTensor(&outputInt, outputTensor);
-
-    symInt32QConfig_t *aSymInt32QConfig = aTensor->quantization->qConfig;
-    symInt32QConfig_t *bSymInt32QConfig = bTensor->quantization->qConfig;
-    symInt32QConfig_t *outputSymInt32QConfig = outputTensor->quantization->qConfig;
-
-    outputSymInt32QConfig->scale = aSymInt32QConfig->scale * bSymInt32QConfig->scale;
 }
 
 void matmulSymIntTensorsWithInstructionCounter(tensor_t* aTensor, tensor_t* bTensor, tensor_t* outputTensor) {

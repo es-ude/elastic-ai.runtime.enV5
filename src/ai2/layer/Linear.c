@@ -17,23 +17,12 @@ void linearInitConfig(linearConfig_t *linearConfig, parameter_t *weights, parame
 
 static void forwardFloat32(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
     transposeTensor(w, 0, 1);
-
-    /*printf("Shape input:\n");
-    printShape(input->shape);
-    printf("\n");
-    printf("Shape w:\n");
-    printShape(w->shape);
-    printf("\n");*/
-
     matmulFloat32Tensors(input, w, output);
     transposeTensor(w, 0, 1);
     addFloat32TensorsInplace(output, b);
-
-
 }
 
 static void forwardAsym(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *output) {
-
     size_t numberOfWeights = calcNumberOfElementsByTensor(w);
     size_t numberOfOutputs = calcNumberOfElementsByTensor(output);
     size_t numberOfInputs = calcNumberOfElementsByTensor(input);
@@ -64,18 +53,32 @@ static void forwardAsym(tensor_t *w, tensor_t *b, tensor_t *input, tensor_t *out
     tensor_t outputSymInt32;
     setTensorValuesForConversion(outputSymInt32Data, &outputSymInt32Q, output, &outputSymInt32);
 
-    matmulSymInt32Tensors(&weightsSymInt32, &inputSymInt32, &outputSymInt32);
+    transposeTensor(&weightsSymInt32, 0, 1);
+    matmulSymInt32Tensors(&inputSymInt32, &weightsSymInt32, &outputSymInt32);
+    transposeTensor(&weightsSymInt32, 0, 1);
+
+    outputSymInt32QConfig.scale = inputSymInt32QConfig.scale * weightsSymInt32QConfig.scale;
 
     addInt32TensorToSymInt32TensorInplace(&outputSymInt32, b);
 
+    /*printf("Input:\n");
+    printTensor(&inputSymInt32);
+
+    printf("Weights:\n");
+    printTensor(&weightsSymInt32);*/
+
     convertTensor(&outputSymInt32, output);
+
+    /*printf("inputScale: %f, weightScale: %f, outputScale: %f\n", inputSymInt32QConfig.scale, weightsSymInt32QConfig.scale, outputSymInt32QConfig.scale);
+    printf("\n");
+    printf("Linear Forward Output: \n");
+    printTensor(output);*/
 }
 
 void linearForward(layer_t *linearLayer, tensor_t *input, tensor_t *output) {
     linearConfig_t *linearConfig = linearLayer->config->linear;
 
     tensor_t *weights = getTensorFromParameter(linearConfig->weights);
-
     tensor_t *bias = getTensorFromParameter(linearConfig->bias);
 
     if (linearLayer->qType == FLOAT_LAYER) {
@@ -88,33 +91,15 @@ void linearForward(layer_t *linearLayer, tensor_t *input, tensor_t *output) {
 }
 
 void linearCalcWeightGradsFloat32(tensor_t *forwardInput, tensor_t *loss, tensor_t *weightGrads) {
-    //transposeTensor(forwardInput, 0, 1);
-    /*printf("Shape forward input:\n");
-    printShape(forwardInput->shape);
-    printf("\n");
-
-    printf("Shape loss:\n");
-    printShape(loss->shape);
-    printf("\n");*/
-
-    matmulFloat32Tensors(loss, forwardInput,  weightGrads);
-    //transposeTensor(forwardInput, 0, 1);
+    matmulFloat32Tensors(loss, forwardInput, weightGrads);
 }
 
-// Important: Batch size is not supported
 void linearCalcBiasGradsFloat32(tensor_t *biasGrads, tensor_t *loss) {
     addFloat32TensorsInplace(biasGrads, loss);
 }
 
 void linearCalcPropLossFloat32(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) {
     transposeTensor(loss, 0, 1);
-    /*printf("Shape loss:\n");
-    printShape(loss->shape);
-    printf("\n");
-    printf("Shape weights:\n");
-    printShape(weights->shape);
-    printf("\n");*/
-
     matmulFloat32Tensors(loss, weights, propLoss);
     transposeTensor(loss, 0, 1);
 }
@@ -130,7 +115,8 @@ static void backwardFloat(linearConfig_t *linearConfig, tensor_t *forwardInput, 
 
     tensor_t intermediateWGrad;
     float intermediateWGradData[numberOfWeights];
-    setTensorValues(&intermediateWGrad, intermediateWGradData, weightGrad->shape, weightGrad->quantization, weightGrad->sparsityBitmask);
+    setTensorValues(&intermediateWGrad, intermediateWGradData, weightGrad->shape,
+                    weightGrad->quantization, weightGrad->sparsityBitmask);
 
     linearCalcWeightGradsFloat32(forwardInput, loss, &intermediateWGrad);
     addFloat32TensorsInplace(weightGrad, &intermediateWGrad);
@@ -143,9 +129,12 @@ static void backwardFloat(linearConfig_t *linearConfig, tensor_t *forwardInput, 
 }
 
 void linearCalcWeightGradsAsym(tensor_t *loss, tensor_t *forwardInput, tensor_t *weightGrads) {
-    transposeTensor(forwardInput, 0, 1);
     matmulSymInt32Tensors(loss, forwardInput, weightGrads);
-    transposeTensor(forwardInput, 0, 1);
+    symInt32QConfig_t *lossQC = loss->quantization->qConfig;
+    symInt32QConfig_t *forwadInputQC = forwardInput->quantization->qConfig;
+    symInt32QConfig_t *weightGradsQC = weightGrads->quantization->qConfig;
+
+    weightGradsQC->scale = lossQC->scale * forwadInputQC->scale;
 }
 
 void linearCalcBiasGradsAsym(tensor_t *biasGrads, tensor_t *loss) {
@@ -153,9 +142,9 @@ void linearCalcBiasGradsAsym(tensor_t *biasGrads, tensor_t *loss) {
 }
 
 void linearCalcPropLossAsym(tensor_t *weights, tensor_t *loss, tensor_t *propLoss) {
-    transposeTensor(weights, 0, 1);
-    matmulSymInt32Tensors(weights, loss, propLoss);
-    transposeTensor(weights, 0, 1);
+    transposeTensor(loss, 0, 1);
+    matmulSymInt32Tensors(loss, weights, propLoss);
+    transposeTensor(loss, 0, 1);
 }
 
 static void backwardAsym(linearConfig_t *linearConfig, tensor_t *forwardInput, tensor_t *loss,
@@ -243,12 +232,20 @@ static void backwardAsym(linearConfig_t *linearConfig, tensor_t *forwardInput, t
     // ______________________________________________________________-
 
     tensor_t intermediateWeightGradsSymInt32;
+    symInt32QConfig_t intermediateWeightGradsQC;
+    initSymInt32QConfig(weightGradsSymInt32QC.roundingMode, &intermediateWeightGradsQC);
+    quantization_t intermediateWeightGradsQ;
+    initSymInt32Quantization(&intermediateWeightGradsQC, &intermediateWeightGradsQ);
     int32_t intermediateWeightGradsData[numberOfWeights];
-    setTensorValues(&intermediateWeightGradsSymInt32, intermediateWeightGradsData, weightGradsSymInt32.shape, weightGradsSymInt32.quantization, NULL);
+    setTensorValues(&intermediateWeightGradsSymInt32, intermediateWeightGradsData,
+                    weightGradsSymInt32.shape, &intermediateWeightGradsQ, NULL);
 
     // Weight gradients
-    linearCalcWeightGradsAsym(&lossSymInt32, &forwardInputSymInt32, &intermediateWeightGradsSymInt32);
+    linearCalcWeightGradsAsym(&lossSymInt32, &forwardInputSymInt32,
+                              &intermediateWeightGradsSymInt32);
+
     addSymInt32TensorsInplace(&weightGradsSymInt32, &intermediateWeightGradsSymInt32);
+
     convertTensor(&weightGradsSymInt32, weightGradsAsym);
 
     // Bias gradients

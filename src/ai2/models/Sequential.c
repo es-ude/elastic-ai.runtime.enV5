@@ -19,6 +19,38 @@ static void freeReservedMemory(uint8_t *ptr) {
     free(ptr);
 }
 
+static void freeShape(tensor_t *tensor) {
+    freeReservedMemory(tensor->shape->dimensions);
+    freeReservedMemory(tensor->shape->orderOfDimensions);
+    freeReservedMemory(tensor->shape);
+}
+
+static void freeData(tensor_t *tensor) {
+    freeReservedMemory(tensor->data);
+    if (tensor->sparsityBitmask != NULL) {
+        freeReservedMemory(tensor->sparsityBitmask);
+    }
+}
+
+static void freeQuantization(tensor_t *tensor) {
+    freeReservedMemory(tensor->quantization->qConfig);
+    freeReservedMemory(tensor->quantization);
+}
+
+static void freeTensorPointer(tensor_t *tensor) {
+    freeReservedMemory(tensor);
+}
+
+static void deInitTensorPtrArray(tensor_t **tensorPtrArray, size_t sizeNetwork, size_t startIndex) {
+    for (size_t i = startIndex; i <= sizeNetwork; i++) {
+        freeShape(tensorPtrArray[i]);
+        freeData(tensorPtrArray[i]);
+        freeQuantization(tensorPtrArray[i]);
+        freeTensorPointer(tensorPtrArray[i]);
+    }
+}
+
+
 static size_t calcBytesOutputData(quantization_t *outputQ, size_t numberOfValues) {
     switch (outputQ->type) {
     case FLOAT32:
@@ -34,18 +66,18 @@ static size_t calcBytesOutputData(quantization_t *outputQ, size_t numberOfValues
 void sequentialForward(layer_t **model, size_t numberOfLayers, tensor_t *input, tensor_t *output) {
     for (size_t i = 0; i < numberOfLayers; i++) {
         layer_t *currentLayer = model[i];
-
         layerType_t currentLayerType = currentLayer->type;
+        quantization_t *currentQ = currentLayer->outputQ;
 
         size_t outputNumberOfDims = input->shape->numberOfDimensions;
-
         size_t sizeDims = outputNumberOfDims * sizeof(size_t);
-        size_t *outDims = reserveMemory(sizeDims);
-        size_t *outOrder = reserveMemory(sizeDims);
+        size_t outDims[sizeDims];
+        size_t outOrder[sizeDims];
 
-        shape_t outShape = {.dimensions = outDims,
-                            .numberOfDimensions = outputNumberOfDims,
-                            .orderOfDimensions = outOrder};
+        shape_t outShape;
+        outShape.dimensions = outDims;
+        outShape.numberOfDimensions = outputNumberOfDims;
+        outShape.orderOfDimensions = outOrder;
 
         calcOutputShapeFn_t calcOutputShape = layerFunctions[currentLayerType].calcOutputShape;
         calcOutputShape(currentLayer, input->shape, &outShape);
@@ -54,32 +86,48 @@ void sequentialForward(layer_t **model, size_t numberOfLayers, tensor_t *input, 
             calcNumberOfElementsByShape(&outShape);
 
         size_t sizeData = calcBytesOutputData(currentLayer->outputQ, numValues);
-        uint8_t *data = reserveMemory(sizeData);
-        uint8_t *sparsityBitmask = reserveMemory(numValues);
+        uint8_t data[sizeData];
+        void *maybeSparsityBitmask = NULL;
+        if (input->sparsityBitmask != NULL) {
+            uint8_t sparsityBitmask[sizeData];
+            maybeSparsityBitmask = sparsityBitmask;
+        }
+
+        quantization_t q;
+        asymQConfig_t asymQConfig;
+        switch (currentQ->type) {
+        case FLOAT32:
+            q.type = FLOAT32;
+            q.qConfig = NULL;
+            break;
+        case ASYM:
+            q.type = ASYM;
+            asymQConfig_t *currentQC = currentQ->qConfig;
+            asymQConfig.scale = currentQC->scale;
+            asymQConfig.qBits = currentQC->qBits;
+            asymQConfig.roundingMode = currentQC->roundingMode;
+            asymQConfig.zeroPoint = currentQC->zeroPoint;
+            q.qConfig = &asymQConfig;
+            break;
+        default:
+            break;
+        }
 
         tensor_t intermediateOutput;
-        setTensorValues(&intermediateOutput, data, &outShape, input->quantization, sparsityBitmask);
+        setTensorValues(&intermediateOutput, data, &outShape, &q, maybeSparsityBitmask);
 
         forwardFn_t forward = layerFunctions[currentLayerType].forward;
         forward(currentLayer, input, &intermediateOutput);
 
+        /*printf("Sequential Output [%lu]:\n", i);
+        printTensor(&intermediateOutput);*/
+
         if (i == numberOfLayers - 1) {
             copyTensor(output, &intermediateOutput);
-
-            freeReservedMemory(outDims);
-            freeReservedMemory(outOrder);
-            freeReservedMemory(data);
-            freeReservedMemory(sparsityBitmask);
-
             break;
         }
 
         copyTensor(input, &intermediateOutput);
-
-        freeReservedMemory(outDims);
-        freeReservedMemory(outOrder);
-        freeReservedMemory(data);
-        freeReservedMemory(sparsityBitmask);
     }
 }
 
@@ -100,6 +148,7 @@ void getLossFunctionByType(lossFunctionType_t lossType, lossFn_t *lossFunction) 
 static void initLayerOutputs(tensor_t **layerOutputs, layer_t **model, size_t sizeNetwork) {
     for (size_t i = 0; i < sizeNetwork; i++) {
         layer_t *currentLayer = model[i];
+        quantization_t *currentQ = currentLayer->outputQ;
         layerType_t currentLayerType = currentLayer->type;
         calcOutputShapeFn_t calcOutputShape = layerFunctions[currentLayerType].calcOutputShape;
         size_t numberOfDims = layerOutputs[i]->shape->numberOfDimensions;
@@ -119,9 +168,29 @@ static void initLayerOutputs(tensor_t **layerOutputs, layer_t **model, size_t si
         uint8_t *data = reserveMemory(sizeData);
         uint8_t *sparsityBitmask = reserveMemory(numberOfValues);
 
+        quantization_t *q = reserveMemory(sizeof(quantization_t));
+        switch (currentQ->type) {
+        case FLOAT32:
+            q->type = FLOAT32;
+            q->qConfig = NULL;
+            break;
+        case ASYM:
+            q->type = ASYM;
+            asymQConfig_t *currentQC = currentQ->qConfig;
+            asymQConfig_t *qC = reserveMemory(sizeof(asymQConfig_t));
+            qC->scale = currentQC->scale;
+            qC->qBits = currentQC->qBits;
+            qC->roundingMode = currentQC->roundingMode;
+            qC->zeroPoint = currentQC->zeroPoint;
+            q->qConfig = qC;
+            break;
+        default:
+            break;
+        }
+
         tensor_t *tensor = reserveMemory(sizeof(tensor_t));
         tensor->data = data;
-        tensor->quantization = currentLayer->outputQ;
+        tensor->quantization = q;
         tensor->shape = outShape;
         tensor->sparsityBitmask = sparsityBitmask;
 
@@ -141,8 +210,10 @@ static void initGrads(tensor_t **grads, tensor_t **layerOutputs, size_t sizeNetw
         inShape->numberOfDimensions = currentShape->numberOfDimensions;
         inShape->orderOfDimensions = order;
 
-        memcpy(inShape->dimensions, currentShape->dimensions, currentShape->numberOfDimensions * sizeof(size_t));
-        memcpy(inShape->orderOfDimensions, currentShape->orderOfDimensions, currentShape->numberOfDimensions * sizeof(size_t));
+        memcpy(inShape->dimensions, currentShape->dimensions,
+               currentShape->numberOfDimensions * sizeof(size_t));
+        memcpy(inShape->orderOfDimensions, currentShape->orderOfDimensions,
+               currentShape->numberOfDimensions * sizeof(size_t));
 
         setOrderOfDimsForNewTensor(inShape->numberOfDimensions, inShape->orderOfDimensions);
 
@@ -151,39 +222,35 @@ static void initGrads(tensor_t **grads, tensor_t **layerOutputs, size_t sizeNetw
         uint8_t *data = reserveMemory(sizeData);
         uint8_t *sparsityBitmask = reserveMemory(sizeData);
 
+        quantization_t *q = reserveMemory(sizeof(quantization_t));
+        switch (currentQ->type) {
+        case FLOAT32:
+            q->type = FLOAT32;
+            q->qConfig = NULL;
+            break;
+        case ASYM:
+            q->type = ASYM;
+            asymQConfig_t *currentQC = currentQ->qConfig;
+            asymQConfig_t *qC = reserveMemory(sizeof(asymQConfig_t));
+            qC->scale = currentQC->scale;
+            qC->qBits = currentQC->qBits;
+            qC->roundingMode = currentQC->roundingMode;
+            qC->zeroPoint = currentQC->zeroPoint;
+            q->qConfig = qC;
+            break;
+        default:
+            break;
+        }
+
         tensor_t *tensor = reserveMemory(sizeof(tensor_t));
         tensor->data = data;
-        tensor->quantization = currentQ;
+        tensor->quantization = q;
         tensor->shape = inShape;
         tensor->sparsityBitmask = sparsityBitmask;
 
         grads[i] = tensor;
     }
 }
-
-static void freeShape(tensor_t* tensor) {
-    freeReservedMemory(tensor->shape->dimensions);
-    freeReservedMemory(tensor->shape->orderOfDimensions);
-    freeReservedMemory(tensor->shape);
-}
-
-static void freeData(tensor_t *tensor) {
-    freeReservedMemory(tensor->data);
-    freeReservedMemory(tensor->sparsityBitmask);
-}
-
-static void freeTensorPointer(tensor_t *tensor) {
-    freeReservedMemory(tensor);
-}
-
-static void deInitTensorPtrArray(tensor_t** tensorPtrArray, size_t sizeNetwork, size_t startIndex) {
-    for(size_t i = startIndex; i <= sizeNetwork; i++) {
-        freeShape(tensorPtrArray[i]);
-        freeData(tensorPtrArray[i]);
-        freeTensorPointer(tensorPtrArray[i]);
-    }
-}
-
 
 
 /*! IMPORTANT: We assume, that if you use Cross Entropy as your loss function,
@@ -219,17 +286,23 @@ void sequentialCalculateGrads(layer_t **model, size_t sizeNetwork,
     lossFn(layerOutputs[sizeNetwork], label, grads[sizeNetwork]);
     copyTensor(trainingStats->loss, grads[sizeNetwork]);
 
+    /*printf("Forward Output: \n");
+    printTensor(layerOutputs[sizeNetwork]);
+    printf("Label: \n");
+    printTensor(label);
+    printf("Loss: \n");
+    printTensor(grads[sizeNetwork]);*/
+
     // Backward pass
     size_t backwardIndex = sizeNetwork - 1;
     if (lossFunctionType == CROSS_ENTROPY) {
         backwardIndex -= 1;
     }
 
-
     for (int i = (int)backwardIndex; i >= 0; i--) {
         layerType_t layerType = model[i]->type;
         backwardFn_t backward = layerFunctions[layerType].backward;
-        backward(model[i], layerOutputs[i], grads[i+1], grads[i]);
+        backward(model[i], layerOutputs[i], grads[i + 1], grads[i]);
     }
 
     deInitTensorPtrArray(layerOutputs, sizeNetwork, 1);

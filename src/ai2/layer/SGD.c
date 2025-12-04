@@ -3,10 +3,13 @@
 #include "Layer.h"
 #include "Linear.h"
 
+#include "TensorConversion.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <tgmath.h>
 
 
 typedef struct numParams {
@@ -15,7 +18,7 @@ typedef struct numParams {
 } numParams_t;
 
 void initMomentumBuffer(momentumBuffer_t *momentumBuffer, parameter_t *parameter,
-                        float *momentums) {
+                        tensor_t *momentums) {
     momentumBuffer->parameter = parameter;
     momentumBuffer->momentums = momentums;
 }
@@ -31,12 +34,6 @@ uint32_t calcNumberOfMomentumBuffersByLayerType(const layerType_t type) {
     default:
         return 0;
     }
-}
-
-void addParameterToMomentumBuffers(momentumBuffer_t *momentumBuffers, parameter_t *parameter,
-                                   float *momentums, size_t bufferIndex) {
-    momentumBuffers[bufferIndex].parameter = parameter;
-    momentumBuffers[bufferIndex].momentums = momentums;
 }
 
 uint32_t calcTotalNumberOfMomentumBuffers(layer_t *model, size_t sizeModel) {
@@ -58,10 +55,9 @@ void initSGDConfig(SGDConfig_t *config, float learningRate, float momentumFactor
 
 
 void SGDStepFloat(SGDConfig_t *config) {
-
     for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
         parameter_t *param = config->momentumBuffers[i]->parameter;
-        float *momentums = config->momentumBuffers[i]->momentums;
+        float *momentums = (float *)config->momentumBuffers[i]->momentums->data;
 
         size_t paramSize = calcNumberOfElementsByParameter(param);
         float *gradFloat = (float *)param->grad->data;
@@ -75,15 +71,77 @@ void SGDStepFloat(SGDConfig_t *config) {
     }
 }
 
-void SGDZeroGradFloat(SGDConfig_t *config) {
+void SGDStepAsym(SGDConfig_t *config) {
+    for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
+        parameter_t *param = config->momentumBuffers[i]->parameter;
+        tensor_t *momentums = config->momentumBuffers[i]->momentums;
+
+        size_t numberOfValues = calcNumberOfElementsByShape(momentums->shape);
+
+        tensor_t momentumsFloat;
+        quantization_t momentumsFloatQ;
+        initFloat32Quantization(&momentumsFloatQ);
+        float momentumsFloatData[numberOfValues];
+        setTensorValuesForConversion(momentumsFloatData, &momentumsFloatQ, momentums,
+                                     &momentumsFloat);
+        convertTensor(momentums, &momentumsFloat);
+
+        tensor_t paramFloat;
+        quantization_t paramFloatQ;
+        initFloat32Quantization(&paramFloatQ);
+        float paramFloatData[numberOfValues];
+        setTensorValuesForConversion(paramFloatData, &paramFloatQ, param->param, &paramFloat);
+        convertTensor(param->param, &paramFloat);
+
+        tensor_t gradFloat;
+        quantization_t gradFloatQ;
+        initFloat32Quantization(&gradFloatQ);
+        float gradFloatData[numberOfValues];
+        setTensorValuesForConversion(gradFloatData, &gradFloatQ, param->grad, &gradFloat);
+        convertTensor(param->grad, &gradFloat);
+
+        float *momentumsFloatArr = (float *)momentumsFloat.data;
+        float *paramFloatArr = (float *)paramFloat.data;
+        float *gradFloatArr = (float *)gradFloat.data;
+
+        for (size_t j = 0; j < numberOfValues; ++j) {
+            float grad = gradFloatArr[j] + config->weightDecay * paramFloatArr[j];
+            momentumsFloatArr[j] = config->momentumFactor * momentumsFloatArr[j] + grad;
+            paramFloatArr[j] -= config->learningRate * momentumsFloatArr[j];
+        }
+
+        convertTensor(&momentumsFloat, momentums);
+        convertTensor(&paramFloat, param->param);
+        convertTensor(&gradFloat, param->grad);
+
+    }
+}
+
+void SGDZeroGrad(SGDConfig_t *config) {
     for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
         parameter_t *param = config->momentumBuffers[i]->parameter;
         size_t paramSize = calcNumberOfElementsByParameter(param);
+        size_t bitsPerElement = calcBitsPerElement(param->grad->quantization);
+        size_t totalNumberOfBytes = ceil(paramSize * bitsPerElement / 8);
 
-        float *gradFloat = (float *)param->grad->data;
-
-        for (size_t j = 0; j < paramSize; ++j) {
-            gradFloat[j] = 0.0f;
+        memset(param->grad->data, 0, totalNumberOfBytes);
+        qtype_t currentQType = param->grad->quantization->type;
+        if (currentQType == ASYM) {
+            asymQConfig_t *currentAsymQC = param->grad->quantization->qConfig;
+            currentAsymQC->zeroPoint = 0;
         }
+    }
+}
+
+void SGDZeroGradAsym(SGDConfig_t *config) {
+    for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
+        parameter_t *param = config->momentumBuffers[i]->parameter;
+        size_t paramSize = calcNumberOfElementsByParameter(param);
+        size_t bitsPerElement = calcBitsPerElement(param->grad->quantization);
+        size_t totalNumberOfBytes = ceil(paramSize * bitsPerElement / 8);
+
+        memset(param->grad->data, 0, totalNumberOfBytes);
+        asymQConfig_t *gradAsymQC = param->grad->quantization->qConfig;
+        gradAsymQC->scale = 0;
     }
 }

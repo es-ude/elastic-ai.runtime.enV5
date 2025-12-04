@@ -75,14 +75,16 @@ void gteFloatTensor(tensor_t *a, tensor_t *b, float altNumber, tensor_t *result)
 void gteSymInt32Zero(tensor_t *a, int32_t altNumber, tensor_t *result) {
     size_t numberOfValues = calcNumberOfElementsByTensor(a);
 
-    int32_t *values = (int32_t *)a->data;
-    for (size_t i = 0; i < numberOfValues; i++) {
-        if (values[i] < 0) {
-            values[i] = altNumber;
-        }
-    }
+    int32_t *inputValues = (int32_t *)a->data;
+    int32_t *outputValues = (int32_t *)result->data;
 
-    writeInt32ArrayToByteArray(numberOfValues, values, result->data);
+    for (size_t i = 0; i < numberOfValues; i++) {
+        int32_t currentValue = inputValues[i];
+        if (currentValue < 0) {
+            currentValue = altNumber;
+        }
+        outputValues[i] = currentValue;
+    }
 }
 
 // QUESTION

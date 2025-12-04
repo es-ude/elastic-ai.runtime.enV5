@@ -200,9 +200,9 @@ void addSymInt32TensorsInplace(tensor_t *aTensor, tensor_t *bTensor) {
     } else {
         quantization_t floatQ;
         initFloat32Quantization(&floatQ);
+
         float aFloatData[aNumberOfValues];
         tensor_t aFloat;
-
         setTensorValuesForConversion(aFloatData, &floatQ, aTensor, &aFloat);
         convertTensor(aTensor, &aFloat);
 

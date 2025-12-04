@@ -59,7 +59,6 @@ void setOrderOfDimsForNewTensor(size_t numberOfDimensions, size_t* orderOfDimens
 void printTensor(tensor_t* t);
 void printShape(shape_t* shape);
 
-// Important: Only copies data and shape
 void copyTensor(tensor_t* dest, tensor_t* src);
 
 #endif // ELASTIC_AI_RUNTIME_ENV5_TENSOR_H

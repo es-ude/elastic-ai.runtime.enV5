@@ -9,7 +9,7 @@
 typedef struct momentumBuffer
 {
     parameter_t* parameter;
-    float* momentums;
+    tensor_t* momentums;
 } momentumBuffer_t;
 
 typedef struct SGDConfig
@@ -21,15 +21,17 @@ typedef struct SGDConfig
     size_t sizeMomentumBuffers;
 } SGDConfig_t;
 
-void initMomentumBuffer(momentumBuffer_t* momentumBuffer, parameter_t* parameter, float* momentums);
+void initMomentumBuffer(momentumBuffer_t* momentumBuffer, parameter_t* parameter, tensor_t* momentums);
 
-uint32_t calcTotalNumberOfMomentumBuffers(layer_t *model, size_t sizeModel);
+uint32_t calcTotalNumberOfMomentumBuffers(layer_t* model, size_t sizeModel);
 
-void initSGDConfig(SGDConfig_t *config, float learningRate, float momentumFactor, float weightDecay,
-                   momentumBuffer_t **momentumBuffers, size_t sizeMomentumBuffers);
+void initSGDConfig(SGDConfig_t* config, float learningRate, float momentumFactor, float weightDecay,
+                   momentumBuffer_t** momentumBuffers, size_t sizeMomentumBuffers);
 
-void SGDStepFloat(SGDConfig_t *config);
+void SGDStepFloat(SGDConfig_t* config);
 
-void SGDZeroGradFloat(SGDConfig_t *sgdConfig);
+void SGDStepAsym(SGDConfig_t* config);
+
+void SGDZeroGrad(SGDConfig_t* sgdConfig);
 
 #endif
