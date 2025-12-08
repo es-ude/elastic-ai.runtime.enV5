@@ -4,6 +4,7 @@ add_subdirectory(layer)
 add_subdirectory(models)
 add_subdirectory(loss_functions)
 add_subdirectory(optimizer)
+add_subdirectory(csv)
 
 add_library(ai2
         ai.c

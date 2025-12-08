@@ -46,7 +46,6 @@ void convertInt32TensorToSymInt32Tensor(tensor_t *inputTensor, tensor_t *outputT
     memcpy(outputTensor->data, inputTensor->data, numberOfElements * sizeof(int32_t));
 }
 
-// conversion from int to asym should not be needed/used
 void convertInt32TensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTensor) {
     size_t numberOfElements = calcNumberOfElementsByTensor(inputTensor);
     int32_t min = findMinInt32(inputTensor->data, numberOfElements);
@@ -144,20 +143,19 @@ void convertFloatTensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTenso
     float scale;
     int16_t zeroPoint;
     if (min == max) {
-        scale = 1;
-        zeroPoint = (int16_t)min;
+        scale = min;
+        zeroPoint = 1;
     } else {
         scale = (max - min) / qMax;
         zeroPoint = (int16_t)roundByMode(min / scale, asymQConfig->roundingMode);
     }
 
     int32_t outputElements[numberOfElements];
+    float *inputFloat = (float *)inputTensor->data;
 
-    for (size_t elementIndex = 0; elementIndex < numberOfElements; elementIndex++) {
-        float inputElement = readBytesAsFloat(&inputTensor->data[elementIndex * sizeof(float)]);
-
-        outputElements[elementIndex] = roundByMode(
-            clamp(inputElement / scale - (float)zeroPoint, 0.f, qMax - 1),
+    for (size_t i = 0; i < numberOfElements; i++) {
+        outputElements[i] = roundByMode(
+            clamp(inputFloat[i] / scale - (float)zeroPoint, 0.f, qMax - 1),
             asymQConfig->roundingMode);
     }
 
@@ -187,9 +185,7 @@ void convertSymInt32TensorToFloat32Tensor(tensor_t *inputTensor, tensor_t *outpu
     size_t numberOfValues = calcNumberOfElementsByTensor(inputTensor);
     size_t bytesPerOutputElement = sizeof(float);
 
-    int32_t inputAsInt32[numberOfValues];
-    readBytesAsInt32Array(numberOfValues, inputTensor->data, inputAsInt32);
-
+    int32_t *inputAsInt32 = (int32_t *)inputTensor->data;
     float output[numberOfValues];
 
     symInt32QConfig_t *inputSymInt32QConfig = inputTensor->quantization->qConfig;
@@ -210,8 +206,7 @@ void convertSymInt32TensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTe
 
     float inputScale = inputSymInt32QConfig->scale;
 
-    int32_t inputAsInt32[numberOfValues];
-    readBytesAsInt32Array(numberOfValues, inputTensor->data, inputAsInt32);
+    int32_t *inputAsInt32 = (int32_t *)inputTensor->data;
 
     float inputAsFloat[numberOfValues];
     for (size_t i = 0; i < numberOfValues; i++) {
@@ -227,12 +222,6 @@ void convertSymInt32TensorToAsymTensor(tensor_t *inputTensor, tensor_t *outputTe
 
     int16_t zeroPoint = (int16_t)roundByMode(min / outputScale, outputAsymQConfig->roundingMode);
     outputAsymQConfig->zeroPoint = zeroPoint;
-
-    /*int32_t outputInt[numberOfValues];
-    for (size_t i = 0; i < numberOfValues; i++) {
-        outputInt[i] = (int32_t)(inputAsFloat[i] - (float)zeroPoint);
-    }
-    //scale bleibt gleich*/
 
     int32_t outputInt[numberOfValues];
     for (size_t i = 0; i < numberOfValues; i++) {
