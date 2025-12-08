@@ -47,6 +47,17 @@ target_link_libraries(Div PRIVATE
         Arithmetic
 )
 
+add_library(Log
+        Log.c
+)
+target_include_directories(Log PUBLIC include)
+target_link_libraries(Log PRIVATE
+        Common
+        Tensor
+        DTypes
+        Arithmetic
+)
+
 add_library(Matmul
         Matmul.c
 )

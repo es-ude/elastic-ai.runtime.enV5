@@ -1,6 +1,6 @@
 #include "CrossEntropy.h"
-#include "math.h"
 #include "TensorConversion.h"
+#include "Log.h"
 
 float crossEntropyForwardFloat(tensor_t *softmaxOutput, tensor_t *distribution) {
     size_t numberOfValues = calcNumberOfElementsByTensor(softmaxOutput);
@@ -10,7 +10,7 @@ float crossEntropyForwardFloat(tensor_t *softmaxOutput, tensor_t *distribution) 
 
     float loss = 0.f;
     for (size_t i = 0; i < numberOfValues; i++) {
-        loss += distributionFloat[i] * -logf(softmaxOutputFloat[i]);
+        loss += distributionFloat[i] * -logFloat(softmaxOutputFloat[i]);
     }
 
     return loss;

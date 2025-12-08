@@ -12,17 +12,17 @@ void testSquareInt32() {
     TEST_ASSERT_EQUAL_INT32(expected, actual);
 }
 
-void testSquareFloat() {
+void testLogFloat() {
     float a = 0.5f;
     float actual = squareFloat32(a);
     float expected = 0.25f;
 
-    TEST_ASSERT_EQUAL_INT32(expected, actual);
+    TEST_ASSERT_EQUAL_FLOAT(expected, actual);
 }
 
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(testSquareInt32);
-    RUN_TEST(testSquareFloat);
+    RUN_TEST(testLogFloat);
     UNITY_END();
 }
