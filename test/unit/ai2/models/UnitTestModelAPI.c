@@ -1,11 +1,11 @@
 #include "Linear.h"
-#include "Sequential.h"
+#include "ModelAPI.h"
 #include "SGD.h"
 #include "unity.h"
 #include "TensorConversion.h"
 #include <stddef.h>
 
-void testSequentialForwardLinearReluFloat() {
+void testInferenceLinearReluFloat() {
     parameter_t weights;
     tensor_t weightsParam;
     float weightData[] = {-1.f, 2.f, -3.f, 4.f, 5.f, 6.f};
@@ -83,14 +83,14 @@ void testSequentialForwardLinearReluFloat() {
 
     layer_t *model[] = {&linear, &relu};
 
-    sequentialForward(model, 2, &input, &output);
+    inference(model, 2, &input, &output);
 
     float expected[] = {0.f, 20.f};
 
     TEST_ASSERT_EQUAL_FLOAT_ARRAY(expected, output.data, 2);
 }
 
-void testSequentialCalcGradsLinearFloat() {
+void testCalcGradsLinearFloat() {
     parameter_t weights;
     tensor_t weightsParam;
     float weightData[] = {1.f, 1.f, 1.f, 1.f, 1.f, 1.f};
@@ -261,9 +261,9 @@ void testSequentialCalcGradsLinearFloat() {
     initSGDConfig(&sgdConfig, 0.01f, 0.f, 0.f, momentumBuffers, sizeMomentumBuffers);
 
     for (size_t i = 0; i < 1000; i++) {
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input0, &label0, &trainingStats);
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input1, &label1, &trainingStats);
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input2, &label2, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input0, &label0, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input1, &label1, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input2, &label2, &trainingStats);
 
         SGDStepFloat(&sgdConfig);
         SGDZeroGrad(&sgdConfig);
@@ -277,7 +277,7 @@ void testSequentialCalcGradsLinearFloat() {
 }
 
 
-void testSequentialForwardLinearReluAsym() {
+void testInferenceLinearReluAsym() {
     size_t numberOfWeights = 6;
     size_t numberOfBiases = 2;
     size_t numberOfInputs = 3;
@@ -394,7 +394,7 @@ void testSequentialForwardLinearReluAsym() {
 
     layer_t *model[] = {&linear, &relu};
 
-    sequentialForward(model, 2, &inputAsym, &outputAsym);
+    inference(model, 2, &inputAsym, &outputAsym);
 
     float expected[] = {0.f, 20.f - (float)biasData[1]};
     convertTensor(&outputAsym, &outputFloat);
@@ -405,7 +405,7 @@ void testSequentialForwardLinearReluAsym() {
     }
 }
 
-void testSequentialCalcGradsLinearAsym() {
+void testCalcGradsLinearAsym() {
     size_t numberOfWeights = 6;
     size_t numberOfBiases = 2;
     size_t numberOfInputs = 3;
@@ -671,9 +671,9 @@ void testSequentialCalcGradsLinearAsym() {
     initSGDConfig(&sgdConfig, 0.01f, 0.f, 0.f, momentumBuffers, sizeMomentumBuffers);
 
     for (size_t i = 0; i < 100; i++) {
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input0Asym, &label0Asym, &trainingStats);
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input1Asym, &label1Asym, &trainingStats);
-        sequentialCalculateGrads(model, sizeNetwork, MSE, &input2Asym, &label2Asym, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input0Asym, &label0Asym, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input1Asym, &label1Asym, &trainingStats);
+        calculateGrads(model, sizeNetwork, MSE, &input2Asym, &label2Asym, &trainingStats);
 
         SGDStepAsym(&sgdConfig);
         SGDZeroGrad(&sgdConfig);
@@ -699,10 +699,10 @@ void tearDown() {}
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(testSequentialForwardLinearReluFloat);
-    RUN_TEST(testSequentialCalcGradsLinearFloat);
+    RUN_TEST(testInferenceLinearReluFloat);
+    RUN_TEST(testCalcGradsLinearFloat);
 
-    RUN_TEST(testSequentialForwardLinearReluAsym);
-    RUN_TEST(testSequentialCalcGradsLinearAsym);
+    RUN_TEST(testInferenceLinearReluAsym);
+    RUN_TEST(testCalcGradsLinearAsym);
     UNITY_END();
 }

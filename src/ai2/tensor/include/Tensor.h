@@ -55,6 +55,7 @@ void setTensorValues(tensor_t* tensor, uint8_t* data, shape_t* shape, quantizati
                      uint8_t* sparsityBitmask);
 void setParameterValues(parameter_t* parameter, tensor_t* param, tensor_t* grad);
 void setOrderOfDimsForNewTensor(size_t numberOfDimensions, size_t* orderOfDimensions);
+void setShape(shape_t *shape, size_t *dims, size_t numberOfDims, size_t *orderOfDims);
 
 void printTensor(tensor_t* t);
 void printShape(shape_t* shape);

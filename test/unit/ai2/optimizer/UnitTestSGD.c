@@ -223,22 +223,35 @@ void unitTestSGDStep() {
     float weightDecay = 0.01f;
 
     size_t sizeMomentumBuffers = calcTotalNumberOfMomentumBuffers(model, 1);
-    float momentumWeights[] = {0.f, 0.f, 0.f};
-    float momentumBias[] = {0.f, 0.f, 0.f};
+
+    tensor_t momentumWeights;
+    float momentumWeightsData[] = {0.f, 0.f, 0.f};
+    quantization_t momentumWeightsQ;
+    initFloat32Quantization(&momentumWeightsQ);
+    setTensorValues(&momentumWeights, momentumWeightsData, &weightShape, &momentumWeightsQ, NULL);
+
+    tensor_t momentumBias;
+    float momentumBiasData[] = {0.f, 0.f, 0.f};
+    quantization_t momentumBiasQ;
+    initFloat32Quantization(&momentumBiasQ);
+    setTensorValues(&momentumBias, momentumBiasData, &biasShape, &momentumBiasQ, NULL);
 
     momentumBuffer_t weightMomentumBuffer;
     weightMomentumBuffer.parameter = &weights;
-    weightMomentumBuffer.momentums = momentumWeights;
+    weightMomentumBuffer.momentums = &momentumWeights;
 
     momentumBuffer_t biasMomentumBuffer;
     biasMomentumBuffer.parameter = &bias;
-    biasMomentumBuffer.momentums = momentumBias;
+    biasMomentumBuffer.momentums = &momentumBias;
 
     momentumBuffer_t *momentumBuffers[] = {&weightMomentumBuffer, &biasMomentumBuffer};
 
     SGDConfig_t config;
     initSGDConfig(&config, lr, momentumFactor, weightDecay, momentumBuffers, sizeMomentumBuffers);
+
     SGDStepFloat(&config);
+
+
     float wPExpected[] = {0.899f, 2.098f, -3.197f};
     float bPExpected[] = {-1.099f, 2.697f};
 
@@ -338,7 +351,7 @@ void unitTestSGDZeroGrad() {
     SGDConfig_t sgdConfig;
     initSGDConfig(&sgdConfig, lr, momentumFactor, weightDecay, momentumBuffers, sizeMomentumBuffers);
 
-    SGDZeroGradFloat(&sgdConfig);
+    SGDZeroGrad(&sgdConfig);
     float wGradExpected[] = {0.f, 0.f, 0.f};
     float bGradExpected[] = {0.f, 0.f};
 
@@ -349,9 +362,9 @@ void unitTestSGDZeroGrad() {
 
 int main() {
     UNITY_BEGIN();
-    RUN_TEST(unitTestSGDStep);
-    RUN_TEST(unitTestSGDZeroGrad);
     RUN_TEST(unitTestInitMomentumBuffer);
     RUN_TEST(unitTestInitSGDConfig);
+    RUN_TEST(unitTestSGDZeroGrad);
+    RUN_TEST(unitTestSGDStep);
     UNITY_END();
 }

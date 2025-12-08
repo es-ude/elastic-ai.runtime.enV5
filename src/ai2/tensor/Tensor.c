@@ -242,6 +242,12 @@ void setParameterValues(parameter_t *parameter, tensor_t *param, tensor_t *grad)
     parameter->grad = grad;
 }
 
+void setShape(shape_t *shape, size_t *dims, size_t numberOfDims, size_t *orderOfDims) {
+    shape->dimensions = dims;
+    shape->numberOfDimensions = numberOfDims;
+    shape->orderOfDimensions = orderOfDims;
+}
+
 void printTensor(tensor_t *t) {
     quantization_t *q = t->quantization;
     printf("TENSOR BEGIN \n");

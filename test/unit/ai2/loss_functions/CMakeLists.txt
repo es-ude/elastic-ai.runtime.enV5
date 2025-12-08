@@ -1,21 +1,13 @@
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
-        Linear
-        MORE_LIBS
-        CommonLayerLibs
-)
-
-
-add_elastic_ai_unit_test(
-        LIB_UNDER_TEST
-        Relu
+        CrossEntropy
         MORE_LIBS
         CommonLayerLibs
 )
 
 add_elastic_ai_unit_test(
         LIB_UNDER_TEST
-        Softmax
+        MSE
         MORE_LIBS
         CommonLayerLibs
 )

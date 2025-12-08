@@ -12,7 +12,8 @@ typedef enum layerType
     LINEAR,
     RELU,
     CONV1D,
-    SOFTMAX
+    SOFTMAX,
+    SEQUENTIAL
 } layerType_t;
 
 typedef enum lossFunctionType

@@ -42,17 +42,6 @@ target_link_libraries(Linear PRIVATE
         Layer
 )
 
-add_library(MSE
-        MSE.c
-)
-target_include_directories(MSE PUBLIC include)
-target_link_libraries(MSE PRIVATE
-        Tensor
-        TensorConversion
-        Square
-        Sub
-)
-
 add_library(Relu
         Relu.c
 )
@@ -63,16 +52,6 @@ target_link_libraries(Relu PRIVATE
         Arithmetic
         Comparison
         Layer
-)
-
-add_library(SGD
-        SGD.c
-)
-target_include_directories(SGD PUBLIC include)
-target_link_libraries(SGD PRIVATE
-        DTypes
-        Tensor
-        Arithmetic
 )
 
 add_library(Softmax

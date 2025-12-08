@@ -1,6 +1,6 @@
-add_library(Sequential Sequential.c)
-target_include_directories(Sequential PUBLIC include)
-target_link_libraries(Sequential PRIVATE
+add_library(ModelAPI ModelAPI.c)
+target_include_directories(ModelAPI PUBLIC include)
+target_link_libraries(ModelAPI PRIVATE
         Tensor
         Layer
         Rounding

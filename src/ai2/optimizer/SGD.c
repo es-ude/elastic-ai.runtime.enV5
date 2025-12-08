@@ -132,16 +132,3 @@ void SGDZeroGrad(SGDConfig_t *config) {
         }
     }
 }
-
-void SGDZeroGradAsym(SGDConfig_t *config) {
-    for (size_t i = 0; i < config->sizeMomentumBuffers; i++) {
-        parameter_t *param = config->momentumBuffers[i]->parameter;
-        size_t paramSize = calcNumberOfElementsByParameter(param);
-        size_t bitsPerElement = calcBitsPerElement(param->grad->quantization);
-        size_t totalNumberOfBytes = ceil(paramSize * bitsPerElement / 8);
-
-        memset(param->grad->data, 0, totalNumberOfBytes);
-        asymQConfig_t *gradAsymQC = param->grad->quantization->qConfig;
-        gradAsymQC->scale = 0;
-    }
-}

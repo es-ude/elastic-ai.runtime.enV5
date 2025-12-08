@@ -1,7 +1,7 @@
-#include "Sequential.h"
+#include "ModelAPI.h"
 #include "Layer.h"
 #include "MSE.h"
-#include "TensorConversion.h"
+//#include "TensorConversion.h"
 
 #include <Linear.h>
 #include <stdio.h>
@@ -63,7 +63,7 @@ static size_t calcBytesOutputData(quantization_t *outputQ, size_t numberOfValues
     }
 }
 
-void sequentialForward(layer_t **model, size_t numberOfLayers, tensor_t *input, tensor_t *output) {
+void inference(layer_t **model, size_t numberOfLayers, tensor_t *input, tensor_t *output) {
     for (size_t i = 0; i < numberOfLayers; i++) {
         layer_t *currentLayer = model[i];
         layerType_t currentLayerType = currentLayer->type;
@@ -258,7 +258,7 @@ static void initGrads(tensor_t **grads, tensor_t **layerOutputs, size_t sizeNetw
  * but in the backward pass it is ignored. We do this, because the Cross Entropy Backward
  * already takes the Softmax Backward into account.
  */
-void sequentialCalculateGrads(layer_t **model, size_t sizeNetwork,
+void calculateGrads(layer_t **model, size_t sizeNetwork,
                               lossFunctionType_t lossFunctionType, tensor_t *input, tensor_t *label,
                               trainingStats_t *trainingStats) {
 
