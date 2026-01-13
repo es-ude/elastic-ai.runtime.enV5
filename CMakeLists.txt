@@ -47,7 +47,7 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
     endif()
   endif()
 
-  if(BUILDING_FOR_HARDWARE AND NOT TARGET tinyusb_device)
+  if(_BUILDING_FOR_HARDWARE AND NOT TARGET tinyusb_device)
     message(WARNING "not building project, because tinyusb not initialized")
   endif()
 endif()

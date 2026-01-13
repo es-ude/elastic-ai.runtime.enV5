@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
     add_library(HWTestCommon INTERFACE)
     target_link_libraries(HWTestCommon INTERFACE
             I2c
