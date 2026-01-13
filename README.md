@@ -123,7 +123,7 @@ cmake --preset unit_test
 cmake --preset env5_rev2_debug
 cmake --preset env5_rev2_release
 
-# custom function provided by devenv
+# alternatively use the custom function provided by devenv
 devenv tasks run prepare:cmake
 ```
 
@@ -139,7 +139,7 @@ cmake --build --preset unit_test
 cmake --build --preset env5_rev2_debug
 cmake --build --preset env5_rev2_release
 
-# custom function provided by devenv
+# alternatively use the custom function provided by devenv
 devenv tasks run -m before build
 ```
 
@@ -153,7 +153,7 @@ the `ctest` function as follows:
 cmake --build --preset unit_test
 ctest --preset unit_test
 
-# as a task provided by devenv
+# alternatively use the task provided by devenv
 devenv tasks run -m before check:unit-test
 ```
 
