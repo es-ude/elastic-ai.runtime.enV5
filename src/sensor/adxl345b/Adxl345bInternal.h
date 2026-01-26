@@ -1,241 +1,119 @@
 #ifndef ENV5_ADXL345B_INTERNAL_HEADER
 #define ENV5_ADXL345B_INTERNAL_HEADER
 
-/*! \b Datasheet: \n
+/* Datasheet:
  *      https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
- * \n \b Quick \b Start \b Guide: \n
+ * Quick Start Guide:
  *      https://www.analog.com/media/en/technical-documentation/application-notes/AN-1077.pdf
- * \n \n \b INTERRUPTS -> Not connected!\n \b FIFO -> Can not be used
- * effectively due to unconnected interrupt pins\n \b Sleep \b mode -> Can not
- * be used effectively due to unconnected interrupt pins\n \b Shock, Tap, Fall,
- * Activity \b detection -> Can not be used due to unconnected interrupt pins\n
+ *
+ * Interrupt pins -> Not connected!
+ * FIFO -> Can not be used effectively due to unconnected interrupt pins
+ * Sleep mode -> Can not be used effectively due to unconnected interrupt pins
+ * Tap, Fall, Activity detection -> Can not be used effectively due to unconnected interrupt pins
  */
 
-#include "include/eai/sensor/Adxl345bTypedefs.h"
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-typedef struct adxl345bRangeSetting {
-    uint8_t settingForRange;
-    uint8_t msbMask;          //!< used for converting raw data to LSB value
-    float tenBitScaleFactor;  //!< used for converting LSB value to G value
-    float fullResScaleFactor; //!< used for converting LSB value to G value
-} adxl345bRangeSetting_t;
+#include "include/eai/sensor/Adxl345bTypedefs.h"
 
-/*!
- * @brief function to read the data from the sensor
+// #############################################################################
+// Configuration
+// #############################################################################
+
+/**
+ * @brief write the default configuration to the sensor
  *
- * @param i2cConfiguration[in] i2c Configuration to be used with sensor
- * @param registerToRead[in]       address of the register to start the read
- * from
- * @param responseBuffer[out]      memory to store the received data
- * @param sizeOfResponseBuffer[in] size of the response buffer
- * @return                         return the error code (0 if everything
- * passed)
- */
-static adxl345bErrorCode_t adxl345bInternalReadDataFromSensor(adxl345bSensorConfiguration_t sensor,
-                                                              adxl345bRegister_t registerToRead,
-                                                              uint8_t *responseBuffer,
-                                                              uint8_t sizeOfResponseBuffer);
-
-/*!
- * @brief function to convert the raw value received from the sensor to a lsb value
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @note This function sets the sensor to default configuration:
+ * @note   - Output Data Rate: 12.5Hz, Low Power Mode
+ * @note   - Measurement Mode: Deactivated
+ * @note   - Interrupts: All Disabled
+ * @note   - Range: ±2G, 10bit mode
  *
- * @param sensor[in] configuration for sensor to use
- * @param rawData[in]   raw data received from the sensor
- * @param lsbValue[out] LSB value
- * @return              return the error code (0 if everything passed)
- */
-static adxl345bErrorCode_t
-adxl345bInternalConvertRawValueToLSB(adxl345bSensorConfiguration_t sensor, const uint8_t rawData[2],
-                                     int *lsbValue);
-
-/*!
- * @brief function to convert the lsb value received from the sensor to a actual float
- * value
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *
- * @param sensor[in] configuration for sensor to use
- * @param lsb[in] raw data received from the sensor
- * @param gValue[out] real world G value
+ * @param sensor[in]  sensor to use
  * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalConvertLSBtoGValue(adxl345bSensorConfiguration_t sensor,
-                                                              int lsb, float *gValue);
+adxl345bErrorCode_t
+adxl345bInternalWriteDefaultConfiguration(adxl345bSensorConfiguration_t *sensor);
 
 /*!
- * @brief combination of adxl345bInternalConvertRawValueToLSB(...) and
- * adxl345bInternalConvertLSBtoGValue(...)
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @brief enable internal self-test force
  *
- * @param sensor[in] configuration for sensor to use
- * @param rawData[in] raw data received from the sensor
- * @param gValue[out] real world G value
+ * @param sensor[in]  sensor to use
  * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t
-adxl345bInternalConvertRawValueToGValue(adxl345bSensorConfiguration_t sensor,
-                                        const uint8_t rawData[2], float *gValue);
+adxl345bErrorCode_t adxl345bInternalEnableSelfTestForce(adxl345bSensorConfiguration_t *sensor);
 
 /*!
- * @brief function to set the sensor into low power mode at 2G range with full
- * resolution
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @brief disable internal self-test force
  *
- * @param sensor[in] configuration for sensor to use
- * @return return the error code (0 if everything passed)
+ * @param sensor[in]  sensor to use
+ * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t
-adxl345bInternalWriteDefaultLowPowerConfiguration(adxl345bSensorConfiguration_t sensor);
+adxl345bErrorCode_t adxl345bInternalDisableSelfTestForce(adxl345bSensorConfiguration_t *sensor);
+
+// #############################################################################
+// Calibration
+// #############################################################################
 
 /*!
  * @brief function to calculate the offset that should be passed to the sensor
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
  *
- * @param xMeasuredAtZeroG[in] average of measured x values at Zero G
- * @param yMeasuredAtZeroG[in] average of measured y values at Zero G
- * @param zMeasuredAtOneG[in]  average of measured z values at One G
- * @param xOffset[out] pointer to int8_t where offset of X will be stored
- * @param yOffset[out] pointer to int8_t where offset of Y will be stored
- * @param zOffset[out] pointer to int8_t where offset of Z will be stored
- *
- * @return                  8 bit two complement that should be passed to the
- * sensor as offset
- * @note expects sensor to operate in full resolution with BW Rate between 100Hz and 800Hz
- * @note x,y should be oriented with 0g - z should be oriented with 1g like shown in Figure 58 of
- * the documentation
+ * @param measured[in]  measured value representing the offset to 0G LSB
+ * @return              offset as 8 bit two's complement
  */
-static adxl345bErrorCode_t adxl345bInternalCalculateCalibrationOffset(
-    adxl345bSensorConfiguration_t sensor, int xMeasuredAtZeroG, int yMeasuredAtZeroG,
-    int zMeasuredAtOneG, int8_t *xOffset, int8_t *yOffset, int8_t *zOffset);
+int8_t adxl345bInternalCalculateCalibrationOffset(int16_t measured);
+
+// #############################################################################
+// Data Conversion
+// #############################################################################
 
 /*!
- * @brief polls InterruptSource until specified interrupt occurs
+ * @brief convert two's complement to a LSB value (16 bit signed integer)
  *
- * @IMPORTANT We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
+ * @attention expects data to be right justified
  *
- * @param sensor[in] configuration for sensor to use
- * @param mask[in] mask to specify which interrupt should be checked
- *
- * @return return the error code (0 if everything passed)
- * @note clears ADXL345B_REGISTER_INTERRUPT_SOURCE except DATA_READY, watermark, and overrun
- * information
+ * @param valueRange[in]        range the sensor is configured to
+ * @param isFullResolution[in]  whether the sensor is configured in full resolution mode
+ * @param rawValue[in]          raw data received from the sensor ([0]: LSB, [1]: MSB)
+ * @return                      LSB value
  */
-static adxl345bErrorCode_t
-adxl345bInternalCheckInterruptSource(adxl345bSensorConfiguration_t sensor, uint8_t mask);
+int16_t adxl345bInternalConvertRawDataToLsbValue(adxl345bRange_t valueRange, bool isFullResolution,
+                                                 uint8_t rawValue[2]);
 
 /*!
- * @brief calculates scalefactor that is needed to convert averaged LSB values to offsetregister
- * format
+ * @brief convert the lsb value received from the sensor to a actual g value
  *
- * @param xyOffsetScaleFactor[out] pointer to float where calculated scalefactor will be stored
- * @param zOffsetScaleFactor[out] pointer to float where calculated scalefactor will be stored
- * @return
- * @note expects sensor to operate in full resolution with BW Rate between 100Hz and 800Hz
+ * @param valueRange[in]        range the sensor is configured to
+ * @param isFullResolution[in]  whether the sensor is configured in full resolution mode
+ * @param rawValue[in]          raw data received from the sensor
+ * @return                      G value
  */
-static void adxl345bInternalCalculateOffsetRegisterScaleFactors(float *xyOffsetScaleFactor,
-                                                                float *zOffsetScaleFactor);
+float adxl345bInternalConvertLSBtoGValue(adxl345bRange_t valueRange, bool isFullResolution,
+                                         int rawValue);
+
+// #############################################################################
+// Data Handling
+// #############################################################################
 
 /*!
- * @brief reads raw data of xAxis,yAxis and zAxis
+ * @brief read x-, y-, and z-axis data from the sensor
  *
- * @IMPORTANT   - We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- *              - there must be at least 5 μs between the end of reading the data registers and
- * the start of a new read
+ * @param sensor[in]   configuration for sensor to use
+ * @param rawData[out] memory where data received from the sensor is stored.
  *
- * @param sensor[in] configuration for sensor to use
- * @param rawSamples[out] memory where data received from the sensor is stored
- * @return return the error code (0 if everything passed)
- *
- * @note read only, raw data needs to be converted into g-values
+ * @return             return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bReadDataXYZ(adxl345bSensorConfiguration_t sensor,
-                                               adxl345bRawData_t *rawSamples);
-
-/*! @brief
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- * @param sensor[in] configuration for sensor to use
- * @param dataResponseBuffer[out] memory where data received from the sensor is stored.
- * @param maxFifoRead maximal Data you want to fetch from Fifo
- * @return return the error code (0 if everything passed)
- */
-static adxl345bErrorCode_t fetchDataFromFifo(adxl345bSensorConfiguration_t sensor,
-                                             adxl345bRawData_t *dataResponseBuffer,
-                                             uint8_t maxFifoRead);
-
-/*! @brief
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- * @param sensor[in] configuration for sensor to use
- * @param sizeOfBuffer[in]
- * @param remainder[in]
- * @param maxFifoRead[in] maximal amount of samples you want to fetch from Fifo
- * @param buffer[out] memory where samples received from the sensor is stored
- * @param fifoInformation[in] Infomation which is stored in ADXL345B_FIFO_CONTROL
- * @return return the error code (0 if everything passed)
- */
-static adxl345bErrorCode_t manageFifoDataRead(adxl345bSensorConfiguration_t sensor,
-                                              uint8_t fifoInformation, uint8_t maxFifoRead,
-                                              uint8_t remainder, adxl345bRawData_t *buffer,
-                                              int64_t sizeOfBuffer);
+adxl345bErrorCode_t adxl345bInternalReadDataXYZ(adxl345bSensorConfiguration_t *sensor,
+                                                uint8_t rawData[6]);
 
 /*!
- * @brief disables selftest force by setting selftest bit to 0 in the
- ADXL345B_REGISTER_DATA_FORMAT
- * without changing other information stored in register
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- * @param sensor[in] configuration for sensor to use
-
- * @return return the error code (0 if everything passed)
- */
-
-static adxl345bErrorCode_t
-adxl345bInternalDisableSelftestForce(adxl345bSensorConfiguration_t sensor);
-
-/*!
- * @brief enables selftest force by setting selftest bit to 1 in the
- * ADXL345B_REGISTER_DATA_FORMAT without changing other information stored in register
- * @IMPORTANT   We highly recommend using the "enV5_hw_configuration_rev_[x]" -library
- * @param sensor[in] configuration for sensor to use
- * @return return the error code (0 if everything passed)
- */
-static adxl345bErrorCode_t
-adxl345bInternalEnableSelftestForce(adxl345bSensorConfiguration_t sensor);
-
-/*!
- * @brief stores selected Range Information in static parameter
+ * @brief clear FIFO buffer of the sensor
  *
- * @param range[in] range to be selected
- * @return return the error code (0 if everything passed)
+ * @param sensor[in]  configuration for sensor to use
+ * @return            return the error code (0 if everything passed)
  */
-static adxl345bErrorCode_t adxl345bInternalSetSelectedRange(adxl345bRange_t range);
-/*!
- *
- * @param sensor[in]
- * @param adxlRegister[in] register that should be changed
- * @param mask[in] mask which describes which bits should be changed
- * @return return the error code (0 if everything passed)
- * @note examples for mask:
- * 0b10000000 -> Bit7 will be set to 1
- * 0b11000000 -> Bit7 and Bit6 will be set to 1
- * @note check ADXL345B_BITMASK -Enum
- */
-static adxl345bErrorCode_t adxl345bInternalSetRegisterBits(adxl345bSensorConfiguration_t sensor,
-                                                           adxl345bRegister_t adxlRegister,
-                                                           uint8_t mask);
-/*!
- *
- * @param sensor[in]
- * @param adxlRegister[in] register that should be changed
- * @param mask[in] mask which describes which bits should be changed
- * @return return the error code (0 if everything passed)
- * @note examples for mask:
- * 0b10000000 -> Bit7 will be set to 0
- * 0b11000000 -> Bit7 and Bit6 will be set to 0
- * @note check ADXL345B_BITMASK -Enum
- */
-static adxl345bErrorCode_t adxl345bInternalClearRegisterBits(adxl345bSensorConfiguration_t sensor,
-                                                             adxl345bRegister_t adxlRegister,
-                                                             uint8_t mask);
+adxl345bErrorCode_t adxl345bInternalClearFifoBuffer(adxl345bSensorConfiguration_t *sensor);
 
 #endif /* ENV5_ADXL345B_INTERNAL_HEADER */

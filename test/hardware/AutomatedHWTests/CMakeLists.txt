@@ -1,6 +1,6 @@
-if (BUILDING_FOR_ELASTIC_NODE)
-    add_executable(TestFlash TestFlash.c)
-    target_link_libraries(TestFlash PRIVATE
+if(_BUILDING_FOR_HARDWARE)
+  add_executable(TestFlash TestFlash.c)
+  target_link_libraries(TestFlash PRIVATE
             EnV5HwConfiguration
             Common
             Spi
@@ -11,11 +11,11 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::hardware_spi
 
             unity
-    )
-    create_enV5_executable(TestFlash)
+  )
+  create_enV5_executable(TestFlash)
 
-    add_executable(TestFreeRTOSTask TestFreeRTOSTask.c)
-    target_link_libraries(TestFreeRTOSTask PRIVATE
+  add_executable(TestFreeRTOSTask TestFreeRTOSTask.c)
+  target_link_libraries(TestFreeRTOSTask PRIVATE
             Common
             EnV5HwConfiguration
             EnV5HwController
@@ -28,11 +28,11 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::pico_stdlib
 
             unity
-    )
-    create_enV5_executable(TestFreeRTOSTask)
+  )
+  create_enV5_executable(TestFreeRTOSTask)
 
-    add_executable(TestFreeRTOSTaskDualCore TestFreeRTOSTaskDualCore.c)
-    target_link_libraries(TestFreeRTOSTaskDualCore PRIVATE
+  add_executable(TestFreeRTOSTaskDualCore TestFreeRTOSTaskDualCore.c)
+  target_link_libraries(TestFreeRTOSTaskDualCore PRIVATE
             Common
             EnV5HwConfiguration
             EnV5HwController
@@ -45,11 +45,11 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::pico_stdlib
 
             unity
-    )
-    create_enV5_executable(TestFreeRTOSTaskDualCore)
+  )
+  create_enV5_executable(TestFreeRTOSTaskDualCore)
 
-    add_executable(TestFreeRTOSQueue TestFreeRTOSQueue.c)
-    target_link_libraries(TestFreeRTOSQueue PRIVATE
+  add_executable(TestFreeRTOSQueue TestFreeRTOSQueue.c)
+  target_link_libraries(TestFreeRTOSQueue PRIVATE
             Common
             EnV5HwController
             freeRtosUtils
@@ -60,11 +60,11 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::hardware_spi
 
             unity
-    )
-    create_enV5_executable(TestFreeRTOSQueue)
+  )
+  create_enV5_executable(TestFreeRTOSQueue)
 
-    add_executable(TestFilesystem TestFileSystem.c)
-    target_link_libraries(TestFilesystem PRIVATE
+  add_executable(TestFilesystem TestFileSystem.c)
+  target_link_libraries(TestFilesystem PRIVATE
             Common
             EnV5HwConfiguration
             EnV5HwController
@@ -80,20 +80,20 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::hardware_spi
 
             unity
-    )
-    create_enV5_executable(TestFilesystem)
+  )
+  create_enV5_executable(TestFilesystem)
 
-    add_executable(CheckEspForOkViaPico CheckEspForOkViaPico.c)
-    target_link_libraries(CheckEspForOkViaPico PRIVATE
+  add_executable(CheckEspForOkViaPico CheckEspForOkViaPico.c)
+  target_link_libraries(CheckEspForOkViaPico PRIVATE
             Pico::pico_stdlib
             Pico::hardware_uart
             Pico::hardware_gpio
             unity
-    )
-    create_enV5_executable(CheckEspForOkViaPico)
+  )
+  create_enV5_executable(CheckEspForOkViaPico)
 
-    add_executable(TestFPGACommunication TestFPGACommunication.c)
-    target_link_libraries(TestFPGACommunication
+  add_executable(TestFPGACommunication TestFPGACommunication.c)
+  target_link_libraries(TestFPGACommunication
             Common
             UsbProtocol
             EnV5HwConfiguration
@@ -111,6 +111,22 @@ if (BUILDING_FOR_ELASTIC_NODE)
             Pico::hardware_spi
 
             unity
-    )
-    create_enV5_executable(TestFPGACommunication)
-endif ()
+  )
+  create_enV5_executable(TestFPGACommunication)
+
+  add_executable(TestAdxl345b TestAdxl345b.c)
+  target_link_libraries(TestAdxl345b PRIVATE
+            EnV5HwConfiguration
+            Common
+            I2c
+            EnV5HwController
+            Adxl345b
+
+            Pico::pico_stdlib
+            Pico::hardware_i2c
+
+            unity
+  )
+  create_enV5_executable(TestAdxl345b)
+
+endif()
