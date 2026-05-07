@@ -1,4 +1,3 @@
-if(BUILDING_FOR_ELASTIC_NODE)
     add_library(HWTestCommon INTERFACE)
     target_link_libraries(HWTestCommon INTERFACE
             I2c
@@ -68,6 +67,16 @@ if(BUILDING_FOR_ELASTIC_NODE)
     create_enV5_executable(HardwareTestPac193xBuffer)
 
 
+    add_executable(HardwareTestPac193x_New HardwareTestPac193x_New.c)
+    target_link_libraries(HardwareTestPac193x_New PRIVATE
+            Pac193x_New
+            HWTestCommon
+            I2cPico
+
+    )
+    create_enV5_executable(HardwareTestPac193x_New)
+
+
 
     add_executable(HardwareTestBmi323 HardwareTestBmi323.c)
     target_link_libraries(HardwareTestBmi323 PRIVATE
@@ -94,5 +103,4 @@ if(BUILDING_FOR_ELASTIC_NODE)
             RuntimeC::Protocol
     )
     create_enV5_executable(StressTestAdxl345b)
-endif ()
 

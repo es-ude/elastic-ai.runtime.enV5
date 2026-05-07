@@ -89,7 +89,12 @@ _Noreturn static void runTest(void) {
             PRINT("Error occurred: 0x%02X", error);
         } else {
             PRINT("Overflow: %b", measurements.overflow);
-            PRINT("Got %lu values:\n\t%f\n\t%f\n\t%f\n\t%f", measurements.numberOfAccumulatedValues,
+            PRINT("Got %lu values:"
+                  "\n\tFPGA IO: \t%f"
+                  "\n\tFPGA 1v8: \t%f"
+                  "\n\tFPGA 1v: \t%f"
+                  "\n\tFPGA SRAM: \t%f",
+                  measurements.numberOfAccumulatedValues,
                   measurements.energyChannel1, measurements.energyChannel2,
                   measurements.energyChannel3, measurements.energyChannel4);
         }

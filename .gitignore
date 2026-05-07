@@ -135,3 +135,5 @@ build/
 .direnv/
 devenv.local.nix
 
+/opencode.json
+
