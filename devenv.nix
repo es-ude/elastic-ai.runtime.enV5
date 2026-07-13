@@ -18,7 +18,7 @@ in
       u.gcc-arm-embedded-13
       u.picotool
       pkgs.minicom
-      pkgs.nanomq
+      pkgs.mosquitto
       pkgs.vale
     ];
 
@@ -36,31 +36,35 @@ in
     };
   };
 
+  processes.mosquitto_broker = {
+    exec = "mosquitto -p 1883";
+  };
+
   scripts = {
-    start_mqtt_broker = {
-      exec = "nanomq start -d -p 1883";
-      package = pkgs.bash;
-      description = "start nanomq broker";
-    };
-    stop_mqtt_broker = {
-      exec = "nanomq stop";
-      package = pkgs.bash;
-      description = "stop nanomq broker";
-    };
     publish = {
-      exec = ''nanomq_cli pub -t "$1" -m "$2"'';
+      exec = ''mosquitto_pub -t "$1" -m "$2"'';
       package = pkgs.bash;
       description = "publish message";
     };
     publish_retain = {
-      exec = ''nanomq_cli pub -t "$1" -m "$2" -r'';
+      exec = ''mosquitto_pub -t "$1" -m "$2" -r'';
       package = pkgs.bash;
       description = "publish retained message";
     };
     subscribe = {
-      exec = ''nanomq_cli sub -t "$1"'';
+      exec = ''mosquitto_sub -t "$1"'';
       package = pkgs.bash;
       description = "subscribe to topic";
+    };
+    start_mqtt_broker = {
+      exec = "devenv processes up";
+      package = pkgs.bash;
+      description = "start mosquitto broker";
+    };
+    stop_mqtt_broker = {
+      exec = "devenv processes down";
+      package = pkgs.bash;
+      description = "stop mosquitto broker";
     };
     setup_cmake = {
       exec = ''
