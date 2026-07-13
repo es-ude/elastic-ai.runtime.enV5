@@ -1,3 +1,4 @@
+#include "eai/sensor/Adxl345bTypedefs.h"
 #define SOURCE_FILE "ADXL345-Test"
 
 #include "hardware/i2c.h"
@@ -58,8 +59,8 @@ static void getGValue() {
     float xAxis = 0, yAxis = 0, zAxis = 0;
 
     PRINT("Requesting g values.");
-    uint8_t rawData[6];
-    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+    adxl345bRawData_t rawData;
+    adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, &rawData);
     if (errorCode == ADXL345B_NO_ERROR) {
         errorCode = adxl345bConvertDataXYZ(sensor, &xAxis, &yAxis, &zAxis, rawData);
         if (errorCode == ADXL345B_NO_ERROR) {

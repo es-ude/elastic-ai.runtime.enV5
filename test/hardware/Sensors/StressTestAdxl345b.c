@@ -1,9 +1,9 @@
+#include "eai/sensor/Adxl345bTypedefs.h"
 #define SOURCE_FILE "ADXL345-StressTest"
 
 #include "hardware/i2c.h"
 #include "pico/bootrom.h"
 #include "pico/stdio_usb.h"
-#include "pico/stdlib.h"
 
 #include "HardwareTestHelper.h"
 #include "Protocol.h"
@@ -204,8 +204,8 @@ _Noreturn void adxlTask(void) {
         uint32_t startTime = time_us_64();
         while (startTime + interval >= time_us_64()) {
             float xAxis, yAxis, zAxis;
-            uint8_t rawData[6];
-            adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, rawData);
+            adxl345bRawData_t rawData;
+            adxl345bErrorCode_t errorCode = adxl345bGetSingleMeasurement(sensor, &rawData);
             if (errorCode == ADXL345B_NO_ERROR) {
                 errorCode = adxl345bConvertDataXYZ(sensor, &xAxis, &yAxis, &zAxis, rawData);
                 if (errorCode == ADXL345B_NO_ERROR) {
