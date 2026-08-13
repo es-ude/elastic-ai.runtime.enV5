@@ -6,10 +6,6 @@
 
 #include "eai/hal/Time.h"
 
-uint64_t timeUs64(void) {
-    return time_us_64();
-}
+uint64_t timeUs64(void) { return time_us_64(); }
 
-uint32_t timeUs32(void) {
-    return time_us_32();
-}
+uint32_t timeUs32(void) { return time_us_32(); }

@@ -7,13 +7,9 @@
 #include "eai/hal/Gpio.h"
 #include "eai/hal/Qxi.h"
 
-void middlewareInit() {
-    qxiInit();
-}
+void middlewareInit() { qxiInit(); }
 
-void middlewareDeinit() {
-    qxiDeinit();
-}
+void middlewareDeinit() { qxiDeinit(); }
 
 /* region MIDDLEWARE */
 
@@ -22,38 +18,38 @@ void middlewareDeinit() {
 #define ADDR_MULTI_BOOT 0x0005
 
 void middlewareConfigureFpga(uint32_t address) {
-    uint8_t configAddress[3] = {(uint8_t)(address), (uint8_t)(address >> 8),
-                                (uint8_t)(address >> 16)};
+  uint8_t configAddress[3] = {(uint8_t)(address), (uint8_t)(address >> 8),
+                              (uint8_t)(address >> 16)};
 
-    qxiWriteBlocking(ADDR_MULTI_BOOT, configAddress, 3);
+  qxiWriteBlocking(ADDR_MULTI_BOOT, configAddress, 3);
 }
 
 void middlewareSetFpgaLeds(uint8_t leds) {
-    uint8_t write_data[1] = {0x0F & leds};
+  uint8_t write_data[1] = {0x0F & leds};
 
-    qxiWriteBlocking(ADDR_LEDS, write_data, 1);
+  qxiWriteBlocking(ADDR_LEDS, write_data, 1);
 }
 
 uint8_t middlewareGetLeds(void) {
-    uint8_t read_data[1];
+  uint8_t read_data[1];
 
-    qxiReadBlocking(ADDR_LEDS, read_data, 1);
+  qxiReadBlocking(ADDR_LEDS, read_data, 1);
 
-    return (0x0F & read_data[0]);
+  return (0x0F & read_data[0]);
 }
 
 void middlewareUserlogicEnable(void) {
-    // set user_logic_reset pin to 0 => enable
-    uint8_t addr_arr[1] = {0x00};
+  // set user_logic_reset pin to 0 => enable
+  uint8_t addr_arr[1] = {0x00};
 
-    qxiWriteBlocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
+  qxiWriteBlocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
 }
 
 void middlewareUserlogicDisable(void) {
-    // set user_logic_reset pin to 1 => disable by continuously trigger reset
-    uint8_t addr_arr[1] = {0x01};
+  // set user_logic_reset pin to 1 => disable by continuously trigger reset
+  uint8_t addr_arr[1] = {0x01};
 
-    qxiWriteBlocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
+  qxiWriteBlocking(ADDR_USER_LOGIC_RESET, addr_arr, 1);
 }
 
 /* endregion MIDDLEWARE */
@@ -67,15 +63,13 @@ void middlewareUserlogicDisable(void) {
 #endif
 
 void middlewareWriteBlocking(uint32_t address, uint8_t *data, size_t length) {
-    qxiWriteBlocking(address + USER_LOGIC_OFFSET, data, length);
+  qxiWriteBlocking(address + USER_LOGIC_OFFSET, data, length);
 }
 
 void middlewareReadBlocking(uint32_t address, uint8_t *data, size_t length) {
-    qxiReadBlocking(address + USER_LOGIC_OFFSET, data, length);
+  qxiReadBlocking(address + USER_LOGIC_OFFSET, data, length);
 }
 
-bool middlewareUserlogicGetBusyStatus(void) {
-    return gpioGetPin(FPGA_BUSY_PIN);
-}
+bool middlewareUserlogicGetBusyStatus(void) { return gpioGetPin(FPGA_BUSY_PIN); }
 
 /* endregion USER LOGIC */
