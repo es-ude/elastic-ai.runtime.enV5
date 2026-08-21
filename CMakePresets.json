@@ -17,7 +17,8 @@
       "hidden": true,
       "inherits": "gen_ninja",
       "cacheVariables": {
-        "ELASTIC_AI_TARGET": "HOST"
+        "EAI_TARGET_PLATFORM_MCU": "HOST",
+        "EAI_TARGET_PLATFORM_BOARD": "NONE"
       }
     },
     {
@@ -29,11 +30,30 @@
       }
     },
     {
+      "name": "eai_mcu_rp2040",
+      "hidden": true,
+      "cacheVariables": {
+        "EAI_TARGET_PLATFORM_MCU": "RP2040"
+      }
+    },
+    {
+      "name": "eai_board_env5",
+      "hidden": true,
+      "cacheVariables": {
+        "EAI_TARGET_PLATFORM_BOARD": "ENV5"
+      }
+    },
+    {
       "name": "env5_rev2",
       "hidden": true,
-      "inherits": "gen_ninja",
+      "inherits": [
+        "gen_ninja",
+        "eai_mcu_rp2040",
+        "eai_board_env5"
+      ],
       "cacheVariables": {
-        "ELASTIC_AI_TARGET": "ENV5_2"
+        "EAI_TARGET_PLATFORM_REVISION": "2",
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
