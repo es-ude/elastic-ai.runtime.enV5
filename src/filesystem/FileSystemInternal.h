@@ -103,7 +103,7 @@ static void updateEntrySector(filesystemConfiguration_t *filesystemConfig, uint1
 
 /*! @brief Handles the sector rotation of the filesystem to ensure wear balancing.
  */
-static void inc();
+static void inc(filesystemConfiguration_t *filesystemConfig);
 
 /*! @brief Stores filesystem in flash memory.
  *

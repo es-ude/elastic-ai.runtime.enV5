@@ -127,12 +127,12 @@ fileSystemEntry_t *filesystemGetEntryBySector(filesystemConfiguration_t *filesys
 /*! @brief Sorts filesystem by start sectors in ascending order.
  *
  */
-void filesystemSortFileSystemByStartSector();
+void filesystemSortFileSystemByStartSector(filesystemConfiguration_t *filesystemConfig);
 
 /*! @brief Sorts filesystem by their IDs in ascending order.
  *
  */
-void filesystemSortFileSystemByID();
+void filesystemSortFileSystemByID(filesystemConfiguration_t *filesystemConfig);
 
 /*! @brief Blocks consecutive number of bytes, starting from given start sector.
  *
