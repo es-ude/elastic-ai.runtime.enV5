@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#include "hardware/spi.h"
-
 /*! Below are the PIOs to the FPGA, depends on the hardware design of the ENv5:
  *
  * | RP2040 |             | FPGA     |
