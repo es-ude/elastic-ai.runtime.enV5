@@ -13,15 +13,19 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: prepare devenv
-        uses: ./.github/actions/prepare-devenv
+      - uses: cachix/install-nix-action@v31
+      - uses: cachix/cachix-action@v17
+        with:
+          name: devenv
+      - name: install devenv.sh
+        run: nix profile add nixpkgs#devenv
+
+      - name: activate devenv shell and test environment
+        run: devenv test
+
       - name: run checks
-        shell: devenv shell bash -- -e {0}
-        run: |
-          devenv tasks run -m before check
+        run: devenv tasks run -m before check

@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'main'
+      - "main"
+
 jobs:
   semantic_release:
     name: Generate Release
@@ -18,6 +19,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+
       - name: Cocogitto release
         id: release
         uses: cocogitto/cocogitto-action@v3
@@ -29,6 +31,7 @@ jobs:
         run: |
           cog changelog --at ${{ steps.release.outputs.version }} \
             -t full_hash > GITHUB_CHANGELOG.md
+
       - name: Upload github release
         uses: softprops/action-gh-release@v1
         with:
