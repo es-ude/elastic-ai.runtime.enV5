@@ -22,7 +22,7 @@ jobs:
 
       - name: Cocogitto release
         id: release
-        uses: cocogitto/cocogitto-action@v3
+        uses: cocogitto/cocogitto-action@v4
         with:
           release: true
           git-user: "Intelligent Embedded Systems Lab @ UDE"
@@ -33,7 +33,7 @@ jobs:
             -t full_hash > GITHUB_CHANGELOG.md
 
       - name: Upload github release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           body_path: GITHUB_CHANGELOG.md
