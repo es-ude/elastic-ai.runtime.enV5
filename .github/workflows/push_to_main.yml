@@ -38,6 +38,6 @@ jobs:
       - name: Upload github release
         uses: softprops/action-gh-release@v3
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.RELEASE_TOKEN }}
           body_path: ${{ steps.changelog.outputs.stdout }}
           tag_name: ${{ steps.release.outputs.version }}
