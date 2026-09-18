@@ -24,17 +24,20 @@ jobs:
         id: release
         uses: cocogitto/cocogitto-action@v4
         with:
-          release: true
+          command: bump
+          args: --auto
           git-user: "Intelligent Embedded Systems Lab @ UDE"
           git-user-email: "no-reply.ies@uni-due.de"
       - name: Generate Changelog
-        run: |
-          cog changelog --at ${{ steps.release.outputs.version }} \
-            -t full_hash > GITHUB_CHANGELOG.md
+        id: changelog
+        uses: cocogitto/cocogitto-action@v4
+        with:
+          command: changelog
+          args: --at ${{ steps.release.outputs.version }} --template full_hash
 
       - name: Upload github release
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
-          body_path: GITHUB_CHANGELOG.md
+          body_path: ${{ steps.changelog.outputs.stdout }}
           tag_name: ${{ steps.release.outputs.version }}
