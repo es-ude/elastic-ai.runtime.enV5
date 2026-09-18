@@ -39,5 +39,5 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
-          body_path: ${{ steps.changelog.outputs.stdout }}
+          body: ${{ steps.changelog.outputs.stdout }}
           tag_name: ${{ steps.release.outputs.version }}
