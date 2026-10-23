@@ -33,8 +33,8 @@
 >
 > <details>
 >   <summary>Pin Association:</summary>
->   <img src="../../documentation/pics/XVC_Pico.png" title="XVC-Pico">
->   <img src="../../documentation/pics/enV5_extension_board_top.png" title="enV5">
+>   <img src="../../documentation/pics/XVC_Pico.png" title="XVC-Pico" alt="XVC-Pico pin association">
+>   <img src="../../documentation/pics/enV5_extension_board_top.png" title="enV5" alt="enV5 extension board pin association">
 > </details>
 
 ### Write to flash
