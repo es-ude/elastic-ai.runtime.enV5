@@ -25,9 +25,9 @@ It provides the counter part for the skeleton defined for the FPGA.
 
 It is possible to define your own custom stub implementation for AI accelerator
 by defining your memory configuration by providing your own `stub_defs.h` file
-for the `stub_lib`:
+for the `Stub` library:
 
-```C title="stub.h"
+```C title="stub_defs.h"
 #ifndef STUB_DEFINES
 #define STUB_DEFINES
 

@@ -77,47 +77,48 @@ Combine all access to a physical resource in the same Task
 **Mutex:**  
 Guard access to physical resources with mutex based lock and unlock operations.
 
-```C title="Pub-Sub-Handling"
-#include <FreeRtosTaskWrapper.h>  // include functions for FreeRTOS Tasks
-#include <FreeRtosQueueWrapper.h> // include functions for FreeRTOS Queues
+```C title="Queue-Handling"
+#include "eai/rtos/FreeRtosQueueWrapper.h" // include functions for FreeRTOS Queues
+#include "eai/rtos/FreeRtosTaskWrapper.h"  // include functions for FreeRTOS Tasks
 
-queue_t receivedPostings; // reference pointer for the queue with new posts
+typedef struct {
+    char data[32];
+} message_t;
 
-// Callback to handle newly received posts (equals ISR)
-void deliverCallback(Posting post) {
-    freeRtosQueueWrapperPushFromInterrupt(receivedPosting, &post); // push to queue
+queue_t receivedMessages; // reference to the queue with new messages
+
+// Callback to handle newly received messages (equals ISR)
+void deliverCallback(message_t message) {
+    freeRtosQueueWrapperPushFromInterrupt(receivedMessages, &message); // push to queue
 }
 
 _Noreturn void receiveTask(void) {
-    // subscribe topic and set callback
-    protocolSubscribeForData("enV5", dataTopic, (subscriber_t){.deliver = deliverCallback});
-
     while (1) {
-        posting_t post;
-        if (freeRtosQueueWrapperPop(postings, &post)) { // check if new post received
-            PRINT("Received Message: '%s' via '%s'", post.data, post.topic); // handle new post
+        message_t message;
+        if (freeRtosQueueWrapperPop(receivedMessages, &message)) { // check if new message received
+            PRINT("Received Message: '%s'", message.data);         // handle new message
         }
         freeRtosTaskWrapperTaskSleep(1000); // sleep to prevent blockage
     }
-
 }
 
 _Noreturn void sendTask(void) {
     while (1) {
-        protocolPublishData(dataTopic, "TEST TEST"); // publish post
+        message_t message = {.data = "TEST TEST"};
+        freeRtosQueueWrapperPush(receivedMessages, &message); // push message from a task
         freeRtosTaskWrapperTaskSleep(1000);
     }
 }
 
-int main(void)  {
+int main(void) {
     //...
 
-    receivedPostings = freeRtosQueueWrapperCreate(5, sizeof(Posting)); // create queue for 5 posts
+    receivedMessages = freeRtosQueueWrapperCreate(5, sizeof(message_t)); // create queue for 5 messages
 
     freeRtosTaskWrapperRegisterTask(receiveTask, "receive", 0, FREERTOS_CORE_0); // register receiver task
-    freeRtosTaskWrapperRegisterTask(sendTask, "send", 0, FREERTOS_CORE_1); // register sender task
+    freeRtosTaskWrapperRegisterTask(sendTask, "send", 0, FREERTOS_CORE_1);       // register sender task
 
-    freeRtosTaskWrapperStartScheduler(); // start schedular (main loop)
+    freeRtosTaskWrapperStartScheduler(); // start scheduler (main loop)
 }
 ```
 

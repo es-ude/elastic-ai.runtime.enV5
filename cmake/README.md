@@ -43,16 +43,13 @@ add_library(A INTERFACE)
 target_link_libraries(A INTERFACE A__impl A__hdrs)
 ```
 
-Currently, the `elastic_ai_add_library` function provides most of this functionality.
-However, using it will prevent the IDE from automatically discovering your targets for the sake of jump-to-definition and auto-completion.
-
 ## Building hardware dependent libraries
 
-The build scripts will set a global variable `BUILDING_FOR_ELASTIC_NODE` to `true` if we are building for hardware (e.g, elastic-node, pico).
+The build scripts will set a global variable `_BUILDING_FOR_HARDWARE` to `true` if we are building for hardware (e.g, elastic-node, pico).
 If you need to define a hardware dependent lib, e.g., because it calls into the _pico-SDK_, you should ask for that flag and define the `__impl` target as an empty interface library.
 
 ```cmake
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
   add_library(A__impl A.c)
   target_link_libraries(A__impl PRIVATE Pico::pico_runtime__hdrs)
 else()
