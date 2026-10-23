@@ -7,12 +7,12 @@
   - [Set Up](#set-up)
     - [Get the Source Code](#get-the-source-code)
     - [Setup devenv](#setup-devenv)
-      - [Python Environment (OPTIONAL)](#python-environment-optional)
+      - [Python Environment](#python-environment)
     - [Compile the Source Code](#compile-the-source-code)
     - [Local Test Execution](#local-test-execution)
-    - [enV5 Node Execution](#env5-node-execution)
-    - [Flash the enV5](#flash-the-env5)
-    - [Get Output from the enV5 Node](#get-output-from-the-env5-node)
+    - [Elastic-node Executables](#elastic-node-executables)
+    - [Flash the Elastic-node](#flash-the-elastic-node)
+    - [Get Output from the Elastic-node](#get-output-from-the-elastic-node)
   - [External Dependencies](#external-dependencies)
   - [Troubleshooting](#troubleshooting)
   - [Glossary](#glossary)
@@ -98,7 +98,7 @@ uv sync --all-groups       # install all python dependencies
 
 > [!IMPORTANT]
 > You have to adjust the network/MQTT broker credentials as mentioned
-> in [network README](src/network/README.adoc)!
+> in [network README](src/network/README.md)!
 
 > [!NOTE]
 > We use CMake to build this project.
@@ -158,13 +158,13 @@ devenv tasks run -m before check:unit-test
 ```
 
 > [!NOTE]
-> You can then find the unit-test executables under [build/unit-test/test/unit](build/unit-test/test/unit).
+> You can then find the unit-test executables under `build/unit-test/test/unit`.
 
 ### Elastic-node executables
 
 You can find the hardware test executables for the enV5 Node under
-[build/env5_rev2_release](build/env5_rev2/test/hardware) and
-[build/env5_rev2_debug](build/env5_rev2_debug/test/hardware).
+`build/env5_rev2_release/test/hardware` and
+`build/env5_rev2_debug/test/hardware`.
 You can then find the `*.uf2` files to flash the hardware inside their directories,
 mirroring the source code structure.
 
@@ -235,7 +235,7 @@ This project uses the following external dependencies:
 
 - To generate a clean CMake Build without deleting and initializing the build directory again run `cmake --build --target clean --preset <preset_to_clean>`.
 - If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! ([NetworkConfig.c](NetworkConfig.c))
-- [Debugging the FPGA](src/fpga/Vivado_Debugger.adoc)
+- [Debugging the FPGA](src/fpga/Vivado_Debugger.md)
 
 ## Glossary
 

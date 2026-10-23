@@ -2,7 +2,7 @@
 
 > Targeted FPGA are xc7s15ftgb196-1
 
-## [Reconfig](top_recofnig)
+## [Reconfig](reconfig)
 
 - You can turn on and off LEDs
 - You can read the LED status

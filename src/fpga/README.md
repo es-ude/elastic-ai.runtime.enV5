@@ -1,6 +1,6 @@
 # Debugging
 
-The [Vivado-Debugger-Guide](Vivado_Debugger.adoc) provides some information for
+The [Vivado-Debugger-Guide](Vivado_Debugger.md) provides some information for
 debugging the Field-Programmable-Gate-Array (FPGA) with help of Vivado.
 
 ## Libraries

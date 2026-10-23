@@ -96,7 +96,7 @@ Convert the `.bin` against which to compare the read-out!
 
 ### How to install drivers for JTAG cables (if missing)
 
-[Download Drivers](https://support.xilinx.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US)
+[Download Drivers](https://adaptivesupport.amd.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US)
 
 ```bash
 cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers

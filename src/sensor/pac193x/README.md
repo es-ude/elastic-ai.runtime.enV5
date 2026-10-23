@@ -5,7 +5,7 @@
 - Usage:
   - Measure Power consumption of the FPGA/Flash
   - Measure Power consumption of the Wi-Fi module
-- You can find the provided functionality in [Pac193x.h](./include/Pac193x.h).
+- You can find the provided functionality in [Pac193x.h](./include/eai/sensor/Pac193x.h).
 
 ## Basic usage example
 

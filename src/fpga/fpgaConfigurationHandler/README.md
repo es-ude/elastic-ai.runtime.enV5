@@ -9,9 +9,9 @@ the flash. To write a file to the flash, the enV5 needs to be flashed
 with the correct hardware test
 [hardware-test_configUSB](../../../test/hardware/TestConfiguration/HardwaretestConfigureViaUSB.c).
 Place the Binfile you want to send to the enV5 under
-[bitfile_scripts/bitfiles](../../../bitfile_scripts/bitfiles/) and
+[bitfile_scripts/bitfiles](../../../python_utils/bitfile_scripts/bitfiles/) and
 execute the
-[BitfileFlasher.py](../../../bitfile_scripts/BitfileFlasher.py) python
+[BitfileFlasher.py](../../../python_utils/bitfile_scripts/BitfileFlasher.py) python
 script with the required arguments:
 
     python BitfileFlasher.py \
@@ -49,7 +49,7 @@ credentials!
 Afterward, you must start the corresponding webserver stat provides the
 server. For test purposes, a simple webserver can be started by
 executing
-[HW-Test_Webserver.py](../../../bitfile_scripts/HW-Test_Webserver.py).
+[HW-Test_Webserver.py](../../../python_utils/bitfile_scripts/HW-Test_Webserver.py).
 
 The FPGA will always reconfigure from address 0x000000 of the flash. The
 hardware test executable can be used for this by sending the character

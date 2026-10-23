@@ -2,8 +2,8 @@
 
 - Type: ADXL345B
 - Usage: Measure the acceleration in x,y,z direction
-- [data sheet](href="https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
-- You can find the provided functionality under [Adxl345b.h](./include/Adxl345b.h).
+- [data sheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf)
+- You can find the provided functionality under [Adxl345b.h](./include/eai/sensor/Adxl345b.h).
 
 ## Basic usage example
 

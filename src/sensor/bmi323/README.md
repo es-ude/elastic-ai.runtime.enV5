@@ -6,8 +6,8 @@
     ( ±125°/s, ±250°/s, ±500°/s, ±1000°/s, ±2000°/s)
   - Measure the Acceleration (±2, ±4, ±8, ±16g)
   - Measure the Temperature (-40°C to 85°C)
-- [data sheet](href="https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf)
-- You can find the provided functionality in [Bmi323.h](./include/Bmi323.h).
+- [data sheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf)
+- You can find the provided functionality in [Bmi323.h](./include/eai/sensor/Bmi323.h).
 
 > [!NOTE]  
 > **Disregarded Functionality**

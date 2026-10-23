@@ -1,7 +1,7 @@
 # Temperature and humidity sensor
 
 - Type: SHT3X
-- [data sheet](href="https://www.mouser.de/pdfdocs/SHT3x-DIS.pdf)
+- [data sheet](https://www.mouser.de/pdfdocs/SHT3x-DIS.pdf)
 - Usage:
   - Measure the current temperature
   - Measure the current humidity

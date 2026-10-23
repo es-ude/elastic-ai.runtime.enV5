@@ -22,7 +22,7 @@ The ESP protocol is a String-based protocol based on the
 
 The [AT-Commands](https://docs.espressif.com/projects/esp-at/en/release-v2.2.0.0_esp8266/AT_Command_Set/index.html)
 are the core of the ESP protocols, and this network stack uses only a subset.
-The [`AtCommands.h` file](atCommands/include/AtCommands.h) has the provided commands.
+The [`AtCommands.h` file](atCommands/include/eai/network/AtCommands.h) has the provided commands.
 
 ## Wi-Fi connection
 
