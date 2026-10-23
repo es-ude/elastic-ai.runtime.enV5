@@ -10,17 +10,17 @@
       - [Python Environment](#python-environment)
     - [Compile the Source Code](#compile-the-source-code)
     - [Local Test Execution](#local-test-execution)
-    - [Elastic-node Executables](#elastic-node-executables)
-    - [Flash the Elastic-node](#flash-the-elastic-node)
-    - [Get Output from the Elastic-node](#get-output-from-the-elastic-node)
+    - [Elastic-node executables](#elastic-node-executables)
+    - [Flash the elastic-node](#flash-the-elastic-node)
+    - [Get output from the elastic-node](#get-output-from-the-elastic-node)
   - [External Dependencies](#external-dependencies)
   - [Troubleshooting](#troubleshooting)
   - [Glossary](#glossary)
   <!--toc:end-->
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/es-ude/elastic-ai.runtime.enV5/run_checks.yml)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/es-ude/elastic-ai.runtime.enV5/run_checks.yml)](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/es-ude/elastic-ai.runtime.enV5)](https://github.com/es-ude/elastic-ai.runtime.enV5/releases/latest)
-[![View Python-Tutorial on GitHub](https://img.shields.io/github/stars/es-ude/elastic-ai.runtime.enV5?color=232323&label=elastic-ai.runtime.enV5&logo=github&labelColor=232323)](https://github.com/es-ude/elastic-ai.runtime-enV5)
+[![GitHub Stars](https://img.shields.io/github/stars/es-ude/elastic-ai.runtime.enV5?color=232323&label=elastic-ai.runtime.enV5&logo=github&labelColor=232323)](https://github.com/es-ude/elastic-ai.runtime.enV5)
 [![Author es-ude](https://img.shields.io/badge/es-ude-b820f9?labelColor=b820f9&logo=githubsponsors&logoColor=fff)](https://github.com/es-ude)
 
 > [!IMPORTANT]
@@ -82,7 +82,7 @@ cd enV5
 
 > [!NOTE]
 > The Python environment is only required if you want to use
-> the provided python utilities to interact with the enV5 Node.
+> the provided python utilities to interact with the elastic-node.
 
 To minimize the potential corruption of your system we recommend
 installing the dependencies inside a [virtual environment](https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv).
@@ -111,7 +111,7 @@ We offer three predefined profiles with the [CMakePresets.json](CMakePresets.jso
 
 These profiles offer the required settings to either build for your
 local system (_unit_test_) to locally run test,
-or to build for the enV5 Node (_env5_rev2_release_ and _env5_rev_2_debug_).
+or to build for the elastic-node (_env5_rev2_release_ and _env5_rev2_debug_).
 The profile with the suffix _debug_ also provides additional console output
 for debugging purposes.
 
@@ -162,7 +162,7 @@ devenv tasks run -m before check:unit-test
 
 ### Elastic-node executables
 
-You can find the hardware test executables for the enV5 Node under
+You can find the hardware test executables for the elastic-node under
 `build/env5_rev2_release/test/hardware` and
 `build/env5_rev2_debug/test/hardware`.
 You can then find the `*.uf2` files to flash the hardware inside their directories,
@@ -179,8 +179,8 @@ flash_node <path_to_uf2>
 
 **OR**
 
-1. Press and hold `MCU BOOT` on the enV5 Node
-2. Press `MCU RST` on the enV5 Node
+1. Press and hold `MCU BOOT` on the elastic-node
+2. Press `MCU RST` on the elastic-node
 3. Release `MCU BOOT`
 4. Copy the `*.uf2` File to the RPI-RP2 device
    - Via the USB device through your file manager
@@ -188,10 +188,10 @@ flash_node <path_to_uf2>
 
 ### Get output from the elastic-node
 
-To receive output from the enV5 you have to connect the enV5 to your local machine.
-Connect the USB-C port of the enV5 with a USB port of your local machine to do this.
+To receive output from the elastic-node you have to connect the elastic-node to your local machine.
+Connect the USB-C port of the elastic-node with a USB port of your local machine to do this.
 
-After you connect the enV5 to your computer, read the debug output from
+After you connect the elastic-node to your computer, read the debug output from
 the device with a serial port reader such as screen, minicom, or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
 > [!IMPORTANT]
@@ -213,10 +213,10 @@ minicom
 in your shell prompt.
 
 > [!CAUTION]
-> If you cannot receive any output from the enV5 the problem is possibly caused
+> If you cannot receive any output from the elastic-node the problem is possibly caused
 > by a bug in the source code.
 > If the serial output is not initialized properly (see integration tests),
-> the enV5 is not able to send the output to your device!
+> the elastic-node is not able to send the output to your device!
 
 ## External dependencies
 
