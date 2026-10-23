@@ -1,21 +1,21 @@
-# Gyroscope and acceleration sensor
+# Gyroscope and Acceleration Sensor
 
-- Type: Bosch Sensortec BMI323
-- Usage:
-  - Measure the Orientation based on a Gyroscope
-    ( ±125°/s, ±250°/s, ±500°/s, ±1000°/s, ±2000°/s)
-  - Measure the Acceleration (±2, ±4, ±8, ±16g)
-  - Measure the Temperature (-40°C to 85°C)
-- [data sheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf)
-- You can find the provided functionality in [Bmi323.h](./include/eai/sensor/Bmi323.h).
+- **Type:** Bosch Sensortec BMI323
+- **Usage:**
+  - Measure the orientation based on a gyroscope
+    (±125°/s, ±250°/s, ±500°/s, ±1000°/s, ±2000°/s)
+  - Measure the acceleration (±2, ±4, ±8, ±16g)
+  - Measure the temperature (-40°C to 85°C)
+- **Data sheet:** [bst-bmi323-ds000.pdf](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmi323-ds000.pdf)
+- **Header:** [Bmi323.h](./include/eai/sensor/Bmi323.h)
 
-> [!NOTE]  
+> [!NOTE]
 > **Disregarded Functionality**
 >
 > Some additional functionality from the original BMI323 library,
 > included from Bosch Sensortec, is not included in this facade.
 >
-> Additional Functions provided by BMI323:
+> Additional functions provided by BMI323:
 >
 > - Context Switch
 > - FIFO buffer watermark
@@ -29,15 +29,16 @@
 ## Basic usage example
 
 ```C title=main.c
-#include "Bmi323.h"
-#include "Spi.h"
-#include "SpiTypedefs.h"
-#include "EnV5HwConfiguration.h"
 #include "CException.h"
+
+#include "eai/hal/EnV5HwConfiguration.h"
+#include "eai/hal/Spi.h"
+#include "eai/hal/SpiTypedefs.h"
+#include "eai/sensor/Bmi323.h"
 
 // SPI bus configuration
 spiConfiguration_t spi = {
-  .spiInstance = BMI323_SPI_INTERFACE,
+  .spiInstance = BMI323_SPI_MODULE,
   .misoPin = BMI323_SPI_MISO,
   .mosiPin = BMI323_SPI_MOSI,
   .sckPin = BMI323_SPI_CLOCK,
@@ -50,32 +51,33 @@ bmi323SensorConfiguration_t bmi323 = {0};
 
 int main(void) {
   CEXCEPTION_T exception;
-  Try  {
-      spiInit(&spi); // initialize SPI bus
-      bmi323Init(&bmi323, &spi); // initialize sensor
+  Try {
+    spiInit(&spi); // initialize SPI bus
+    bmi323Init(&bmi323, &spi); // initialize sensor
 
-      uint8_t chipId[2];
-      data_t idData = {.data = chipId, .length = sizeof(chipId)};
-      bmi323GetRegister(&bmi323, BMI3_REG_CHIP_ID, &idData); // read sensor ID
+    uint8_t chipId[2];
+    data_t idData = {.data = chipId, .length = sizeof(chipId)};
+    bmi323GetRegister(&bmi323, BMI3_REG_CHIP_ID, &idData); // read sensor ID
   }
   Catch (exception) {
-      return exception;
+    return exception;
   }
 
   return 0;
 }
 ```
 
-```CMake
+```CMake title=CMakeLists.txt
 add_executable(my-bmi323-app main.c)
-target_link_libraries(my-bmi323-app
-      hardware_spi
+target_link_libraries(my-bmi323-app PRIVATE
+      Bmi323
       CException
-      enV5_hw_configuration
-      spi_interface
-      sensor_lib_bmi323)
+      EnV5HwConfiguration
+      Spi)
 create_enV5_executable(my-bmi323-app)
 ```
 
-[HardwaretestBmi323.c](../../../test/hardware/Sensors/HardwaretestBmi323.c)
+## Further examples
+
+[HardwareTestBmi323.c](../../../test/hardware/Sensors/HardwareTestBmi323.c)
 provides a more sophisticated example of how to use this sensor.
