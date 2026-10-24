@@ -57,7 +57,7 @@ The header always consists of three fields with max. **72** characters:
 |     feat | new feature added                                     |
 |    style | apply code style changes                              |
 |    build | apply changes to build scripts (CMake, Gradle, Bazel) |
-|       ci | apply changes to workflows                            |
+|     `ci` | apply changes to workflows                            |
 |      fix | fix bugs with adding features                         |
 |     docs | add documentation                                     |
 | refactor | apply code refactorings                               |
@@ -69,14 +69,14 @@ The header always consists of three fields with max. **72** characters:
 <details>
 <summary>Standard Commit Scopes</summary>
 
-|    Scope | Description                                                  |
-| -------: | :----------------------------------------------------------- |
-|      hal | Hardware Abstraction Layer (freertos, spi, i2c, sleep, ...)  |
-|   sensor | Sensor Libraries (adxl345b, sht3x, ...)                      |
-|  network | Network related Libraries (esp, http, mqtt, ...)             |
-|     fpga | FPGA related Libraries (fpga, middleware, stub, ...)         |
-|    flash | Flash related Libraries (flash, filesystem, ...)             |
-| protocol | Protocol related Libraries (usb-protocol, eai-protocol, ...) |
+|    Scope | Description                                                         |
+| -------: | :------------------------------------------------------------------ |
+|    `hal` | Hardware Abstraction Layer (`freertos`, `spi`, `i2c`, `sleep`, ...) |
+|   sensor | Sensor Libraries (`adxl345b`, `sht3x`, ...)                         |
+|  network | Network related Libraries (`esp`, `http`, `mqtt`, ...)              |
+|   `fpga` | FPGA related Libraries (`fpga`, `middleware`, `stub`, ...)          |
+|    flash | Flash related Libraries (flash, filesystem, ...)                    |
+| protocol | Protocol related Libraries (usb-protocol, eai-protocol, ...)        |
 
 </details>
 
@@ -160,12 +160,12 @@ gitGraph
 
 ### Naming scheme
 
-|        Scope | Scheme               | Remarks                 |
-| -----------: | :------------------- | :---------------------- |
-|        Files | PascalScheme         |                         |
-|    Functions | camelCase            |                         |
-|    Variables | camelCase            | suffix: typedef => `_t` |
-| Preprocessor | SCREAMING_SNAKE_CASE |                         |
+|        Scope | Scheme                 | Remarks                   |
+| -----------: | :--------------------- | :------------------------ |
+|        Files | PascalScheme           |                           |
+|    Functions | `camelCase`            |                           |
+|    Variables | `camelCase`            | suffix: `typedef` => `_t` |
+| Preprocessor | `SCREAMING_SNAKE_CASE` |                           |
 
 Functions and global variables have prefixes with a consistent identifier,
 e.g. the file name where the function prototype belongs to.

@@ -27,14 +27,14 @@ script with the required arguments:
 
 The python script will send the Bitfile over the serial connection to
 the enV5. To configure the FPGA with the new Bitfile, the FPGA has to be
-resetted.
+reset.
 
 The FPGA will always reconfigure from address 0x000000 of the flash. The
 hardware test executable can be used for this by sending the character
 `f`/`F` via minicom to the device. This will trigger a restart of the
 FPGA.
 
-# Via HTTPGet
+## Via HTTPGet
 
 The FPGA on the enV5 can be configured by writing a Binfile to the
 flash. This can be archived by utilizing the ESP32 WiFi-module on the
@@ -56,6 +56,6 @@ hardware test executable can be used for this by sending the character
 `f`/`F` via minicom to the device. This will trigger a restart of the
 FPGA.
 
-# Via Elastic-ai.runtime
+## Via Elastic-ai.runtime
 
 Coming soon…

@@ -134,12 +134,12 @@ uv sync --all-groups       # install all python dependencies
 
 We offer three predefined profiles with the [CMakePresets.json](CMakePresets.json):
 
-- unit_test
+- `unit_test`
 - env5_rev2_release
 - env5_rev2_debug
 
 These profiles offer the required settings to either build for your
-local system (_unit_test_) to locally run test,
+local system (`unit_test`) to locally run test,
 or to build for the elastic-node (_env5_rev2_release_ and _env5_rev2_debug_).
 The profile with the suffix _debug_ also provides additional console output
 for debugging purposes.
@@ -206,7 +206,7 @@ Run
 flash_node <path_to_uf2>
 ```
 
-**OR**
+OR
 
 1. Press and hold `MCU BOOT` on the elastic-node
 2. Press `MCU RST` on the elastic-node
@@ -262,8 +262,9 @@ This project uses the following external dependencies:
 
 ## Troubleshooting
 
-- To generate a clean CMake Build without deleting and initializing the build directory again run `cmake --build --target clean --preset <preset_to_clean>`.
-- If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! ([NetworkConfig.c](NetworkConfig.c))
+- To generate a clean CMake Build without deleting and initializing the build directory again run
+  `cmake --build --target clean --preset <preset_to_clean>`.
+- If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! (`NetworkConfig.c`)
 - [Debugging the FPGA](src/fpga/vivado-debugger.md)
 
 ## Glossary
