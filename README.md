@@ -3,6 +3,7 @@
 <!--toc:start-->
 
 - [elastic-ai.runtime.enV5](#elastic-airuntimeenv5)
+  - [Project Layout](#project-layout)
   - [System Requirements](#system-requirements)
   - [Set Up](#set-up)
     - [Get the Source Code](#get-the-source-code)
@@ -35,13 +36,41 @@ A modular hardware platform with FPGA integration.
 > The [project homepage](https://www.uni-due.de/es/elastic_ai.php)
 > provides additional information.
 
+## Project layout
+
+```text
+.
+├── cmake/             CMake helpers, target and toolchain setup
+├── documentation/     Images used in the documentation
+├── python_utils/      Python tools (bitfile flashing, USB remote-control protocol)
+├── src/               Libraries of the runtime
+├── test/              Unit and hardware tests
+├── CMakePresets.json  Build presets (host, unit_test, env5_rev2_*)
+└── devenv.nix         Development environment
+```
+
+| Module                                                | Description                                                   |
+| :---------------------------------------------------- | :------------------------------------------------------------ |
+| [src/common](src/common)                              | Shared definitions and helper macros                          |
+| [src/hal](src/hal/README.md)                          | Hardware abstraction layer (GPIO, I2C, SPI, UART, QXSPI, ...) |
+| [src/flash](src/flash/README.md)                      | Driver for the external Flash chip                            |
+| [src/filesystem](src/filesystem)                      | Simple file system on top of the Flash                        |
+| [`src/fpga`](src/fpga/README.md)                      | FPGA configuration, middleware and stub                       |
+| [src/network](src/network/README.md)                  | Wi-Fi, HTTP and MQTT through the ESP32 module                 |
+| [src/rtos](src/rtos/README.md)                        | FreeRTOS wrappers for tasks, queues and mutexes               |
+| [src/sensor](src/sensor)                              | Sensor drivers: ADXL345B, BMI323, PAC193X, SHT3X              |
+| [src/usb_protocol](src/usb_protocol)                  | Command protocol for communication over USB                   |
+| [test/unit](test/unit)                                | Unit tests that run on the host                               |
+| [test/hardware](test/hardware)                        | Tests that run on the elastic-node                            |
+| [`python_utils`](python_utils/usb-protocol/README.md) | Python tools for the elastic-node                             |
+
 ## System requirements
 
 - **[devenv](https://devenv.sh/getting-started/)**
   -> Tool for reproducible development environments
 - **[GCC](https://gcc.gnu.org/)** (through devenv)
   -> C Compiler
-- **[ARM-None-EABI GCC](https://developer.arm.com/downloads/-/gnu-rm)** (through devenv)
+- **[ARM-None-EABI GCC](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm)** (through devenv)
   -> C Cross-Compiler for ARM
 - **[CMake](https://cmake.org)** (through devenv)
   -> Build System
@@ -225,7 +254,7 @@ in your shell prompt.
 
 This project uses the following external dependencies:
 
-- [es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
+- [es-ude/elastic-ai.protocol](https://github.com/es-ude/elasticai.protocol)
 - [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
 - [FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
 - [ThrowTheSwitch/CException](https://github.com/ThrowTheSwitch/CException)
