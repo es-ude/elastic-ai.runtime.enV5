@@ -102,6 +102,7 @@ cd enV5
    by following their instructions in their [Getting-Started-Guide](https://devenv.sh/getting-started/).
 2. Install [direnv](https://direnv.net/),
    to automatically load the development environment provided by devenv.
+3. Run `direnv allow` inside the repository to load the development environment.
 
 ### Python environment
 
@@ -132,16 +133,16 @@ uv sync --all-groups       # install all python dependencies
 > [!NOTE]
 > We use CMake to build this project.
 
-We offer three predefined profiles with the [CMakePresets.json](CMakePresets.json):
+We offer three predefined presets with the [CMakePresets.json](CMakePresets.json):
 
 - `unit_test`
-- env5_rev2_release
-- env5_rev2_debug
+- `env5_rev2_release`
+- `env5_rev2_debug`
 
-These profiles offer the required settings to either build for your
+These presets offer the required settings to either build for your
 local system (`unit_test`) to locally run test,
 or to build for the elastic-node (_env5_rev2_release_ and _env5_rev2_debug_).
-The profile with the suffix _debug_ also provides additional console output
+The preset with the suffix _debug_ also provides additional console output
 for debugging purposes.
 
 To initialize the CMake Tool run:
@@ -213,7 +214,8 @@ OR
 3. Release `MCU BOOT`
 4. Copy the `*.uf2` File to the RPI-RP2 device
    - Via the USB device through your file manager
-   - Via the command line by executing `sudo cp <file>.uf2 /dev/sdX`
+   - Via the command line by copying the file to the mounted RPI-RP2 volume,
+     e.g. `cp <file>.uf2 /Volumes/RPI-RP2/` (macOS) or `cp <file>.uf2 /media/$USER/RPI-RP2/` (Linux)
 
 ### Get output from the elastic-node
 
@@ -232,19 +234,20 @@ We recommend using minicom as it is the most versatile of the aforementioned too
 You can receive the output of the device by executing
 
 ```bash
-minicom
--o \             #  Disable modem initialisation
--w \             # Enable line wrap
--b 115200 \      # Set the baud rate to 115200
--D /dev/ttyACM0  # Define the serial port to read
+minicom -o -w -b 115200 -D /dev/ttyACM0
 ```
 
-in your shell prompt.
+in your shell prompt with the following options:
+
+- `-o`: disable modem initialisation
+- `-w`: enable line wrap
+- `-b 115200`: set the baud rate to 115200
+- `-D /dev/ttyACM0`: define the serial port to read
 
 > [!CAUTION]
 > If you cannot receive any output from the elastic-node the problem is possibly caused
 > by a bug in the source code.
-> If the serial output is not initialized properly (see integration tests),
+> If the serial output is not initialized properly (see the [hardware tests](test/hardware)),
 > the elastic-node is not able to send the output to your device!
 
 ## External dependencies
@@ -254,11 +257,12 @@ in your shell prompt.
 
 This project uses the following external dependencies:
 
-- [es-ude/elastic-ai.protocol](https://github.com/es-ude/elasticai.protocol)
+- [es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
 - [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
-- [`FreeRTOS/FreeRTOS-Kernel`](https://github.com/FreeRTOS/FreeRTOS-Kernel)
+- [`raspberrypi/FreeRTOS-Kernel`](https://github.com/raspberrypi/FreeRTOS-Kernel)
 - [ThrowTheSwitch/CException](https://github.com/ThrowTheSwitch/CException)
 - [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
+- [boschsensortec/BMI323_SensorAPI](https://github.com/boschsensortec/BMI323_SensorAPI)
 
 ## Troubleshooting
 

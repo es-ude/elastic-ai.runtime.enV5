@@ -7,7 +7,7 @@ The extension board hosts the module and connects it to the MCU
 by Serial Peripheral Interface (SPI).
 
 The module currently operates based on the standard espressif binary,
-that based the communication with the MCU on the string based
+that bases the communication with the MCU on the string based
 [espressif protocol (ESP)](#espressif-protocol).
 
 > [!NOTE]  
@@ -33,7 +33,7 @@ Pass the Service Set Identifier (SSID) of the network and the Password to
 the library to connect to a network.
 The CMake scripts will automatically create a `NetworkConfig.c` inside
 the root folder of the repository (the file is generated and git-ignored).
-When you want to use Wi-Fi capabilities you than have to add
+When you want to use Wi-Fi capabilities you then have to add
 the `NetworkConfig` library to your source code.
 
 ### Wi-Fi example

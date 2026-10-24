@@ -15,7 +15,7 @@ from USB in the local Flash storage.
 
 [The middleware folder](middleware) has the middleware implementation.
 
-Further information about the middleware can is in the
+Further information about the middleware is in the
 [elastic-ai.creator repository](https://github.com/es-ude/elastic-ai.creator)
 
 ### Stub

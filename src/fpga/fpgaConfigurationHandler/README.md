@@ -46,7 +46,7 @@ to the MCU.
 You have to adjust the SSID and Password according to your Network
 credentials!
 
-Afterward, you must start the corresponding webserver stat provides the
+Afterward, you must start the corresponding webserver that provides the
 server. For test purposes, a simple webserver can be started by
 executing
 [HW-Test_Webserver.py](../../../python_utils/bitfile_scripts/HW-Test_Webserver.py).

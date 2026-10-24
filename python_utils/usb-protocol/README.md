@@ -38,6 +38,7 @@ The second 128 commands can be user specific commands.
 |                FPGA LEDs | 7     |
 |                 MCU LEDs | 8     |
 |      inference with data | 9     |
+|             deploy model | 10    |
 
 ### nack
 

@@ -1,7 +1,7 @@
 # FreeRTOS
 
 This FreeRTOS library provides a facade tailored to the requirements of
-the elastic-AI runtime for the Elastic Note version 5.
+the elastic-AI runtime for the Elastic Node version 5.
 This README provides a basic overview of the provided functionality and
 their intended usage.  
 The chapter [Components](#components) aims to present the provided parts of the library.
@@ -14,7 +14,7 @@ Executing all Tasks on Core 0 disables this option.
 
 ## Components
 
-The provided faced makes three core concepts of the
+The provided facade makes three core concepts of the
 FreeRTOS kernel available for usage:
 
 |                   |                                               |

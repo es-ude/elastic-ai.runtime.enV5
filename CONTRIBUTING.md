@@ -3,7 +3,7 @@
 ## Commitlint
 
 We use the conventional commit style guides to allow an easy release cycle.
-Based on this commit message style semantic-releases will generated.
+Based on this commit message style semantic releases are generated.
 Therefore, it is important to adhere to the guidelines.
 
 ### Conventional commit messages
@@ -40,7 +40,6 @@ The header always consists of three fields with max. **72** characters:
      - `refactor`
      - `revert`
      - `chore`
-     - `wip`
      - `perf`
    - Words are _lower-case_
 2. scope (optional)
@@ -61,6 +60,7 @@ The header always consists of three fields with max. **72** characters:
 |      fix | fix bugs with adding features                         |
 |     docs | add documentation                                     |
 | refactor | apply code refactorings                               |
+|   `perf` | improve performance                                   |
 |   revert | undo earlier code changes                             |
 |    chore | remove old/unused code fragments/files                |
 
@@ -82,7 +82,7 @@ The header always consists of three fields with max. **72** characters:
 
 #### Body
 
-The Body can give a more detailed subscription of the changes accomplished
+The Body can give a more detailed description of the changes accomplished
 with this commit and offer an explanation
 why these changes are required in the first place.
 
@@ -105,7 +105,7 @@ three fields of the release version accordingly.
 **Release Tag:**
 
 ```text
-v.MAJOR.MINOR.PATCH
+vMAJOR.MINOR.PATCH
 ```
 
 - **Major/Breaking Release**: Increased on commits with `BREAKING CHANGE` field
@@ -116,7 +116,7 @@ v.MAJOR.MINOR.PATCH
 
 > [!NOTE]
 >
-> - Push your modification to a new feature branch based of the `main` branch
+> - Push your modification to a new feature branch based on the `main` branch
 > - Open a pull request to the `main` branch
 > - The maintainer of the repository can then merge your source code contributions
 
@@ -150,7 +150,7 @@ gitGraph
 
 1. Branch out from `main`
 2. Commit your source code contributions
-   - Make Sure that your contributions follow our code/commit standards
+   - Make sure that your contributions follow our code/commit standards
 3. Create Pull-Request to `main`
 4. Wait for Required tests to finish
 5. Apply Changes if necessary
