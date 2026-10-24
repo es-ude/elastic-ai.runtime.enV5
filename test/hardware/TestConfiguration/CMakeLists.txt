@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
     add_executable(HardwareTestConfigureViaUSB HardwareTestConfigureViaUSB.c)
     target_link_libraries(HardwareTestConfigureViaUSB PRIVATE
             Common

@@ -290,11 +290,11 @@ _Noreturn void fileSystemDemo() {
             }
             break;
         case 'O':
-            filesystemSortFileSystemByStartSector();
+            filesystemSortFileSystemByStartSector(&filesystemConfiguration);
             filesystemPrintFileSystem(&filesystemConfiguration);
             break;
         case 'o':
-            filesystemSortFileSystemByID();
+            filesystemSortFileSystemByID(&filesystemConfiguration);
             filesystemPrintFileSystem(&filesystemConfiguration);
             break;
         case 'P':
