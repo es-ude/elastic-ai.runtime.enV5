@@ -81,7 +81,7 @@ Convert the `.bin` against which to compare the read-out!
 >      "Datacount" field
 >    - Choose "BIN" file as output format
 > 3. Convert source `.bin` file and the `readback.bin` file into hex
->    files using `xxd`
+>    files by using `xxd`
 > 4. Compare them using `diff <source.bin> <readback.bin>`
 >
 > There should not be any diff shown. If so, the writing is correct,

@@ -45,7 +45,7 @@ The header always consists of three fields with max. **72** characters:
    - Words are _lower-case_
 2. scope (optional)
    - Describes the modified part
-   - Words are _kebab-case_
+   - Words are `kebab-case`
 3. subject
    - Short summary of work
 

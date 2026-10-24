@@ -256,7 +256,7 @@ This project uses the following external dependencies:
 
 - [es-ude/elastic-ai.protocol](https://github.com/es-ude/elasticai.protocol)
 - [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
-- [FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
+- [`FreeRTOS/FreeRTOS-Kernel`](https://github.com/FreeRTOS/FreeRTOS-Kernel)
 - [ThrowTheSwitch/CException](https://github.com/ThrowTheSwitch/CException)
 - [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
 

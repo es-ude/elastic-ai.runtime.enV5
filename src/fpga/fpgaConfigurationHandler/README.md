@@ -7,10 +7,10 @@ The implementation only works on the enV5, **not** the SensorBoard.
 The FPGA on the enV5 can be configured by writing a Bit- or Binfile to
 the flash. To write a file to the flash, the enV5 needs to be flashed
 with the correct hardware test
-[hardware-test_configUSB](../../../test/hardware/TestConfiguration/HardwaretestConfigureViaUSB.c).
+[hardware-test_configUSB](../../../test/hardware/TestConfiguration/HardwareTestConfigureViaUSB.c).
 Place the Binfile you want to send to the enV5 under
 [bitfile_scripts/bitfiles](../../../python_utils/bitfile_scripts/bitfiles/) and
-execute the
+run the
 [BitfileFlasher.py](../../../python_utils/bitfile_scripts/BitfileFlasher.py) python
 script with the required arguments:
 
@@ -37,10 +37,10 @@ FPGA.
 ## Via HTTPGet
 
 The FPGA on the enV5 can be configured by writing a Binfile to the
-flash. This can be archived by utilizing the ESP32 WiFi-module on the
-extension board. If you want to use the WiFi-module, you have to flash
+flash. This can be achieved by using the ESP32 Wi-Fi module on the
+extension board. If you want to use the Wi-Fi module, you have to flash
 the
-[hardware-test_configHTTP](../../../test/hardware/TestConfiguration/HardwaretestConfigureViaHTTP.c)
+[hardware-test_configHTTP](../../../test/hardware/TestConfiguration/HardwareTestConfigureViaHTTP.c)
 to the MCU.
 
 You have to adjust the SSID and Password according to your Network
