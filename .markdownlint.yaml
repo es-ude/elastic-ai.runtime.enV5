@@ -1,0 +1,14 @@
+default: true
+
+# long lines are fine in prose, code blocks and tables
+MD013:
+  line_length: 120
+  code_blocks: false
+  tables: false
+
+# HTML used for collapsible sections and images
+MD033:
+  allowed_elements: [details, summary, img]
+
+# GitHub alerts (> [!NOTE]) are stacked blockquotes
+MD028: false

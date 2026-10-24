@@ -31,3 +31,17 @@ CMake
 Sensortec
 devenv
 direnv
+nack
+ack
+LEDs
+[Bb]itfile
+[Bb]infile
+[Ww]ebserver
+mutexes
+[Cc]onfig
+[Bb]audrate
+HTTPGet
+Labtools
+typedef
+Preprocessor
+APIs
