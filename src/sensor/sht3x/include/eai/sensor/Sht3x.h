@@ -5,7 +5,6 @@
 
 #include "eai/sensor/Sht3xTypedefs.h"
 
-// tag::prototypes[]
 /*!
  * @brief initializes the temperature sensor
  *
@@ -142,6 +141,5 @@ void sht3xDisableHeater(sht3xSensorConfiguration_t sensor);
  * @throws SHT3X_SEND_COMMAND_ERROR if request can't be sent
  */
 void sht3xSoftReset(sht3xSensorConfiguration_t sensor);
-// end::prototypes[]
 
 #endif /* ENV5_SHT3X_HEADER */

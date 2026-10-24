@@ -128,7 +128,6 @@ typedef struct bmi3_fifo_temperature_data bmi323TemperatureData_t;
 /* region PROTOTYPES */
 
 /* region CONFIG */
-// tag::prototypes_config[]
 /**
  * @ingroup bmi323
  * @defgroup bmi323APIConfig API for the general sensor configuration
@@ -433,11 +432,9 @@ void bmi323GetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRem
  * @throws ErrorCodes See #bmi323ErrorCodes
  */
 void bmi323SetRemappingOfAxes(bmi323SensorConfiguration_t *sensor, bmi323AxesRemap_t remapping);
-// end::prototypes_config[]
 /* endregion CONFIG */
 
 /* region DATA */
-// tag::prototypes_data[]
 /**
  * @ingroup bmi323
  * @defgroup bmi323APIData
@@ -561,11 +558,9 @@ float bmi323LsbToDps(int16_t rawValue, uint8_t range, uint8_t resolution);
  * @returns value in meter per second squared
  */
 float bmi323LsbToMps2(int16_t rawValue, uint8_t range, uint8_t resolution);
-// end::prototypes_data[]
 /* endregion DATA */
 
 /* region FIFO */
-// tag::prototypes_fifo[]
 /**
  * @ingroup bmi323
  * @defgroup bmi323APIFifo
@@ -708,11 +703,9 @@ void bmi323ExtractGyroscopeData(bmi323SensorConfiguration_t *sensor, bmi323FifoF
  */
 void bmi323ExtractTemperatureData(bmi323SensorConfiguration_t *sensor, bmi323FifoFrame_t *frame,
                                   bmi323TemperatureData_t *data);
-// end::prototypes_fifo[]
 /* endregion FIFO */
 
 /* region COMMANDS */
-// tag::prototypes_config[]
 
 /**
  * @ingroup bmi323
@@ -862,7 +855,6 @@ void bmi323PerformGyroscopeSelfCalibration(bmi323SensorConfiguration_t *sensor,
  * @throws ErrorCodes see #bmi323ErrorCodes
  */
 uint16_t bmi323GetSensorStatus(bmi323SensorConfiguration_t *sensor);
-// end::prototypes_config[]
 /* endregion COMMANDS */
 
 /* endregion PROTOTYPES */

@@ -6,7 +6,6 @@
 
 #include "eai/sensor/Pac193xTypedefs.h"
 
-// tag::prototypes[]
 /*
  * IMPORTANT:
  *   We highly recommend using the settings from the `enV5_hw_configuration`-library,
@@ -185,6 +184,5 @@ pac193xErrorCode_t pac193xReadEnergyForAllChannels(pac193xSensorConfiguration_t 
                                                    pac193xEnergyMeasurements_t *measurements);
 
 /* endregion ACCUMULATED MEASUREMENTS */
-// end::prototypes[]
 
 #endif /* ENV5_PAC193X_HEADER */

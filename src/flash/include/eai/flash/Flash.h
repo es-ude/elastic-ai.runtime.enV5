@@ -6,8 +6,6 @@
 #include "eai/flash/FlashTypedefs.h"
 #include "eai/hal/SpiTypedefs.h"
 
-// tag::prototypes[]
-
 /*! @brief initialize all needed definitions when working with the flash
  *
  * @param config configuration of the Flash Chip
@@ -76,5 +74,4 @@ flashErrorCode_t flashEraseSector(flashConfiguration_t *flashConfig, uint32_t ad
  */
 int flashWritePage(flashConfiguration_t *flashConfig, uint32_t startAddress, uint8_t *data,
                    size_t bytesToWrite);
-// end::prototypes[]
 #endif /* ENV5_FLASH_HEADER */
