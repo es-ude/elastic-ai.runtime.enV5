@@ -1,4 +1,4 @@
-if (BUILDING_FOR_ELASTIC_NODE)
+if (_BUILDING_FOR_HARDWARE)
     add_executable(TestFlash TestFlash.c)
     target_link_libraries(TestFlash PRIVATE
             EnV5HwConfiguration

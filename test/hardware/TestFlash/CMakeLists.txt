@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
     add_executable(HardwareTestFlash HardwareTestFlash.c)
     target_link_libraries(HardwareTestFlash PRIVATE
             EnV5HwConfiguration

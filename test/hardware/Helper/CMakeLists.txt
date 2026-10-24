@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
     add_library(HardwareTestHelper HardwareTestHelper.c)
     target_include_directories(HardwareTestHelper PUBLIC include)
     target_link_libraries(HardwareTestHelper PRIVATE

@@ -1,4 +1,4 @@
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
 
     add_library(NetworkTestCommon INTERFACE)
     target_link_libraries(NetworkTestCommon INTERFACE
