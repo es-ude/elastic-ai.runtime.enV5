@@ -3,24 +3,25 @@
 <!--toc:start-->
 
 - [elastic-ai.runtime.enV5](#elastic-airuntimeenv5)
+  - [Project Layout](#project-layout)
   - [System Requirements](#system-requirements)
   - [Set Up](#set-up)
     - [Get the Source Code](#get-the-source-code)
     - [Setup devenv](#setup-devenv)
-      - [Python Environment (OPTIONAL)](#python-environment-optional)
+      - [Python Environment](#python-environment)
     - [Compile the Source Code](#compile-the-source-code)
     - [Local Test Execution](#local-test-execution)
-    - [enV5 Node Execution](#env5-node-execution)
-    - [Flash the enV5](#flash-the-env5)
-    - [Get Output from the enV5 Node](#get-output-from-the-env5-node)
+    - [Elastic-node executables](#elastic-node-executables)
+    - [Flash the elastic-node](#flash-the-elastic-node)
+    - [Get output from the elastic-node](#get-output-from-the-elastic-node)
   - [External Dependencies](#external-dependencies)
   - [Troubleshooting](#troubleshooting)
   - [Glossary](#glossary)
   <!--toc:end-->
 
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/es-ude/elastic-ai.runtime.enV5/run_checks.yml)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/es-ude/elastic-ai.runtime.enV5/run_checks.yml)](https://github.com/es-ude/elastic-ai.runtime.enV5/actions/workflows/run_checks.yml)
 [![GitHub Release](https://img.shields.io/github/v/release/es-ude/elastic-ai.runtime.enV5)](https://github.com/es-ude/elastic-ai.runtime.enV5/releases/latest)
-[![View Python-Tutorial on GitHub](https://img.shields.io/github/stars/es-ude/elastic-ai.runtime.enV5?color=232323&label=elastic-ai.runtime.enV5&logo=github&labelColor=232323)](https://github.com/es-ude/elastic-ai.runtime-enV5)
+[![GitHub Stars](https://img.shields.io/github/stars/es-ude/elastic-ai.runtime.enV5?color=232323&label=elastic-ai.runtime.enV5&logo=github&labelColor=232323)](https://github.com/es-ude/elastic-ai.runtime.enV5)
 [![Author es-ude](https://img.shields.io/badge/es-ude-b820f9?labelColor=b820f9&logo=githubsponsors&logoColor=fff)](https://github.com/es-ude)
 
 > [!IMPORTANT]
@@ -35,13 +36,41 @@ A modular hardware platform with FPGA integration.
 > The [project homepage](https://www.uni-due.de/es/elastic_ai.php)
 > provides additional information.
 
+## Project layout
+
+```text
+.
+├── cmake/             CMake helpers, target and toolchain setup
+├── documentation/     Images used in the documentation
+├── python_utils/      Python tools (bitfile flashing, USB remote-control protocol)
+├── src/               Libraries of the runtime
+├── test/              Unit and hardware tests
+├── CMakePresets.json  Build presets (host, unit_test, env5_rev2_*)
+└── devenv.nix         Development environment
+```
+
+| Module                                                | Description                                                   |
+| :---------------------------------------------------- | :------------------------------------------------------------ |
+| [src/common](src/common)                              | Shared definitions and helper macros                          |
+| [src/hal](src/hal/README.md)                          | Hardware abstraction layer (GPIO, I2C, SPI, UART, QXSPI, ...) |
+| [src/flash](src/flash/README.md)                      | Driver for the external Flash chip                            |
+| [src/filesystem](src/filesystem)                      | Simple file system on top of the Flash                        |
+| [`src/fpga`](src/fpga/README.md)                      | FPGA configuration, middleware and stub                       |
+| [src/network](src/network/README.md)                  | Wi-Fi, HTTP and MQTT through the ESP32 module                 |
+| [src/rtos](src/rtos/README.md)                        | FreeRTOS wrappers for tasks, queues and mutexes               |
+| [src/sensor](src/sensor)                              | Sensor drivers: ADXL345B, BMI323, PAC193X, SHT3X              |
+| [src/usb_protocol](src/usb_protocol)                  | Command protocol for communication over USB                   |
+| [test/unit](test/unit)                                | Unit tests that run on the host                               |
+| [test/hardware](test/hardware)                        | Tests that run on the elastic-node                            |
+| [`python_utils`](python_utils/usb-protocol/README.md) | Python tools for the elastic-node                             |
+
 ## System requirements
 
 - **[devenv](https://devenv.sh/getting-started/)**
   -> Tool for reproducible development environments
 - **[GCC](https://gcc.gnu.org/)** (through devenv)
   -> C Compiler
-- **[ARM-None-EABI GCC](https://developer.arm.com/downloads/-/gnu-rm)** (through devenv)
+- **[ARM-None-EABI GCC](https://gitlab.arm.com/tooling/gnu-toolchains-for-arm)** (through devenv)
   -> C Cross-Compiler for ARM
 - **[CMake](https://cmake.org)** (through devenv)
   -> Build System
@@ -73,6 +102,7 @@ cd enV5
    by following their instructions in their [Getting-Started-Guide](https://devenv.sh/getting-started/).
 2. Install [direnv](https://direnv.net/),
    to automatically load the development environment provided by devenv.
+3. Run `direnv allow` inside the repository to load the development environment.
 
 ### Python environment
 
@@ -82,7 +112,7 @@ cd enV5
 
 > [!NOTE]
 > The Python environment is only required if you want to use
-> the provided python utilities to interact with the enV5 Node.
+> the provided python utilities to interact with the elastic-node.
 
 To minimize the potential corruption of your system we recommend
 installing the dependencies inside a [virtual environment](https://python.land/virtual-environments/virtualenv#How_to_create_a_Python_venv).
@@ -98,21 +128,21 @@ uv sync --all-groups       # install all python dependencies
 
 > [!IMPORTANT]
 > You have to adjust the network/MQTT broker credentials as mentioned
-> in [network README](src/network/README.adoc)!
+> in [network README](src/network/README.md)!
 
 > [!NOTE]
 > We use CMake to build this project.
 
-We offer three predefined profiles with the [CMakePresets.json](CMakePresets.json):
+We offer three predefined presets with the [CMakePresets.json](CMakePresets.json):
 
-- unit_test
-- env5_rev2_release
-- env5_rev2_debug
+- `unit_test`
+- `env5_rev2_release`
+- `env5_rev2_debug`
 
-These profiles offer the required settings to either build for your
-local system (_unit_test_) to locally run test,
-or to build for the enV5 Node (_env5_rev2_release_ and _env5_rev_2_debug_).
-The profile with the suffix _debug_ also provides additional console output
+These presets offer the required settings to either build for your
+local system (`unit_test`) to locally run test,
+or to build for the elastic-node (_env5_rev2_release_ and _env5_rev2_debug_).
+The preset with the suffix _debug_ also provides additional console output
 for debugging purposes.
 
 To initialize the CMake Tool run:
@@ -158,13 +188,13 @@ devenv tasks run -m before check:unit-test
 ```
 
 > [!NOTE]
-> You can then find the unit-test executables under [build/unit-test/test/unit](build/unit-test/test/unit).
+> You can then find the unit-test executables under `build/unit-test/test/unit`.
 
 ### Elastic-node executables
 
-You can find the hardware test executables for the enV5 Node under
-[build/env5_rev2_release](build/env5_rev2/test/hardware) and
-[build/env5_rev2_debug](build/env5_rev2_debug/test/hardware).
+You can find the hardware test executables for the elastic-node under
+`build/env5_rev2_release/test/hardware` and
+`build/env5_rev2_debug/test/hardware`.
 You can then find the `*.uf2` files to flash the hardware inside their directories,
 mirroring the source code structure.
 
@@ -177,21 +207,22 @@ Run
 flash_node <path_to_uf2>
 ```
 
-**OR**
+OR
 
-1. Press and hold `MCU BOOT` on the enV5 Node
-2. Press `MCU RST` on the enV5 Node
+1. Press and hold `MCU BOOT` on the elastic-node
+2. Press `MCU RST` on the elastic-node
 3. Release `MCU BOOT`
 4. Copy the `*.uf2` File to the RPI-RP2 device
    - Via the USB device through your file manager
-   - Via the command line by executing `sudo cp <file>.uf2 /dev/sdX`
+   - Via the command line by copying the file to the mounted RPI-RP2 volume,
+     e.g. `cp <file>.uf2 /Volumes/RPI-RP2/` (macOS) or `cp <file>.uf2 /media/$USER/RPI-RP2/` (Linux)
 
 ### Get output from the elastic-node
 
-To receive output from the enV5 you have to connect the enV5 to your local machine.
-Connect the USB-C port of the enV5 with a USB port of your local machine to do this.
+To receive output from the elastic-node you have to connect the elastic-node to your local machine.
+Connect the USB-C port of the elastic-node with a USB port of your local machine to do this.
 
-After you connect the enV5 to your computer, read the debug output from
+After you connect the elastic-node to your computer, read the debug output from
 the device with a serial port reader such as screen, minicom, or [putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html).
 
 > [!IMPORTANT]
@@ -203,20 +234,21 @@ We recommend using minicom as it is the most versatile of the aforementioned too
 You can receive the output of the device by executing
 
 ```bash
-minicom
--o \             #  Disable modem initialisation
--w \             # Enable line wrap
--b 115200 \      # Set the baud rate to 115200
--D /dev/ttyACM0  # Define the serial port to read
+minicom -o -w -b 115200 -D /dev/ttyACM0
 ```
 
-in your shell prompt.
+in your shell prompt with the following options:
+
+- `-o`: disable modem initialisation
+- `-w`: enable line wrap
+- `-b 115200`: set the baud rate to 115200
+- `-D /dev/ttyACM0`: define the serial port to read
 
 > [!CAUTION]
-> If you cannot receive any output from the enV5 the problem is possibly caused
+> If you cannot receive any output from the elastic-node the problem is possibly caused
 > by a bug in the source code.
-> If the serial output is not initialized properly (see integration tests),
-> the enV5 is not able to send the output to your device!
+> If the serial output is not initialized properly (see the [hardware tests](test/hardware)),
+> the elastic-node is not able to send the output to your device!
 
 ## External dependencies
 
@@ -227,15 +259,17 @@ This project uses the following external dependencies:
 
 - [es-ude/elastic-ai.runtime.c](https://github.com/es-ude/elastic-ai.runtime.c)
 - [raspberrypi/pico-sdk](https://github.com/raspberrypi/pico-sdk)
-- [FreeTROS/FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
+- [`raspberrypi/FreeRTOS-Kernel`](https://github.com/raspberrypi/FreeRTOS-Kernel)
 - [ThrowTheSwitch/CException](https://github.com/ThrowTheSwitch/CException)
 - [ThrowTheSwitch/Unity](https://github.com/ThrowTheSwitch/Unity)
+- [boschsensortec/BMI323_SensorAPI](https://github.com/boschsensortec/BMI323_SensorAPI)
 
 ## Troubleshooting
 
-- To generate a clean CMake Build without deleting and initializing the build directory again run `cmake --build --target clean --preset <preset_to_clean>`.
-- If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! ([NetworkConfig.c](NetworkConfig.c))
-- [Debugging the FPGA](src/fpga/Vivado_Debugger.adoc)
+- To generate a clean CMake Build without deleting and initializing the build directory again run
+  `cmake --build --target clean --preset <preset_to_clean>`.
+- If the device does not connect to the Wi-Fi or MQTT broker make sure that you set up the correct credentials! (`NetworkConfig.c`)
+- [Debugging the FPGA](src/fpga/vivado-debugger.md)
 
 ## Glossary
 

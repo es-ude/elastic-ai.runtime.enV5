@@ -1,26 +1,30 @@
-{ pkgs, lib, config, inputs, ... }:
-
-let
-  unstablePkgs = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
-in
 {
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
+}: let
+  unstablePkgs = import inputs.nixpkgs-unstable {system = pkgs.stdenv.system;};
+in {
   packages = let
     u = unstablePkgs;
-  in
-    [
-      pkgs.git
-      pkgs.cocogitto
-      pkgs.clang-tools
-      pkgs.gcc
-      pkgs.cmake
-      pkgs.ninja
-      pkgs.graphviz
-      u.gcc-arm-embedded-13
-      u.picotool
-      pkgs.minicom
-      pkgs.mosquitto
-      pkgs.vale
-    ];
+  in [
+    pkgs.git
+    pkgs.cocogitto
+    pkgs.clang-tools
+    pkgs.gcc
+    pkgs.cmake
+    pkgs.ninja
+    pkgs.graphviz
+    u.gcc-arm-embedded-13
+    u.picotool
+    pkgs.minicom
+    pkgs.mosquitto
+    pkgs.vale
+    pkgs.lychee
+    pkgs.markdownlint-cli
+  ];
 
   languages.c.enable = true;
   languages.python = {
@@ -216,25 +220,25 @@ in
         setup_cmake
         clean_cmake
       '';
-      before = [ "build:unit-test" "build:debug-targets" "build:release-targets" ];
+      before = ["build:unit-test" "build:debug-targets" "build:release-targets"];
     };
     "build:unit-test" = {
-        exec = ''
-          build_unit_tests
-        '';
-      before = [ "check:unit-test" ];
+      exec = ''
+        build_unit_tests
+      '';
+      before = ["check:unit-test"];
     };
     "build:debug-targets" = {
-        exec = ''
-          build_pico_debug
-        '';
-      before = [ "check:build-pico-targets" ];
+      exec = ''
+        build_pico_debug
+      '';
+      before = ["check:build-pico-targets"];
     };
     "build:release-targets" = {
-        exec = ''
-          build_pico_release
-        '';
-      before = [ "check:build-pico-targets" ];
+      exec = ''
+        build_pico_release
+      '';
+      before = ["check:build-pico-targets"];
     };
     "check:unit-test" = {
       exec = ''
@@ -258,6 +262,30 @@ in
         for file in $SRC_FILES; do
           clang-format --dry-run -Werror --style=file --fallback-style="llvm" $file
         done
+      '';
+    };
+    "check:doc-links" = {
+      exec = ''
+        ${pkgs.lychee}/bin/lychee --config lychee.toml '**/*.md'
+      '';
+      before = ["check:doc-lint"];
+    };
+    "check:doc-lint" = {
+      exec = ''
+        git ls-files -z '*.md' | xargs -0 ${pkgs.markdownlint-cli}/bin/markdownlint
+      '';
+      before = ["check:doc-style"];
+    };
+    "check:doc-style" = {
+      exec = ''
+        # the styles are git-ignored, download them on first use
+        [ -d .vale/RedHat ] || ${pkgs.vale}/bin/vale sync
+        git ls-files -z '*.md' | xargs -0 ${pkgs.vale}/bin/vale
+      '';
+    };
+    "fix:doc-lint" = {
+      exec = ''
+        git ls-files -z '*.md' | xargs -0 ${pkgs.markdownlint-cli}/bin/markdownlint --fix
       '';
     };
   };

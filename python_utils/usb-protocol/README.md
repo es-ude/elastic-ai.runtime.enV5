@@ -13,8 +13,6 @@ This protocol only works with the FPGA skeleton version 2.
 
 ## Transmission
 
-**Transmission**
-
 | command | payload-size |      payload |      checksum |
 | ------: | -----------: | -----------: | ------------: |
 | 1 bytes |      4 bytes | payload-size | Checksum-size |
@@ -28,8 +26,6 @@ This protocol only works with the FPGA skeleton version 2.
 The first 128 commands are our commands.
 The second 128 commands can be user specific commands.
 
-**Commands**
-
 |                  command | uint8 |
 | -----------------------: | :---- |
 |                     nack | 0     |
@@ -42,6 +38,7 @@ The second 128 commands can be user specific commands.
 |                FPGA LEDs | 7     |
 |                 MCU LEDs | 8     |
 |      inference with data | 9     |
+|             deploy model | 10    |
 
 ### nack
 
@@ -80,7 +77,7 @@ sequenceDiagram
 
 ### get chunk-size for flash
 
-**Payload**
+**Payload:**
 
 | chunk-size |
 | ---------- |
@@ -145,7 +142,7 @@ sequenceDiagram
 
 ### FPGA LEDs
 
-**Payload**
+**Payload:**
 
 | Bit | FPGA LED |
 | --: | :------- |
@@ -165,7 +162,7 @@ sequenceDiagram
 
 ### MCU LEDs
 
-**Payload**
+**Payload:**
 
 | Bit | MCU LED |
 | --: | :------ |
@@ -216,7 +213,7 @@ sequenceDiagram
 > [!IMPORTANT]
 > FPGA needs to be turned on.
 
-**payload**
+**payload:**
 
 | Bit | Payload    |
 | --: | :--------- |

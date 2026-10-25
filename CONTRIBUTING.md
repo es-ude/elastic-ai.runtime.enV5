@@ -3,7 +3,7 @@
 ## Commitlint
 
 We use the conventional commit style guides to allow an easy release cycle.
-Based on this commit message style semantic-releases will generated.
+Based on this commit message style semantic releases are generated.
 Therefore, it is important to adhere to the guidelines.
 
 ### Conventional commit messages
@@ -40,12 +40,11 @@ The header always consists of three fields with max. **72** characters:
      - `refactor`
      - `revert`
      - `chore`
-     - `wip`
      - `perf`
    - Words are _lower-case_
 2. scope (optional)
    - Describes the modified part
-   - Words are _kebab-case_
+   - Words are `kebab-case`
 3. subject
    - Short summary of work
 
@@ -57,10 +56,11 @@ The header always consists of three fields with max. **72** characters:
 |     feat | new feature added                                     |
 |    style | apply code style changes                              |
 |    build | apply changes to build scripts (CMake, Gradle, Bazel) |
-|       ci | apply changes to workflows                            |
+|     `ci` | apply changes to workflows                            |
 |      fix | fix bugs with adding features                         |
 |     docs | add documentation                                     |
 | refactor | apply code refactorings                               |
+|   `perf` | improve performance                                   |
 |   revert | undo earlier code changes                             |
 |    chore | remove old/unused code fragments/files                |
 
@@ -69,20 +69,20 @@ The header always consists of three fields with max. **72** characters:
 <details>
 <summary>Standard Commit Scopes</summary>
 
-|    Scope | Description                                                  |
-| -------: | :----------------------------------------------------------- |
-|      hal | Hardware Abstraction Layer (freertos, spi, i2c, sleep, ...)  |
-|   sensor | Sensor Libraries (adxl345b, sht3x, ...)                      |
-|  network | Network related Libraries (esp, http, mqtt, ...)             |
-|     fpga | FPGA related Libraries (fpga, middleware, stub, ...)         |
-|    flash | Flash related Libraries (flash, filesystem, ...)             |
-| protocol | Protocol related Libraries (usb-protocol, eai-protocol, ...) |
+|    Scope | Description                                                         |
+| -------: | :------------------------------------------------------------------ |
+|    `hal` | Hardware Abstraction Layer (`freertos`, `spi`, `i2c`, `sleep`, ...) |
+|   sensor | Sensor Libraries (`adxl345b`, `sht3x`, ...)                         |
+|  network | Network related Libraries (`esp`, `http`, `mqtt`, ...)              |
+|   `fpga` | FPGA related Libraries (`fpga`, `middleware`, `stub`, ...)          |
+|    flash | Flash related Libraries (flash, filesystem, ...)                    |
+| protocol | Protocol related Libraries (usb-protocol, eai-protocol, ...)        |
 
 </details>
 
 #### Body
 
-The Body can give a more detailed subscription of the changes accomplished
+The Body can give a more detailed description of the changes accomplished
 with this commit and offer an explanation
 why these changes are required in the first place.
 
@@ -105,7 +105,7 @@ three fields of the release version accordingly.
 **Release Tag:**
 
 ```text
-v.MAJOR.MINOR.PATCH
+vMAJOR.MINOR.PATCH
 ```
 
 - **Major/Breaking Release**: Increased on commits with `BREAKING CHANGE` field
@@ -116,7 +116,7 @@ v.MAJOR.MINOR.PATCH
 
 > [!NOTE]
 >
-> - Push your modification to a new feature branch based of the `main` branch
+> - Push your modification to a new feature branch based on the `main` branch
 > - Open a pull request to the `main` branch
 > - The maintainer of the repository can then merge your source code contributions
 
@@ -150,7 +150,7 @@ gitGraph
 
 1. Branch out from `main`
 2. Commit your source code contributions
-   - Make Sure that your contributions follow our code/commit standards
+   - Make sure that your contributions follow our code/commit standards
 3. Create Pull-Request to `main`
 4. Wait for Required tests to finish
 5. Apply Changes if necessary
@@ -160,12 +160,12 @@ gitGraph
 
 ### Naming scheme
 
-|        Scope | Scheme               | Remarks                 |
-| -----------: | :------------------- | :---------------------- |
-|        Files | PascalScheme         |                         |
-|    Functions | camelCase            |                         |
-|    Variables | camelCase            | suffix: typedef => `_t` |
-| Preprocessor | SCREAMING_SNAKE_CASE |                         |
+|        Scope | Scheme                 | Remarks                   |
+| -----------: | :--------------------- | :------------------------ |
+|        Files | PascalScheme           |                           |
+|    Functions | `camelCase`            |                           |
+|    Variables | `camelCase`            | suffix: `typedef` => `_t` |
+| Preprocessor | `SCREAMING_SNAKE_CASE` |                           |
 
 Functions and global variables have prefixes with a consistent identifier,
 e.g. the file name where the function prototype belongs to.

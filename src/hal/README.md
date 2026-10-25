@@ -1,7 +1,7 @@
 # The Hardware Abstraction Layer (HAL)
 
 The HAL libraries intend to bundle all dependencies to the pico-sdk.
-This archives independence from the used hardware in other libraries
+This achieves independence from the used hardware in other libraries
 such as sensor libraries.
 
 ## pico-sdk

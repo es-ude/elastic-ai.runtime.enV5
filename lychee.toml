@@ -1,0 +1,21 @@
+# Link checker configuration, picked up automatically by lychee in the
+# repository root. Run locally with: lychee '**/*.md'
+
+# seconds, connect to response finished
+timeout = 60
+# retries per failed request
+max_retries = 5
+# seconds to wait between retries
+retry_wait_time = 10
+
+# check #anchor links against the headings of the target file
+include_fragments = "anchor-only"
+
+# build output
+exclude_path = ["(^|/)build/"]
+
+# some sites answer automated requests with 403
+accept = [200, 403]
+
+# servers that reject automated requests with protocol errors
+exclude = ['analog\.com']

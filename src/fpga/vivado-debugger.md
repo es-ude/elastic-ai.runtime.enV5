@@ -29,12 +29,12 @@
 >
 > Instead of a
 > [Digilent JTAG Debugger](https://digilent.com/shop/jtag-hs2-programming-cable/)
-> you can also use a Raspberry Pico in combination with [XVC-Pico](https://github.com/kholia/xvc-pico)
+> you can also use a Raspberry Pi Pico in combination with [XVC-Pico](https://github.com/kholia/xvc-pico)
 >
 > <details>
 >   <summary>Pin Association:</summary>
->   <img src="../../documentation/pics/XVC_Pico.png" title="XVC-Pico">
->   <img src="../../documentation/pics/enV5_extension_board_top.png" title="enV5">
+>   <img src="../../documentation/pics/XVC_Pico.png" title="XVC-Pico" alt="XVC-Pico pin association">
+>   <img src="../../documentation/pics/enV5_extension_board_top.png" title="enV5" alt="enV5 extension board pin association">
 > </details>
 
 ### Write to flash
@@ -81,11 +81,11 @@ Convert the `.bin` against which to compare the read-out!
 >      "Datacount" field
 >    - Choose "BIN" file as output format
 > 3. Convert source `.bin` file and the `readback.bin` file into hex
->    files using `xxd`
+>    files by using `xxd`
 > 4. Compare them using `diff <source.bin> <readback.bin>`
 >
 > There should not be any diff shown. If so, the writing is correct,
-> otherwise the date written to the flash is corrupted during write!
+> otherwise the data written to the flash is corrupted during write!
 
 ## TCL commands
 
@@ -96,21 +96,27 @@ Convert the `.bin` against which to compare the read-out!
 
 ### How to install drivers for JTAG cables (if missing)
 
-[Download Drivers](https://support.xilinx.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US)
+[Download Drivers](https://adaptivesupport.amd.com/s/question/0D52E00007BsRFTSA3/cable-drivers-not-working-for-users-that-didnt-install-them?language=en_US)
+
+Replace `<vivado_install_dir>` with your Vivado installation directory,
+e.g. `/tools/Xilinx/Vivado/<version>`.
 
 ```bash
-cd /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
-sudo /tools/Xilinx/Vivado/2023.2/data/xicom/cable_drivers/lin64/install_script/install_drivers
+cd <vivado_install_dir>/data/xicom/cable_drivers/lin64/install_script/install_drivers
+sudo <vivado_install_dir>/data/xicom/cable_drivers/lin64/install_script/install_drivers
 sudo chmod 644 /etc/udev/rules.d/52-xilinx-digilent-usb.rules
 ```
 
 ### ERROR: [Labtools 27-2269]
 
 - Make sure the MCU is powered on
-- Make sure FPGA is powered on ⇒ "P" in minicom
+- Make sure FPGA is powered on (send "P" in minicom)
+
+Replace `<vitis_hls_install_dir>` with your Vitis HLS installation directory,
+e.g. `/tools/Xilinx/Vitis_HLS/<version>`.
 
 ```bash
-cd .../tools/Xilinx/Vitis_HLS/2023.2
+cd <vitis_hls_install_dir>
 sudo apt update && sudo apt install -y libtinfo-dev
 sudo ln -s /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 ```

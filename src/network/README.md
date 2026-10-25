@@ -7,7 +7,7 @@ The extension board hosts the module and connects it to the MCU
 by Serial Peripheral Interface (SPI).
 
 The module currently operates based on the standard espressif binary,
-that based the communication with the MCU on the string based
+that bases the communication with the MCU on the string based
 [espressif protocol (ESP)](#espressif-protocol).
 
 > [!NOTE]  
@@ -22,7 +22,7 @@ The ESP protocol is a String-based protocol based on the
 
 The [AT-Commands](https://docs.espressif.com/projects/esp-at/en/release-v2.2.0.0_esp8266/AT_Command_Set/index.html)
 are the core of the ESP protocols, and this network stack uses only a subset.
-The [`AtCommands.h` file](atCommands/include/AtCommands.h) has the provided commands.
+The [`AtCommands.h` file](atCommands/include/eai/network/AtCommands.h) has the provided commands.
 
 ## Wi-Fi connection
 
@@ -32,14 +32,14 @@ to connect to a Wi-Fi network.
 Pass the Service Set Identifier (SSID) of the network and the Password to
 the library to connect to a network.
 The CMake scripts will automatically create a `NetworkConfig.c` inside
-the [root folder](../../NetworkConfig.c).
-When you want to use Wi-Fi capabilities you than have to add
-the `network_config` library to your source code.
+the root folder of the repository (the file is generated and git-ignored).
+When you want to use Wi-Fi capabilities you then have to add
+the `NetworkConfig` library to your source code.
 
 ### Wi-Fi example
 
 ```C title=main.c
-#include "Network.h"
+#include "eai/network/Network.h"
 
 int main (void) {
   //...
@@ -49,7 +49,7 @@ int main (void) {
 ```
 
 ```C title=NetworkConfig.c
-#include "Network.h"
+#include "eai/network/Network.h"
 
 // ...
 
@@ -64,8 +64,8 @@ add_executable(my-network-app
   main.c)
 target_link_libraries(my-network-app
   ...
-  network_config
-  network_lib)
+  NetworkConfig
+  Network)
 
 create_enV5_executable(my-network-app)
 ```
@@ -90,9 +90,9 @@ This handler is automatically applied when the broker connection was successful.
 
 Pass the required credentials to the library to connect to the broker.
 The CMake scripts will automatically create a `NetworkConfig.c` inside
-the [root folder](../../NetworkConfig.c).
+the root folder of the repository (the file is generated and git-ignored).
 When you want to use MQTT capabilities you have to add
-the `network_config` library to your source code.
+the `NetworkConfig` library to your source code.
 
 > [!CAUTION]  
 > The `clientId` of every device has to be different
@@ -100,10 +100,10 @@ the `network_config` library to your source code.
 ### MQTT example
 
 ```C title=main.c
-#include "MQTTBroker.h"
+#include "eai/network/MqttBroker.h"
 
-char[] brokerDomain = "eip://uni-due.de/es";
-char[] clientId = "enV5";
+char brokerDomain[] = "eip://uni-due.de/es";
+char clientId[] = "enV5";
 
 int main (void) {
   //...
@@ -113,14 +113,14 @@ int main (void) {
 ```
 
 ```C title=NetworkConfig.c
-#include "MQTTBroker.h"
+#include "eai/network/MqttBroker.h"
 
 // ...
 
-mqttHost_t broker = {
+mqttBrokerHost_t mqttHost = {
   .ip = "127.0.0.1",
-  .port = 1883,
-  .userId = "USER",
+  .port = "1883",
+  .userID = "USER",
   .password = "PASSWORD"
 };
 ```
@@ -130,8 +130,8 @@ add_executable(my-network-app
   main.c)
 target_link_libraries(my-network-app
   ...
-  network_config
-  espBroker_lib)
+  NetworkConfig
+  MqttBroker)
 create_enV5_executable(my-network-app)
 ```
 

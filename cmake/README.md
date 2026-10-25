@@ -5,7 +5,8 @@
 ### Constraints
 
 - Fine-grained control over dependencies for flexibility and to ease link-time substitution
-- Prevent access to header files of transitive dependencies, i.e., if you call a function defined in `libB` you have to explicitly depend on it.
+- Prevent access to header files of transitive dependencies,
+  i.e., if you call a function defined in `libB` you have to explicitly depend on it.
   There should not be a way to include a header provided by `B` without declaring that explicit dependency.
   This way, we avoid hidden source code dependencies.
   And each module only sees the header-files it actually needs.
@@ -36,27 +37,26 @@ target_link_libraries(A__impl PRIVATE B__hdrs)
 
 #### `A
 
-Providing access to public headers for consuming targets (e.g., executable) and transitively providing dependent library implementations.
+Providing access to public headers for consuming targets (e.g., executable)
+and transitively providing dependent library implementations.
 
 ```CMake
 add_library(A INTERFACE)
 target_link_libraries(A INTERFACE A__impl A__hdrs)
 ```
 
-Currently, the `elastic_ai_add_library` function provides most of this functionality.
-However, using it will prevent the IDE from automatically discovering your targets for the sake of jump-to-definition and auto-completion.
-
 ## Building hardware dependent libraries
 
-The build scripts will set a global variable `BUILDING_FOR_ELASTIC_NODE` to `true` if we are building for hardware (e.g, elastic-node, pico).
-If you need to define a hardware dependent lib, e.g., because it calls into the _pico-SDK_, you should ask for that flag and define the `__impl` target as an empty interface library.
+The build scripts will set a global variable `_BUILDING_FOR_HARDWARE` to `true`
+if we are building for hardware (e.g, elastic-node, Pico).
+If you need to define a hardware dependent lib, e.g., because it calls into the _pico-SDK_,
+you should ask for that flag and define the `__impl` target as an empty interface library.
 
 ```cmake
-if(BUILDING_FOR_ELASTIC_NODE)
+if(_BUILDING_FOR_HARDWARE)
   add_library(A__impl A.c)
   target_link_libraries(A__impl PRIVATE Pico::pico_runtime__hdrs)
 else()
   add_library(A__impl INTERFACE)
 endif ()
 ```
-

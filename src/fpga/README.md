@@ -1,6 +1,6 @@
 # Debugging
 
-The [Vivado-Debugger-Guide](Vivado_Debugger.adoc) provides some information for
+The [Vivado-Debugger-Guide](vivado-debugger.md) provides some information for
 debugging the Field-Programmable-Gate-Array (FPGA) with help of Vivado.
 
 ## Libraries
@@ -15,7 +15,7 @@ from USB in the local Flash storage.
 
 [The middleware folder](middleware) has the middleware implementation.
 
-Further information about the middleware can is in the
+Further information about the middleware is in the
 [elastic-ai.creator repository](https://github.com/es-ude/elastic-ai.creator)
 
 ### Stub
@@ -25,9 +25,9 @@ It provides the counter part for the skeleton defined for the FPGA.
 
 It is possible to define your own custom stub implementation for AI accelerator
 by defining your memory configuration by providing your own `stub_defs.h` file
-for the `stub_lib`:
+for the `Stub` library:
 
-```C title="stub.h"
+```C title="stub_defs.h"
 #ifndef STUB_DEFINES
 #define STUB_DEFINES
 
