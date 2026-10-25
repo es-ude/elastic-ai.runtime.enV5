@@ -42,6 +42,7 @@ A modular hardware platform with FPGA integration.
 .
 ├── cmake/             CMake helpers, target and toolchain setup
 ├── documentation/     Images used in the documentation
+├── examples/          Example firmware, host tools and FPGA bitfile builds
 ├── python_utils/      Python tools (bitfile flashing, USB remote-control protocol)
 ├── src/               Libraries of the runtime
 ├── test/              Unit and hardware tests
@@ -63,6 +64,7 @@ A modular hardware platform with FPGA integration.
 | [test/unit](test/unit)                                | Unit tests that run on the host                               |
 | [test/hardware](test/hardware)                        | Tests that run on the elastic-node                            |
 | [`python_utils`](python_utils/usb-protocol/README.md) | Python tools for the elastic-node                             |
+| [`examples`](examples/usb-protocol/README.md)         | USB protocol firmware with a host CLI, FPGA bitfile builds    |
 
 ## System requirements
 

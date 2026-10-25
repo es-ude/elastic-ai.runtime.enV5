@@ -46,3 +46,12 @@ typedef
 Preprocessor
 APIs
 Vitis
+Verilog
+bitstream
+yosys
+nextpnr
+toolchain
+openXC7
+prjxray
+XC7S
+Typer
