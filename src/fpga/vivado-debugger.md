@@ -20,8 +20,8 @@
    2. Click "Open Hardwaremanager"
    3. Click "Open Target" and "Autoconnect"
 4. Right-click Device and "Add Configuration Memory Device"
-5. Search for `fl128` and select
-   `s25fl128sxxxxxx1-spiInstance-x1_x2_x4`
+5. Search for `fl256` and select the `s25fl256s...` entry that supports
+   `x1_x2_x4` (the flash on the elastic-node is an S25FL256S)
 
 > [!TIP]
 >

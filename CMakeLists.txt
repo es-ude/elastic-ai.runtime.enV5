@@ -30,6 +30,10 @@ if(NOT TARGET _eai_runtime_inclusion_marker)
   if (EAI_RUNTIME_TOP_LEVEL_PROJECT)
     add_subdirectory(test/hardware)
     add_subdirectory(test/unit)
+
+    if(_BUILDING_FOR_HARDWARE)
+      add_subdirectory(examples/usb-protocol/firmware)
+    endif()
   endif()
 
   if(_BUILDING_FOR_HARDWARE AND NOT TARGET tinyusb_device)
